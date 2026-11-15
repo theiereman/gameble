@@ -18,35 +18,35 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
 
   test "a destroyed share under its threshold proposes the Rare stamp raised by half, with the minimum up to the floor" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000)
-    snapshot!(@last_day, created: 10_000, destroyed_total: 3_400)
+    snapshot!(@last_day, created: 100, destroyed_total: 34)
 
     found = alert(:destroyed_share, settings)
 
     assert_equal [ 3_400, 4_000 ], [ found.value, found.threshold ]
-    assert_equal({ stamp_rare: 3_000, minimum_price_rare: 8_900 }, found.changes)
-    assert_equal({ stamp_rare: 2_000, minimum_price_rare: 7_800 }, found.current)
+    assert_equal({ stamp_rare: 30, minimum_price_rare: 89 }, found.changes)
+    assert_equal({ stamp_rare: 20, minimum_price_rare: 78 }, found.current)
     assert found.actionable?
   end
 
   test "a share at its threshold, or over it, raises no alert" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000)
-    snapshot!(@last_day, created: 10_000, destroyed_total: 4_000)
+    snapshot!(@last_day, created: 100, destroyed_total: 40)
 
     assert_empty alerts(settings)
   end
 
   test "PiCoins per player above their threshold propose the same Rare stamp change" do
-    settings = open_market!(alert_picoins_per_player: 10_000)
-    snapshot!(@last_day, picoins_per_active_player: 12_000)
+    settings = open_market!(alert_picoins_per_player: 100)
+    snapshot!(@last_day, picoins_per_active_player: 120)
 
-    assert_equal({ stamp_rare: 3_000, minimum_price_rare: 8_900 }, alert(:picoins_per_player, settings).changes)
+    assert_equal({ stamp_rare: 30, minimum_price_rare: 89 }, alert(:picoins_per_player, settings).changes)
   end
 
   test "a top share above its threshold proposes the Legendary stamp raised by half, its minimum staying above the floor" do
     settings = open_market!(alert_top_share_basis_points: 3_000)
     snapshot!(@last_day, top_share_basis_points: 3_500)
 
-    assert_equal({ stamp_legendary: 15_000 }, alert(:top_share, settings).changes)
+    assert_equal({ stamp_legendary: 150 }, alert(:top_share, settings).changes)
   end
 
   test "a null point raises no alert" do
@@ -65,7 +65,7 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
 
   test "days of income raises no alert, whatever its target" do
     settings = open_market!(income_days_target_epic: BigDecimal("0.1"))
-    snapshot!(@last_day, average_price_epic: 900_000, median_daily_earnings: 1_000)
+    snapshot!(@last_day, average_price_epic: 9_000, median_daily_earnings: 10)
 
     assert_empty alerts(settings)
   end
@@ -75,10 +75,10 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
   end
 
   test "a proposed stamp never passes double the current one" do
-    settings = open_market!(alert_destroyed_share_basis_points: 4_000, stamp_rare: 100, minimum_price_rare: 7_800, entrustment_rare: 2_500)
-    snapshot!(@last_day, created: 10_000, destroyed_total: 100)
+    settings = open_market!(alert_destroyed_share_basis_points: 4_000, stamp_rare: 1, minimum_price_rare: 78, entrustment_rare: 25)
+    snapshot!(@last_day, created: 100, destroyed_total: 1)
 
-    assert_equal 200, alert(:destroyed_share, settings).changes.fetch(:stamp_rare)
+    assert_equal 2, alert(:destroyed_share, settings).changes.fetch(:stamp_rare)
   end
 
   test "every proposal passes the settings rules" do
@@ -95,7 +95,7 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
   test "a proposal the bounds refuse leaves the alert without an action" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000, stamp_rare: 2_000, minimum_price_rare: 5_000, entrustment_rare: 5_000,
       commission_basis_points: 2_500)
-    snapshot!(@last_day, created: 10_000, destroyed_total: 100)
+    snapshot!(@last_day, created: 100, destroyed_total: 1)
 
     found = alert(:destroyed_share, settings)
 
@@ -105,7 +105,7 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
 
   test "named finds an alert by its indicator's name and nothing else" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000)
-    snapshot!(@last_day, created: 10_000, destroyed_total: 100)
+    snapshot!(@last_day, created: 100, destroyed_total: 1)
     series = Game::Market::EconomySeries.call(now: @now, settings:)
 
     assert_equal :destroyed_share, Game::Market::EconomyAlerts.named("destroyed_share", series, settings).indicator

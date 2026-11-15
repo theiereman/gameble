@@ -71,15 +71,15 @@ class MarketSalesHelperTest < ActionView::TestCase
     card = Catalog::CardView.new(id: "portal", title: "Portal", publisher: nil, year: 2007, season_number: 1, rarity: "rare", image_url: nil, number: 1, genre: nil)
     copy = Game::Market::SellableCopies::Copy.new(ref: "portal:1", card:, free: 2, reserved: 0)
 
-    assert_equal "Portal, Rare, Season 1, 2 available, minimum 7,800 PiCoins", sale_cell_label(copy, @settings)
+    assert_equal "Portal, Rare, Season 1, 2 available, minimum 78 PiCoins", sale_cell_label(copy, @settings)
   end
 
   test "the cell label ends with the edition's price words when there is a price" do
     card = Catalog::CardView.new(id: "portal", title: "Portal", publisher: nil, year: 2007, season_number: 1, rarity: "rare", image_url: nil, number: 1, genre: nil)
     copy = Game::Market::SellableCopies::Copy.new(ref: "portal:1", card:, free: 2, reserved: 0)
-    price = Game::Market::EditionPrices::Price.new(average: 15_000, sales_used: 5)
+    price = Game::Market::EditionPrices::Price.new(average: 150, sales_used: 5)
 
-    assert_equal "Portal, Rare, Season 1, 2 available, minimum 7,800 PiCoins, average price 15,000 PiCoins", sale_cell_label(copy, @settings, price)
+    assert_equal "Portal, Rare, Season 1, 2 available, minimum 78 PiCoins, average price 150 PiCoins", sale_cell_label(copy, @settings, price)
   end
 
   test "the root data wires the screen's controllers, its settings and the balance the stamp draws on" do

@@ -128,7 +128,7 @@ module BackOffice
 
     def alerting_market!
       open_market!(first_opened_at: 10.days.ago, alert_destroyed_share_basis_points: 4_000)
-      snapshot!(Time.current.utc.to_date - 1, created: 10_000, destroyed_total: 3_400)
+      snapshot!(Time.current.utc.to_date - 1, created: 100, destroyed_total: 34)
     end
 
     test "an administrator preparing an alert gets the form prefilled, the changed fields marked and the first one focused, and nothing is written" do
@@ -141,12 +141,12 @@ module BackOffice
 
       assert_response :success
       assert_select "[data-market-settings-prepared]", /Nothing is saved until you save/
-      assert_select "input[name='market_settings[stamp_rare]'][value='3000'][data-prepared][autofocus]"
-      assert_select "input[name='market_settings[minimum_price_rare]'][value='8900'][data-prepared]:not([autofocus])"
-      assert_select "[data-market-settings-prepared-field=stamp_rare]", /it was 2,000/
+      assert_select "input[name='market_settings[stamp_rare]'][value='30'][data-prepared][autofocus]"
+      assert_select "input[name='market_settings[minimum_price_rare]'][value='89'][data-prepared]:not([autofocus])"
+      assert_select "[data-market-settings-prepared-field=stamp_rare]", /it was 20/
       assert_select "input[data-prepared]", 2
       assert_select "input[autofocus]", 1
-      assert_select "input[name='market_settings[stamp_epic]'][value='5000']:not([data-prepared])"
+      assert_select "input[name='market_settings[stamp_epic]'][value='50']:not([data-prepared])"
       assert_select "input[name='market_settings[token]'][value=?]", Game::Market::CurrentSettings.call.token
     end
 
@@ -154,7 +154,7 @@ module BackOffice
       alerting_market!
       sign_in(accounts_players(:administrator))
       before = Game::Market::CurrentSettings.call
-      form = BackOffice::MarketSettingsForm.from_settings(before).prepare(stamp_rare: 3_000, minimum_price_rare: 8_900)
+      form = BackOffice::MarketSettingsForm.from_settings(before).prepare(stamp_rare: 30, minimum_price_rare: 89)
       fields = Game::Market::SettingsRules::EDITABLE.index_with { form.value_for(it) }
 
       post back_office_market_settings_path(locale: :en), params: { market_settings: fields.merge(token: before.token,
@@ -162,7 +162,7 @@ module BackOffice
 
       assert_response :see_other
       current = Game::Market::CurrentSettings.call
-      assert_equal [ 3_000, 8_900, before.id ], [ current.stamp_rare, current.minimum_price_rare, current.replaces_id ]
+      assert_equal [ 30, 89, before.id ], [ current.stamp_rare, current.minimum_price_rare, current.replaces_id ]
       assert_equal before.stamp_epic, current.stamp_epic
     end
 

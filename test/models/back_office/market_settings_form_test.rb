@@ -21,8 +21,8 @@ module BackOffice
       form = MarketSettingsForm.from_settings(@settings)
 
       assert_equal @settings.token, form.token
-      assert_equal 5_000, form.candidate[:entrustment_rare]
-      assert_equal "5000", form.value_for(:entrustment_rare)
+      assert_equal 50, form.candidate[:entrustment_rare]
+      assert_equal "50", form.value_for(:entrustment_rare)
       assert_equal "10", form.value_for(:commission_basis_points)
       assert_equal "5", form.value_for(:increment_basis_points)
       assert_equal "", form.value_for(:income_days_target_rare)
@@ -94,18 +94,18 @@ module BackOffice
     end
 
     test "a violation message names its bound in the field's own unit" do
-      form = form_for(minimum_price_rare: "7700", commission_basis_points: "30").check
+      form = form_for(minimum_price_rare: "77", commission_basis_points: "30").check
 
-      assert_equal "Below the no-loss floor: at least 7,800.", form.violation_message(:minimum_price_rare)
+      assert_equal "Below the no-loss floor: at least 78.", form.violation_message(:minimum_price_rare)
       assert_match(/from 0 to 25/i, form.violation_message(:commission_basis_points))
     end
 
     test "a hint names the current value, the bounds and the moment" do
       hint = MarketSettingsForm.from_settings(@settings).hint(:stamp_rare)
 
-      assert_includes hint, "2,000"
-      assert_includes hint, "1,000"
-      assert_includes hint, "4,000"
+      assert_includes hint, "20"
+      assert_includes hint, "10"
+      assert_includes hint, "40"
       assert_includes hint, "listing"
     end
   end

@@ -29,7 +29,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
 
   test "with a week of snapshots staff read the four indicators with their three lines and the day's figures" do
     7.times do |ago|
-      snapshot!(@yesterday - ago, created: 10_000, destroyed_total: 5_600, circulation: 400_000, picoins_per_active_player: 12_300,
+      snapshot!(@yesterday - ago, created: 100, destroyed_total: 56, circulation: 4_000, picoins_per_active_player: 12_300,
         median_daily_earnings: 8_000, average_price_epic: 12_000, top_share_basis_points: 2_500)
     end
     listing!(seller: accounts_players(:player), card_season: catalog_card_seasons(:common_card_one), ends_at: 15.minutes.ago)
@@ -57,7 +57,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
 
   test "staff read the four indicators drawn over 90 days with their thresholds, and switch the days of income between rarities" do
     7.times do |ago|
-      snapshot!(@yesterday - ago, created: 10_000, destroyed_total: 5_600, circulation: 400_000, picoins_per_active_player: 12_300,
+      snapshot!(@yesterday - ago, created: 100, destroyed_total: 56, circulation: 4_000, picoins_per_active_player: 12_300,
         median_daily_earnings: 8_000, average_price_epic: 12_000, average_price_rare: 6_000, top_share_basis_points: 2_500)
     end
     visit_health_as(accounts_players(:moderator))
@@ -90,7 +90,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     assert_text "No route matches"
   end
 
-  def alerting_snapshot(destroyed: 3_400) = snapshot!(@yesterday, created: 10_000, destroyed_total: destroyed)
+  def alerting_snapshot(destroyed: 34) = snapshot!(@yesterday, created: 100, destroyed_total: destroyed)
 
   test "an administrator prepares the change, finds it prefilled with focus on the first field, and leaves without saving" do
     alerting_snapshot
@@ -98,13 +98,13 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     visit_health_as(accounts_players(:administrator))
 
     within("[data-health-alert=destroyed_share]") do
-      assert_text "raise the Rare stamp from 2,000 to 3,000"
+      assert_text "raise the Rare stamp from 20 to 30"
       click_on "Prepare this change"
     end
 
     assert_selector "[data-market-settings-prepared]"
-    assert_field "market_settings[stamp_rare]", with: "3000", focused: true
-    assert_field "market_settings[minimum_price_rare]", with: "8900"
+    assert_field "market_settings[stamp_rare]", with: "30", focused: true
+    assert_field "market_settings[minimum_price_rare]", with: "89"
     visit back_office_market_health_path(locale: :en)
 
     assert_selector "[data-health-alert=destroyed_share]"
@@ -121,7 +121,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     visit back_office_market_health_path(locale: :en)
     assert_no_selector "[data-health-alert=destroyed_share]", visible: :visible
 
-    Game::Market::DailySnapshot.connection.execute("UPDATE game_market_daily_snapshots SET destroyed_total = 3500")
+    Game::Market::DailySnapshot.connection.execute("UPDATE game_market_daily_snapshots SET destroyed_total = 35")
     visit back_office_market_health_path(locale: :en)
     assert_selector "[data-health-alert=destroyed_share]"
   end

@@ -7,8 +7,8 @@ class Game::Market::CreateFirstSettingsTest < ActiveSupport::TestCase
     settings = Game::Market::CreateFirstSettings.new.call.value!
 
     assert_not settings.open
-    assert_equal [ 1_000, 2_000, 5_000, 15_000, 100_000 ], %i[common uncommon rare epic legendary].map { settings.entrustment(it) }
-    assert_equal 1_200_000, settings.daily_cap
+    assert_equal [ 10, 20, 50, 150, 1_000 ], %i[common uncommon rare epic legendary].map { settings.entrustment(it) }
+    assert_equal 12_000, settings.daily_cap
     assert_equal 1_000, settings.commission_basis_points
     assert_nil settings.replaces_id
     assert settings.token.present?

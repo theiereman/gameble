@@ -38,7 +38,7 @@ module MarketBidsHelper
   def bid_shortcuts(sheet)
     return [] if sheet.leading
 
-    raises = SHORTCUT_RAISES.map { |percent| [ percent, (sheet.minimum * (100 + percent)).ceildiv(100 * 100) * 100 ] }
+    raises = SHORTCUT_RAISES.map { |percent| [ percent, (sheet.minimum * (100 + percent)).ceildiv(100) ] }
     [ [ t("market.bids.form.shortcuts.minimum", amount: picoins(sheet.minimum)), sheet.minimum ],
       *raises.map { |percent, amount| [ t("market.bids.form.shortcuts.raise", percent:, amount: picoins(amount)), amount ] } ]
   end

@@ -25,46 +25,46 @@ class Game::Market::AuctionMathTest < ActiveSupport::TestCase
     end
   end
 
-  test "the increment is the percentage rounded up to the next hundred" do
-    assert_equal 1_000, Game::Market::AuctionMath.increment(20_000, 500)
-    assert_equal 1_300, Game::Market::AuctionMath.increment(25_000, 500)
-    assert_equal 1_400, Game::Market::AuctionMath.increment(26_300, 500)
-    assert_equal 1_500, Game::Market::AuctionMath.increment(30_000, 500)
-    assert_equal 100, Game::Market::AuctionMath.increment(1, 500)
+  test "the increment is the percentage rounded up to a whole PiCoin" do
+    assert_equal 10, Game::Market::AuctionMath.increment(200, 500)
+    assert_equal 13, Game::Market::AuctionMath.increment(250, 500)
+    assert_equal 14, Game::Market::AuctionMath.increment(263, 500)
+    assert_equal 15, Game::Market::AuctionMath.increment(300, 500)
+    assert_equal 1, Game::Market::AuctionMath.increment(1, 500)
   end
 
-  def displayed(highest:, second:, start: 20_000) = Game::Market::AuctionMath.displayed_price(highest:, second:, starting_price: start, basis_points: 500)
+  def displayed(highest:, second:, start: 200) = Game::Market::AuctionMath.displayed_price(highest:, second:, starting_price: start, basis_points: 500)
 
   test "the displayed price is the starting price with one bidder" do
-    assert_equal 20_000, displayed(highest: 30_000, second: nil)
+    assert_equal 200, displayed(highest: 300, second: nil)
   end
 
   test "the displayed price is the second maximum plus an increment, capped at the highest" do
-    assert_equal 26_300, displayed(highest: 30_000, second: 25_000)
-    assert_equal 31_500, displayed(highest: 40_000, second: 30_000)
-    assert_equal 30_000, displayed(highest: 30_000, second: 30_000)
-    assert_equal 30_000, displayed(highest: 30_000, second: 29_500)
+    assert_equal 263, displayed(highest: 300, second: 250)
+    assert_equal 315, displayed(highest: 400, second: 300)
+    assert_equal 300, displayed(highest: 300, second: 300)
+    assert_equal 300, displayed(highest: 300, second: 295)
   end
 
-  def minimum(price:) = Game::Market::AuctionMath.minimum_bid(price:, starting_price: 20_000, basis_points: 500)
+  def minimum(price:) = Game::Market::AuctionMath.minimum_bid(price:, starting_price: 200, basis_points: 500)
 
   test "the minimum bid is the starting price without a leader" do
-    assert_equal 20_000, minimum(price: nil)
+    assert_equal 200, minimum(price: nil)
   end
 
   test "the minimum bid is the price plus an increment" do
-    assert_equal 21_000, minimum(price: 20_000)
-    assert_equal 27_700, minimum(price: 26_300)
-    assert_equal 52_000, minimum(price: 49_500)
+    assert_equal 210, minimum(price: 200)
+    assert_equal 277, minimum(price: 263)
+    assert_equal 520, minimum(price: 495)
   end
 
   test "a leader's raise only has to be above their own maximum" do
-    assert_equal 30_001, Game::Market::AuctionMath.raise_minimum(30_000)
+    assert_equal 301, Game::Market::AuctionMath.raise_minimum(300)
   end
 
-  test "the worked example reads 20,000, 26,300 and 31,500" do
-    assert_equal 20_000, displayed(highest: 30_000, second: nil)
-    assert_equal 26_300, displayed(highest: 30_000, second: 25_000)
-    assert_equal 31_500, displayed(highest: 40_000, second: 30_000)
+  test "the worked example reads 200, 263 and 315" do
+    assert_equal 200, displayed(highest: 300, second: nil)
+    assert_equal 263, displayed(highest: 300, second: 250)
+    assert_equal 315, displayed(highest: 400, second: 300)
   end
 end

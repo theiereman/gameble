@@ -20,7 +20,7 @@ class Game::Market::ListingByTokenTest < ActiveSupport::TestCase
     @listing.update_columns(status: "sold")
     detail = Game::Market::ListingByToken.call(@listing.token, locale: :en)
 
-    assert_equal [ "sold", @player, nil, 1_300, 1_300 ],
+    assert_equal [ "sold", @player, nil, 13, 13 ],
       [ detail.status, detail.seller, detail.leader, detail.current_price, detail.starting_price ]
     assert_equal @listing.ends_at.to_i, detail.ends_at.to_i
     assert_equal catalog_card_seasons(:common_card_one).card.slug, detail.card.id

@@ -23,7 +23,7 @@ class Game::Market::EntrustableCopiesTest < ActiveSupport::TestCase
     assert_equal [ :rare, :common ], copies.map(&:rarity)
     assert_equal [ 1, 3 ], copies.map(&:free)
     assert_equal [ 2, 3 ], copies.map(&:owned)
-    assert_equal [ 5_000, 1_000 ], copies.map(&:value)
+    assert_equal [ 50, 10 ], copies.map(&:value)
     assert_equal [ "#{@rare.card.slug}:#{@rare.season.number}", "#{@common.card.slug}:#{@common.season.number}" ], copies.map(&:ref)
   end
 
@@ -77,7 +77,7 @@ class Game::Market::EntrustableCopiesTest < ActiveSupport::TestCase
   end
 
   test "the value order follows the settings, then season, title and ref" do
-    settings = open_market!(entrustment_common: 200_000)
+    settings = open_market!(entrustment_common: 2_000)
     hold(@player, @common.id, 1)
     hold(@player, @rare.id, 1)
 

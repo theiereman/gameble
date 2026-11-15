@@ -19,17 +19,17 @@ class Game::Market::BidHistoryTest < ActiveSupport::TestCase
     @card = catalog_card_seasons(:common_card_one)
     open_market!(increment_basis_points: 500, soft_close_seconds: 180)
     hold(@seller, @card.id, 1, reserved: 1)
-    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, ends_at: 1.day.from_now)
-    [ @first, @second ].each { fund!(it, 100_000) }
+    @listing = listing!(seller: @seller, card_season: @card, starting_price: 200, ends_at: 1.day.from_now)
+    [ @first, @second ].each { fund!(it, 1_000) }
   end
 
   def history(viewer = nil) = Game::Market::BidHistory.call(token: @listing.token, viewer:)
 
   def worked_example
-    bid(@first, 30_000)
-    bid(@second, 25_000)
+    bid(@first, 300)
+    bid(@second, 250)
     @listing.update_columns(ends_at: 1.minute.from_now)
-    bid(@second, 40_000)
+    bid(@second, 400)
   end
 
   test "an unknown token reads nothing" do
@@ -49,7 +49,7 @@ class Game::Market::BidHistoryTest < ActiveSupport::TestCase
     lines = history
 
     assert_equal %i[extension bid covered bid created], lines.map(&:kind)
-    assert_equal [ 31_500, 26_300, 20_000 ], lines.select { it.price }.map(&:price)
+    assert_equal [ 315, 263, 200 ], lines.select { it.price }.map(&:price)
     assert_equal [ @second, @second, @first ], lines.select { it.price }.map(&:player)
     assert_not_nil lines.first.until
   end
@@ -68,8 +68,8 @@ class Game::Market::BidHistoryTest < ActiveSupport::TestCase
   end
 
   test "a raise line is visible to its owner alone" do
-    bid(@first, 30_000)
-    bid(@first, 35_000)
+    bid(@first, 300)
+    bid(@first, 350)
 
     assert_equal %i[bid created], history.map(&:kind)
     assert_equal %i[bid created], history(@second).map(&:kind)
@@ -78,15 +78,15 @@ class Game::Market::BidHistoryTest < ActiveSupport::TestCase
   end
 
   test "a removed player is returned as a player whose name the component hides" do
-    bid(@first, 30_000)
+    bid(@first, 300)
     @first.update_columns(banned_at: Time.current)
 
     assert history.find { it.kind == :bid }.player.removed?
   end
 
   test "a voided line is visible to every viewer and carries no player" do
-    bid(@first, 30_000)
-    Game::Market::Bid.create!(listing: @listing, player: @first, maximum: 30_000, price_after: 20_000, outcome: "voided")
+    bid(@first, 300)
+    Game::Market::Bid.create!(listing: @listing, player: @first, maximum: 300, price_after: 200, outcome: "voided")
 
     [ nil, @second, @first ].each do |viewer|
       lines = history(viewer)
@@ -108,21 +108,21 @@ class Game::Market::BidHistoryTest < ActiveSupport::TestCase
   end
 
   test "a bid the leader's maximum already covered reads as the leader keeping the lead" do
-    bid(@first, 30_000)
-    bid(@second, 30_000)
+    bid(@first, 300)
+    bid(@second, 300)
 
     lines = history
     assert_equal %i[covered bid created], lines.map(&:kind)
-    assert_equal [ @second, @first, 30_000 ], [ lines.first.player, lines.first.leader, lines.first.price ]
+    assert_equal [ @second, @first, 300 ], [ lines.first.player, lines.first.leader, lines.first.price ]
     assert lines[1].leading
   end
 
   test "the leader named on a covered bid is the one leading when it came, not today's" do
     third = Accounts::Player.create!(steam_id: "76561197960287999")
-    fund!(third, 100_000)
-    bid(@first, 30_000)
-    bid(@second, 25_000)
-    bid(third, 40_000)
+    fund!(third, 1_000)
+    bid(@first, 300)
+    bid(@second, 250)
+    bid(third, 400)
 
     covered = history.find { it.kind == :covered }
     assert_equal [ @second, @first ], [ covered.player, covered.leader ]

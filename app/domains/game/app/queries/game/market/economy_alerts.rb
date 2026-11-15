@@ -47,7 +47,7 @@ module Game
 
       def self.proposal(settings, rarity)
         rules = SettingsRules.new(settings)
-        stamp = [ (settings.stamp(rarity) * STAMP_RAISE).ceil.ceildiv(100) * 100, rules.amount_limits(stamp_field(rarity)).last ].min
+        stamp = [ (settings.stamp(rarity) * STAMP_RAISE).ceil, rules.amount_limits(stamp_field(rarity)).last ].min
         floor = SettingsRules.floor(settings.entrustment(rarity), stamp, settings.commission_basis_points)
         changes = { stamp_field(rarity) => stamp, minimum_field(rarity) => [ settings.minimum_price(rarity), floor ].max }
         changes.reject! { |field, value| settings.public_send(field) == value }

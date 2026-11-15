@@ -1,6 +1,6 @@
 # Bids placed through the operation, and the figures they leave, for the tests of the auction rules.
 #
-#   bid(@bidder, 30_000)              # the listing under test, @listing
+#   bid(@bidder, 300)                 # the listing under test, @listing
 #   figures(@bidder)                  # [available, committed]
 module MarketBidding
   def bid(player, maximum, listing = @listing) = Game::Market::PlaceBid.new.call(player:, listing_id: listing.id, maximum:)

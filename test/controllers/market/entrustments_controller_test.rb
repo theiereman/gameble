@@ -35,11 +35,11 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "input[name=settings][value=?]", settings.token
-    assert_select "form#entrust[data-controller=entrust][data-entrust-cap-left-value=?][data-entrust-open-value=true]", "1200000"
+    assert_select "form#entrust[data-controller=entrust][data-entrust-cap-left-value=?][data-entrust-open-value=true]", "12000"
     assert_select ".entrust-cell", 2
-    assert_select ".entrust-cell:first-child .entrust-cell__value .picoin-amount[aria-label=?]", "5,000 PiCoins"
-    assert_select ".entrust-cell:first-child .entrust-cell__value .picoin-amount__figure", "5,000"
-    assert_select ".entrust-cell:first-child[data-ref=?][data-free=2][data-owned=3][data-value=5000][data-rarity=rare]", ref(@rare)
+    assert_select ".entrust-cell:first-child .entrust-cell__value .picoin-amount[aria-label=?]", "50 PiCoins"
+    assert_select ".entrust-cell:first-child .entrust-cell__value .picoin-amount__figure", "50"
+    assert_select ".entrust-cell:first-child[data-ref=?][data-free=2][data-owned=3][data-value=50][data-rarity=rare]", ref(@rare)
     assert_select ".entrust-cell:last-child[data-ref=?][data-free=1][data-owned=1]", ref(@common)
     assert_select "input[type=hidden][name=selection][value='']"
     assert_select ".entrust-ticks [data-ref]", false
@@ -192,10 +192,10 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: selection({ ref(@common) => "2", ref(@rare) => "1", "unknown:9" => "4" }) }
 
     assert_response :success
-    assert_select ".entrust-result[role=status] .entrust-result__minted .picoin-amount[aria-label=?]", "7,000 PiCoins"
+    assert_select ".entrust-result[role=status] .entrust-result__minted .picoin-amount[aria-label=?]", "70 PiCoins"
     assert_select ".entrust-result__copies", "3 copies entrusted"
     assert_equal 0, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
-    assert_equal 7_000, Game::Market::Wallet.find_by!(player_id: @player.id).available
+    assert_equal 70, Game::Market::Wallet.find_by!(player_id: @player.id).available
   end
 
   test "a closed market answers market_closed and the page keeps the ticks" do
@@ -218,7 +218,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
 
   test "a stale version redraws the new amounts, keeps the ticks and charges nothing" do
     drawn = open_market!
-    current = open_market!(entrustment_common: 1_500)
+    current = open_market!(entrustment_common: 15)
     hold(@player, @common.id, 2)
     sign_in(@player)
 
@@ -228,7 +228,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name=settings][value=?]", current.token
     assert_select "input[name=selection][value=?]", "#{ref(@common)}=2"
     assert_select ".market-entrust__refusal", /amounts changed/
-    assert_select ".entrust-cell__value .picoin-amount[aria-label=?]", "1,500 PiCoins"
+    assert_select ".entrust-cell__value .picoin-amount[aria-label=?]", "15 PiCoins"
     assert_equal 0, Game::Market::LedgerEntry.count
   end
 
@@ -264,13 +264,13 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     settings = open_market!
     hold(@player, @common.id, 1)
     hold(@player, @rare.id, 1)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 1_195_000, settings_id: settings.id)
+    Game::Market::Mint.credit(player_id: @player.id, amount: 11_950, settings_id: settings.id)
     sign_in(@player)
 
     post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: selection({ ref(@common) => "1", ref(@rare) => "1" }) }
 
     assert_response :success
-    assert_select ".entrust-result__minted .picoin-amount[aria-label=?]", "5,000 PiCoins"
+    assert_select ".entrust-result__minted .picoin-amount[aria-label=?]", "50 PiCoins"
     assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
     assert_equal 0, Game::Holding.find_by(player_id: @player.id, card_season_id: @rare.id).quantity
   end
@@ -287,7 +287,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_select ".market-entrust__refusal", /free copies/
     assert_select "input[name=selection][value=?]", "#{ref(@common)}=1"
-    assert_select ".entrust-ticks [data-ref=?][data-copies='1'][data-title='Tin Soldier'][data-value='1000']", ref(@common)
+    assert_select ".entrust-ticks [data-ref=?][data-copies='1'][data-title='Tin Soldier'][data-value='10']", ref(@common)
     assert_select ".entrust-ticks [data-ref]", 1
   end
 
@@ -296,17 +296,17 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     legendary = catalog_card_seasons(:legendary_card_one)
     hold(@player, legendary.id, 1)
     hold(@player, @common.id, 1)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 1_150_000, settings_id: settings.id)
+    Game::Market::Mint.credit(player_id: @player.id, amount: 11_500, settings_id: settings.id)
     sign_in(@player)
 
     post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: selection({ ref(legendary) => "1", ref(@common) => "1" }) }
 
     assert_response :success
-    assert_select ".entrust-result__minted .picoin-amount[aria-label=?]", "1,000 PiCoins"
+    assert_select ".entrust-result__minted .picoin-amount[aria-label=?]", "10 PiCoins"
     assert_select "[role=status] .entrust-result__stayed-heading", "1 card was not entrusted"
     assert_select ".entrust-result__stayed-line", /1 copy stays in your collection/
-    assert_select ".entrust-result__stayed-line .picoin-amount[aria-label=?]", "100,000 PiCoins"
-    assert_select ".entrust-result__stayed-cap", /50,000/
+    assert_select ".entrust-result__stayed-line .picoin-amount[aria-label=?]", "1,000 PiCoins"
+    assert_select ".entrust-result__stayed-cap", /500/
     assert_select "[style]", false
     assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: legendary.id).quantity
   end
@@ -314,7 +314,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
   test "when nothing fits the page answers 422 with the renewal line and keeps the ticks" do
     settings = open_market!
     hold(@player, @common.id, 1)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 1_200_000, settings_id: settings.id)
+    Game::Market::Mint.credit(player_id: @player.id, amount: 12_000, settings_id: settings.id)
     sign_in(@player)
 
     assert_no_difference -> { Game::Market::LedgerEntry.count } do
@@ -345,12 +345,12 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
   test "the cap left drawn is the daily cap less what was minted today" do
     settings = open_market!
     hold(@player, @common.id, 1)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 1_150_000, settings_id: settings.id)
+    Game::Market::Mint.credit(player_id: @player.id, amount: 11_500, settings_id: settings.id)
     sign_in(@player)
 
     get new_market_entrustment_path(locale: :en)
 
-    assert_select "form#entrust[data-entrust-cap-left-value=?][data-entrust-daily-cap-value=1200000]", "50000"
+    assert_select "form#entrust[data-entrust-cap-left-value=?][data-entrust-daily-cap-value=12000]", "500"
     assert_select ".entrust-recap__cap .gauge__segment--lit", 23
   end
 
@@ -452,13 +452,13 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "text/vnd.turbo-stream.html", response.media_type
     assert_select "turbo-stream[action=replace][target=market-entrust-region] template" do
-      assert_select "form#entrust[data-entrust-cap-left-value=?][data-entrust-daily-cap-value=1200000][data-entrust-cap-before-value=1200000]", "1194000"
+      assert_select "form#entrust[data-entrust-cap-left-value=?][data-entrust-daily-cap-value=12000][data-entrust-cap-before-value=12000]", "11940"
       assert_select "form#entrust:not([data-turbo])"
       assert_select ".entrust-cell", 1
       assert_select ".entrust-cell[data-ref=?][data-free=2][data-ticked='0']", ref(@common)
       assert_select "input[name=selection][value='']"
       assert_select ".market-entrust__dock > .entrust-result[role=status]" do
-        assert_select "#entrust-result-heading[tabindex='-1'] .picoin-amount[aria-label=?]", "6,000 PiCoins"
+        assert_select "#entrust-result-heading[tabindex='-1'] .picoin-amount[aria-label=?]", "60 PiCoins"
         assert_select ".entrust-result__copies", "2 copies entrusted"
         assert_select ".entrust-result__coin", 6
       end
@@ -466,7 +466,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
       assert_select ".market-entrust__dock > .entrust-bar"
       assert_select "[style]", false
     end
-    assert_select "turbo-stream[action=update][targets='.balance-chip'] template .balance-chip__available[aria-label=?]", "6,000 PiCoins"
+    assert_select "turbo-stream[action=update][targets='.balance-chip'] template .balance-chip__available[aria-label=?]", "60 PiCoins"
     assert_select "turbo-stream[action=gameble-focus][target=entrust-result-heading]"
   end
 
@@ -503,7 +503,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
 
   test "a refused validation from the screen redraws it in place with the refusal, the ticks kept, and answers 422" do
     drawn = open_market!
-    open_market!(entrustment_common: 1_500)
+    open_market!(entrustment_common: 15)
     hold(@player, @common.id, 2)
     sign_in(@player)
 
@@ -532,15 +532,15 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a selection past Rack's limit of 4,096 fields comes in one field and is entrusted whole" do
-    settings = open_market!(daily_cap: 10_000_000)
-    refs = editions_of(@common, 4_200)
+    settings = open_market!(daily_cap: 1_000)
+    refs = editions_of(@common, 42)
     sign_in(@player)
 
     post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: selection(refs.index_with("1")) }
 
     assert_response :success
-    assert_select ".entrust-result__copies", "4200 copies entrusted"
-    assert_equal 4_200_000, Game::Market::Wallet.find_by!(player_id: @player.id).available
+    assert_select ".entrust-result__copies", "42 copies entrusted"
+    assert_equal 420, Game::Market::Wallet.find_by!(player_id: @player.id).available
   end
 
   test "a malformed pair of the selection is left out" do
@@ -569,7 +569,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the result of a big batch names thirty cards that stayed and counts the rest" do
-    settings = open_market!(daily_cap: 1_000)
+    settings = open_market!(daily_cap: 10)
     refs = editions_of(@common, 3_001)
     sign_in(@player)
 
@@ -642,7 +642,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     rows = response.parsed_body
     assert_equal 61, rows.size
-    assert_equal({ "ref" => ref(@rare), "title" => "Blue Depths", "rarity" => "rare", "season" => 1, "free" => 2, "owned" => 3, "value" => 5_000 }, rows.first)
+    assert_equal({ "ref" => ref(@rare), "title" => "Blue Depths", "rarity" => "rare", "season" => 1, "free" => 2, "owned" => 3, "value" => 50 }, rows.first)
     assert_not_includes rows.map { it["ref"] }, ref(@common)
 
     get market_entrustment_matches_path(locale: :en, filter: { query: "", rarities: [ "rare" ] })

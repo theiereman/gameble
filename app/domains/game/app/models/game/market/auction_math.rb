@@ -2,11 +2,10 @@ module Game
   module Market
     module AuctionMath
       BASIS_POINTS = 10_000
-      PRICE_STEP = 100
 
       def self.commission(price, basis_points) = price * basis_points / BASIS_POINTS
 
-      def self.increment(amount, basis_points) = (amount * basis_points).ceildiv(BASIS_POINTS).ceildiv(PRICE_STEP) * PRICE_STEP
+      def self.increment(amount, basis_points) = (amount * basis_points).ceildiv(BASIS_POINTS)
 
       def self.displayed_price(highest:, second:, starting_price:, basis_points:)
         second ? [ highest, second + increment(second, basis_points) ].min : starting_price

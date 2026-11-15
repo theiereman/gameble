@@ -13,7 +13,7 @@ class MarketListingSystemTest < ApplicationSystemTestCase
     @common = catalog_card_seasons(:common_card_one)
     Game::Market::Settings.delete_all
     @settings = open_market!(first_opened_at: 1.day.ago)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 1_000, settings_id: @settings.id)
+    Game::Market::Mint.credit(player_id: @player.id, amount: 10, settings_id: @settings.id)
     hold(@player, @common.id, 1)
   end
 
@@ -32,9 +32,9 @@ class MarketListingSystemTest < ApplicationSystemTestCase
 
     assert_selector ".sale-cell[aria-selected=true]"
     assert_selector "input[name=duration_hours][value='24']:checked"
-    fill_in "sale-start", with: "1500"
-    assert_selector ".sale-line--received .picoin-amount__figure", text: "1,350"
-    assert_selector ".sale-line:nth-child(2) .picoin-amount__figure", text: "150"
+    fill_in "sale-start", with: "15"
+    assert_selector ".sale-line--received .picoin-amount__figure", text: "14"
+    assert_selector ".sale-line:nth-child(2) .picoin-amount__figure", text: "1"
     find("#sale-start").send_keys(:enter)
     assert_selector "input[name=duration_hours][value='24']:focus"
     assert_equal 0, Game::Market::Listing.count
@@ -51,12 +51,12 @@ class MarketListingSystemTest < ApplicationSystemTestCase
     sign_in_through_the_site
 
     visit new_market_card_sale_path(locale: :en, slug: @common.card.slug)
-    fill_in "sale-start", with: "1000"
+    fill_in "sale-start", with: "10"
     click_on "PUT UP FOR SALE"
 
-    assert_selector "#sale-start-error", text: "At least 1,300 for a common."
+    assert_selector "#sale-start-error", text: "At least 13 for a common."
     assert_selector "#sale-start[aria-invalid=true]"
-    assert_field "sale-start", with: "1,000"
+    assert_field "sale-start", with: "10"
     assert_equal 0, Game::Market::Listing.count
   end
 
@@ -66,13 +66,13 @@ class MarketListingSystemTest < ApplicationSystemTestCase
 
     visit new_market_sale_path(locale: :en)
     find(".sale-cell[data-ref='#{@common.card.slug}:#{@common.season.number}']").click
-    fill_in "sale-start", with: "1500"
+    fill_in "sale-start", with: "15"
     fill_in "sale-search", with: "blue"
 
     assert_selector ".sale-cell", count: 1
     assert_selector "#sale-results-status", text: "1 edition"
     assert_no_selector ".sale-cell[aria-selected=true]"
-    assert_selector ".sale-line--received .picoin-amount__figure", text: "1,350"
+    assert_selector ".sale-line--received .picoin-amount__figure", text: "14"
     click_on "PUT UP FOR SALE"
 
     assert_selector "#market-listing-heading:focus"

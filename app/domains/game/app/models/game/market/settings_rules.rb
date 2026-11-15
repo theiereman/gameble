@@ -34,9 +34,9 @@ module Game
       EDITABLE = (AMOUNTS + RANGES.keys + [ :preselected_duration_hours ] + TARGETS).uniq.freeze
       REQUIRED = (EDITABLE - OPTIONAL).freeze
 
-      # The least a minimum price can be for the seller not to lose: entrustment plus stamp, grossed up for the commission, to the next hundred.
+      # The least a minimum price can be for the seller not to lose: entrustment plus stamp, grossed up for the commission, rounded up.
       def self.floor(entrustment, stamp, commission_basis_points)
-        (10_000 * (entrustment + stamp)).ceildiv(10_000 - commission_basis_points).ceildiv(100) * 100
+        (10_000 * (entrustment + stamp)).ceildiv(10_000 - commission_basis_points)
       end
 
       def initialize(current)

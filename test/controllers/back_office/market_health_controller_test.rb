@@ -22,7 +22,7 @@ module BackOffice
 
     def week_of_snapshots
       7.times do |ago|
-        snapshot!(@yesterday - ago, created: 10_000, destroyed_total: 5_600, forfeited: 200, circulation: 400_000, picoins_per_active_player: 12_300,
+        snapshot!(@yesterday - ago, created: 100, destroyed_total: 56, forfeited: 2, circulation: 4_000, picoins_per_active_player: 12_300,
           median_daily_earnings: 8_000, average_price_epic: 12_000, top_share_basis_points: 2_500)
       end
     end
@@ -79,7 +79,7 @@ module BackOffice
       end
       assert_select "[data-health-reconciliation]", /balanced/
       assert_select "[data-health-snapshot] .market-health__fact", 6
-      assert_select "[data-health-snapshot]", /5,600 \(200 of them forfeited\)/
+      assert_select "[data-health-snapshot]", /56 \(2 of them forfeited\)/
       assert_select "[data-health-oldest-due]", /15 minutes/
       assert_select "[style]", false
     end
@@ -134,7 +134,7 @@ module BackOffice
       assert_unknown_address
     end
 
-    def alerting_snapshot = snapshot!(@yesterday, created: 10_000, destroyed_total: 3_400, picoins_per_active_player: 1)
+    def alerting_snapshot = snapshot!(@yesterday, created: 100, destroyed_total: 34, picoins_per_active_player: 1)
 
     test "an indicator past its threshold is framed and states the proposal, with both actions for an administrator" do
       alerting_snapshot
@@ -144,7 +144,7 @@ module BackOffice
 
       assert_select "[data-health-indicator=destroyed_share].market-health__tile--alert[data-controller=alert-ignore]" \
         "[data-alert-ignore-key-value=destroyed_share][data-alert-ignore-value-value='3400']" do
-        assert_select "[data-health-alert=destroyed_share] .market-health__proposal", /raise the Rare stamp from 2,000 to 3,000.*minimum price rises to 8,900/
+        assert_select "[data-health-alert=destroyed_share] .market-health__proposal", /raise the Rare stamp from 20 to 30.*minimum price rises to 89/
         assert_select "a[href=?]", "/en/back-office/market?prepare=destroyed_share#market-settings", text: "Prepare this change"
         assert_select "button[data-action='alert-ignore#ignore']", "Ignore"
       end

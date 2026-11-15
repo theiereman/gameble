@@ -25,18 +25,18 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
   end
 
   test "a valid change inserts the next version, records the author and shows the announcement" do
-    settings = change(stamp_rare: 2_500, minimum_price_rare: 8_400).value!
+    settings = change(stamp_rare: 25, minimum_price_rare: 84).value!
 
     assert_equal settings, Game::Market::CurrentSettings.call
-    assert_equal 2_500, settings.stamp_rare
-    assert_equal 8_400, settings.minimum_price_rare
+    assert_equal 25, settings.stamp_rare
+    assert_equal 84, settings.minimum_price_rare
     assert_equal @current.id, settings.replaces_id
     assert_equal @administrator.id, settings.author_id
     assert_equal [ "The settings change" ], Accounts::Announcement.where(shown: true).pluck(:message_en)
   end
 
   test "the open state, both confirmations and the first opening are copied across" do
-    settings = change(daily_cap: 1_300_000).value!
+    settings = change(daily_cap: 13_000).value!
 
     assert settings.open
     assert_equal @current.first_opened_at, settings.first_opened_at
@@ -47,11 +47,11 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
   test "a closed market stays closed" do
     @current = close_market!(first_opened_at: 3.days.ago)
 
-    assert_not change(daily_cap: 1_300_000).value!.open
+    assert_not change(daily_cap: 13_000).value!.open
   end
 
   test "it publishes one SettingsChanged event" do
-    settings = change(daily_cap: 1_300_000).value!
+    settings = change(daily_cap: 13_000).value!
 
     events = Rails.configuration.event_store.read.stream(Game::Market::SettingsChanged::STREAM).of_type(Game::Market::SettingsChanged).to_a
     assert_equal 1, events.count { it.data[:settings_id] == settings.id }
@@ -66,7 +66,7 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
   end
 
   test "values outside the candidate's editable columns are dropped" do
-    candidate = candidate(daily_cap: 1_300_000).merge(open: false, first_opened_at: nil, author_id: 0, replaces_id: 0, token: "forged")
+    candidate = candidate(daily_cap: 13_000).merge(open: false, first_opened_at: nil, author_id: 0, replaces_id: 0, token: "forged")
 
     settings = Game::Market::ChangeSettings.new.call(player: @administrator, settings_token: @current.token, candidate:, message_fr: "a", message_en: "b").value!
 
@@ -79,7 +79,7 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
 
   test "a violation writes nothing and fails invalid_settings" do
     nothing_is_written do
-      assert_equal :invalid_settings, change(minimum_price_rare: 7_700).failure
+      assert_equal :invalid_settings, change(minimum_price_rare: 77).failure
       assert_equal :invalid_settings, change(entrustment_rare: 10_001).failure
       assert_equal :invalid_settings, change(soft_close_seconds: "abc").failure
     end
@@ -181,7 +181,7 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
 
   test "closing with a stale or blank token fails settings_changed" do
     stale = @current
-    change(daily_cap: 1_300_000)
+    change(daily_cap: 13_000)
 
     nothing_is_written do
       assert_equal :settings_changed, close(token: stale.token).failure

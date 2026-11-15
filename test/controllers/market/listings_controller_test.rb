@@ -12,7 +12,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     open_market!(first_opened_at: 1.day.ago)
     @seller = accounts_players(:player)
     @seller.update_columns(persona_name: "Alice")
-    @listing = listing!(seller: @seller, card_season: catalog_card_seasons(:rare_card_one), starting_price: 7_800,
+    @listing = listing!(seller: @seller, card_season: catalog_card_seasons(:rare_card_one), starting_price: 78,
       ends_at: (2.hours + 14.minutes + 30.seconds).from_now)
   end
 
@@ -23,8 +23,8 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1#market-listing-heading[tabindex='-1'][autofocus]", "Blue Depths"
-    assert_select ".market-listing__price .picoin-amount__figure", "7,800"
-    assert_select ".market-listing__price[aria-label='7,800 PiCoins']"
+    assert_select ".market-listing__price .picoin-amount__figure", "78"
+    assert_select ".market-listing__price[aria-label='78 PiCoins']"
     assert_select ".market-listing__time", "2 h 14"
     assert_select ".market-listing__time--soon", false
     assert_select ".market-listing__ends time[datetime]"
@@ -57,13 +57,13 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a leader is shown without their maximum" do
-    @listing.update_columns(leader_id: accounts_players(:moderator).id, leader_maximum: 8_500, current_price: 8_000)
+    @listing.update_columns(leader_id: accounts_players(:moderator).id, leader_maximum: 9_871, current_price: 80)
     annonce
 
     assert_select ".market-listing__leader", /Leading:/
     assert_select ".market-listing__fact dt", text: "Leading", count: 0
-    assert_select ".market-listing__price[aria-label='8,000 PiCoins']"
-    assert_no_match(/8,500|8500/, response.body)
+    assert_select ".market-listing__price[aria-label='80 PiCoins']"
+    assert_no_match(/9,871|9871/, response.body)
   end
 
   test "a private seller shows as a bare name, a banned one as the anonymous key" do
@@ -86,7 +86,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a sold listing shows the same read-only facts" do
-    @listing.update_columns(status: "sold", sold_at: Time.current, final_price: 7_800, leader_id: accounts_players(:moderator).id, leader_maximum: 7_800)
+    @listing.update_columns(status: "sold", sold_at: Time.current, final_price: 78, leader_id: accounts_players(:moderator).id, leader_maximum: 78)
     annonce
 
     assert_response :success
@@ -105,8 +105,8 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor reads the bids newest first, the leader's mark and no raise line, and no maximum" do
     bidder = accounts_players(:moderator)
     bidder.update_columns(persona_name: "Bob")
-    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 19_876, price_after: 7_800, outcome: "leading")
-    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 18_765, price_after: 7_800, outcome: "raise")
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 19_876, price_after: 78, outcome: "leading")
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 18_765, price_after: 78, outcome: "raise")
     @listing.update_columns(leader_id: bidder.id, leader_maximum: 18_765)
     annonce
 
@@ -119,8 +119,8 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
   test "the leader reads their raise line and never the maximum it replaced" do
     bidder = accounts_players(:moderator)
-    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 19_876, price_after: 7_800, outcome: "leading")
-    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 18_765, price_after: 7_800, outcome: "raise")
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 19_876, price_after: 78, outcome: "leading")
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 18_765, price_after: 78, outcome: "raise")
     @listing.update_columns(leader_id: bidder.id, leader_maximum: 18_765)
     sign_in(bidder)
     annonce
@@ -138,15 +138,15 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
   test "a sold listing reads the outcome for a visitor and keeps the history" do
     bidder = accounts_players(:moderator)
-    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 9_000, price_after: 7_800, outcome: "won")
-    @listing.update_columns(status: "sold", sold_at: Time.current, final_price: 7_800, leader_id: bidder.id, leader_maximum: 9_000)
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 9_872, price_after: 78, outcome: "won")
+    @listing.update_columns(status: "sold", sold_at: Time.current, final_price: 78, leader_id: bidder.id, leader_maximum: 9_872)
     annonce
 
     assert_select "#annonce-bid h2#listing-outcome-heading[tabindex='-1']", "AUCTION ENDED"
     assert_select "#annonce-bid .market-outcome__body", /wins Blue Depths for/
-    assert_select "#annonce-bid .market-outcome__body .picoin-amount__figure", "7,800"
+    assert_select "#annonce-bid .market-outcome__body .picoin-amount__figure", "78"
     assert_select ".market-history__line--bid", count: 1
-    assert_no_match(/9,000|9000/, response.body)
+    assert_no_match(/9,872|9872/, response.body)
   end
 
   test "the Annonce reads its history and outcome in French" do
@@ -175,35 +175,35 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#annonce-bid form#annonce-form[action=?]", market_listing_bids_path(locale: :en, token: @listing.token)
     assert_select "label[for=annonce-maximum]", "MY MAXIMUM"
     assert_select "input#annonce-maximum[type=text][inputmode=numeric][autocomplete=off][value='']"
-    assert_select "#annonce-minimum", /At least\s*7,800/
-    assert_select "input[name=drawn_minimum][value='7800']"
+    assert_select "#annonce-minimum", /At least\s*78/
+    assert_select "input[name=drawn_minimum][value='78']"
     assert_select ".market-bid__fixed", /the most you accept to pay/
     assert_select ".market-bid__small", /A bid cannot be cancelled/
-    assert_select "[data-annonce-field-minimum-value='7800'][data-annonce-field-own-maximum-value='0']"
+    assert_select "[data-annonce-field-minimum-value='78'][data-annonce-field-own-maximum-value='0']"
     assert_select "[style]", false
   end
 
   test "the form carries the price and the unusual multiple of the current settings, and the unusual dialog only" do
-    Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 50_000, settings_id: Game::Market::CurrentSettings.call.id)
+    Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 500, settings_id: Game::Market::CurrentSettings.call.id)
     sign_in(accounts_players(:administrator))
     annonce
 
     multiple = Game::Market::CurrentSettings.call.unusual_maximum_multiple
-    assert_select "[data-annonce-field-price-value='7800'][data-annonce-field-unusual-multiple-value='#{multiple}']"
+    assert_select "[data-annonce-field-price-value='78'][data-annonce-field-unusual-multiple-value='#{multiple}']"
     assert_select "dialog#annonce-unusual[data-controller~=annonce-dialog][data-annonce-dialog-kind-value=unusual] h2[tabindex='-1'][autofocus]", "UNUSUAL AMOUNT"
     assert_select "dialog[data-annonce-dialog-kind-value]", 1
     assert_select "button[name=buy_now]", false
   end
 
   test "quick amounts fill the minimum or a raise above it" do
-    Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 50_000, settings_id: Game::Market::CurrentSettings.call.id)
+    Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 500, settings_id: Game::Market::CurrentSettings.call.id)
     sign_in(accounts_players(:administrator))
     annonce
 
     assert_select ".market-bid__shortcut[data-action='annonce-field#fill']", 3
-    assert_select ".market-bid__shortcut[data-annonce-field-amount-param='7800']", "MINIMUM · 7,800"
-    assert_select ".market-bid__shortcut[data-annonce-field-amount-param='8600']", "+10% · 8,600"
-    assert_select ".market-bid__shortcut[data-annonce-field-amount-param='9800']", "+25% · 9,800"
+    assert_select ".market-bid__shortcut[data-annonce-field-amount-param='78']", "MINIMUM · 78"
+    assert_select ".market-bid__shortcut[data-annonce-field-amount-param='86']", "+10% · 86"
+    assert_select ".market-bid__shortcut[data-annonce-field-amount-param='98']", "+25% · 98"
   end
 
   test "the Annonce carries its rarity and season above the title and a gauge of the time gone, from its listing to its end" do
@@ -244,7 +244,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
   test "a leader reads the raising form built from their own maximum, and nobody else does" do
     bidder = accounts_players(:moderator)
-    @listing.update_columns(leader_id: bidder.id, leader_maximum: 12_345, current_price: 8_000)
+    @listing.update_columns(leader_id: bidder.id, leader_maximum: 12_345, current_price: 80)
     sign_in(bidder)
     annonce
 
@@ -254,7 +254,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:administrator))
     annonce
     assert_no_match(/12,345|12345|12346/, response.body)
-    assert_select "#annonce-minimum", /At least\s*8,400/
+    assert_select "#annonce-minimum", /At least\s*84/
   end
 
   test "a closed listing draws no form" do
@@ -295,7 +295,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
   test "no ANNULER with a leader, once ended or due, for another player or for a visitor" do
     sign_in(@seller)
-    @listing.update_columns(leader_id: accounts_players(:moderator).id, leader_maximum: 9_000)
+    @listing.update_columns(leader_id: accounts_players(:moderator).id, leader_maximum: 90)
     annonce
     assert_empty cancel_dialog
 
@@ -355,14 +355,14 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#annonce-bid dialog", false
     assert_select "#annonce-bid [data-controller~=annonce-field]", false
     assert_select "#annonce-bid [data-controller~=annonce-foot]", false
-    assert_select ".market-listing__price .picoin-amount__figure", "7,800"
+    assert_select ".market-listing__price .picoin-amount__figure", "78"
     assert_select ".market-listing__time"
     assert_select ".market-history"
   end
 
   test "a suspended Annonce shows the leader's raise disabled and their own maximum" do
     bidder = accounts_players(:moderator)
-    @listing.update_columns(leader_id: bidder.id, leader_maximum: 12_345, current_price: 8_000)
+    @listing.update_columns(leader_id: bidder.id, leader_maximum: 12_345, current_price: 80)
     close_after_opening
     sign_in(bidder)
     annonce
@@ -393,13 +393,13 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     rival = accounts_players(:moderator)
     rival.update_columns(persona_name: "Bob")
     reader = accounts_players(:administrator)
-    @listing.update_columns(leader_id: rival.id, leader_maximum: 9_000, current_price: 8_000)
-    Game::Market::Notice.record(player_id: reader.id, listing_id: @listing.id, kind: "outbid", other_player_id: rival.id, amount: 7_800)
+    @listing.update_columns(leader_id: rival.id, leader_maximum: 90, current_price: 80)
+    Game::Market::Notice.record(player_id: reader.id, listing_id: @listing.id, kind: "outbid", other_player_id: rival.id, amount: 78)
     sign_in(reader)
     annonce
 
     assert_select "#annonce-bid #annonce-outbid.market-event--outbid h2", "YOU WERE OUTBID"
-    assert_select "#annonce-outbid .market-event__body", /Bob moved ahead on Blue Depths\. Your 7,800 are available again\./
+    assert_select "#annonce-outbid .market-event__body", /Bob moved ahead on Blue Depths\. Your 78 are available again\./
     assert_select "#annonce-outbid a.button--link[href=?]", market_listing_path(locale: :en, token: @listing.token, focus: "maximum")
     assert_select "#annonce-outbid ~ form#annonce-form"
     assert_select "#annonce-outbid [autofocus], #annonce-outbid [data-focus-name]", false
@@ -413,7 +413,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   test "an extended auction shows the extended panel to a visitor, and the page subscribes to the listing's stream and refreshes on it" do
     ends_at = 2.minutes.from_now.change(usec: 0)
     @listing.update_columns(ends_at:)
-    Game::Market::Bid.create!(listing: @listing, player: accounts_players(:moderator), maximum: 9_000, price_after: 7_800, outcome: "leading", extended_until: ends_at)
+    Game::Market::Bid.create!(listing: @listing, player: accounts_players(:moderator), maximum: 90, price_after: 78, outcome: "leading", extended_until: ends_at)
     annonce
 
     assert_select "#annonce-bid #annonce-extended.market-event--extended h2", "AUCTION EXTENDED"
@@ -425,11 +425,11 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the page carries the status line for the polite region, in each language, and the not-recorded sentence as a template" do
-    @listing.update_columns(leader_id: accounts_players(:moderator).id, leader_maximum: 9_000, current_price: 8_000)
+    @listing.update_columns(leader_id: accounts_players(:moderator).id, leader_maximum: 90, current_price: 80)
     accounts_players(:moderator).update_columns(persona_name: "Bob")
     annonce
 
-    assert_select "#annonce [data-status-text^='Price 8,000 PiCoins, leading Bob. Ends at ']"
+    assert_select "#annonce [data-status-text^='Price 80 PiCoins, leading Bob. Ends at ']"
     assert_select "#annonce [data-status-ends-at=?]", @listing.reload.ends_at.utc.iso8601
     assert_select "#annonce [data-status-bidder=false]"
     assert_select "#annonce template[data-annonce-target=notRecorded] .market-bid__note", "Your amount was not recorded."
@@ -441,7 +441,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
   test "the status line says you are leading to the leader and has none once an outcome shows" do
     leader = accounts_players(:moderator)
-    @listing.update_columns(leader_id: leader.id, leader_maximum: 9_000, current_price: 8_000)
+    @listing.update_columns(leader_id: leader.id, leader_maximum: 90, current_price: 80)
     sign_in(leader)
     annonce
     assert_select "#annonce [data-status-text*='you are leading']"
@@ -461,18 +461,18 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the Annonce shows the edition's average price with its sale count, before the seller" do
-    Game::Market::EditionPrice.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, average: 15_000, sales_used: 5)
+    Game::Market::EditionPrice.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, average: 150, sales_used: 5)
 
     annonce
 
     assert_select ".market-listing__fact--price dt", "Average price"
-    assert_select ".market-listing__fact--price .picoin-amount[aria-label='15,000 PiCoins']"
+    assert_select ".market-listing__fact--price .picoin-amount[aria-label='150 PiCoins']"
     assert_select ".market-listing__fact--price .average-price__basis", "Based on 5 sales"
     assert_select ".market-listing__facts > .market-listing__fact:first-child.market-listing__fact--price"
   end
 
   test "an edition with few sales says so, one with none says No sale in French" do
-    Game::Market::EditionPrice.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, average: 9_000, sales_used: 2)
+    Game::Market::EditionPrice.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, average: 90, sales_used: 2)
 
     annonce
     assert_select ".market-listing__fact--price .average-price__few", "few sales"

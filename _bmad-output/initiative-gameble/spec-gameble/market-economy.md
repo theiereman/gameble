@@ -18,21 +18,21 @@ The Brotherhood announces and justifies each fee in its tone (`brotherhood-tone.
 
 ## Money
 
-PiCoins are minted only when a card is entrusted. Stamps and commissions are destroyed. Nothing else creates or destroys them, and the Brotherhood never injects any. Amounts are integers, shown compact (1.2M), never with a euro sign.
+PiCoins are minted only when a card is entrusted. Stamps and commissions are destroyed. Nothing else creates or destroys them, and the Brotherhood never injects any. Amounts are whole PiCoins, shown compact from 1,000 (12k), never with a euro sign. Every amount was divided by 100 on 2026-11-15, the market already open: balances, ledger, listings, bids and history were converted by a migration.
 
 ## Values by rarity
 
 | | Common | Uncommon | Rare | Epic | Legendary |
 |---|---:|---:|---:|---:|---:|
-| Entrustment pays | 1,000 | 2,000 | 5,000 | 15,000 | 100,000 |
-| Listing stamp | 100 | 1,000 | 2,000 | 5,000 | 10,000 |
-| Minimum price | 1,300 | 3,400 | 7,800 | 22,300 | 7,000,000 |
+| Entrustment pays | 10 | 20 | 50 | 150 | 1,000 |
+| Listing stamp | 1 | 10 | 20 | 50 | 100 |
+| Minimum price | 13 | 34 | 78 | 223 | 70,000 |
 | Target for a standard player | minutes | minutes | a few hours | 1 to 2 days | about 40 days |
 
 - The rarity is the one minted on the copy, whatever its edition.
 - Commission: 10% of the final price, paid by the seller.
-- Daily entrustment cap: 1,200,000 PiCoins per account. Market sales are not capped.
-- No sale at a loss: a minimum price is never below `(entrustment + stamp) / (1 - commission)`, rounded up to the next hundred.
+- Daily entrustment cap: 12,000 PiCoins per account. Market sales are not capped.
+- No sale at a loss: a minimum price is never below `(entrustment + stamp) / (1 - commission)`, rounded up to a whole PiCoin.
 - A standard player opens 40 to 50 capsules a day.
 
 ## Auction rules
@@ -40,7 +40,7 @@ PiCoins are minted only when a card is entrusted. Stamps and commissions are des
 | Rule | Value |
 |---|---|
 | Durations | 12h, 24h (preselected), 3 days |
-| Increment of an amount | 5% of that amount, rounded up to the next hundred |
+| Increment of an amount | 5% of that amount, rounded up to a whole PiCoin |
 | Displayed price | Second-highest maximum + its increment, capped at the highest maximum; the starting price with one bidder |
 | Computation | Once per validated bid, never in a loop |
 | Minimum bid | Current price + its increment; the first bid only reaches the starting price |
@@ -50,7 +50,7 @@ PiCoins are minted only when a card is entrusted. Stamps and commissions are des
 | Soft close | A bid in the last 3 minutes that changes the price or the leader moves the end to 3 minutes from that bid |
 | Escrow | The whole maximum is held from the balance, released when outbid; the winner's surplus returns at close |
 
-Worked example, starting at 20,000: a maximum of 30,000 leads at 20,000. A maximum of 25,000 moves the price to 26,300 and is released at once. A maximum of 40,000 takes the lead at 31,500. At close the winner pays 31,500 and recovers 8,500; the seller receives 28,350.
+Worked example, starting at 200: a maximum of 300 leads at 200. A maximum of 250 moves the price to 263 and is released at once. A maximum of 400 takes the lead at 315. At close the winner pays 315 and recovers 85; the seller receives 284 (the commission of 31.5 is rounded down).
 
 ## Average price
 
@@ -85,7 +85,7 @@ One change cannot more than double or halve a value, which guards against a typi
 
 ## Sales in the feed
 
-Every sale of an Epic or Legendary, and any sale at 10 times its rarity's minimum price or more: from 13,000 for a Common, 34,000 for an Uncommon, 78,000 for a Rare.
+Every sale of an Epic or Legendary, and any sale at 10 times its rarity's minimum price or more: from 130 for a Common, 340 for an Uncommon, 780 for a Rare.
 
 ## Alt-account signals
 
@@ -94,7 +94,7 @@ Near-maximum capsule opening (about 144 a day is possible, a standard player ope
 ## Known limits
 
 - The duel capsule (CAP-42) adds at most one capsule a day per player, 3 cards at the daily bonus odds (about 0.03 Légendaire), as much again as the daily bonus for a player who wins a real duel each day; it was not simulated, and the Légendaire backlog indicator watches it.
-- About 1,800 Legendaries may wait for a buyer at a 7M minimum with 30% resellers (3 months of sales). Raising the minimum clogs the market further.
+- About 1,800 Legendaries may wait for a buyer at a 70,000 minimum with 30% resellers (3 months of sales). Raising the minimum clogs the market further.
 - The Legendary price depends on resale: 25 days of income with no minimum and 30% resellers, about 4 days at 60%.
 - Epic resellers were not simulated, and the simulation does not test the sale format. It rests on assumed behaviour: prices are orders of magnitude.
 - A seller's alt can probe a leader's maximum in small steps; if it wins, the seller loses the commission and stamp.
@@ -112,7 +112,7 @@ Near-maximum capsule opening (about 144 a day is possible, a standard player ope
 | Average per game, or per game and rarity; raw average | Mixes rarities / erases edition value; two accounts can inflate it |
 | Current-season-only market | Listings lose their goods at each season change |
 | Automatic regulator at launch | Overshoots, on thresholds no real data has validated |
-| Tight daily cap (150 or below, before the x1000 scale) | Sits at a normal player's income |
+| Tight daily cap (150 or below before the x1000 scale, 1,500 today) | Sits at a normal player's income |
 | Proportional stamp | Removes most of the money burned |
 | Welcome bonus | Barely helps newcomers, alt accounts farm it |
 | Seniority gate | Open to every player (author, 2026-11-09) |

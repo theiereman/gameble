@@ -19,8 +19,8 @@ class Game::Market::OutcomeNoticesTest < ActiveSupport::TestCase
     @card = catalog_card_seasons(:common_card_one)
     open_market!(increment_basis_points: 500, soft_close_seconds: 180)
     hold(@seller, @card.id, 1, reserved: 1)
-    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, ends_at: 1.day.from_now)
-    [ @first, @second ].each { fund!(it, 100_000) }
+    @listing = listing!(seller: @seller, card_season: @card, starting_price: 200, ends_at: 1.day.from_now)
+    [ @first, @second ].each { fund!(it, 1_000) }
   end
 
   def notice(player) = Game::Market::Notice.find_by(player_id: player.id, listing_id: @listing.id)
@@ -28,14 +28,14 @@ class Game::Market::OutcomeNoticesTest < ActiveSupport::TestCase
   def close = Game::Market::CloseAuction.new.call(player: @seller, listing_id: @listing.id)
 
   test "a close with a winner writes the winner's won line with the price and the seller's sold line with what they receive" do
-    bid(@first, 30_000)
-    bid(@second, 25_000)
+    bid(@first, 300)
+    bid(@second, 250)
     @listing.update_columns(ends_at: 1.minute.ago)
 
     assert close.success?
 
-    assert_equal [ "won", 26_300 ], notice(@first).attributes.values_at("kind", "amount")
-    assert_equal [ "sold", 23_670 ], notice(@seller).attributes.values_at("kind", "amount")
+    assert_equal [ "won", 263 ], notice(@first).attributes.values_at("kind", "amount")
+    assert_equal [ "sold", 237 ], notice(@seller).attributes.values_at("kind", "amount")
     assert_nil notice(@second)
   end
 
@@ -49,8 +49,8 @@ class Game::Market::OutcomeNoticesTest < ActiveSupport::TestCase
   end
 
   test "a bidder who lost at the close keeps the line they had and gets no outcome line" do
-    bid(@first, 30_000)
-    bid(@second, 40_000)
+    bid(@first, 300)
+    bid(@second, 400)
     @listing.update_columns(ends_at: 1.minute.ago)
     close
 

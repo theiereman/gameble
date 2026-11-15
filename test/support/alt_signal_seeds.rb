@@ -32,6 +32,6 @@ module AltSignalSeeds
   end
 
   def bid!(bidder, listing, outcome: "leading", created_at: 1.day.ago)
-    Game::Market::Bid.create!(listing:, player: bidder, maximum: listing.current_price + 100, price_after: listing.current_price, outcome:, created_at:)
+    Game::Market::Bid.create!(listing:, player: bidder, maximum: listing.current_price + 1, price_after: listing.current_price, outcome:, created_at:)
   end
 end

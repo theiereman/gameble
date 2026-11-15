@@ -14,7 +14,8 @@ class EditionSalesSeed
     return puts("No free copy to sell: skipped the edition sales.") unless edition
 
     sold = players.each_cons(2).with_index.count do |(seller, buyer), index|
-      travel_to((SALES - index).days.ago) { sell(edition, seller, buyer, MARKUPS[index]) }
+      listing = travel_to((SALES - index).days.ago) { list_with_a_bid(edition, seller, buyer, MARKUPS[index]) }
+      listing && travel_to(listing.ends_at + 1.second) { report(Game::Market::CloseAuction.new.call(player: seller, listing_id: listing.id)) }
     end
     puts "Sold one edition #{sold} times."
   end
@@ -30,14 +31,15 @@ class EditionSalesSeed
     Catalog::CardSeason.where(id: free).where.not(rarity: nil).order(:id).pick(:id, :rarity)
   end
 
-  def sell((card_season_id, rarity), seller, buyer, markup)
+  def list_with_a_bid((card_season_id, rarity), seller, buyer, markup)
     settings = Game::Market::CurrentSettings.call
     minimum = settings.minimum_price(rarity.to_sym)
-    listed = Game::Market::ListCard.new.call(player: seller, card_season_id:, starting_price: minimum, buy_now_price: minimum * markup,
+    listed = Game::Market::ListCard.new.call(player: seller, card_season_id:, starting_price: minimum,
       duration_hours: settings.duration_short_hours, settings_token: settings.token)
     return report(listed) unless listed.success?
 
-    report(Game::Market::PlaceBid.new.call(player: buyer, listing_id: listed.value!.id, maximum: minimum * markup))
+    listing = listed.value!
+    listing if report(Game::Market::PlaceBid.new.call(player: buyer, listing_id: listing.id, maximum: minimum * markup))
   end
 
   def report(result)

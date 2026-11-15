@@ -38,10 +38,10 @@ module BackOffice
     test "an administrator saves a valid change and is redirected with a notice" do
       sign_in(accounts_players(:administrator))
 
-      save(stamp_rare: "2500", minimum_price_rare: "8400")
+      save(stamp_rare: "25", minimum_price_rare: "84")
 
       assert_redirected_to back_office_market_path(locale: :en)
-      assert_equal 2_500, Game::Market::CurrentSettings.call.stamp_rare
+      assert_equal 25, Game::Market::CurrentSettings.call.stamp_rare
       assert_equal [ "The settings change" ], Accounts::Announcement.where(shown: true).pluck(:message_en)
     end
 
@@ -52,7 +52,7 @@ module BackOffice
 
       assert_select "#market-settings form[action='/en/back-office/market/settings']"
       assert_select "#market-opening", false
-      save(daily_cap: "1300000")
+      save(daily_cap: "13000")
       assert_redirected_to back_office_market_path(locale: :en)
       assert Game::Market::CurrentSettings.call.open
     end
@@ -60,12 +60,12 @@ module BackOffice
     test "a field refused beside itself with 422, the typed text and the submitted token kept" do
       sign_in(accounts_players(:administrator))
 
-      nothing_is_written { save(minimum_price_rare: "7700", commission_basis_points: "12,5", soft_close_seconds: "abc") }
+      nothing_is_written { save(minimum_price_rare: "77", commission_basis_points: "12,5", soft_close_seconds: "abc") }
 
       assert_response :unprocessable_content
       assert_equal [ "Some settings were refused. Check the marked fields." ], refusal_lines
-      assert_select "#market-settings-minimum-price-rare[aria-invalid=true][value='7700']"
-      assert_select "#market-settings-minimum-price-rare-error[role=alert]", /8,000/
+      assert_select "#market-settings-minimum-price-rare[aria-invalid=true][value='77']"
+      assert_select "#market-settings-minimum-price-rare-error[role=alert]", /80/
       assert_select "input[name='market_settings[commission_basis_points]'][value='12,5']"
       assert_select "#market-settings-soft-close-seconds-error[role=alert]", /Enter a number/
       assert_select "input[name='market_settings[soft_close_seconds]'][value=abc]"
@@ -75,15 +75,15 @@ module BackOffice
     test "a stale form shows the stale line with the new token, the typed text and the new amounts" do
       sign_in(accounts_players(:administrator))
       older_token = @current.token
-      newer = open_market!(stamp_rare: 3_000)
+      newer = open_market!(stamp_rare: 30)
 
-      nothing_is_written { save(token: older_token, stamp_rare: "2100", fr: "Texte FR", en: "Text EN") }
+      nothing_is_written { save(token: older_token, stamp_rare: "21", fr: "Texte FR", en: "Text EN") }
 
       assert_response :unprocessable_content
       assert_equal [ "Another administrator has just changed the settings." ], refusal_lines
       assert_select "input[type=hidden][name='market_settings[token]'][value='#{newer.token}']"
-      assert_select "input[name='market_settings[stamp_rare]'][value='2100']"
-      assert_select "#market-settings-stamp-rare-hint", /Currently 3,000/
+      assert_select "input[name='market_settings[stamp_rare]'][value='21']"
+      assert_select "#market-settings-stamp-rare-hint", /Currently 30/
       assert_select "textarea[name='market_settings[message_fr]']", "Texte FR"
       assert_select "textarea[name='market_settings[message_en]']", "Text EN"
     end
@@ -129,7 +129,7 @@ module BackOffice
     test "a moderator is refused by the policy and nothing is written" do
       sign_in(accounts_players(:moderator))
 
-      nothing_is_written { save(daily_cap: "1300000") }
+      nothing_is_written { save(daily_cap: "13000") }
 
       assert_equal @current, Game::Market::CurrentSettings.call
     end
@@ -144,7 +144,7 @@ module BackOffice
       assert_select "#market-settings input[name^='market_settings[']:not([type=hidden]):not([disabled])", false
       assert_select "#market-settings textarea:not([disabled])", false
       assert_select "#market-settings button:not([disabled])", false
-      assert_select "input[name='market_settings[stamp_rare]'][value='2000']"
+      assert_select "input[name='market_settings[stamp_rare]'][value='20']"
     end
 
     test "the page is accessible by headers and announces its refusals" do

@@ -29,7 +29,7 @@ class LiveFeedSaleTest < ActiveSupport::TestCase
   end
 
   test "a sale is prepended to the feed in each locale and never queued for the ticker" do
-    listing = sale_entry!(@buyer, @legendary, 40_000)
+    listing = sale_entry!(@buyer, @legendary, 400)
 
     LiveFeedJob.perform_now([ { listing_id: listing.id } ])
 
@@ -41,7 +41,7 @@ class LiveFeedSaleTest < ActiveSupport::TestCase
   end
 
   test "a public buyer's name links in the broadcast" do
-    listing = sale_entry!(@buyer, @legendary, 40_000)
+    listing = sale_entry!(@buyer, @legendary, 400)
 
     LiveFeedJob.perform_now([ { listing_id: listing.id } ])
 
@@ -50,7 +50,7 @@ class LiveFeedSaleTest < ActiveSupport::TestCase
 
   test "a private buyer's name has no link in the broadcast" do
     @buyer.update!(visibility: "private")
-    listing = sale_entry!(@buyer, @legendary, 40_000)
+    listing = sale_entry!(@buyer, @legendary, 400)
 
     LiveFeedJob.perform_now([ { listing_id: listing.id } ])
 
@@ -60,7 +60,7 @@ class LiveFeedSaleTest < ActiveSupport::TestCase
   end
 
   test "a sale below the threshold broadcasts nothing" do
-    listing = sale_entry!(@buyer, catalog_card_seasons(:common_card_one), 2_000)
+    listing = sale_entry!(@buyer, catalog_card_seasons(:common_card_one), 20)
 
     assert_no_broadcasts(LiveStream.feed_streamables(:en).join(":")) { LiveFeedJob.perform_now([ { listing_id: listing.id } ]) }
   end

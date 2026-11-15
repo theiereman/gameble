@@ -23,18 +23,18 @@ class Game::Market::SettingsRulesTest < ActiveSupport::TestCase
   end
 
   test "an amount, a minimum and the cap are accepted at exactly twice and exactly half the current value" do
-    assert_nil code_of(:entrustment_rare, entrustment_rare: 10_000)
-    assert_nil code_of(:entrustment_rare, entrustment_rare: 2_500)
-    assert_nil code_of(:stamp_rare, stamp_rare: 4_000, minimum_price_rare: 15_600)
-    assert_nil code_of(:daily_cap, daily_cap: 2_400_000)
-    assert_nil code_of(:daily_cap, daily_cap: 600_000)
+    assert_nil code_of(:entrustment_rare, entrustment_rare: 100)
+    assert_nil code_of(:entrustment_rare, entrustment_rare: 25)
+    assert_nil code_of(:stamp_rare, stamp_rare: 40, minimum_price_rare: 156)
+    assert_nil code_of(:daily_cap, daily_cap: 24_000)
+    assert_nil code_of(:daily_cap, daily_cap: 6_000)
   end
 
   test "an amount beyond double or under half, rounded up, is refused with its limit" do
-    assert_equal :more_than_double, code_of(:entrustment_rare, entrustment_rare: 10_001)
-    assert_equal :less_than_half, code_of(:entrustment_rare, entrustment_rare: 2_499)
-    assert_equal({ limit: 10_000 }, violations(entrustment_rare: 10_001)[:entrustment_rare].values)
-    assert_equal :more_than_double, code_of(:daily_cap, daily_cap: 2_400_001)
+    assert_equal :more_than_double, code_of(:entrustment_rare, entrustment_rare: 101)
+    assert_equal :less_than_half, code_of(:entrustment_rare, entrustment_rare: 24)
+    assert_equal({ limit: 100 }, violations(entrustment_rare: 101)[:entrustment_rare].values)
+    assert_equal :more_than_double, code_of(:daily_cap, daily_cap: 24_001)
   end
 
   test "half is rounded up for an odd value" do
@@ -53,25 +53,25 @@ class Game::Market::SettingsRulesTest < ActiveSupport::TestCase
   end
 
   test "a minimum under its no-loss floor is refused naming the floor" do
-    violation = violations(minimum_price_rare: 7_700)[:minimum_price_rare]
+    violation = violations(minimum_price_rare: 77)[:minimum_price_rare]
 
     assert_equal :below_floor, violation.code
-    assert_equal({ floor: 7_800 }, violation.values)
-    assert_nil code_of(:minimum_price_rare, minimum_price_rare: 7_800)
+    assert_equal({ floor: 78 }, violation.values)
+    assert_nil code_of(:minimum_price_rare, minimum_price_rare: 78)
   end
 
   test "the floor follows the candidate's own entrustment, stamp and commission" do
-    assert_equal 7_800, @rules.floor(5_000, 2_000, 1_000)
-    assert_equal 8_900, @rules.floor(5_000, 3_000, 1_000)
-    assert_equal :below_floor, code_of(:minimum_price_rare, stamp_rare: 3_000)
-    assert_nil code_of(:minimum_price_rare, stamp_rare: 3_000, minimum_price_rare: 8_900)
-    assert_equal :below_floor, code_of(:minimum_price_rare, commission_basis_points: 2_500, minimum_price_rare: 7_800)
+    assert_equal 78, @rules.floor(50, 20, 1_000)
+    assert_equal 89, @rules.floor(50, 30, 1_000)
+    assert_equal :below_floor, code_of(:minimum_price_rare, stamp_rare: 30)
+    assert_nil code_of(:minimum_price_rare, stamp_rare: 30, minimum_price_rare: 89)
+    assert_equal :below_floor, code_of(:minimum_price_rare, commission_basis_points: 2_500, minimum_price_rare: 78)
   end
 
   test "the floor is not computed when its inputs are unparsed" do
-    assert_nil code_of(:minimum_price_rare, stamp_rare: "abc", minimum_price_rare: 3_900)
+    assert_nil code_of(:minimum_price_rare, stamp_rare: "abc", minimum_price_rare: 39)
     assert_equal :not_a_number, code_of(:stamp_rare, stamp_rare: "abc")
-    assert_nil code_of(:minimum_price_rare, commission_basis_points: nil, minimum_price_rare: 3_900)
+    assert_nil code_of(:minimum_price_rare, commission_basis_points: nil, minimum_price_rare: 39)
   end
 
   test "the commission accepts 0 and 2500 basis points and refuses 2501 and a negative" do

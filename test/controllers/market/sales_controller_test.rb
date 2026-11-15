@@ -26,7 +26,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   def ref(card_season) = "#{card_season.card.slug}:#{card_season.season.number}"
 
   def post_sale(card_season = @common, **overrides)
-    post market_sales_path(locale: :en), params: { settings: @settings.token, ref: ref(card_season), starting_price: "1300",
+    post market_sales_path(locale: :en), params: { settings: @settings.token, ref: ref(card_season), starting_price: "13",
       duration_hours: "24", **overrides }
   end
 
@@ -48,9 +48,9 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name=settings][value=?]", @settings.token
     assert_select "form#listing-form[data-controller=listing-form][data-layout=wide][data-chosen=false]"
     assert_select "[role=listbox] [role=option]", 2
-    assert_select "[role=option]:first-child[data-ref=?][data-free=2][data-minimum=7800][data-stamp=2000][aria-selected=false][tabindex='0']", ref(@rare)
+    assert_select "[role=option]:first-child[data-ref=?][data-free=2][data-minimum=78][data-stamp=20][aria-selected=false][tabindex='0']", ref(@rare)
     assert_select "[role=option]:last-child[data-ref=?][data-free=1][tabindex='-1']", ref(@common)
-    assert_select "[role=option]:first-child .sale-cell__minimum .picoin-amount__figure", "7,800"
+    assert_select "[role=option]:first-child .sale-cell__minimum .picoin-amount__figure", "78"
     assert_select "[role=option]:first-child .card"
     assert_select ".sale-fields[inert]"
     assert_select "input[name=ref][value='']"
@@ -89,7 +89,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "form#listing-form[data-chosen=true][data-step='2']"
     assert_select "input[name=card][value=?]", @rare.card.slug
     assert_select ".sale-fields[inert]", false
-    assert_select "#sale-start-hint", "At least 7,800 for a rare"
+    assert_select "#sale-start-hint", "At least 78 for a rare"
   end
 
   test "an unknown card slug is not found" do
@@ -105,10 +105,10 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     hold(@player, @common.id, 1)
     sign_in(@player)
 
-    get new_market_sale_path(locale: :en, ref: ref(@common), start: "1500", relisting: "1")
+    get new_market_sale_path(locale: :en, ref: ref(@common), start: "15", relisting: "1")
 
     assert_select "[role=option][aria-selected=true][data-ref=?]", ref(@common)
-    assert_select "input[name=starting_price][value='1,500']"
+    assert_select "input[name=starting_price][value='15']"
     assert_select ".market-sale__relisting", "These amounts are those of your previous sale."
   end
 
@@ -117,7 +117,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     hold(@player, @common.id, 1)
     sign_in(@player)
 
-    get new_market_sale_path(locale: :en, ref: "nothing:1", start: "1500", relisting: "1")
+    get new_market_sale_path(locale: :en, ref: "nothing:1", start: "15", relisting: "1")
     assert_select "[role=option][aria-selected=true]", false
     assert_select "input[name=starting_price][value='']"
     assert_select ".market-sale__relisting", false
@@ -203,27 +203,27 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     assert_difference -> { Game::Market::Listing.count }, 1 do
       assert_difference -> { Game::Market::LedgerEntry.where(kind: "stamp").count }, 1 do
-        post_sale(starting_price: "1500", duration_hours: "72")
+        post_sale(starting_price: "15", duration_hours: "72")
       end
     end
 
     listing = Game::Market::Listing.order(:id).last
     assert_redirected_to market_listing_path(locale: :en, token: listing.token)
     assert_response :see_other
-    assert_equal [ 1_500, 72 ], [ listing.starting_price, listing.duration_hours ]
+    assert_equal [ 15, 72 ], [ listing.starting_price, listing.duration_hours ]
     assert_equal 1, Game::Holding.find_by!(player_id: @player.id, card_season_id: @common.id).reserved
-    assert_equal 400, Game::Market::Balance.call(@player).available
+    assert_equal 499, Game::Market::Balance.call(@player).available
   end
 
   test "a start under the minimum is refused under the field with the minimum, the typed amounts kept and nothing charged" do
     hold(@player, @common.id, 1)
     sign_in(@player)
 
-    nothing_moves { post_sale(starting_price: "1000", duration_hours: "72") }
+    nothing_moves { post_sale(starting_price: "10", duration_hours: "72") }
 
     assert_response :unprocessable_content
-    assert_select "#sale-start-error", "At least 1,300 for a common."
-    assert_select "input[name=starting_price][value='1,000'][aria-invalid=true]"
+    assert_select "#sale-start-error", "At least 13 for a common."
+    assert_select "input[name=starting_price][value='10'][aria-invalid=true]"
     assert_select "input[name=starting_price][aria-describedby=?]", "sale-start-hint sale-start-error"
     assert_select "input[name=duration_hours][value=72][checked]"
     assert_select "[role=option][aria-selected=true][data-ref=?]", ref(@common)
@@ -231,29 +231,29 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a short stamp names the shortfall, not the stamp, and links to Confier" do
-    Game::Market::Wallet.where(player_id: @player.id).update_all(available: 120)
+    Game::Market::Wallet.where(player_id: @player.id).update_all(available: 1)
     hold(@player, @rare.id, 1)
     sign_in(@player)
 
-    nothing_moves { post_sale(@rare, starting_price: "7800") }
+    nothing_moves { post_sale(@rare, starting_price: "78") }
 
     assert_response :unprocessable_content
-    assert_select ".sale-summary .sale-summary__short[role=alert]:not([hidden])", text: /You are short of 1,880 PiCoins for the stamp\./
+    assert_select ".sale-summary .sale-summary__short[role=alert]:not([hidden])", text: /You are short of 19 PiCoins for the stamp\./
     assert_select ".sale-summary .sale-summary__short a[href=?]", new_market_entrustment_path(locale: :en), "ENTRUST CARDS"
-    assert_select "input[name=starting_price][value='7,800']"
+    assert_select "input[name=starting_price][value='78']"
   end
 
   test "a stamp the balance cannot pay shows in red with its shortfall before any post, the button described by it" do
-    Game::Market::Wallet.where(player_id: @player.id).update_all(available: 120)
+    Game::Market::Wallet.where(player_id: @player.id).update_all(available: 1)
     hold(@player, @rare.id, 1)
     sign_in(@player)
 
     get new_market_card_sale_path(locale: :en, slug: @rare.card.slug)
 
     assert_select ".sale-line--short[data-listing-summary-target=stampLine]"
-    assert_select ".sale-summary__short:not([role]):not([hidden]) [data-listing-summary-target=shortText]", "You are short of 1,880 PiCoins for the stamp."
+    assert_select ".sale-summary__short:not([role]):not([hidden]) [data-listing-summary-target=shortText]", "You are short of 19 PiCoins for the stamp."
     assert_select ".sale-summary__submit button[type=submit][aria-describedby=?]", "sale-short sale-rules"
-    assert_select "form[data-listing-form-available-value='120']"
+    assert_select "form[data-listing-form-available-value='1']"
   end
 
   test "an amount that is not a price is refused 422 under its field, with the values kept" do
@@ -274,9 +274,9 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     hold(@player, @common.id, 3)
     sign_in(@player)
 
-    [ "8,000", "8 000", "8\u00A0000" ].each { post_sale(starting_price: it, duration_hours: "72") }
+    [ "1,800", "1 800", "1\u00A0800" ].each { post_sale(starting_price: it, duration_hours: "72") }
 
-    assert_equal [ 8_000 ] * 3, Game::Market::Listing.order(:id).last(3).map(&:starting_price)
+    assert_equal [ 1_800 ] * 3, Game::Market::Listing.order(:id).last(3).map(&:starting_price)
   end
 
   test "a start grouped wrongly is refused like any other non-price, and comes back as typed" do
@@ -296,13 +296,13 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     hold(@player, @common.id, 1)
     sign_in(@player)
 
-    nothing_moves { post_sale(starting_price: "1500", duration_hours: "5") }
+    nothing_moves { post_sale(starting_price: "15", duration_hours: "5") }
 
     assert_response :unprocessable_content
     assert_select "fieldset[aria-describedby=sale-duration-error][aria-invalid=true]"
     assert_select "#sale-duration-error", "Choose one of the listed durations."
     assert_select "input[name=duration_hours][checked]", false
-    assert_select "input[name=starting_price][value='1,500']"
+    assert_select "input[name=starting_price][value='15']"
   end
 
   test "a copy that is gone is refused above the grid and drops out of it" do
@@ -345,15 +345,15 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     hold(@player, @common.id, 1)
     sign_in(@player)
     stale = @settings.token
-    @settings = open_market!(minimum_price_common: 1_500)
+    @settings = open_market!(minimum_price_common: 15)
 
-    nothing_moves { post market_sales_path(locale: :en), params: { settings: stale, ref: ref(@common), starting_price: "1400", duration_hours: "72" } }
+    nothing_moves { post market_sales_path(locale: :en), params: { settings: stale, ref: ref(@common), starting_price: "14", duration_hours: "72" } }
 
     assert_response :unprocessable_content
     assert_select ".sale-summary .market-sale__refusal", text: /amounts changed/
     assert_select "input[name=settings][value=?]", @settings.token
-    assert_select "[role=option][data-minimum=1500]"
-    assert_select "input[name=starting_price][value='1,400']"
+    assert_select "[role=option][data-minimum=15]"
+    assert_select "input[name=starting_price][value='14']"
     assert_select "input[name=duration_hours][value=72][checked]"
     assert_equal 500, Game::Market::Balance.call(@player).available
   end
@@ -363,12 +363,12 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     stub_singleton(Game::Market::Ledger, :post, ->(_entries) { raise ActiveRecord::Deadlocked }) do
-      nothing_moves { post_sale(starting_price: "1700") }
+      nothing_moves { post_sale(starting_price: "17") }
     end
 
     assert_response :unprocessable_content
     assert_select ".sale-summary .market-sale__refusal", text: /The Archives are busy/
-    assert_select "input[name=starting_price][value='1,700']"
+    assert_select "input[name=starting_price][value='17']"
   end
 
   test "a closed market refuses the post and draws the closed panel" do
@@ -389,7 +389,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     nothing_moves { post_sale }
     assert_response :see_other
 
-    nothing_moves { post market_sales_path(locale: :en, format: :json), params: { settings: @settings.token, ref: ref(@common), starting_price: "1300", duration_hours: "24" } }
+    nothing_moves { post market_sales_path(locale: :en, format: :json), params: { settings: @settings.token, ref: ref(@common), starting_price: "13", duration_hours: "24" } }
     assert_response :unauthorized
     assert_equal "sign_in_required", response.parsed_body.dig("error", "code")
   end
@@ -412,7 +412,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#market-suspended-banner a[href=?]", market_path(locale: :en)
     assert_select "button[disabled]"
 
-    get new_market_sale_path(locale: :en, ref: ref(@common), start: "2000", relisting: 1)
+    get new_market_sale_path(locale: :en, ref: ref(@common), start: "20", relisting: 1)
     assert_response :success
     assert_select "#market-suspended-banner a[href=?]", market_path(locale: :en)
     assert_select "button[disabled]"
@@ -427,7 +427,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
   test "after the first opening each cell carries its edition's price and its words, and a template per edition feeds the form" do
     after_the_first_opening
-    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 15_000, sales_used: 5)
+    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 150, sales_used: 5)
     Game::Market::EditionPrice.create!(card_season_id: @common.id, average: 800, sales_used: 2)
     hold(@player, @rare.id, 1)
     hold(@player, @common.id, 1)
@@ -435,9 +435,9 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     get new_market_sale_path(locale: :en)
 
-    assert_select "[role=option][data-ref=?] .sale-cell__price .picoin-amount[aria-label='15,000 PiCoins']", ref(@rare)
+    assert_select "[role=option][data-ref=?] .sale-cell__price .picoin-amount[aria-label='150 PiCoins']", ref(@rare)
     assert_select "[role=option][data-ref=?] .sale-cell__price .average-price__few", ref(@common), "few sales"
-    assert_select "[role=option][data-ref=?][aria-label$=?]", ref(@rare), "average price 15,000 PiCoins"
+    assert_select "[role=option][data-ref=?][aria-label$=?]", ref(@rare), "average price 150 PiCoins"
     assert_select "[role=option] template[data-listing-form-target=priceTemplate]", 2
     assert_select "[role=option][data-ref=?] template[data-ref=?]", ref(@rare), ref(@rare)
     assert_select ".sale-price[data-listing-fields-target=priceSlot][data-ref='']"
@@ -458,19 +458,19 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
   test "a single free edition opens chosen with its price already in the form, with its sale count" do
     after_the_first_opening
-    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 15_000, sales_used: 5)
+    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 150, sales_used: 5)
     hold(@player, @rare.id, 1)
     sign_in(@player)
 
     get new_market_sale_path(locale: :en)
 
-    assert_select ".sale-price[data-ref=?] .picoin-amount[aria-label='15,000 PiCoins']", ref(@rare)
+    assert_select ".sale-price[data-ref=?] .picoin-amount[aria-label='150 PiCoins']", ref(@rare)
     assert_select ".sale-price .average-price__basis", "Based on 5 sales"
   end
 
   test "a refused post keeps the chosen edition's price in the form" do
     after_the_first_opening
-    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 15_000, sales_used: 5)
+    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 150, sales_used: 5)
     hold(@player, @rare.id, 1)
     hold(@player, @common.id, 1)
     sign_in(@player)
@@ -478,11 +478,11 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     post_sale(@rare, starting_price: "10")
 
     assert_response :unprocessable_content
-    assert_select ".sale-price[data-ref=?] .picoin-amount[aria-label='15,000 PiCoins']", ref(@rare)
+    assert_select ".sale-price[data-ref=?] .picoin-amount[aria-label='150 PiCoins']", ref(@rare)
   end
 
   test "no price, slot or template shows before the market's first opening" do
-    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 15_000, sales_used: 5)
+    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 150, sales_used: 5)
     hold(@player, @rare.id, 1)
     sign_in(@player)
 
@@ -533,8 +533,8 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[form=sale-filter][name='filter[doubles]'][checked]"
     assert_select "form#sale-filter[method=get][data-turbo-frame=sale-results]"
     assert_select "input[name=ref][data-listing-form-target=ref][value=?]", ref(@rare)
-    assert_select "[data-listing-form-target=edition][hidden][data-ref=?][data-minimum=7800]", ref(@rare)
-    assert_select "#sale-start-hint", /7,800/
+    assert_select "[data-listing-form-target=edition][hidden][data-ref=?][data-minimum=78]", ref(@rare)
+    assert_select "#sale-start-hint", /78/
   end
 
   test "a filter that keeps nothing says so and offers to clear it" do

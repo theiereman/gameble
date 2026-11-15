@@ -59,9 +59,9 @@ class EconomyHistorySeed
     growth = 1 + (index / DAYS.to_f)
     player_ids.each_with_index.flat_map do |player_id, rank|
       seller_id = player_ids[(rank + 1) % player_ids.size]
-      price = 8_000 + (400 * ((index * 3 + rank) % 11))
+      price = 80 + (4 * ((index * 3 + rank) % 11))
       commission = price / 10
-      minted = ((24_000 + (1_000 * ((index * 7 + rank * 13) % 17))) * growth).to_i
+      minted = ((240 + (10 * ((index * 7 + rank * 13) % 17))) * growth).to_i
       stamped = minted * (45 + ((index + rank) % 20)) / 100
       entry = ->(**attributes) { Game::Market::Ledger::Entry.new(settings_id:, **attributes) }
       [

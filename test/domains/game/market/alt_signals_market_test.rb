@@ -20,16 +20,16 @@ class Game::Market::AltSignalsMarketTest < ActiveSupport::TestCase
 
   def detected(signal) = Game::Market::AltSignals.call(now: @now).select { it.signal == signal }
 
-  def outside!(price, seller: @alice, buyer: @bob, ago: 2.days) = sale!(seller, buyer, @card, price, sold_at: ago.ago, average_after_sale: 10_000)
+  def outside!(price, seller: @alice, buyer: @bob, ago: 2.days) = sale!(seller, buyer, @card, price, sold_at: ago.ago, average_after_sale: 100)
 
   def tie_through_minimum_price_sales!
-    3.times { |ago| sale!(@alice, @bob, @card, 1_300, sold_at: (ago + 1).days.ago) }
+    3.times { |ago| sale!(@alice, @bob, @card, 13, sold_at: (ago + 1).days.ago) }
   end
 
   test "two sales under half and over twice the average, between the same accounts, are outside the market price" do
-    priced_history!(@card, average: 10_000)
-    outside!(4_999)
-    outside!(20_001, ago: 1.day)
+    priced_history!(@card, average: 100)
+    outside!(49)
+    outside!(201, ago: 1.day)
 
     found = detected("sales_outside_price")
 
@@ -38,42 +38,42 @@ class Game::Market::AltSignalsMarketTest < ActiveSupport::TestCase
   end
 
   test "exactly half or twice the average, a single outside sale and sales to different buyers are not a signal" do
-    priced_history!(@card, average: 10_000)
-    outside!(5_000)
-    outside!(20_000, ago: 1.day)
-    outside!(4_000, buyer: @carol, ago: 3.days)
+    priced_history!(@card, average: 100)
+    outside!(50)
+    outside!(200, ago: 1.day)
+    outside!(40, buyer: @carol, ago: 3.days)
 
     assert_empty detected("sales_outside_price")
   end
 
   test "an edition with fewer earlier sales than the few-sales threshold has no market price" do
-    priced_history!(@card, average: 10_000, sales: Game::Market::EditionPrice::MINIMUM_SALES - 1)
-    outside!(1_000)
-    outside!(30_000, ago: 1.day)
+    priced_history!(@card, average: 100, sales: Game::Market::EditionPrice::MINIMUM_SALES - 1)
+    outside!(10)
+    outside!(300, ago: 1.day)
 
     assert_empty detected("sales_outside_price")
   end
 
   test "a sale older than 30 days is left out" do
-    priced_history!(@card, average: 10_000)
-    outside!(4_000)
-    outside!(4_000, ago: 31.days)
+    priced_history!(@card, average: 100)
+    outside!(40)
+    outside!(40, ago: 31.days)
 
     assert_empty detected("sales_outside_price")
   end
 
   test "a sale with no leader is left out" do
-    priced_history!(@card, average: 10_000)
-    outside!(4_000)
-    outside!(4_000, ago: 1.day).update_columns(leader_id: nil, leader_maximum: nil)
+    priced_history!(@card, average: 100)
+    outside!(40)
+    outside!(40, ago: 1.day).update_columns(leader_id: nil, leader_maximum: nil)
 
     assert_empty detected("sales_outside_price")
   end
 
   test "3 sales at the minimum price between the same two accounts are a signal, 2 or one above the minimum are not" do
-    3.times { |ago| sale!(@alice, @bob, @card, 1_300, sold_at: (ago + 1).days.ago) }
-    2.times { |ago| sale!(@bob, @carol, @card, 1_300, sold_at: (ago + 1).days.ago) }
-    2.times { |ago| sale!(@carol, @alice, @card, 1_300, sold_at: (ago + 1).days.ago) }
+    3.times { |ago| sale!(@alice, @bob, @card, 13, sold_at: (ago + 1).days.ago) }
+    2.times { |ago| sale!(@bob, @carol, @card, 13, sold_at: (ago + 1).days.ago) }
+    2.times { |ago| sale!(@carol, @alice, @card, 13, sold_at: (ago + 1).days.ago) }
     sale!(@carol, @alice, @card, 1_301)
 
     found = detected("minimum_price_sales")
@@ -82,10 +82,10 @@ class Game::Market::AltSignalsMarketTest < ActiveSupport::TestCase
   end
 
   test "the minimum price is the one of the listing's rarity and of the version it was created under" do
-    earlier = open_market!(minimum_price_common: 1_400)
-    3.times { |ago| sale!(@alice, @bob, @card, 1_400, sold_at: (ago + 1).days.ago, settings: earlier) }
-    open_market!(minimum_price_common: 1_500)
-    3.times { |ago| sale!(@carol, @bob, catalog_card_seasons(:uncommon_card_one), 1_400, sold_at: (ago + 1).days.ago, settings: earlier) }
+    earlier = open_market!(minimum_price_common: 14)
+    3.times { |ago| sale!(@alice, @bob, @card, 14, sold_at: (ago + 1).days.ago, settings: earlier) }
+    open_market!(minimum_price_common: 15)
+    3.times { |ago| sale!(@carol, @bob, catalog_card_seasons(:uncommon_card_one), 14, sold_at: (ago + 1).days.ago, settings: earlier) }
 
     assert_equal [ @alice.id ], detected("minimum_price_sales").map(&:account_id)
   end
