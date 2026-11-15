@@ -168,4 +168,15 @@ class CardComponentTest < ViewComponent::TestCase
     assert_equal "Uncommon", strings.rarity_name("uncommon")
     assert_equal "Legendary", strings.rarity_name(:legendary)
   end
+
+  test "a card page's face carries the art loader, a grid's face does not" do
+    render_card(size: :l, loader: true)
+    assert_selector ".card__art > .card__loader[aria-hidden=true] > .card__loader-meter + .card__loader-text", text: "Loading", visible: :all
+
+    render_card(size: :xl, loader: true, locale: :fr)
+    assert_selector ".card__loader-text", text: "Chargement", visible: :all
+
+    render_card(size: :grid)
+    assert_no_selector ".card__loader", visible: :all
+  end
 end

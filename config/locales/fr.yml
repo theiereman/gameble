@@ -3845,6 +3845,7 @@ fr:
   cards:
     face:
       image_missing: "Image indisponible"
+      loading: "Chargement"
     show:
       invitation: "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
       pitch_title: "Vos jeux Steam, en cartes à collectionner."
