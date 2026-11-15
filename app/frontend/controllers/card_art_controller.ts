@@ -63,6 +63,7 @@ export default class extends Controller<HTMLElement> {
     this.abort = new AbortController()
     this.drawn = undefined
     this.approach = "far"
+    this.forgetCachedArtState()
     if (this.fluidValue) this.watchResizes()
     if (typeof IntersectionObserver === "undefined") {
       this.draw()
@@ -76,6 +77,11 @@ export default class extends Controller<HTMLElement> {
       { rootMargin: NEAR_VIEWPORT },
     )
     this.observer.observe(this.element)
+  }
+
+  // A page restored from the Turbo cache keeps the art state but not the canvas pixels.
+  private forgetCachedArtState(): void {
+    delete this.element.dataset.art
   }
 
   private stop(): void {

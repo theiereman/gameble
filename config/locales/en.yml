@@ -1264,6 +1264,7 @@ en:
   cards:
     face:
       image_missing: Image unavailable
+      loading: Loading
     show:
       booster: Capsule
       grid: Grid

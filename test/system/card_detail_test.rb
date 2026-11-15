@@ -148,4 +148,19 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail__position", text: "· 3 / 16 ·"
     assert_focused ".card-detail__nav--next"
   end
+
+  test "the art loader shows while the art is drawing and leaves once it is drawn or missing" do
+    season = publish_sets_draft
+    visit in_set_path(members(season, "horror").first, season)
+    art = ".card-detail .card__art"
+
+    assert_selector "#{art}[data-art=failed] .card__missing", text: "IMAGE UNAVAILABLE"
+    assert_no_selector "#{art} .card__loader"
+
+    page.execute_script("delete document.querySelector(#{art.to_json}).dataset.art")
+    assert_selector "#{art} .card__loader", text: "LOADING"
+
+    page.execute_script("document.querySelector(#{art.to_json}).dataset.art = 'drawn'")
+    assert_no_selector "#{art} .card__loader"
+  end
 end
