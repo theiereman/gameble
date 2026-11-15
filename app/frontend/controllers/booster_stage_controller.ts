@@ -250,7 +250,7 @@ export default class BoosterStageController extends Controller<HTMLElement> {
 
   private underCards(slot: HTMLLIElement, parts: (Element | null)[]): void {
     const frame = slot.querySelector(".booster-card__frame")
-    for (const part of parts.reverse()) if (part?.isConnected) frame?.prepend(part)
+    for (const part of parts.reverse()) if (part?.parentElement) frame?.prepend(part)
   }
 
   private update(hand: HandView): void {
