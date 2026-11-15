@@ -16,6 +16,7 @@
   align-items: start;
   max-width: 100%;
   padding: var(--space-panel-padding);
+  overflow: clip;
   background: var(--color-panel);
   box-shadow: var(--panel-border);
 }
@@ -23,6 +24,12 @@
 .booster:not([data-layout="phone"]) .booster-zoom__stage {
   grid-area: stage;
   align-self: center;
+}
+
+/* Beside the facts, an Épique's or a Légendaire's rays fade out around the
+   card, short of the text and of the dialog's edges. */
+.booster:not([data-layout="phone"]) .booster-zoom__rays {
+  --card-rays-size: 380px;
 }
 
 .booster:not([data-layout="phone"]) .booster-zoom__title {
