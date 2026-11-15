@@ -17,6 +17,7 @@
       <thead>
         <tr>
           <th scope="col"><%= t(".number") %></th>
+          <th scope="col"><%= t(".name") %></th>
           <th scope="col"><%= t(".status") %></th>
           <th scope="col"><%= t(".card_count") %></th>
           <th scope="col"><%= t(".published_at") %></th>
@@ -32,6 +33,7 @@
         <% @seasons.each do |season| %>
           <tr data-season-number="<%= season.number %>" data-season-status="<%= season.status %>">
             <td><%= link_to season.number, back_office_season_path(season.number) %></td>
+            <td data-season-name><%= render "names", season: %></td>
             <td><%= t("back_office.seasons.statuses.#{season.status}") %></td>
             <td data-season-card-count="<%= season.card_count %>"><%= number_with_delimiter(season.card_count) %></td>
             <td><%= render "back_office/import_runs/time", time: season.published_at %></td>
@@ -66,9 +68,13 @@
         <%= @unfinished_import.ready? ? t("back_office.seasons.publish.import_awaiting_promotion") : t("back_office.seasons.publish.import_active") %>
       <% end %>
     <% end %>
-    <p>
-      <%= render ButtonComponent.new(variant: :primary, href: publish_back_office_seasons_path, method: :post, params: { number: draft.number },
-            confirm: t(".confirm", number: draft.number, count: draft.card_count)) do %><%= t(".publish", number: draft.number) %><% end %>
-    </p>
+    <%= form_with url: publish_back_office_seasons_path, method: :post, class: "announcement-editor",
+          data: { turbo_confirm: t(".confirm", number: draft.number, count: draft.card_count) } do %>
+      <%= hidden_field_tag :number, draft.number, id: nil %>
+      <%= render "name_fields" %>
+      <p class="announcement-editor__actions">
+        <%= render ButtonComponent.new(variant: :primary, type: :submit) do %><%= t(".publish", number: draft.number) %><% end %>
+      </p>
+    <% end %>
   <% end %>
 </div>

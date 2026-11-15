@@ -1,0 +1,11 @@
+<%# locals: (name_en: nil, name_fr: nil) %>
+<p class="announcement-editor__field">
+  <label for="season-name-fr"><%= t("back_office.seasons.name_fields.name_fr") %></label>
+  <%= text_field_tag :name_fr, name_fr, id: "season-name-fr", class: "ban-form__field", lang: "fr", required: true,
+        maxlength: Catalog::Season::NAME_LENGTH, autocomplete: "off" %>
+</p>
+<p class="announcement-editor__field">
+  <label for="season-name-en"><%= t("back_office.seasons.name_fields.name_en") %></label>
+  <%= text_field_tag :name_en, name_en, id: "season-name-en", class: "ban-form__field", lang: "en", required: true,
+        maxlength: Catalog::Season::NAME_LENGTH, autocomplete: "off" %>
+</p>

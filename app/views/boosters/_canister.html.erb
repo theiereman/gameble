@@ -14,7 +14,7 @@
               <% if season %>
                 <span class="booster-canister__line booster-canister__line--season"><%= t("booster.canister_season", number: season.number) %></span>
               <% end %>
-              <span class="booster-canister__line booster-canister__line--title"><%= t("booster.title") %></span>
+              <span class="booster-canister__line booster-canister__line--title"><%= season_title(season) %></span>
               <span class="booster-canister__hazard"></span>
               <span class="booster-canister__led booster-canister__led--1"></span>
               <span class="booster-canister__led booster-canister__led--2"></span>

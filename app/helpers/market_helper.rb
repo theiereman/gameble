@@ -19,12 +19,21 @@ module MarketHelper
 
   def listing_elapsed_seconds(listing) = (Time.current - listing.created_at).floor.clamp(0, listing_duration_seconds(listing))
 
-  def listing_tile_label(row, mark = nil)
+  def listing_tile_label(row, mark = nil, stand = nil)
     card = row.card
     label = t("markets.tile.label", card: card.title, rarity: CardStrings.new.rarity_name(card.rarity), season: card.season_number,
       price: picoins_label(row.current_price), offers: t("markets.tile.offers", count: row.offers),
       time: local_time_text(row.ends_at, :time))
-    mark ? "#{label}, #{listing_ownership_text(mark, spoken: true)}" : label
+    spoken_stand = t("markets.tile.stand.#{stand.status}_spoken", amount: picoins_label(stand.amount)) if stand
+    [ label, spoken_stand, (listing_ownership_text(mark, spoken: true) if mark) ].compact.join(", ")
+  end
+
+  def listing_tile_stand_chip(stand)
+    tag.span(class: "listing-tile__stand listing-tile__stand--#{stand.status}") do
+      safe_join([ tag.span(t("market.rows.status.#{stand.status}"), class: "listing-tile__stand-status"),
+        tag.span(t("markets.tile.stand.#{stand.status}_amount"), class: "listing-tile__stand-word"),
+        render(PicoinAmountComponent.new(amount: stand.amount, compact: true, class: "listing-tile__stand-amount")) ])
+    end
   end
 
   def listing_tile_ownership(mark)

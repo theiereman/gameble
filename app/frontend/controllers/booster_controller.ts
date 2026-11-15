@@ -72,6 +72,7 @@ export class BoosterController extends Controller<HTMLElement> {
     delimiter: String,
     packSize: Number,
     season: Number,
+    seasonName: String,
     bank: Object,
     held: Object,
     strings: Object,
@@ -106,6 +107,7 @@ export class BoosterController extends Controller<HTMLElement> {
   declare readonly delimiterValue: string
   declare readonly packSizeValue: number
   declare readonly seasonValue: number
+  declare readonly seasonNameValue: string
   declare bankValue: BankValues
   declare heldValue: unknown
   declare readonly stringsValue: BoosterStrings
@@ -359,6 +361,7 @@ export class BoosterController extends Controller<HTMLElement> {
       delimiter: this.delimiterValue,
       packSize: this.packSizeValue,
       season: this.seasonValue,
+      seasonName: this.seasonNameValue,
       cardUrl: this.cardUrlValue,
       left: () => this.left,
       rarityNames: () => this.faces.rarityNames,

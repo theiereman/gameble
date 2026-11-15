@@ -27,7 +27,7 @@
     <span class="market-screen__section-note"><%= number_with_delimiter(@filters.any? ? @found : @pulse.open) %></span>
   </h2>
   <ul id="market-tiles" class="market-screen__tiles" aria-label="<%= t(".list_label") %>">
-    <%= render "markets/tiles", rows: @listings.rows, marks: @marks %>
+    <%= render "markets/tiles", rows: @listings.rows, marks: @marks, stands: @stands %>
   </ul>
 <% end %>
 <%= render "markets/pages", listings: @listings, sort: @sort, page: @page, filters: @filters %>

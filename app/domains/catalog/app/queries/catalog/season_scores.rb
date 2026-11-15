@@ -1,6 +1,6 @@
 module Catalog
   module SeasonScores
-    Scores = Data.define(:number, :status, :published_at, :score_versions, :panel) do
+    Scores = Data.define(:number, :name_en, :name_fr, :status, :published_at, :score_versions, :panel) do
       def draft? = status == "draft"
       def published? = status == "published"
     end
@@ -12,6 +12,8 @@ module Catalog
       rows = SeasonRows.call(season.id)
       Scores.new(
         number: season.number,
+        name_en: season.name_en,
+        name_fr: season.name_fr,
         status: season.status,
         published_at: season.published_at,
         score_versions: score_versions_of(rows),

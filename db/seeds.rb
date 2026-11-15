@@ -63,7 +63,7 @@ if Rails.env.development? && Catalog::PublishedSeason.call.nil?
 
   season_number = Catalog::DraftSeasonNumber.call
   Catalog::PromoteStagedBatch.new.call(batch_token: seed_batch, season_number:).value!
-  Catalog::PublishSeason.new.call(number: season_number).value!
+  Catalog::PublishSeason.new.call(number: season_number, name_en: "Spring", name_fr: "Printemps").value!
   puts "Seeded and published season #{season_number} with #{card_count} cards."
 end
 

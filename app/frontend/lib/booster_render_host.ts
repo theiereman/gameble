@@ -72,6 +72,7 @@ export type BoosterRenderHost = Readonly<{
   delimiter: string
   packSize: number
   season: number
+  seasonName: string
   cardUrl: string
   left: () => number | null
   rarityNames: () => Record<Rarity, string>

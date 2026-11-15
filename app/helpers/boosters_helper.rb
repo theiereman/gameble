@@ -22,7 +22,8 @@ module BoostersHelper
       booster_repost_url_value: season ? card_repost_path(slug: "SLUG", number: "NUMBER") : "",
       booster_bank_url_value: booster_path(format: :json), booster_delimiter_value: t("number.format.delimiter"),
       booster_pack_size_value: Game::Pack::SIZE, booster_season_value: season&.number || 0,
-      booster_bank_value: booster_bank_values(values), booster_reserve_value: reserve, booster_held_value: held,
+      booster_season_name_value: booster_canister_name(season), booster_bank_value: booster_bank_values(values),
+      booster_reserve_value: reserve, booster_held_value: held,
       booster_strings_value: screen_strings("booster.strings"), origin: booster_origin_kind(bank, reserve)
     }.merge(screen_outlets("booster", BOOSTER_ACTIONS.keys + BOOSTER_CHILDREN))
   end
@@ -75,7 +76,11 @@ module BoostersHelper
   def booster_canister_label(season, count)
     return t("booster.strings.canister_label_plain", count:) unless season
 
-    t("booster.strings.canister_label", season: season.number, count:)
+    t("booster.strings.canister_label", season: season.number, name: booster_canister_name(season), count:)
+  end
+
+  def booster_canister_name(season)
+    season&.name(I18n.locale).presence || t("booster.canister_name_fallback")
   end
 
   def booster_canister_facts(count)

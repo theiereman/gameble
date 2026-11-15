@@ -136,6 +136,8 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{ROOT} template[data-booster-canister-target=canister]"
     canister = Nokogiri::HTML5.fragment(css_select("#{ROOT} template[data-booster-canister-target=canister]").sole.inner_html)
     assert_equal "Open the capsule Season 1, grand catalogue, 5 cards", canister.at_css("button.booster-canister")["aria-label"]
+    assert_equal "Grand catalogue", canister.at_css(".booster-canister__line--title").text
+    assert_equal "grand catalogue", value("season-name")
     assert_select "#{ROOT} .booster__canister-facts", "5 cards"
     assert_select "#{ROOT} template[data-booster-stage-target=card]"
     assert_select "#{ROOT} dialog.booster-zoom[aria-labelledby=booster-zoom-title]"
@@ -231,6 +233,24 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unauthorized
     assert_equal({ "error" => { "code" => "sign_in_required", "message" => I18n.t("authorization.sign_in_required", locale: :en) } }, response.parsed_body)
+  end
+
+  test "a named season shows its name in the reader's language in place of the fallback" do
+    create_pack(@player, available_at: 1.hour.ago)
+    catalog_seasons(:one).update_columns(name_en: "Winter", name_fr: "Hiver")
+    sign_in(@player)
+
+    { fr: [ "Hiver", "Saison 1 · Hiver", "Ouvrir la capsule Saison 1, Hiver, 5 cartes" ],
+      en: [ "Winter", "Season 1 · Winter", "Open the capsule Season 1, Winter, 5 cards" ] }.each do |locale, (title, strip, label)|
+      get booster_path(locale:)
+
+      assert_select "#{ROOT} h2#booster-panel-title", title
+      assert_select "#{ROOT} .booster-strip h2#booster-title", strip
+      assert_equal title, value("season-name")
+      canister = fragment("#{ROOT} template[data-booster-canister-target=canister]")
+      assert_equal title, canister.at_css(".booster-canister__line--title").text
+      assert_equal label, canister.at_css("button.booster-canister")["aria-label"]
+    end
   end
 
   test "without a published season, the screen gets no season number nor repost, and the fallback stays" do

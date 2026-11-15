@@ -41,7 +41,7 @@ class Game::DrawTest < ActiveSupport::TestCase
 
   test "200,000 draws follow the odds per tier, and every card of a small tier is drawn evenly" do
     season = seed_card_seasons(distinct_scores(150))
-    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    assert Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").success?
     pool = Game::DrawPool.current
     assert_equal season.id, pool.season_id
     rarity_of = Catalog::CardSeason.where(season_id: season.id).pluck(:id, :rarity)
@@ -69,7 +69,7 @@ class Game::DrawTest < ActiveSupport::TestCase
 
   test "100,000 bonus draws follow the bonus odds per tier, and never draw common" do
     season = seed_card_seasons(distinct_scores(150))
-    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    assert Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").success?
     pool = Game::DrawPool.current
     rarity_of = Catalog::CardSeason.where(season_id: season.id).pluck(:id, :rarity)
       .to_h { |id, rarity| [ id, Catalog::CardSeason.rarities.fetch(rarity) ] }

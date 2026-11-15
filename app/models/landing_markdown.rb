@@ -45,8 +45,12 @@ class LandingMarkdown
       return "## #{words("live.title")}" if @season_facts.nil?
 
       facts = FACTS.map { "- #{words("live.facts.#{it}")}: #{ActiveSupport::NumberHelper.number_to_delimited(@season_facts[it.to_sym])}" }
-      season = words("live.season_name", number: @season_facts[:season_number]) if @season_facts[:season_number]
-      [ "## #{words("live.title")}", season, facts.join("\n") ].compact.join("\n\n")
+      [ "## #{words("live.title")}", season_line, facts.join("\n") ].compact.join("\n\n")
+    end
+
+    def season_line
+      number = @season_facts[:season_number]
+      words("live.season_name", number:, name: SeasonTitle.call(@season_facts[:season_name])) if number
     end
 
     def roadmap

@@ -866,7 +866,9 @@ en:
         intro: Imports fill the draft season. Publishing it cuts its cards into the
           five rarities, numbers them, binds them into theme, franchise, studio and
           hall of fame sets and the UFOs, and opens it to the draw, all at once. A
-          published season never changes again.
+          published season keeps its cards, rarities, numbers and sets for good; only
+          its name can still change.
+        name: Name
         number: Season
         publish: Publish season %{number}
         published_at: Published
@@ -877,6 +879,9 @@ en:
           theme: Themes
           ufo: UFOs
         status: Status
+      name_fields:
+        name_en: Name in English
+        name_fr: Name in French
       preview:
         bottom:
           one: The lowest-scored card
@@ -927,19 +932,24 @@ en:
       show:
         all_seasons: All the seasons
         heading: Season %{number}
+        name: Name
         no_score_version: none recorded (scored before versions)
         published_at: Published
         published_heading: Season %{number}, as published
         published_intro: 'What publication stored for this season, read as it stands:
-          each rarity''s cards and lowest score, and the sets. Nothing here is written
-          and nothing is cut again. The themes and the UFOs are the sets stored at
-          publication.'
+          each rarity''s cards and lowest score, and the sets. Only the season''s name
+          can be changed here; nothing else is written and nothing is cut again. The
+          themes and the UFOs are the sets stored at publication.'
+        rename: Rename the season
+        rename_heading: The season's name
         score_version: version %{version}
         score_versions: Prestige formula versions
         status: Status
       statuses:
         draft: Draft
         published: Published
+      update:
+        updated: Season %{number} is renamed, officer.
     themes:
       attach:
         attached: The tag is attached, officer.
@@ -1004,6 +1014,7 @@ en:
         updated: The theme is renamed, officer.
   booster:
     canister_hint: Click to open
+    canister_name_fallback: grand catalogue
     canister_hint_touch: Tap to open
     canister_season: Season %{number}
     card_label: "%{title} — %{details}"
@@ -1056,8 +1067,7 @@ en:
       canister_facts:
         one: "%{n} card"
         other: "%{n} cards"
-      canister_label: Open the capsule Season %{season}, grand catalogue, %{count}
-        cards
+      canister_label: Open the capsule Season %{season}, %{name}, %{count} cards
       canister_label_plain: Open the capsule, grand catalogue, %{count} cards
       celebration:
         announce_complete: 'Set complete: %{set}, %{owned} cards out of %{total}.'
@@ -1138,8 +1148,7 @@ en:
       tray_slot: "%{card}, %{rarity}. Enlarge."
       tray_slot_goals: "%{card}, %{rarity}, %{goals}. Enlarge."
       zoom_line: "%{rarity} · %{year}"
-    strip_title: Season %{number} · Grand catalogue
-    strip_title_plain: Grand catalogue
+    strip_title: Season %{number} · %{name}
     title: Grand catalogue
     tray: Stored cards
     tray_label: Card
@@ -1582,6 +1591,8 @@ en:
       invalid_card: 'The scribes cannot enter that card in the ledger: its particulars
         are incomplete or out of order.'
       invalid_roadmap: Some rows of the roadmap need fixing, officer. Nothing was saved.
+      invalid_season_name: A season needs a name in French and in English, of 60 characters
+        at most, officer.
       invalid_share_image: The preview image of that card is not a PNG of a card, in
         one of the Brotherhood's tongues.
       invalid_status: That status is not one of the roadmap's, officer.
@@ -2289,7 +2300,7 @@ en:
         open_feed: Open the activity feed
         open_register: See The Flukeometer
         season: Current season
-        season_name: Season %{number} · Grand catalogue
+        season_name: Season %{number} · %{name}
         subtitle: The latest entries of the activity feed, and the current season.
         title: The Brotherhood is playing right now
       open_source:
@@ -3074,6 +3085,11 @@ en:
           zero: no copy in your collection
         wanted: Wanted
         wanted_spoken: missing from your goals
+      stand:
+        leading_amount: max
+        leading_spoken: "you are leading with a maximum of %{amount}"
+        outbid_amount: min
+        outbid_spoken: "your offer is outbid, minimum offer %{amount}"
     time_left:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"

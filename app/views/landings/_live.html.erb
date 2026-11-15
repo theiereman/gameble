@@ -26,7 +26,8 @@
     <%= render PanelComponent.new(brackets: true, class: "landing-season") do %>
       <p class="landing-kicker"><%= t("landings.show.live.season") %></p>
       <% number = @season_facts&.dig(:season_number) %>
-      <p class="landing-season__name"><%= number ? t("landings.show.live.season_name", number:) : unknown %></p>
+      <% name = SeasonTitle.call(@season_facts&.dig(:season_name)) %>
+      <p class="landing-season__name"><%= number ? t("landings.show.live.season_name", number:, name:) : unknown %></p>
       <dl class="landing-season__facts">
         <% %w[players packs discoveries].each do |fact| %>
           <div class="landing-season__fact">
