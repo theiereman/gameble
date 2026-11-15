@@ -49,7 +49,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     }
   }.freeze
 
-  PLAYER_HUB_QUERIES = 31
+  PLAYER_HUB_QUERIES = 28
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -66,53 +66,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     Rails.configuration.x.legal = ActiveSupport::OrderedOptions.new.update(contact_email:, host_name:, host_address:)
   end
 
-  def epic_name(locale)
-    I18n.t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(4)}", locale:)
-  end
-
-  def trade_away_only_copy(card_season_id)
-    Game::Holding.where(player_id: @player.id, card_season_id:).update_all(quantity: 0)
-    received = fixture_tier_ids.first
-    conclude_trade(@player, accounts_players(:moderator), offer: { card_season_id => 1 }, request: { received => 1 })
-    Game::Holding.where(player_id: @player.id, card_season_id: received).update_all(last_gained_at: 1.day.ago)
-  end
-
-  def written_statements(&request)
-    statements = []
-    recorder = ->(*, payload) { statements << payload[:sql] if payload[:sql].match?(/\A\s*(INSERT|UPDATE|DELETE)\b/i) }
-    ActiveSupport::Notifications.subscribed(recorder, "sql.active_record", &request)
-    statements
-  end
-
   def main_menu_items
     css_select(".hub-menu > ol:not([hidden]) .menu-item")
-  end
-
-  test "the showcase's line names the card's main theme as its genre" do
-    hold(@player, catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
-    Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(main_theme: "puzzle")
-    sign_in(@player)
-
-    get home_path(locale: :fr)
-    assert_select ".hub-showcase__rarity span", "#{epic_name(:fr)} · Réflexion · S1 · #4"
-  end
-
-  test "a showcased card traded away gives way to the previous one held, still with Repost, and the hub writes nothing" do
-    hold(@player, catalog_card_seasons(:portal_one).id, gained_at: 2.hours.ago)
-    legendary = catalog_card_seasons(:legendary_card_one).id
-    hold(@player, legendary, gained_at: 1.hour.ago)
-    sign_in(@player)
-
-    get home_path(locale: :en)
-    assert_select ".hub-showcase h2", "Golden Crown"
-    assert_select ".hub-showcase form button", "Repost"
-
-    trade_away_only_copy(legendary)
-    assert_empty written_statements { get home_path(locale: :en) }
-
-    assert_response :success
-    assert_select ".hub-showcase h2", "Portal"
-    assert_select ".hub-showcase form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
   end
 
   test "the hub's extras list, hidden behind its back button: how it works, then support, GitHub and Discord in a new tab" do
@@ -199,17 +154,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select ".hub-menu [aria-disabled]", false
 
-    # The showcase: the tier 4 card held, its line (rarity and
-    # number; no main theme, so no genre) and its page.
-    assert_select ".hub-showcase:not(.hub-showcase--empty)" do
-      assert_select ".hub-showcase__kicker", "Dernière obtention"
-      assert_select ".card.card--xl", 1
-      assert_select "h2.hub-showcase__name", "Portal"
-      assert_select ".hub-showcase__rarity.hub-showcase__rarity--4 svg.pixel-icon"
-      assert_select ".hub-showcase__rarity span", "#{epic_name(:fr)} · S1 · #4"
-      assert_select "a.button.button--secondary[href='/fr/cards/portal/seasons/1']", "Voir la fiche"
-      assert_select "form.button-form[method=post][action='/fr/cards/portal/seasons/1/repost'] button.button--secondary", "Reposter"
-    end
+    # The showcase lives on the profile now, not on the hub.
+    assert_select ".hub-showcase", false
 
     # The daily panel, its button the view's one primary.
     assert_select "section.daily-booster.panel--quiet[aria-labelledby=daily-booster-title]" do
@@ -228,55 +174,18 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "the first card the player chose shows under VITRINE, any rarity; with none left, the automatic card under DERNIÈRE OBTENTION" do
-    common, rare, portal = catalog_card_seasons(:common_card_one, :rare_card_one, :portal_one).map(&:id)
-    [ common, rare, portal ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
-    [ rare, common ].each { Game::AddToShowcase.new.call(player: @player, card_season_id: it).value! }
-    sign_in(@player, origin: "/fr")
-
-    get home_path(locale: :fr)
-    assert_select ".hub-showcase:not(.hub-showcase--empty)" do
-      assert_select ".hub-showcase__kicker", "Vitrine"
-      assert_select "h2.hub-showcase__name", "Profondeurs bleues"
-      assert_select "a.button.button--secondary[href='/fr/cards/blue-depths/seasons/1']", "Voir la fiche"
-      assert_select "form.button-form[action='/fr/cards/blue-depths/seasons/1/repost'] button", "Reposter"
-    end
-
-    [ rare, common ].each { Game::RemoveFromShowcase.new.call(player: @player, card_season_id: it).value! }
-    get home_path(locale: :fr)
-    assert_select ".hub-showcase__kicker", "Dernière obtention"
-    assert_select "h2.hub-showcase__name", "Portal"
-  end
-
-  test "a player holding no card sees the empty showcase, its primary opening a booster" do
+  test "a player holding no card sees no showcase on the hub, the daily panel's button the one primary" do
     create_pack(@player)
     sign_in(@player)
 
     get home_path(locale: :en)
 
-    assert_select ".hub-showcase.hub-showcase--empty" do
-      assert_select ".hub-showcase__kicker", false
-      assert_select ".hub-showcase__frame[aria-hidden=true] .hub-showcase__outline svg.hub-showcase__wordmark"
-      assert_select ".hub-showcase__outline [data-controller~=wordmark-shine], .hub-showcase__outline .wordmark-sweep__frames", false
-      assert_select "h2.hub-showcase__name", "Open your first capsule"
-      assert_select ".hub-showcase__line", "Your finest card will show here."
-      assert_select "a.button.button--primary[href='/en/booster']", "Open a capsule"
-    end
-    # One lime action: the daily panel's button turns secondary.
-    assert_select ".daily-booster form button.button--secondary.button--small", "Collect"
+    assert_select ".hub-showcase", false
+    assert_select ".daily-booster form button.button--primary.button--small", "Collect"
     assert_select "main .button--primary", 1
   end
 
-  test "a player holding only commons sees the best of the latest in the showcase" do
-    hold(@player, fixture_tier_ids.first, gained_at: 1.hour.ago)
-    sign_in(@player)
-
-    get home_path(locale: :en)
-
-    assert_select ".hub-showcase:not(.hub-showcase--empty)"
-  end
-
-  test "an empty reserve shows no badge on menu 01 and disables the empty showcase's button, saying why" do
+  test "an empty reserve shows no badge on menu 01" do
     sign_in(@player)
 
     get home_path(locale: :en)
@@ -286,8 +195,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".visually-hidden", "Reserve empty"
     end
     assert_select ".hub-menu form[action='/en/packs']", false
-    assert_select ".hub-showcase--empty button.button[type=button][disabled]", "Open a capsule"
-    assert_select ".hub-showcase--empty .hub-showcase__reason", "Reserve empty"
     assert_select "main form[action='/en/packs']", false
   end
 
@@ -345,7 +252,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar .packs-chip__next[data-controller=countdown][data-countdown-refresh-value=false][data-countdown-refresh-url-value='/en/packs-chip']"
   end
 
-  test "once the day's booster is collected, the daily panel stays: collected, with the countdown to 00:00 UTC and its bar" do
+  test "once the day's booster is collected, the daily panel folds to one line: a check, collected, and the countdown to 00:00 UTC" do
     travel_to(Time.current.utc.change(hour: 22, min: 30, sec: 15)) do
       Game::CollectDailyBonus.new.call(player: @player).value!
       sign_in(@player)
@@ -354,6 +261,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
       assert_select ".daily-booster.daily-booster--collected" do
         assert_select ".daily-booster__state", "Collected"
+        assert_select ".daily-booster__state svg.pixel-icon.hub-done-icon[aria-hidden=true] + span.hub-done-label", "Collected"
         assert_select ".daily-booster__text", "A capsule joins your reserve. The next one will be ready on #{next_day.strftime("%Y-%m-%d")} 00:00 UTC."
         assert_select ".daily-booster__text time[datetime='#{next_day.iso8601}'][data-controller=local-time]"
         assert_select ".daily-booster__next[data-controller=countdown][data-countdown-seconds-value='5385'][data-countdown-hours-value=true]" do
@@ -417,7 +325,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-goals", false
     assert_select "#player-menu .player-menu__meta", "0 online"
     assert_select ".daily-booster", false
-    assert_select ".hub-showcase--empty"
+    assert_select ".hub-showcase", false
   end
 
   test "the hub shows the goal panel with the Brotherhood line and the real target, in both languages" do
@@ -580,7 +488,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # marker), the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
     # goal reward's claim slot,
-    # showcase (cards chosen, card held, card view), collection (owned, total), the
+    # collection (owned, total), the
     # player's goals (none here, so nothing to measure),
     # the top bar's copies per tier and rarity legend, the player menu's friends online, menu 06's
     # achievements earned and the rewards waiting to be claimed, the trades
@@ -589,13 +497,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # (none here, so no players or cards), and the Flukeometer panel's standing,
     # distribution, Privileged threshold and top three, and the market settings in force.
     assert_hub_queries(PLAYER_HUB_QUERIES)
-    assert_select ".hub-showcase .card"
 
     # Many more opened packs add no query.
     common = Array.new(Game::Pack::SIZE, catalog_card_seasons(:common_card_one).id)
     60.times { |index| create_pack(@player, cards: common, opened_at: (index + 1).minutes.ago) }
     assert_hub_queries(PLAYER_HUB_QUERIES)
-    assert_select ".hub-showcase .card"
   end
 
   test "sets and cards are addressed by kind, key and slug, never by database id" do

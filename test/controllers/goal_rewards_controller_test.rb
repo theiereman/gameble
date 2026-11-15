@@ -61,7 +61,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal Mime[:turbo_stream], response.media_type
   end
 
-  test "from Turbo, the claim answers in Turbo Stream: the slot collected, the chip, menu 01, the showcase's action and a titled toast" do
+  test "from Turbo, the claim answers in Turbo Stream: the slot collected, the chip, menu 01 and a titled toast" do
     sign_in(@player)
 
     assert_difference -> { reward_pack_count }, 1 do
@@ -69,11 +69,12 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--collected .hub-goal__claim-state", "Collected"
+    assert_select "turbo-stream[action=replace][target=goal-reward] template .hub-goal__claim-state svg.pixel-icon.hub-done-icon[aria-hidden=true]"
     assert_select "turbo-stream[action=remove][target=bell-mission-reward]"
     assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__special-count", "1"
     assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--special", "1"
     assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--standard", false
-    assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
+    assert_select "turbo-stream[target=hub-showcase-actions]", false
     assert_select "turbo-stream[target=daily-booster]", false
     assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
       "Management thanks you for your contribution. A rare capsule has been added to your reserve."

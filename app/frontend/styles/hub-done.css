@@ -1,0 +1,110 @@
+/*
+ * Once collected, the daily capsule panel and the weekly mission panel fold
+ * into one line: the heading, a small figure (the next capsule's clock, the
+ * mission's count), then a lime check and "Collected".
+ */
+
+.hub-done-icon {
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+
+.daily-booster__state--collected,
+.hub-goal__claim-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.daily-booster--collected {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.daily-booster--collected .daily-booster__head {
+  display: contents;
+}
+
+.daily-booster--collected .daily-booster__state {
+  order: 2;
+  color: var(--color-lime);
+  white-space: nowrap;
+}
+
+.daily-booster--collected .daily-booster__text,
+.daily-booster--collected .daily-booster__next-label,
+.daily-booster--collected .gauge {
+  display: none;
+}
+
+.daily-booster--collected .daily-booster__next {
+  display: block;
+  order: 1;
+  margin-left: auto;
+}
+
+.daily-booster--collected .daily-booster__clock {
+  color: var(--color-muted);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.hub-goal:has(.hub-goal__claim--collected) {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.hub-goal:has(.hub-goal__claim--collected) .hub-goal__line,
+.hub-goal:has(.hub-goal__claim--collected) .hub-goal__gauge,
+.hub-goal:has(.hub-goal__claim--collected) .hub-goal__reward,
+.hub-goal:has(.hub-goal__claim--collected) .hub-goal__previous {
+  display: none;
+}
+
+.hub-goal:has(.hub-goal__claim--collected) .hub-goal__figures {
+  color: var(--color-muted);
+}
+
+.hub-goal__claim--collected {
+  grid-row: 1;
+  grid-column: 3;
+}
+
+.hub-goal__claim-state {
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.daily-booster--collected .hub-section-title,
+.hub-goal:has(.hub-goal__claim--collected) .hub-goal__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A small phone keeps only the check; the word stays for screen readers. */
+@media (max-width: 419px) {
+  .daily-booster--collected .hub-done-label,
+  .hub-goal__claim--collected .hub-done-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .daily-booster--collected,
+  .hub-goal:has(.hub-goal__claim--collected) {
+    gap: var(--space-3);
+  }
+
+  .hub-done-icon {
+    width: 16px;
+    height: 16px;
+  }
+}

@@ -28,6 +28,7 @@
 @import "../styles/hub-daily-sets.css";
 @import "../styles/hub-responsive.css";
 @import "../styles/hub-goal.css";
+@import "../styles/hub-done.css";
 @import "../styles/collection.css";
 @import "../styles/collection-set-tiles.css";
 @import "../styles/collection-set-tiles-cards.css";
@@ -40,6 +41,7 @@
 @import "../styles/collection-goal-suggestions.css";
 @import "../styles/collection-custom-set-editor.css";
 @import "../styles/profile.css";
+@import "../styles/profile-stage.css";
 @import "../styles/profile-title.css";
 @import "../styles/profile-responsive.css";
 @import "../styles/settings.css";
