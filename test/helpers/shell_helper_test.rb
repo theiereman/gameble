@@ -62,6 +62,7 @@ class ShellHelperTest < ActionView::TestCase
       %w[packs show] => "Capsule", %w[trades show] => "Trades", %w[trades edit] => "Trades", %w[friends show] => "Friends",
       %w[friend_profiles show] => "Profile", %w[public_profiles show] => "Profile", %w[public_profiles set] => "Set",
       %w[settings show] => "Profile", %w[feeds show] => "Feed", %w[pages legal] => "Legal notice", %w[pages how_it_works] => "How it works", %w[own_profiles show] => "My profile",
+      %w[decks new] => "Deck", %w[decks show] => "Deck",
       %w[back_office/dashboard show] => "Back-office", %w[back_office/import_runs index] => "Back-office",
       %w[pages home] => nil, %w[invite_links show] => nil
     }

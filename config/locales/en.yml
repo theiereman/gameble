@@ -59,7 +59,7 @@ en:
       market_html: "Your balance of %{balance} PiCoins is destroyed without refund once your running listings are withdrawn and your bids released."
       note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
         the time of your last visit, your last data export, the announcements you closed, the release notes you saw and your latest activity,
-        your collection, your showcase, your set tiers, your custom sets, your goals, your achievements, your
+        your collection, your showcase, your set tiers, your custom sets, your decks, your goals, your achievements, your
         card back unlocks and your active card back, your capsules, opened or not, your luck scores, your daily bonuses and your weekly mission rewards,
         your friends, your invitations, your friend code, your profile visits, when you last opened each of your trades, the notifications you read, your reactions to feed entries and your activity feed
         entries: pulls, discoveries, reposts, purchases announced in the feed and every trade that names you. Your
@@ -1647,6 +1647,36 @@ en:
     - October
     - November
     - December
+  decks:
+    deleted: Deck deleted.
+    throttled: Too many changes in a minute. Try again in a moment.
+    editor:
+      collection: Your collection
+      delete: Delete the deck
+      delete_dialog:
+        cancel: Cancel
+        close: Close
+        confirm: Delete
+        text: The cards stay in your collection.
+      empty_collection: No card in your collection yet.
+      empty_slot: Empty slot
+      name_label: Deck name
+      no_stats: Stats on Monday
+      slots: Slots
+      title: Deck
+      trump: "%{trump} · %{stat}"
+      strings:
+        add: Add
+        added: "%{card} added, %{count} of 12"
+        count_hidden: "%{count} of 12"
+        delete_title: Delete the deck "%{deck}"?
+        full: The deck is full.
+        in_deck: In the deck
+        in_deck_suffix: ", in the deck"
+        remove_slot: Remove %{card} from the deck
+        removed: "%{card} removed, %{count} of 12"
+        same_game: This game is already in the deck.
+        save_failed: Could not save, try again.
   duel_stats:
     dated: Values of %{date}
     heading: Duel
@@ -1804,6 +1834,15 @@ en:
       player_not_found: That profile could not be found.
       card_already_showcased: This card is already in your showcase.
       card_not_owned: You do not own this card.
+      too_many_decks: 'Five decks at most: delete one to make another.'
+      deck_name_required: Name the deck.
+      deck_name_too_long: 24 characters at most.
+      deck_name_taken: You already have a deck with this name.
+      deck_not_found: This deck cannot be found.
+      not_yet_ranked: This card gets its stats on Monday.
+      deck_full: The deck is full.
+      game_already_in_deck: This game is already in the deck.
+      no_free_copy: All your copies of this card are reserved.
       card_not_showcased: This card is not in your showcase.
       custom_set_not_found: That set does not exist or is not yours.
       goal_set_complete: This set is already complete.
@@ -3605,7 +3644,7 @@ en:
           audience measurement trackers.'
         deletion: When you delete your account, your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address, which is deleted there too), your profile name,
           the time of your last visit, your last data export, the announcements you closed, the release notes you saw, your latest activity,
-          your collection, your showcase, your set tiers, your custom sets, your Steam library list, your goals, your achievements, your
+          your collection, your showcase, your set tiers, your custom sets, your decks, your Steam library list, your goals, your achievements, your
           card back unlocks and your choice of active card back, your capsules, your luck scores, your daily bonuses, your weekly mission rewards, your friendships,
           your invitations, your friend code, your profile visits, when you last opened each trade, the notifications you read, your activity feed entries and your reactions are erased,
           your open trades are cancelled and your profile disappears. What also concerns
@@ -4322,6 +4361,7 @@ en:
       booster: Capsule
       card: Card
       collection: Collection
+      decks: Deck
       exchange: Exchange
       feed: Feed
       friends: Friends

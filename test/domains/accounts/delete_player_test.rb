@@ -127,6 +127,21 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_equal 3, Game::CustomSetGame.where(custom_set_id: theirs.id).count
   end
 
+  test "the player's decks are erased with their cards and the copies they blocked; another player's stay" do
+    portal = catalog_card_seasons(:portal_one)
+    [ @player, @other ].each do |player|
+      deck = Game::Deck.create!(player_id: player.id, name: "Vieux briscards")
+      Game::DeckCard.insert_all!([ { deck_id: deck.id, card_season_id: portal.id, card_id: portal.card_id, slot: 1 } ])
+      Game::Holding.create!(player_id: player.id, card_season_id: portal.id, quantity: 1, reserved: 1)
+    end
+
+    assert delete.success?
+
+    assert_not Game::Deck.exists?(player_id: @player.id)
+    assert_not Game::Holding.exists?(player_id: @player.id)
+    assert_equal 1, Game::DeckCard.where(deck_id: Game::Deck.where(player_id: @other.id).select(:id)).count
+  end
+
   test "the trades naming the player on either side leave the feed; a trade between others stays" do
     third = accounts_players(:administrator)
     portal = catalog_card_seasons(:portal_one).id

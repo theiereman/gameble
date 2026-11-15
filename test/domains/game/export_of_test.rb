@@ -22,7 +22,7 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     export = Game::ExportOf.call(@player)
 
     assert_equal "7K2Q-F3NX", export.friend_code
-    %i[held_cards showcase packs daily_bonus_days goal_reward_weeks contributions set_tiers discoveries feed_entries unlocks trades custom_sets].each do
+    %i[held_cards showcase packs daily_bonus_days goal_reward_weeks contributions set_tiers discoveries feed_entries unlocks trades custom_sets decks].each do
       assert_empty export.public_send(it), it
     end
     assert_equal 0, export.friend_count
@@ -151,6 +151,20 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     assert_equal [ [ first.token, "Mes favoris", "custom", [ rare, portal, common ] ], [ second.token, "Autre", "custom", [ common, rare, portal ] ] ],
       sets.map { [ it.token, it.name, it.kind, it.card_ids ] }
     assert_equal first.created_at, sets.first.created_at
+  end
+
+  test "the decks list each of the player's decks, oldest first, with its card-seasons in slot order" do
+    first = Game::Deck.create!(player_id: @player.id, name: "Vieux briscards")
+    Game::Deck.create!(player_id: @player.id, name: "Vide")
+    Game::Deck.create!(player_id: @friend.id, name: "Secret garden")
+    Game::DeckCard.insert_all!([ [ @rare, 3 ], [ @portal, 1 ] ].map do |card_season_id, slot|
+      { deck_id: first.id, card_season_id:, card_id: Catalog::CardSeason.where(id: card_season_id).pick(:card_id), slot: }
+    end)
+
+    export = Game::ExportOf.call(@player)
+
+    assert_equal [ [ "Vieux briscards", [ @portal, @rare ] ], [ "Vide", [] ] ], export.decks.map { [ it.name, it.card_season_ids ] }
+    assert_includes export.card_season_ids, @rare
   end
 
   test "another player's data stays out" do

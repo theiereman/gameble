@@ -1,0 +1,11 @@
+<%# locals: (editor:) %>
+<section class="deck-collection" aria-labelledby="deck-collection-heading" data-controller="deck-collection">
+  <h2 id="deck-collection-heading" class="deck-collection__heading"><%= t("decks.editor.collection") %></h2>
+  <% if editor.entries.empty? %>
+    <p class="deck-collection__empty"><%= t("decks.editor.empty_collection") %></p>
+  <% else %>
+    <ul class="deck-collection__list" data-action="keydown->deck-collection#keydown">
+      <%= render partial: "decks/entry", collection: editor.entries, as: :entry, locals: { editor: editor } %>
+    </ul>
+  <% end %>
+</section>

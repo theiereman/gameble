@@ -50,6 +50,7 @@ class PlayerExport
       linksOpened: { sourceCode: time(game.markers.source_code_opened_at), support: time(game.markers.support_opened_at) }.compact,
       codeContributionGrantedAt: time(game.markers.code_contribution_at),
       discordMemberAt: time(game.markers.discord_member_at),
+      decks: game.decks.map { { name: it.name, cards: it.card_season_ids.filter_map { card(it) } } },
       wallet: { available: game.market.wallet.available, committed: game.market.wallet.committed },
       picoinEntries: game.market.entries.map { picoin_entry(it) },
       listings: game.market.listings.map { listing(it) },

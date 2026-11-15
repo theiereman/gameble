@@ -11,7 +11,7 @@ class PlayerExportTest < ActiveSupport::TestCase
   include FeedReactions
 
   SECTIONS = %i[exportedAt profile identities collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
-    firstDiscoveries feedEntries feedReactions achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals goalsCompleted profilesViewed profileVisitsReceived linksOpened codeContributionGrantedAt discordMemberAt wallet picoinEntries listings bids reportsFiled reportsReceived
+    firstDiscoveries feedEntries feedReactions achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals goalsCompleted profilesViewed profileVisitsReceived linksOpened codeContributionGrantedAt discordMemberAt decks wallet picoinEntries listings bids reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent available committed goalsCompleted profilesViewed profileVisitsReceived availableDelta committedDelta startingPrice
     currentPrice finalPrice durationHours maximum priceAfter].freeze
@@ -134,7 +134,7 @@ class PlayerExportTest < ActiveSupport::TestCase
 
     assert_equal SECTIONS, hash.keys
     %i[collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers firstDiscoveries feedEntries
-       feedReactions achievements trades customSets goals picoinEntries listings bids reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
+       feedReactions achievements trades customSets goals decks picoinEntries listings bids reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal 0, hash[:goalsCompleted]
     assert_equal [ 0, 0 ], hash.values_at(:profilesViewed, :profileVisitsReceived)
     assert_nil hash[:codeContributionGrantedAt]
@@ -145,6 +145,21 @@ class PlayerExportTest < ActiveSupport::TestCase
     assert_equal({ received: 0, sent: 0 }, hash[:pendingInvitations])
     assert_equal({ active: "standard", activeSeason: nil, unlocked: [] }, hash[:cardBacks])
     assert_nil hash[:steamLibrary]
+    assert_no_database_id(hash)
+  end
+
+  test "the player's decks are listed by name with their cards by slug and season in slot order, never another player's" do
+    deck = Game::Deck.create!(player_id: @player.id, name: "Vieux briscards")
+    Game::DeckCard.insert_all!([ [ @rare, 1 ], [ @portal, 2 ] ].map do |card_season_id, slot|
+      { deck_id: deck.id, card_season_id:, card_id: Catalog::CardSeason.where(id: card_season_id).pick(:card_id), slot: }
+    end)
+    Game::Deck.create!(player_id: @friend.id, name: "Secret garden")
+
+    hash = export.to_h
+
+    assert_equal [ { name: "Vieux briscards", cards: [ { slug: "blue-depths", season: 1 }, { slug: "portal", season: 1 } ] } ], hash[:decks]
+    assert_not_includes hash.to_json, deck.token
+    assert_not_includes hash.to_json, "Secret garden"
     assert_no_database_id(hash)
   end
 

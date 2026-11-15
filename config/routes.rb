@@ -83,6 +83,11 @@ Rails.application.routes.draw do
     get "library/custom-sets/games" => "custom_sets#games", as: :custom_set_games
     resources :custom_sets, path: "library/custom-sets", only: %i[create show update destroy], param: :token,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    # A player's decks, by token: a new deck's editor writes nothing until its first change; each change saves at once.
+    resources :decks, path: "duels/decks", only: %i[new create show update destroy], param: :token,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "duels/decks/:token/cards" => "deck_cards#create", as: :deck_cards, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    delete "duels/decks/:token/cards" => "deck_cards#destroy", constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # A player's goals, each named by its set: a kind and key, or a custom
     # set's token, never a position.
     post "library/goals" => "goals#create", as: :library_goals

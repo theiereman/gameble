@@ -1,0 +1,10 @@
+<% content_for :title, t("decks.editor.title") %>
+<% content_for :screen_title, t("decks.editor.title") %>
+<% if @editor %>
+  <%= render "decks/editor", editor: @editor %>
+<% else %>
+  <section class="deck-editor" aria-labelledby="deck-editor-heading">
+    <h1 id="deck-editor-heading" class="visually-hidden"><%= t("decks.editor.title") %></h1>
+    <p class="deck-editor__notice"><%= Game::CreateDeck.failure_message(:too_many_decks) %></p>
+  </section>
+<% end %>

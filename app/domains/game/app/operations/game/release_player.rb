@@ -23,6 +23,8 @@ module Game
         ShowcaseEntry.where(player_id: player.id).delete_all
         Goal.where(player_id: player.id).delete_all
         CustomSet.where(player_id: player.id).delete_all
+        DeckCard.where(deck_id: Deck.where(player_id: player.id).select(:id)).delete_all
+        Deck.where(player_id: player.id).delete_all
         Holding.where(player_id: player.id).delete_all
         AchievementUnlock.where(player_id: player.id).delete_all
         CardBackUnlock.where(player_id: player.id).delete_all

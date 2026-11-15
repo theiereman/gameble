@@ -7,6 +7,8 @@ module Game
 
     Profile = Data.define(:card_season_id, :stats, :trump_stat, :trump_direction, :computed_at) do
       def trump = stats.find { it.name == trump_stat }
+
+      def ranked? = stats.find { it.name == :discovery }.value?
     end
 
     def self.call(card_season_ids)

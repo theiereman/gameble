@@ -440,6 +440,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.index ["player_id", "day"], name: "index_game_daily_bonus_claims_on_player_id_and_day", unique: true
   end
 
+  create_table "game_deck_cards", force: :cascade do |t|
+    t.bigint "deck_id", null: false
+    t.bigint "card_season_id", null: false
+    t.bigint "card_id", null: false
+    t.integer "slot", limit: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_season_id"], name: "index_game_deck_cards_on_card_season_id"
+    t.index ["deck_id", "card_id"], name: "index_game_deck_cards_on_deck_id_and_card_id", unique: true
+    t.index ["deck_id", "slot"], name: "index_game_deck_cards_on_deck_id_and_slot", unique: true
+    t.check_constraint "slot >= 1 AND slot <= 12", name: "game_deck_cards_slot_check"
+  end
+
+  create_table "game_decks", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "token", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "player_id, lower((name)::text)", name: "index_game_decks_on_player_id_and_lower_name", unique: true
+    t.index ["token"], name: "index_game_decks_on_token", unique: true
+    t.check_constraint "char_length(name::text) >= 1 AND char_length(name::text) <= 24", name: "game_decks_name_check"
+  end
+
   create_table "game_duel_stats", force: :cascade do |t|
     t.bigint "card_season_id", null: false
     t.integer "popularity_value"
@@ -1110,6 +1134,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
   add_foreign_key "game_custom_sets", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "game_packs", column: "pack_id"
+  add_foreign_key "game_deck_cards", "catalog_card_seasons", column: "card_season_id"
+  add_foreign_key "game_deck_cards", "catalog_cards", column: "card_id"
+  add_foreign_key "game_deck_cards", "game_decks", column: "deck_id", on_delete: :cascade
+  add_foreign_key "game_decks", "accounts_players", column: "player_id"
   add_foreign_key "game_duel_stats", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "partner_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "player_id"

@@ -63,7 +63,8 @@ module ShellHelper
     "pages#legal" => :legal,
     "pages#how_it_works" => :how_it_works,
     "own_profiles" => :me,
-    "market/exchanges" => :exchange
+    "market/exchanges" => :exchange,
+    "decks" => :decks
   }.freeze
 
   def shell_top_level_screen?

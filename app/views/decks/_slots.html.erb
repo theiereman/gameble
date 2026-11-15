@@ -1,0 +1,17 @@
+<%# locals: (editor:) %>
+<section class="deck-slots" aria-labelledby="deck-slots-heading" data-controller="deck-slots">
+  <h2 id="deck-slots-heading" class="visually-hidden"><%= t("decks.editor.slots") %></h2>
+  <ol class="deck-slots__list">
+    <% editor.slots.each do |entry| %>
+      <li class="deck-slots__slot" data-deck-slots-target="slot" data-deck-editor-target="slot" data-ref="<%= entry&.ref %>">
+        <% if entry %>
+          <%= render "decks/filled_slot", entry: entry %>
+        <% else %>
+          <%= render "decks/empty_slot" %>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+  <template data-deck-slots-target="filledTemplate"><%= render "decks/filled_slot", entry: nil %></template>
+  <template data-deck-slots-target="emptyTemplate"><%= render "decks/empty_slot" %></template>
+</section>

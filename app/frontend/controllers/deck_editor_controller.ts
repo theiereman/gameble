@@ -1,0 +1,212 @@
+import { Controller } from "@hotwired/stimulus"
+import { csrfToken } from "../lib/booster_page"
+import type { Intent } from "../lib/screen"
+import {
+  activateFirst,
+  choose,
+  collectionView,
+  countOf,
+  failed,
+  focusAfterRemoval,
+  move,
+  nextToSend,
+  noticeText,
+  refused,
+  removeSlot,
+  rename,
+  requestFor,
+  saved,
+  slotsView,
+  start,
+  SLOT_COUNT,
+  type Availability,
+  type DeckState,
+  type DeckStrings,
+  type Entry,
+} from "../lib/deck_editor"
+import { sendChange } from "../lib/deck_editor_save"
+import { writeAttribute, writeHidden, writeText } from "../lib/dom_writes"
+import { t } from "../lib/i18n"
+import type DeckCollectionController from "./deck_collection_controller"
+import type { MoveIntent } from "./deck_collection_controller"
+import type DeckNameController from "./deck_name_controller"
+import type DeckSlotsController from "./deck_slots_controller"
+
+function entryFrom(element: HTMLElement): Entry {
+  const data = element.dataset
+  return {
+    ref: data.ref ?? "",
+    game: data.game ?? "",
+    title: data.title ?? "",
+    image: data.image ?? "",
+    availability: (data.availability ?? "available") as Availability,
+  }
+}
+
+export default class DeckEditorController extends Controller<HTMLElement> {
+  static targets = [
+    "entry",
+    "slot",
+    "summaryName",
+    "count",
+    "countHidden",
+    "status",
+    "deleteArea",
+    "deleteForm",
+    "deleteTitle",
+  ]
+  static values = { token: String, name: String, createUrl: String, deckUrl: String, strings: Object }
+  static outlets = ["deck-name", "deck-slots", "deck-collection"]
+
+  declare readonly entryTargets: HTMLElement[]
+  declare readonly slotTargets: HTMLElement[]
+  declare readonly summaryNameTarget: HTMLElement
+  declare readonly countTarget: HTMLElement
+  declare readonly countHiddenTarget: HTMLElement
+  declare readonly statusTarget: HTMLElement
+  declare readonly deleteAreaTarget: HTMLElement
+  declare readonly deleteFormTarget: HTMLFormElement
+  declare readonly deleteTitleTarget: HTMLElement
+  declare readonly tokenValue: string
+  declare readonly nameValue: string
+  declare readonly createUrlValue: string
+  declare readonly deckUrlValue: string
+  declare readonly stringsValue: DeckStrings
+  declare readonly hasDeckNameOutlet: boolean
+  declare readonly deckNameOutlet: DeckNameController
+  declare readonly hasDeckSlotsOutlet: boolean
+  declare readonly deckSlotsOutlet: DeckSlotsController
+  declare readonly hasDeckCollectionOutlet: boolean
+  declare readonly deckCollectionOutlet: DeckCollectionController
+
+  private state?: DeckState
+  private announced = 0
+  private flushing = false
+
+  connect(): void {
+    this.state = start({
+      token: this.tokenValue,
+      url: this.deckUrlValue,
+      name: this.nameValue,
+      slots: this.slotTargets.map((slot) => slot.dataset.ref || null),
+      entries: this.entryTargets.map(entryFrom),
+    })
+    this.announced = 0
+    this.render()
+  }
+
+  disconnect(): void {
+    this.state = undefined
+  }
+
+  deckNameOutletConnected(): void {
+    this.render()
+  }
+
+  deckSlotsOutletConnected(): void {
+    this.render()
+  }
+
+  deckCollectionOutletConnected(): void {
+    this.render()
+  }
+
+  choose({ detail: { ref } }: Intent<{ ref: string }>): void {
+    if (!this.state) return
+    this.apply(choose(this.state, ref))
+    this.flush()
+  }
+
+  removeSlot({ detail: { slot } }: Intent<{ slot: number }>): void {
+    if (!this.state) return
+    const next = removeSlot(this.state, slot)
+    if (next === this.state) return
+    const focus = focusAfterRemoval(next, slot)
+    this.apply(focus === null ? activateFirst(next) : next)
+    if (focus === null) this.collection()?.focusActive()
+    else this.slots()?.focusSlot(focus)
+    this.flush()
+  }
+
+  rename({ detail: { name } }: Intent<{ name: string }>): void {
+    if (!this.state) return
+    this.apply(rename(this.state, name))
+    this.flush()
+  }
+
+  move(event: Intent<MoveIntent>): void {
+    if (!this.state) return
+    const next = move(this.state, event.detail.key, event.detail.columns)
+    if (next === this.state) return
+    event.preventDefault()
+    this.apply(next)
+    this.collection()?.focusActive()
+  }
+
+  private async flush(): Promise<void> {
+    if (this.flushing) return
+    this.flushing = true
+    try {
+      for (let change = this.state && nextToSend(this.state); this.state && change; change = nextToSend(this.state)) {
+        const request = requestFor(this.state, change, this.createUrlValue)
+        if (!request) break
+        const result = await sendChange({ ...request, csrfToken: csrfToken() })
+        if (!this.state) return
+        if (result.kind === "failed") {
+          this.apply(failed(this.state))
+          break
+        }
+        const wasNew = this.state.token === null
+        this.apply(
+          result.kind === "saved" ? saved(this.state, result.body) : refused(this.state, result.code, result.message),
+        )
+        if (wasNew && this.state.url) window.history.replaceState(window.history.state, "", this.state.url)
+      }
+    } finally {
+      this.flushing = false
+    }
+  }
+
+  private apply(next: DeckState): void {
+    if (next === this.state) return
+    this.state = next
+    this.render()
+  }
+
+  private render(): void {
+    const state = this.state
+    if (!state) return
+    const strings = this.stringsValue
+    const count = countOf(state)
+    this.deckName()?.render({ name: state.name, refusal: state.nameRefusal })
+    this.slots()?.render(slotsView(state, strings))
+    this.collection()?.render(collectionView(state), strings)
+    writeText(this.summaryNameTarget, state.name)
+    writeText(this.countTarget, `${count} / ${SLOT_COUNT}`)
+    writeText(this.countHiddenTarget, t(strings.countHidden, { count }))
+    writeText(this.deleteTitleTarget, t(strings.deleteTitle, { deck: state.savedName }))
+    writeHidden(this.deleteAreaTarget, state.url === null)
+    if (state.url) writeAttribute(this.deleteFormTarget, "action", state.url)
+    this.announce(state)
+  }
+
+  private announce(state: DeckState): void {
+    if (state.noticeCount === this.announced) return
+    this.announced = state.noticeCount
+    const message = noticeText(state, this.stringsValue)
+    this.statusTarget.textContent = ""
+    window.requestAnimationFrame(() => writeText(this.statusTarget, message))
+  }
+
+  private deckName(): DeckNameController | null {
+    return this.hasDeckNameOutlet ? this.deckNameOutlet : null
+  }
+
+  private slots(): DeckSlotsController | null {
+    return this.hasDeckSlotsOutlet ? this.deckSlotsOutlet : null
+  }
+
+  private collection(): DeckCollectionController | null {
+    return this.hasDeckCollectionOutlet ? this.deckCollectionOutlet : null
+  }
+}

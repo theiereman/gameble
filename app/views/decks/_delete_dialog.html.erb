@@ -1,0 +1,21 @@
+<%# locals: (deck:) %>
+<dialog id="delete-deck" class="modal" aria-labelledby="delete-deck-title" aria-describedby="delete-deck-text"
+        data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="delete-deck-title" class="modal__title" data-deck-editor-target="deleteTitle"><%= t("decks.editor.strings.delete_title", deck: deck&.name) %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("decks.editor.delete_dialog.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: deck ? deck_path(token: deck.token) : "", method: :delete, class: "delete-deck__form",
+          data: { turbo: false, deck_editor_target: "deleteForm" } do %>
+      <p id="delete-deck-text" class="delete-deck__text"><%= t("decks.editor.delete_dialog.text") %></p>
+      <div class="delete-deck__actions">
+        <%= tag.button t("decks.editor.delete_dialog.confirm"), type: :submit, class: "button button--primary" %>
+        <%= tag.button t("decks.editor.delete_dialog.cancel"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
+      </div>
+    <% end %>
+  <% end %>
+</dialog>

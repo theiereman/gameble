@@ -3,7 +3,7 @@ module Game
     private
 
     def clean_name(name)
-      name = name.is_a?(String) ? visible(name) : ""
+      name = VisibleName.call(name)
       if name.empty?
         Failure(:name_required)
       elsif name.length > CustomSet::NAME_LIMIT
@@ -30,12 +30,6 @@ module Game
 
     def insert_games(custom_set, card_ids)
       CustomSetGame.insert_all!(card_ids.map { |card_id| { custom_set_id: custom_set.id, card_id: } })
-    end
-
-    def visible(name)
-      name = name.dup.force_encoding(Encoding::UTF_8).scrub("").unicode_normalize(:nfc)
-      name = name.gsub(Accounts::PersonaName::INVISIBLE, "").gsub(Accounts::PersonaName::SPACE, " ").squish
-      Accounts::PersonaName::VISIBLE.match?(name) ? name : ""
     end
 
     def name_free(player, name, except: nil)

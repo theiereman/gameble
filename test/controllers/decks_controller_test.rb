@@ -1,0 +1,215 @@
+require "test_helper"
+require_relative "../support/steam_sign_in"
+require_relative "../support/counting_rate_limit"
+require_relative "../support/decks"
+
+# The deck editor's addresses: the editor of a new deck and of a deck by its token, the JSON saves of each change with
+# their refusals, the deletion, the owner alone let in, and sixty changes a minute.
+class DecksControllerTest < ActionDispatch::IntegrationTest
+  include SteamSignIn
+  include CountingRateLimit
+  include Decks
+
+  setup do
+    @player = accounts_players(:player)
+  end
+
+  def json = { as: :json }
+
+  def create_deck(name: nil, player: @player) = Game::CreateDeck.new.call(player:, name:).value!
+
+  def assert_refusal(status, code, message)
+    assert_response status
+    assert_equal({ "error" => { "code" => code, "message" => message } }, response.parsed_body)
+  end
+
+  test "a visitor is sent to sign in, and refused a save" do
+    get new_deck_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
+
+    post decks_path(locale: :en), params: { name: "Vieux" }, **json
+    assert_response :unauthorized
+    assert_equal 0, Game::Deck.count
+  end
+
+  test "a player's editor lists each owned edition with its trump, or why it cannot enter, and writes nothing" do
+    ranked = ranked_cards(@player, 2, titles: [ "Quake", "Alone in the Dark" ])
+    reserved = ranked_cards(@player, 1, titles: [ "Myst" ]).sole
+    Game::Holding.where(player_id: @player.id, card_season_id: reserved).update_all(reserved: 1)
+    _season, (unranked,) = published_cards(1)
+    hold(@player, unranked)
+    sign_in(@player)
+
+    assert_no_difference -> { Game::Deck.count } do
+      get new_deck_path(locale: :fr)
+    end
+
+    assert_response :success
+    titles = css_select(".deck-entry__title").map(&:text)
+    assert_equal [ "Alone in the Dark", "Myst", "Quake", "Seed 0" ], titles
+    assert_select ".deck-entry__toggle[aria-disabled=true]", 2
+    assert_select ".deck-entry__toggle[data-ref='#{ref_of(ranked.first)}'][aria-pressed=false]"
+    assert_select ".deck-entry__reserved", "Réservée"
+    assert_select ".deck-entry__detail", "Stats lundi"
+    assert_select ".deck-slots__slot .deck-slot--empty", 12
+    assert_select ".deck-editor__delete[hidden]"
+    assert_select "[data-deck-editor-target=entry][data-ref]", 4
+    assert_no_match(/data-[a-z-]*id="\d+"/, response.body)
+  end
+
+  test "an edition whose only copy another deck blocks can still be chosen" do
+    card = ranked_cards(@player, 1).sole
+    Game::AddCardToDeck.new.call(player: @player, token: create_deck.token, card_season_id: card).value!
+    assert_equal 1, reserved_of(@player, card)
+    sign_in(@player)
+
+    get new_deck_path(locale: :en)
+
+    assert_select ".deck-entry__toggle[data-ref='#{ref_of(card)}']:not([aria-disabled])[aria-pressed=false]" do
+      assert_select ".deck-entry__action", "Add"
+      assert_select ".deck-entry__reserved", 0
+    end
+  end
+
+  test "a deck's editor shows its cards in their slots, each a button taking it out" do
+    card = ranked_cards(@player, 1, titles: [ "Quake" ]).sole
+    deck = create_deck(name: "Vieux briscards")
+    Game::AddCardToDeck.new.call(player: @player, token: deck.token, card_season_id: card).value!
+    sign_in(@player)
+
+    get deck_path(locale: :en, token: deck.token)
+
+    assert_response :success
+    assert_select ".deck-slots__slot:first-child button.deck-slot[aria-label=?]", "Remove Quake from the deck"
+    assert_select ".deck-entry__toggle[aria-pressed=true][aria-label=?]", "Quake, S#{Catalog::Season.maximum(:number)}, Trump · #{trump_of(card)}, in the deck"
+    assert_select "#deck-name[value=?]", "Vieux briscards"
+    assert_select ".deck-editor__delete:not([hidden])"
+    assert_select "form.delete-deck__form[action=?]", deck_path(locale: :en, token: deck.token)
+  end
+
+  test "with five decks the new editor says so and shows no editor" do
+    5.times { create_deck }
+    sign_in(@player)
+
+    get new_deck_path(locale: :fr)
+
+    assert_select ".deck-editor__notice", "Cinq decks au plus : supprimez-en un pour en créer un autre."
+    assert_select "#deck-editor", 0
+  end
+
+  test "each change saves in JSON: a deck created with its address, renamed, a card added then taken out" do
+    card = ranked_cards(@player, 1).sole
+    sign_in(@player)
+
+    post decks_path(locale: :en), params: { name: nil }, **json
+    deck = Game::Deck.sole
+    assert_equal({ "token" => deck.token, "url" => deck_path(locale: :en, token: deck.token), "name" => "Deck 1" }, response.parsed_body)
+
+    patch deck_path(locale: :en, token: deck.token), params: { name: "Vieux" }, **json
+    assert_equal({ "name" => "Vieux" }, response.parsed_body)
+
+    post deck_cards_path(locale: :en, token: deck.token), params: { ref: ref_of(card) }, **json
+    assert_equal({ "slot" => 1, "count" => 1 }, response.parsed_body)
+
+    delete deck_cards_path(locale: :en, token: deck.token), params: { ref: ref_of(card) }, **json
+    assert_equal({ "slot" => 1, "count" => 0 }, response.parsed_body)
+    assert_equal 0, reserved_of(@player, card)
+  end
+
+  test "a refused change answers 422 with its code and message in the page's language" do
+    first = ranked_cards(@player, 1).sole
+    second = second_editions([ first ]).sole
+    hold(@player, second)
+    rank([ second ])
+    deck = create_deck(name: "Vieux")
+    create_deck(name: "Confidentiels")
+    Game::AddCardToDeck.new.call(player: @player, token: deck.token, card_season_id: first).value!
+    sign_in(@player)
+
+    post deck_cards_path(locale: :fr, token: deck.token), params: { ref: ref_of(second) }, **json
+    assert_refusal(:unprocessable_content, "game_already_in_deck", "Ce jeu est déjà dans le deck.")
+
+    post deck_cards_path(locale: :en, token: deck.token), params: { ref: ref_of(second) }, **json
+    assert_refusal(:unprocessable_content, "game_already_in_deck", "This game is already in the deck.")
+
+    patch deck_path(locale: :fr, token: deck.token), params: { name: "confidentiels" }, **json
+    assert_refusal(:unprocessable_content, "deck_name_taken", "Vous avez déjà un deck de ce nom.")
+
+    post deck_cards_path(locale: :en, token: deck.token), params: { ref: "nowhere:9" }, **json
+    assert_refusal(:unprocessable_content, "card_not_owned", "You do not own this card.")
+  end
+
+  test "a token no deck holds is refused as not found, in JSON, and not found in HTML" do
+    sign_in(@player)
+
+    patch deck_path(locale: :en, token: "1" * 24), params: { name: "Vieux" }, **json
+    assert_refusal(:unprocessable_content, "deck_not_found", "This deck cannot be found.")
+
+    get deck_path(locale: :en, token: "1" * 24)
+    assert_response :not_found
+  end
+
+  test "another player's deck is forbidden to every address" do
+    deck = create_deck(player: accounts_players(:moderator))
+    sign_in(@player)
+
+    get deck_path(locale: :en, token: deck.token)
+    assert_response :forbidden
+
+    patch deck_path(locale: :en, token: deck.token), params: { name: "Mien" }, **json
+    assert_response :forbidden
+    assert_equal "forbidden", response.parsed_body.dig("error", "code")
+
+    post deck_cards_path(locale: :en, token: deck.token), params: { ref: "portal:1" }, **json
+    assert_response :forbidden
+
+    delete deck_cards_path(locale: :en, token: deck.token), params: { ref: "portal:1" }, **json
+    assert_response :forbidden
+
+    delete deck_path(locale: :en, token: deck.token)
+    assert_response :forbidden
+    assert Game::Deck.exists?(deck.id)
+  end
+
+  test "a deletion leads back to a new deck's editor with a toast" do
+    deck = create_deck
+    sign_in(@player)
+
+    delete deck_path(locale: :fr, token: deck.token)
+
+    assert_redirected_to new_deck_path(locale: :fr)
+    assert_response :see_other
+    assert_equal "Deck supprimé.", flash[:notice]
+    assert_not Game::Deck.exists?(deck.id)
+  end
+
+  test "changes to a deck and to its cards share sixty a minute, the sixty-first answered 429 in JSON" do
+    card = ranked_cards(@player, 1).sole
+    deck = create_deck
+    sign_in(@player)
+    throttled = "Trop de changements en une minute. Réessayez dans un instant."
+
+    with_counting_rate_limit(DecksController) do
+      with_counting_rate_limit(DeckCardsController) do
+        30.times { |index| patch deck_path(locale: :fr, token: deck.token), params: { name: "Nom #{index}" }, **json }
+        15.times do
+          post deck_cards_path(locale: :fr, token: deck.token), params: { ref: ref_of(card) }, **json
+          delete deck_cards_path(locale: :fr, token: deck.token), params: { ref: ref_of(card) }, **json
+        end
+        assert_response :success
+
+        post deck_cards_path(locale: :fr, token: deck.token), params: { ref: ref_of(card) }, **json
+        assert_refusal(:too_many_requests, "throttled", throttled)
+        patch deck_path(locale: :fr, token: deck.token), params: { name: "Trop" }, **json
+        assert_refusal(:too_many_requests, "throttled", throttled)
+        assert_equal "Nom 29", deck.reload.name
+        assert_equal 0, Game::DeckCard.count
+      end
+    end
+  end
+
+  private
+    def trump_of(card_season_id)
+      I18n.t("duel_stats.names.#{Game::DuelProfiles.call([ card_season_id ]).fetch(card_season_id).trump_stat}", locale: :en)
+    end
+end

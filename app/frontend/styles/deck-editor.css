@@ -1,0 +1,352 @@
+/* ---- The deck editor: the deck's name and count, its twelve slots, the
+   status line, then the player's collection, one row per edition. ---- */
+
+.deck-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: var(--space-content-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-gutter-phone);
+  box-sizing: border-box;
+}
+
+.deck-editor__notice {
+  margin: 0;
+  padding: var(--space-5);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.deck-editor__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0;
+  min-height: var(--space-touch-min);
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.deck-editor__summary-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-editor__count {
+  flex: none;
+  padding: var(--space-1) var(--space-3);
+  box-shadow: inset 0 0 0 1px var(--color-dim);
+  color: var(--color-muted);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+.deck-editor__name {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.deck-editor__label {
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.deck-editor__input {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: var(--space-button-height);
+  padding: var(--space-1) var(--space-5);
+  background: var(--color-input);
+  border: 0;
+  box-shadow: var(--control-border);
+  color: var(--color-text-max);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.deck-editor__input:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.deck-editor__refusal {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.deck-editor__refusal:empty {
+  display: none;
+}
+
+.deck-editor__status {
+  min-height: 1lh;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.deck-editor__delete {
+  display: flex;
+}
+
+.deck-editor__delete[hidden] {
+  display: none;
+}
+
+/* ---- Slots: four columns of three, three of four on the phone ---- */
+
+.deck-slots__list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: calc(4 * var(--space-grid-card-min));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.deck-slots__slot {
+  display: flex;
+  min-width: 0;
+}
+
+.deck-slot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  aspect-ratio: 460 / 215;
+  padding: 0;
+  overflow: hidden;
+  background: var(--color-panel-sunken);
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--color-line);
+  color: var(--color-text-max);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.deck-slot--empty {
+  box-shadow: none;
+  outline: 1px dashed var(--color-dim);
+  outline-offset: -1px;
+  cursor: default;
+}
+
+.deck-slot__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+
+.deck-slot__name {
+  position: relative;
+  padding: var(--space-1) var(--space-2);
+  overflow: hidden;
+  font: var(--font-card-meta);
+  letter-spacing: var(--tracking-card-meta);
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 0 var(--color-outline);
+  white-space: nowrap;
+}
+
+button.deck-slot:hover {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+button.deck-slot:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+/* ---- Collection: one row per edition ---- */
+
+.deck-collection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.deck-collection__heading {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.deck-collection__empty {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.deck-collection__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(2 * var(--space-grid-card-min)), 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.deck-entry {
+  display: flex;
+  min-width: 0;
+}
+
+.deck-entry__toggle {
+  display: grid;
+  grid-template-columns: calc(var(--space-touch-min) + var(--space-1)) minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: center;
+  width: 100%;
+  min-height: var(--space-touch-min);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-panel);
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--color-line-soft);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.deck-entry__toggle[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+.deck-entry__toggle[aria-disabled="true"] {
+  cursor: default;
+}
+
+.deck-entry__toggle[aria-disabled="true"] .deck-entry__art {
+  opacity: 0.4;
+}
+
+.deck-entry__toggle:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.deck-entry__art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 460 / 215;
+  object-fit: cover;
+}
+
+.deck-entry__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.deck-entry__title {
+  overflow: hidden;
+  color: var(--color-text-bright);
+  font: var(--font-body);
+  font-weight: var(--font-weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-entry__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.deck-entry__meta .season-mark {
+  position: static;
+  padding: 0 var(--space-1);
+}
+
+.deck-entry__action {
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.deck-entry__toggle[aria-pressed="true"] .deck-entry__action {
+  color: var(--color-muted);
+}
+
+.deck-entry__reserved {
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px var(--color-line-deep);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* ---- The delete dialog ---- */
+
+.delete-deck__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.delete-deck__text {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.delete-deck__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+@media (max-width: 719px) {
+  .deck-editor__summary {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 0 var(--space-3);
+    background: var(--color-steam-bar);
+    box-shadow: 0 2px 0 var(--color-line);
+  }
+
+  .deck-slots__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .deck-collection__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
