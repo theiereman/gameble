@@ -194,6 +194,10 @@ html[data-sub-view-step] .main {
     min-height: var(--space-chip-height-touch);
   }
 
+  .player-chip__avatar {
+    --player-chip-avatar-size: calc(var(--space-chip-height-touch) - 2 * var(--space-unit));
+  }
+
   .toast__close,
   .modal__close {
     width: var(--space-touch-min);
