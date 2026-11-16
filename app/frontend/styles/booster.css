@@ -61,6 +61,11 @@
   overflow-x: clip;
 }
 
+/* Until the script has chosen the layout the markup is the desktop's, so the screen stays blank rather than flash it. */
+.booster:not([data-layout]) {
+  visibility: hidden;
+}
+
 /* The tab's panel: the information column (its daily capsule at the foot) beside the stage. */
 .booster__body {
   display: grid;
