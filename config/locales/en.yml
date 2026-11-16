@@ -3134,6 +3134,7 @@ en:
         ready: Ready
         text: A free capsule every day. It joins your reserve.
         title: Daily capsule
+      fold: "%{title}: details"
       goal:
         collect: Collect
         collect_label: Collect the reward capsule
@@ -3215,6 +3216,14 @@ en:
         trades_waiting:
           one: "%{number} trade waiting for you"
           other: "%{number} trades waiting for you"
+      showcase:
+        empty:
+          open: Open a capsule
+          reserve_empty: Reserve empty
+          text: Your finest card will show here.
+          title: Open your first capsule
+        kicker: Latest acquisition
+        see_card: View the card
       welcome:
         close: Close
         collection: All that remains is for you to build your collection.

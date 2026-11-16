@@ -22,7 +22,7 @@ export default class extends Controller<HTMLElement> {
   declare readonly refreshUrlValue: string
   declare readonly hoursValue: boolean
   declare readonly totalValue: number
-  declare readonly clockTarget: HTMLElement
+  declare readonly clockTargets: HTMLElement[]
   declare readonly segmentTargets: HTMLElement[]
 
   private deadline?: number
@@ -108,7 +108,8 @@ export default class extends Controller<HTMLElement> {
   }
 
   private show(seconds: number): void {
-    this.clockTarget.textContent = this.hoursValue ? formatDailyClock(seconds) : formatClock(seconds)
+    const clock = this.hoursValue ? formatDailyClock(seconds) : formatClock(seconds)
+    this.clockTargets.forEach((target) => (target.textContent = clock))
     const lit = litSegments(this.totalValue - seconds, this.totalValue, this.segmentTargets.length)
     this.segmentTargets.forEach((segment, index) => segment.classList.toggle("gauge__segment--lit", index < lit))
   }

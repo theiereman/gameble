@@ -1,110 +1,134 @@
 /*
- * Once collected, the daily capsule panel and the weekly mission panel fold
- * into one line: the heading, a small figure (the next capsule's clock, the
- * mission's count), then a lime check and "Collected".
+ * A hub panel whose job is done (the daily capsule collected, this week's
+ * mission reached) gains a title bar: the heading, a small figure, then a
+ * lime check and the fold chevron at the top right. The whole bar answers a
+ * click; it shows only on hover. Folded, the panel keeps only that bar and
+ * its gauge; unfolded, the bar stays on top of the whole panel.
  */
+
+/* The last column holds the check, the gap and the chevron at the end of the bar. */
+.daily-booster--collected,
+.hub-goal:has(> .hub-fold) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto calc(12px + var(--space-3) + 10px);
+  grid-template-rows: minmax(var(--space-touch-min), auto);
+  align-content: start;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding-top: var(--space-unit);
+}
+
+.daily-booster--collected .daily-booster__head,
+.daily-booster--collected .daily-booster__next {
+  display: contents;
+}
+
+/* ---- The bar ---- */
+
+.hub-fold {
+  display: flex;
+  grid-row: 1;
+  grid-column: 1 / -1;
+  align-items: center;
+  align-self: stretch;
+  justify-content: flex-end;
+  gap: var(--space-3);
+
+  /* Edge to edge inside the panel's border, across its 24px side padding. */
+  margin: 0 calc(var(--space-unit) - var(--space-7));
+  padding: 0 calc(var(--space-7) - var(--space-unit));
+  border: 0;
+  background: none;
+  box-shadow: inset 0 calc(-1 * var(--space-unit)) 0 var(--color-line-soft);
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.hub-fold:hover {
+  background: var(--color-panel-raised);
+}
+
+.hub-fold:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
 
 .hub-done-icon {
   flex: none;
   width: 12px;
   height: 12px;
-}
-
-.daily-booster__state--collected,
-.hub-goal__claim-state {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.daily-booster--collected {
-  flex-direction: row;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.daily-booster--collected .daily-booster__head {
-  display: contents;
-}
-
-.daily-booster--collected .daily-booster__state {
-  order: 2;
   color: var(--color-lime);
-  white-space: nowrap;
 }
 
-.daily-booster--collected .daily-booster__text,
-.daily-booster--collected .daily-booster__next-label,
-.daily-booster--collected .gauge {
-  display: none;
+.hub-fold__chevron {
+  width: 6px;
+  height: 10px;
+  rotate: 90deg;
+  transition: rotate 220ms ease-out;
 }
 
-.daily-booster--collected .daily-booster__next {
-  display: block;
-  order: 1;
-  margin-left: auto;
-}
-
-.daily-booster--collected .daily-booster__clock {
-  color: var(--color-muted);
-  font: var(--font-body);
-  letter-spacing: var(--tracking-body);
-}
-
-.hub-goal:has(.hub-goal__claim--collected) {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-}
-
-.hub-goal:has(.hub-goal__claim--collected) .hub-goal__line,
-.hub-goal:has(.hub-goal__claim--collected) .hub-goal__gauge,
-.hub-goal:has(.hub-goal__claim--collected) .hub-goal__reward,
-.hub-goal:has(.hub-goal__claim--collected) .hub-goal__previous {
-  display: none;
-}
-
-.hub-goal:has(.hub-goal__claim--collected) .hub-goal__figures {
-  color: var(--color-muted);
-}
-
-.hub-goal__claim--collected {
-  grid-row: 1;
-  grid-column: 3;
-}
-
-.hub-goal__claim-state {
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  white-space: nowrap;
+.hub-fold[aria-expanded="true"] .hub-fold__chevron {
+  rotate: -90deg;
 }
 
 .daily-booster--collected .hub-section-title,
-.hub-goal:has(.hub-goal__claim--collected) .hub-goal__title {
+.daily-booster__bar-clock,
+.hub-goal:has(> .hub-fold) .hub-goal__title,
+.hub-goal:has(> .hub-fold) .hub-goal__figures {
+  z-index: 1;
+  grid-row: 1;
+  pointer-events: none;
+}
+
+.daily-booster--collected .hub-section-title,
+.hub-goal:has(> .hub-fold) .hub-goal__title {
+  grid-column: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* A small phone keeps only the check; the word stays for screen readers. */
-@media (max-width: 419px) {
-  .daily-booster--collected .hub-done-label,
-  .hub-goal__claim--collected .hub-done-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
+.daily-booster__bar-clock {
+  grid-column: 2;
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+  font-variant-numeric: tabular-nums;
+}
 
-  .daily-booster--collected,
-  .hub-goal:has(.hub-goal__claim--collected) {
-    gap: var(--space-3);
-  }
+.daily-booster--collected .daily-booster__text,
+.daily-booster--collected .daily-booster__next-label,
+.daily-booster--collected .daily-booster__clock,
+.daily-booster--collected .gauge {
+  grid-column: 1 / -1;
+}
 
-  .hub-done-icon {
-    width: 16px;
-    height: 16px;
+/* ---- Folded: the bar, then the gauge with as much room below as above ---- */
+
+.daily-booster:has(.hub-fold[aria-expanded="false"]),
+.hub-goal:has(> .hub-fold[aria-expanded="false"]) {
+  row-gap: var(--space-5);
+  padding-bottom: var(--space-5);
+}
+
+.daily-booster:has(.hub-fold[aria-expanded="false"]) .daily-booster__text,
+.daily-booster:has(.hub-fold[aria-expanded="false"]) .daily-booster__next-label,
+.daily-booster:has(.hub-fold[aria-expanded="false"]) .daily-booster__clock,
+.hub-goal:has(> .hub-fold[aria-expanded="false"]) .hub-goal__line,
+.hub-goal:has(> .hub-fold[aria-expanded="false"]) .hub-goal__reward,
+.hub-goal:has(> .hub-fold[aria-expanded="false"]) .hub-goal__previous,
+.hub-goal:has(> .hub-fold[aria-expanded="false"]) .hub-goal__claim--collected {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .hub-fold__chevron {
+    transition: none;
   }
+}
+
+html[data-motion="reduced"] .hub-fold__chevron {
+  transition: none;
 }

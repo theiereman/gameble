@@ -5,11 +5,11 @@
     grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
     grid-template-rows: auto auto auto auto 1fr;
     grid-template-areas:
-      "kicker centre"
-      "menu centre"
-      "aside centre"
-      "goals centre"
-      ". centre";
+      "kicker showcase"
+      "menu showcase"
+      "aside showcase"
+      "goals showcase"
+      ". showcase";
     column-gap: var(--space-column-gap-medium);
   }
 }
@@ -24,8 +24,7 @@
     gap: var(--space-7);
   }
 
-  .hub__aside,
-  .hub__centre {
+  .hub__aside {
     display: contents;
   }
 
@@ -40,6 +39,10 @@
   .hub__title {
     font: var(--font-kicker-phone);
     letter-spacing: var(--tracking-kicker-phone);
+  }
+
+  .hub-showcase {
+    display: none;
   }
 
   .daily-booster .button,

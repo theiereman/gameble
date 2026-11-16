@@ -17,6 +17,7 @@ class PagesController < ApplicationController
     @bank = Game::BankSummary.call(current_player)
     @goal_reward = Game::GoalRewardStatus.call(current_player)
     @achievements = Game::AchievementBoard.summary(current_player)
+    load_showcase if @season
     @welcome = current_player.welcome_pending
     Accounts::CloseWelcomeJob.perform_later(current_player.id) if @welcome
     load_release_note unless @welcome
@@ -102,6 +103,11 @@ class PagesController < ApplicationController
     def load_release_note
       @release_note = Accounts::ReleaseNotes.unseen_by(current_player, running: running_release)
       Accounts::SeeReleaseNoteJob.perform_later(current_player.id, @release_note.id) if @release_note
+    end
+
+    def load_showcase
+      id = Game::LatestBestCard.call(current_player, season: @season)
+      @showcase = Catalog::CardViews.call([ id ], locale: I18n.locale)[id] if id
     end
 
     def collection
