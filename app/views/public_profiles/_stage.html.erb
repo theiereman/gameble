@@ -5,7 +5,7 @@
 <%= tag.section class: [ "profile-stage", "profile-stage--#{cards.size}" ], aria: { labelledby: "profile-stage-heading" } do %>
   <h2 id="profile-stage-heading" class="profile-stage__kicker"><span class="profile-stage__light" aria-hidden="true"></span><%= t("public_profiles.show.showcase.title") %></h2>
   <div class="profile-stage__floor">
-    <%= card_rays(top.rarity) %>
+    <span class="profile-stage__rays" aria-hidden="true"><%= card_rays(top.rarity) %></span>
     <ol class="profile-stage__fan">
       <% cards.each_with_index do |card, index| %>
         <%= tag.li class: [ "profile-stage__slot", "profile-stage__slot--#{index + 1}", ("profile-stage__slot--top" if index.zero?) ] do %>

@@ -43,6 +43,12 @@
   background: radial-gradient(closest-side, color-mix(in srgb, var(--color-gold) 12%, transparent), transparent);
 }
 
+.profile-stage__rays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 .profile-stage__fan {
   position: relative;
   z-index: 1;
@@ -200,6 +206,25 @@
 }
 
 @media (min-width: 720px) {
+  .profile-stage__floor {
+    max-width: 860px;
+  }
+
+  .profile-stage__slot {
+    --fan-width: 18cqi;
+
+    margin-inline: -2.5cqi;
+  }
+
+  .profile-stage__slot--1 {
+    --fan-width: 30cqi;
+  }
+
+  .profile-stage__slot--2,
+  .profile-stage__slot--3 {
+    --fan-width: 22cqi;
+  }
+
   .profile-stage__name {
     font: var(--font-showcase-name);
     letter-spacing: var(--tracking-showcase-name);

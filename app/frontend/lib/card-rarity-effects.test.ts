@@ -26,7 +26,7 @@ const ruleBody = (stylesheet: string, selector: string) => {
 
 describe("the shared card rarity effects", () => {
   it("clips the rays sideways at each stage and fades them within the narrow ones", () => {
-    for (const selector of [".card-detail__stage", ".public-card__stage", ".profile-stage__floor"]) {
+    for (const selector of [".card-detail__stage", ".public-card__stage", ".profile-stage__rays"]) {
       expect(ruleBody(cardRarityEffectsStylesheet, selector)).toContain("overflow-x: clip")
     }
     for (const selector of [".card-detail__stage", ".public-card__stage"]) {
