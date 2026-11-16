@@ -199,15 +199,12 @@ export class RevealSequence {
     animate(lift, legendaryJumpKeyframes(to, swell), { duration: LEGENDARY_JUMP, fill: "forwards" })
     await wait(LEGENDARY_JUMP)
 
-    const slot = host.slot(index)
-    slot?.toggleAttribute("data-veiled", true)
     const lockIn = Math.round(SPIN * SPIN_LOCK_AT)
     animate(flip, legendarySpinKeyframes(), { duration: SPIN, fill: "none" })
     this.turn(index, lockIn)
     later(MARK_IN_SPIN, () => this.mark(index, quiet))
     await wait(lockIn)
 
-    slot?.removeAttribute("data-veiled")
     flashbang(host.flash(), FLASHBANG_MS)
     settle(lift)
     animate(lift, legendaryImpactKeyframes(to, swell), { duration: LOCK_IN_MS, easing: "ease-out", fill: "forwards" })
