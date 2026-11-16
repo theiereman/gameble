@@ -46,7 +46,7 @@ body {
   flex-direction: column;
   min-height: 100vh;
   margin: 0;
-  background: #05070a url("/errors/starfield.svg?v=e8a2b7e5") repeat;
+  background: #05070a url("/errors/starfield.svg?v=d2017f5a") repeat;
   color: #c7d5e0;
   font: 400 1rem/1.5rem "JetBrains Mono", monospace;
   overflow-wrap: break-word;
