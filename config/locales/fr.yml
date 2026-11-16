@@ -490,7 +490,10 @@ fr:
         link: "Soutenir"
     how_it_works:
       title: "Comment ça marche"
-      intro: "Les règles du jeu, telles qu'il les applique."
+      groups:
+        cards: "Les cartes"
+        capsules: "Les capsules"
+        sets: "Les sets"
       local_time: ", heure locale"
       # French keeps the singular for 0, which the plural rule here does not.
       minutes:

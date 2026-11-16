@@ -1,0 +1,7 @@
+<%= tag.section class: classes, aria: { labelledby: id }, **html_options do %>
+  <header class="section__head">
+    <h2 id="<%= id %>" class="section__title"><%= title %></h2>
+    <% if aside? %><div class="section__aside"><%= aside %></div><% end %>
+  </header>
+  <%= content %>
+<% end %>

@@ -120,21 +120,6 @@
   margin: 0;
 }
 
-.how-it-works__title {
-  margin: 0;
-  color: var(--color-accent);
-  font: var(--font-kicker);
-  letter-spacing: var(--tracking-kicker);
-  text-transform: uppercase;
-}
-
-.how-it-works__intro {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-}
-
 .how-it-works__section {
   display: flex;
   flex-direction: column;
@@ -175,7 +160,7 @@
 
 .how-it-works__caption {
   padding-bottom: var(--space-2);
-  color: var(--color-accent);
+  color: var(--color-text);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-align: left;

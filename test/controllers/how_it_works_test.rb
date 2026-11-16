@@ -12,15 +12,17 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
   setup { Game::Market::Settings.delete_all }
 
   FRENCH_HEADINGS = [
-    "Quels jeux deviennent des cartes", "La rareté", "Capsules et probabilités", "Le rythme des capsules",
-    "La capsule quotidienne", "La mission hebdo", "Les saisons", "Les sets", "Compléter un set"
+    "Quels jeux deviennent des cartes", "La rareté", "Les saisons", "Capsules et probabilités",
+    "Le rythme des capsules", "La capsule quotidienne", "La mission hebdo", "Les sets", "Compléter un set"
   ].freeze
+
+  PANEL_HEADINGS = "main section.how-it-works__section > h2, main section.how-it-works__section > h3".freeze
 
   FRENCH_MARKET_HEADING = "Le marché".freeze
 
   ENGLISH_HEADINGS = [
-    "Which games become cards", "Rarity", "Capsules and odds", "The pace of capsules",
-    "The daily capsule", "The weekly mission", "Seasons", "Sets", "Completing a set"
+    "Which games become cards", "Rarity", "Seasons", "Capsules and odds", "The pace of capsules",
+    "The daily capsule", "The weekly mission", "Sets", "Completing a set"
   ].freeze
 
   ENGLISH_MARKET_HEADING = "The market".freeze
@@ -143,9 +145,10 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select "title", /Comment ça marche/
     assert_select ".top-bar__phone-back", false
     assert_select "main h1", "Comment ça marche"
-    assert_equal FRENCH_HEADINGS, css_select("main section.how-it-works__section > h2").map { it.text.strip }
+    assert_equal [ "Les cartes", "Les capsules", "Les sets" ], css_select("main section.section > header h2").map { it.text.strip }
+    assert_equal FRENCH_HEADINGS, css_select(PANEL_HEADINGS).map { it.text.strip }
     css_select("main section.how-it-works__section").each do |section|
-      assert_equal section["aria-labelledby"], section.at_css("h2")["id"]
+      assert_equal section["aria-labelledby"], section.at_css("h2, h3")["id"]
     end
     assert_every_odds_table(:fr)
     assert_rarity_shares(:fr)
@@ -166,7 +169,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "html[lang=en]"
     assert_select "main h1", "How it works"
-    assert_equal ENGLISH_HEADINGS, css_select("main section.how-it-works__section > h2").map { it.text.strip }
+    assert_equal ENGLISH_HEADINGS, css_select(PANEL_HEADINGS).map { it.text.strip }
     assert_every_odds_table(:en)
     assert_rarity_shares(:en)
     assert_rarity_rule(:en)
@@ -206,7 +209,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
   end
 
   def headings
-    css_select("main section.how-it-works__section > h2").map { it.text.strip }
+    css_select(PANEL_HEADINGS).map { it.text.strip }
   end
 
   def exact(amount, locale)
