@@ -72,10 +72,6 @@
   min-height: 0;
 }
 
-:root[data-native-app] .booster[data-layout="phone"] .booster__pile-area {
-  align-self: center;
-}
-
 /* A stored card's zoom: the card alone over a near-opaque scrim, its name and rarity read by assistive
    technology only, its actions on one even grid. */
 :root[data-native-app] .booster-zoom::backdrop {
