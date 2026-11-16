@@ -1,0 +1,351 @@
+/* The sealed capsule, 320 × 444 at 1 CSS px per art pixel: hard-stop
+   gradients, whole pixels, no rounding but the shock wave. Its opening is
+   animated from app/frontend/lib/booster_capsule_timeline.ts; every effect
+   piece rests hidden. Imported after booster-canister.css; its seal, caps,
+   fuse and the row's glow follow in booster-capsule-parts.css. */
+
+.booster-canister__wrap {
+  position: relative;
+  flex: none;
+  width: 320px;
+  height: 444px;
+  zoom: 0.85;
+}
+
+.booster-canister__wrap,
+.booster-canister__wrap * {
+  box-sizing: border-box;
+}
+
+.booster-canister__rays {
+  position: absolute;
+  left: -340px;
+  top: -278px;
+  width: 1000px;
+  height: 1000px;
+  background: repeating-conic-gradient(from 0deg, rgba(102, 192, 244, 0.08) 0deg 5deg, transparent 5deg 15deg);
+  mask-image: radial-gradient(circle, #000 18%, transparent 62%);
+  pointer-events: none;
+  animation: booster-spin 120s linear infinite;
+}
+
+.booster-canister {
+  position: absolute;
+  inset: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.booster-canister:focus-visible {
+  outline: 2px dashed var(--color-accent);
+  outline-offset: 6px;
+}
+
+.booster-canister[aria-disabled="true"] {
+  cursor: default;
+}
+
+.booster-canister :is(span, svg),
+.booster-canister__fx,
+.booster-canister__fx span {
+  position: absolute;
+  display: block;
+}
+
+.booster-canister svg {
+  overflow: visible;
+  shape-rendering: crispEdges;
+  image-rendering: pixelated;
+}
+
+.booster-canister__shake,
+.booster-canister__fx {
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---- The hull and its label ---- */
+
+.booster-canister__body {
+  left: 16px;
+  top: 92px;
+  width: 288px;
+  height: 260px;
+  background: linear-gradient(
+    90deg,
+    #122030 0 5%,
+    #1b2d40 5% 13%,
+    #26405a 13% 23%,
+    #355675 23% 31%,
+    #4f7393 31% 37%,
+    #6d90ae 37% 40%,
+    #4f7393 40% 46%,
+    #355675 46% 60%,
+    #26405a 60% 76%,
+    #1b2d40 76% 90%,
+    #122030 90% 100%
+  );
+}
+
+.booster-canister__lip {
+  left: 0;
+  width: 288px;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.booster-canister__lip--top {
+  top: 0;
+  box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.12);
+}
+
+.booster-canister__lip--bottom {
+  bottom: 0;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.12);
+}
+
+.booster-canister__label {
+  left: 24px;
+  top: 24px;
+  width: 240px;
+  height: 196px;
+  background: #c9d6e2;
+  box-shadow: inset 0 0 0 2px #9fb2c4;
+}
+
+/* Fake print: 3 px letters 1 px apart, never words. */
+.booster-canister :is(.booster-canister__label-head, .booster-canister__lot, .booster-canister__stencil) {
+  display: flex;
+  align-items: center;
+}
+
+.booster-canister .booster-canister__word {
+  position: static;
+  flex: none;
+  height: 5px;
+  background: repeating-linear-gradient(90deg, var(--capsule-ink) 0 3px, transparent 3px 4px);
+}
+
+.booster-canister__label-head {
+  left: 0;
+  top: 0;
+  justify-content: center;
+  width: 240px;
+  height: 22px;
+  background: #1b2838;
+  color: #c7d5e0;
+}
+
+/* The band names the capsule's origin; the root's data-origin picks the word. */
+.booster-canister .booster-canister__kind {
+  position: static;
+  display: none;
+  font:
+    400 8px / 10px Silkscreen,
+    monospace;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.booster:not([data-origin]) .booster-canister .booster-canister__kind--standard,
+.booster[data-origin="bonus"] .booster-canister .booster-canister__kind--bonus,
+.booster[data-origin="reward"] .booster-canister .booster-canister__kind--reward {
+  display: block;
+}
+
+.booster[data-origin="bonus"] .booster-canister {
+  --capsule-origin: var(--color-capsule-daily);
+}
+
+.booster[data-origin="reward"] .booster-canister {
+  --capsule-origin: var(--color-capsule-goal);
+}
+
+.booster[data-origin] .booster-canister__label-head {
+  background: var(--capsule-origin);
+  color: var(--color-outline);
+}
+
+.booster-canister__logo {
+  left: 24px;
+  top: 34px;
+  width: 40px;
+  height: 54px;
+  filter: drop-shadow(2px 0 0 #1b2838) drop-shadow(-2px 0 0 #1b2838) drop-shadow(0 2px 0 #1b2838)
+    drop-shadow(0 -2px 0 #1b2838);
+}
+
+.booster-canister__line {
+  left: 84px;
+  color: #1b2838;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.booster-canister__line--season {
+  top: 32px;
+  padding: 2px 5px;
+  background: #1b2838;
+  color: #c9d6e2;
+  font:
+    400 8px / 10px Silkscreen,
+    monospace;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.booster-canister .booster-canister__line--title {
+  top: 48px;
+  width: 148px;
+  display: -webkit-box;
+  overflow: hidden;
+  font:
+    700 22px / 22px "Pixelify Sans",
+    monospace;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.booster-canister__barcode {
+  left: 14px;
+  top: 104px;
+  width: 132px;
+  height: 30px;
+  background: linear-gradient(
+    90deg,
+    #1b2838 0 2px,
+    transparent 2px 4px,
+    #1b2838 4px 8px,
+    transparent 8px 14px,
+    #1b2838 14px 16px,
+    transparent 16px 18px,
+    #1b2838 18px 22px,
+    transparent 22px 24px,
+    #1b2838 24px 26px,
+    transparent 26px 30px,
+    #1b2838 30px 32px,
+    transparent 32px 36px,
+    #1b2838 36px 38px,
+    transparent 38px 40px,
+    #1b2838 40px 42px,
+    transparent 42px 46px,
+    #1b2838 46px 50px,
+    transparent 50px 52px,
+    #1b2838 52px 54px,
+    transparent 54px 56px,
+    #1b2838 56px 60px,
+    transparent 60px 64px,
+    #1b2838 64px 66px,
+    transparent 66px 70px,
+    #1b2838 70px 72px,
+    transparent 72px 74px,
+    #1b2838 74px 80px,
+    transparent 80px 86px,
+    #1b2838 86px 90px,
+    transparent 90px 92px,
+    #1b2838 92px 96px,
+    transparent 96px 100px,
+    #1b2838 100px 104px,
+    transparent 104px 106px,
+    #1b2838 106px 108px,
+    transparent 108px 110px,
+    #1b2838 110px 114px,
+    transparent 114px 116px,
+    #1b2838 116px 118px,
+    transparent 118px 122px,
+    #1b2838 122px 124px,
+    transparent 124px 128px,
+    #1b2838 128px 130px,
+    transparent 130px 132px
+  );
+}
+
+.booster-canister__lot {
+  --capsule-ink: #1b2838;
+
+  left: 14px;
+  top: 140px;
+  gap: 5px;
+}
+
+.booster-canister__lot > .booster-canister__word {
+  height: 6px;
+}
+
+.booster-canister__lot > :nth-child(1) {
+  width: 16px;
+}
+
+.booster-canister__lot > :nth-child(2) {
+  width: 48px;
+}
+
+.booster-canister__holo {
+  left: 160px;
+  top: 100px;
+  width: 66px;
+  height: 50px;
+  background: repeating-linear-gradient(135deg, #66c0f4 0 6px, #b79cff 6px 12px, #ffd76a 12px 18px, #7fe8c8 18px 24px);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+.booster-canister__holo-sheen {
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0 40%, rgba(255, 255, 255, 0.45) 40% 52%, transparent 52% 100%);
+}
+
+.booster-canister__holo-check {
+  left: 23px;
+  top: 17px;
+  width: 20px;
+  height: 16px;
+}
+
+.booster-canister__label-foot {
+  left: 0;
+  top: 172px;
+  width: 240px;
+  height: 24px;
+  background: #1b2838;
+}
+
+.booster-canister__wave {
+  left: 40px;
+  top: 9px;
+  width: 160px;
+  height: 5px;
+}
+
+.booster-canister__curl {
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(5, 10, 16, 0.4) 0 4%,
+    rgba(5, 10, 16, 0.18) 4% 11%,
+    transparent 11% 80%,
+    rgba(5, 10, 16, 0.18) 80% 91%,
+    rgba(5, 10, 16, 0.4) 91% 100%
+  );
+}
+
+/* The one state light: no text says the state. */
+.booster-canister__led {
+  left: 140px;
+  top: 223px;
+  width: 8px;
+  height: 8px;
+  background: #66c0f4;
+  box-shadow: 0 0 6px #66c0f4;
+}
+
+.booster[data-origin] .booster-canister__led {
+  background: var(--capsule-origin);
+  box-shadow: 0 0 6px var(--capsule-origin);
+}

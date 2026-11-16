@@ -1,0 +1,65 @@
+<%# locals: (season:) %>
+<span class="booster-canister__shake" aria-hidden="true">
+  <span class="booster-canister__body">
+    <span class="booster-canister__lip booster-canister__lip--top"></span>
+    <span class="booster-canister__lip booster-canister__lip--bottom"></span>
+    <span class="booster-canister__label">
+      <span class="booster-canister__label-head">
+        <% %w[standard bonus reward].each do |kind| %>
+          <span class="booster-canister__kind booster-canister__kind--<%= kind %>"><%= t("booster.canister_kind.#{kind}") %></span>
+        <% end %>
+      </span>
+      <%= pixel_icon("back-g", class: "booster-canister__logo") %>
+      <% if season %>
+        <span class="booster-canister__line booster-canister__line--season"><%= t("booster.canister_season", number: format("%02d", season.number)) %></span>
+      <% end %>
+      <span class="booster-canister__line booster-canister__line--title"><%= season_title(season) %></span>
+      <span class="booster-canister__barcode"></span>
+      <span class="booster-canister__lot"><span class="booster-canister__word"></span><span class="booster-canister__word"></span></span>
+      <span class="booster-canister__holo">
+        <span class="booster-canister__holo-sheen"></span>
+        <svg class="booster-canister__holo-check" viewBox="0 0 10 8"><path d="M8 0h2v2H9v2H8v2H7v2H5V7H4V6H3V5H1V3h2v1h1v1h1v1h1V4h1V2h1z" fill="#1b2838"/></svg>
+      </span>
+      <span class="booster-canister__label-foot"><svg class="booster-canister__wave" viewBox="0 0 160 5"><path d="M0 1<%= "h4v3h4v-3" * 19 %>h4v3h4" fill="none" stroke="#ffc21a" stroke-width="2"/></svg></span>
+      <span class="booster-canister__curl"></span>
+    </span>
+    <span class="booster-canister__led"></span>
+  </span>
+  <span class="booster-canister__seal booster-canister__seal--low">
+    <svg class="booster-canister__signature" viewBox="0 0 5 22"><path d="M1 0v4h3v4H1v4h3v4H1v4h3v2" fill="none" stroke="#a8322a" stroke-width="2"/></svg>
+  </span>
+  <span class="booster-canister__top">
+    <span class="booster-canister__cap booster-canister__cap--top">
+      <span class="booster-canister__bevel"></span>
+      <span class="booster-canister__notches"></span>
+      <span class="booster-canister__stencil"><span class="booster-canister__word"></span></span>
+    </span>
+    <span class="booster-canister__band booster-canister__band--top">
+      <span class="booster-canister__tape"></span>
+      <span class="booster-canister__tape-sheen"></span>
+      <span class="booster-canister__perforation"></span>
+      <span class="booster-canister__seam"></span>
+    </span>
+    <span class="booster-canister__seal booster-canister__seal--up">
+      <span class="booster-canister__stamp"></span>
+      <span class="booster-canister__stamp-dot"></span>
+      <svg class="booster-canister__signature" viewBox="0 0 5 12"><path d="M1 0v4h3v4H1v4" fill="none" stroke="#a8322a" stroke-width="2"/></svg>
+    </span>
+  </span>
+  <span class="booster-canister__bottom">
+    <span class="booster-canister__band booster-canister__band--bottom">
+      <span class="booster-canister__tape"></span>
+      <span class="booster-canister__tape-sheen"></span>
+      <span class="booster-canister__perforation"></span>
+      <span class="booster-canister__seam"></span>
+    </span>
+    <span class="booster-canister__cap booster-canister__cap--bottom"><span class="booster-canister__notches"></span></span>
+    <span class="booster-canister__foot"></span>
+  </span>
+  <span class="booster-canister__burn booster-canister__burn--top"></span>
+  <span class="booster-canister__burn booster-canister__burn--bottom"></span>
+  <span class="booster-canister__spark booster-canister__spark--top"></span>
+  <span class="booster-canister__spark booster-canister__spark--bottom"></span>
+  <span class="booster-canister__flash booster-canister__flash--top"></span>
+  <span class="booster-canister__flash booster-canister__flash--bottom"></span>
+</span>

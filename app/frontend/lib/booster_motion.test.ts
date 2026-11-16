@@ -9,8 +9,6 @@ import {
   cardBackClass,
   cardBackProperties,
   cardBackSeasonMark,
-  dealKeyframes,
-  dealOrder,
   revealSummary,
   scaled,
   SWIPE_START,
@@ -29,16 +27,6 @@ describe("bannerDuration", () => {
     expect(bannerDuration({ reduced: true, large: true })).toBe(RM_LEGENDARY_STILL)
     expect(bannerDuration({ reduced: false, large: true })).toBe(LEGENDARY_BANNER_MS)
     expect(bannerDuration({ reduced: false, large: false })).toBe(EPIC_BANNER_MS)
-  })
-})
-
-describe("dealOrder", () => {
-  it("deals centre out", () => {
-    expect(dealOrder(5)).toEqual([2, 1, 3, 0, 4])
-    expect(dealOrder(3)).toEqual([1, 0, 2])
-    expect(dealOrder(4)).toEqual([2, 1, 3, 0])
-    expect(dealOrder(1)).toEqual([0])
-    expect(dealOrder(0)).toEqual([])
   })
 })
 
@@ -66,18 +54,6 @@ describe("burstPixels", () => {
       for (const { x, y, dx, dy } of pixels) for (const value of [x, y, dx, dy]) expect(Math.abs(value) % 2).toBe(0)
     }
     expect(burstPixels("rare", 160, 240)).toEqual(burstPixels("rare", 160, 240))
-  })
-})
-
-describe("keyframes", () => {
-  it("deal from the canister to rest, fully shown from the arc on", () => {
-    const frames = dealKeyframes(-200, -120, 26)
-    expect(frames[0]).toMatchObject({
-      opacity: 0,
-      transform: "translate(-200px, -120px) rotate(26deg) scale(0.2, 0.2)",
-    })
-    expect(frames.at(-1)).toMatchObject({ opacity: 1, transform: "translate(0px, 0px) rotate(0deg) scale(1, 1)" })
-    expect(frames.map((frame) => frame.offset).filter((offset) => offset !== undefined)).toEqual([0.42, 0.7, 0.86])
   })
 })
 
@@ -118,12 +94,6 @@ describe("the phone's pile", () => {
     expect(pileDepth(2, [false, false, false])).toBe(2)
     expect(pileDepth(2, [true, false, false])).toBe(1)
     expect(pileDepth(3, [true, false, true, false])).toBe(1)
-  })
-
-  it("deals each card to its pile pose, so the flight ends where the card rests", () => {
-    const frames = dealKeyframes(0, -200, 26, pilePose(2))
-    expect(frames.at(-1)).toMatchObject({ opacity: 1, transform: pileTransform(2) })
-    expect(frames[2].transform).toBe("translate(0px, 20px) rotate(-2.8deg) scale(1.094, 0.806)")
   })
 })
 

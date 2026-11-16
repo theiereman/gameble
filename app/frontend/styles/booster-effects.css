@@ -1,10 +1,8 @@
 /* The booster's effects and its result banner. Imported after booster-canister.css. */
 
-/* ---- Effects: pixels, rings, sparks, smoke (spans the controllers add and remove) ---- */
+/* ---- Effects: pixels and rings (spans the controllers add and remove) ---- */
 
 .booster-fx__pixel,
-.booster-fx__spark,
-.booster-fx__smoke,
 .booster-fx__ring {
   position: absolute;
   display: block;
@@ -30,34 +28,8 @@
   border-radius: 50%;
 }
 
-.booster-fx__ring--white,
-.booster-fx__ring--blast {
+.booster-fx__ring--white {
   border-color: var(--color-text-max);
-}
-
-.booster-fx__spark {
-  width: 4px;
-  height: 4px;
-  background: var(--color-text-max);
-}
-
-.booster-fx__spark--1 {
-  background: var(--color-gold);
-}
-
-.booster-fx__spark--2 {
-  background: var(--color-alert);
-}
-
-.booster-fx__spark--3 {
-  background: var(--color-accent);
-}
-
-.booster-fx__smoke {
-  width: 12px;
-  height: 12px;
-  margin: -6px 0 0 -6px;
-  background: color-mix(in srgb, var(--color-muted) 60%, transparent);
 }
 
 /* ---- The result banner: Épique small, Légendaire large ---- */

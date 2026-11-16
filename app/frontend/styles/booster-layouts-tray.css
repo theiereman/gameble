@@ -295,7 +295,6 @@
 /* ---- Reduced motion: every loop stops; no hover lift, no rays ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion="full"]) .booster-canister__idle,
   html:not([data-motion="full"]) .booster-canister__rays,
   html:not([data-motion="full"]) .booster-card[data-revealed] .booster-card__rays,
   html:not([data-motion="full"]) .booster-card__back::after,
@@ -337,7 +336,6 @@
   }
 }
 
-html[data-motion="reduced"] .booster-canister__idle,
 html[data-motion="reduced"] .booster-canister__rays,
 html[data-motion="reduced"] .booster-card[data-revealed] .booster-card__rays,
 html[data-motion="reduced"] .booster-card__back::after,

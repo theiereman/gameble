@@ -39,6 +39,11 @@
   min-height: 0;
 }
 
+/* The capsule keeps the footprint the stage's steps below were tuned for. */
+.booster[data-layout="phone"] .booster-canister__wrap {
+  zoom: 0.68;
+}
+
 @container booster-stage (max-height: 420px) {
   .booster__zone {
     zoom: 0.9;

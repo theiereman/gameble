@@ -1,7 +1,7 @@
 /*
  * The stage's floor and the opened capsule's card badges. The floor is a grid drawn on a canvas
  * (stage-grid) that bulges softly away from a mouse; the CSS background is the same floor, flat,
- * for the first frame. Idle, the sealed canister hums: its LEDs chase, its hazard band scrolls.
+ * for the first frame.
  */
 
 .booster__stage {
@@ -198,112 +198,4 @@
 .booster-card__action:is(:hover, :focus-visible)::after {
   opacity: 1;
   transform: translate(-50%, 0);
-}
-
-/* ---- The sealed canister, idle: a chase of LEDs, a scrolling hazard band, a hum every five seconds ---- */
-
-@keyframes booster-led-chase {
-  0%,
-  45%,
-  100% {
-    opacity: 0.3;
-  }
-
-  8%,
-  28% {
-    opacity: 1;
-    box-shadow: 0 0 6px currentcolor;
-  }
-}
-
-@keyframes booster-cap-blink {
-  0%,
-  49% {
-    opacity: 1;
-  }
-
-  50%,
-  100% {
-    opacity: 0.25;
-  }
-}
-
-@keyframes booster-hazard-scroll {
-  to {
-    background-position: 16.97px 0;
-  }
-}
-
-@keyframes booster-hum {
-  0%,
-  88%,
-  100% {
-    transform: translate(0, 0);
-  }
-
-  90% {
-    transform: translate(-1px, 0);
-  }
-
-  92% {
-    transform: translate(1px, -1px);
-  }
-
-  94% {
-    transform: translate(-1px, 0);
-  }
-}
-
-@keyframes booster-glow {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 0 transparent);
-  }
-
-  50% {
-    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--color-accent) 35%, transparent));
-  }
-}
-
-.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__led {
-  color: var(--color-accent);
-  animation: booster-led-chase 1.8s steps(1) infinite;
-}
-
-.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__led--2 {
-  animation-delay: 300ms;
-}
-
-.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__led--3 {
-  animation-delay: 600ms;
-}
-
-.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__led--cap {
-  animation: booster-cap-blink 1.4s infinite;
-}
-
-.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__hazard {
-  animation: booster-hazard-scroll 1.6s steps(8) infinite;
-}
-
-.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__move {
-  animation: booster-hum 5s steps(1) infinite;
-}
-
-.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister {
-  animation: booster-glow 3.2s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-motion="full"])
-    .booster-canister__wrap
-    :is(.booster-canister, .booster-canister__move, .booster-canister__led, .booster-canister__hazard) {
-    animation: none;
-  }
-}
-
-html[data-motion="reduced"]
-  .booster-canister__wrap
-  :is(.booster-canister, .booster-canister__move, .booster-canister__led, .booster-canister__hazard) {
-  animation: none;
 }

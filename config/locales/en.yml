@@ -1017,6 +1017,10 @@ en:
     canister_name_fallback: grand catalogue
     canister_hint_touch: Tap to open
     canister_season: Season %{number}
+    canister_kind:
+      standard: STANDARD
+      bonus: DAILY
+      reward: GOAL
     card_label: "%{title} — %{details}"
     close: Close
     continue: Continue

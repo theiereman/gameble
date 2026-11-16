@@ -6,7 +6,7 @@ import { FIVE, answerOf, bank, confirmationOf, dealt, heldOf, revealedAll, start
 import type { Transition } from "./booster_host"
 import { OpeningSequence } from "./booster_opening_sequence"
 import { onGameble } from "./events"
-import { dealOrder } from "./booster_motion"
+import { BLAST_AT, OPENED_AT } from "./booster_capsule_timeline"
 import { sendOpening, type OpeningResult } from "./opening"
 import type { ScreenTimers } from "./screen_timers"
 
@@ -62,6 +62,7 @@ function sequenceFrom(initial: BoosterState, timers: Timers, overrides: HostOver
     shake: () => null,
     fx: () => null,
     flash: () => null,
+    dealFx: () => null,
     canister: () => null,
     phoneLayout: () => false,
     openUrl: "/en/packs",
@@ -162,7 +163,7 @@ describe("OpeningSequence", () => {
     await opened
 
     expect(state().phase).toBe("dealt")
-    expect(timers.waits.length).toBeGreaterThanOrEqual(3)
+    expect(timers.waits).toEqual([BLAST_AT, OPENED_AT - BLAST_AT])
     expect(finish).not.toHaveBeenCalled()
   })
 
@@ -183,7 +184,7 @@ describe("OpeningSequence", () => {
     expect(state().phase).toBe("dealt")
   })
 
-  it("taps once on the touch, then once per card as the cards leave the capsule in cascade", async () => {
+  it("taps once on the touch, then once per card as the cards leave the capsule, the centre card first", async () => {
     const timers = heldTimers()
     const { sequence } = sequenceFrom(startWith(), timers)
     const taps: string[] = []
@@ -203,7 +204,7 @@ describe("OpeningSequence", () => {
     await opened
     stops.forEach((stop) => stop())
 
-    expect(taps).toEqual(["touch", ...dealOrder(3).map((index) => `card ${index}`)])
+    expect(taps).toEqual(["touch", "card 1", "card 0", "card 2"])
   })
 
   it("stops the remaining card taps once the deal is skipped", async () => {
@@ -213,8 +214,6 @@ describe("OpeningSequence", () => {
     const stop = onGameble("gameble:card-dealt", ({ index }) => taps.push(index))
 
     const opened = sequence.open()
-    await settled()
-    timers.flush()
     await settled()
     timers.flush()
     await settled()

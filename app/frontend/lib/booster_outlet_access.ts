@@ -52,6 +52,7 @@ export const stageHostFor = (access: OutletAccess, core: StageCore): BoosterStag
   shake: () => access.shake(),
   fx: () => access.fx(),
   flash: () => access.flash(),
+  dealFx: () => access.dealFx(),
   canister: () => access.canister(),
 })
 
@@ -76,6 +77,10 @@ export class OutletAccess {
 
   flash(): HTMLElement | null {
     return this.outlets().stage?.flash ?? null
+  }
+
+  dealFx(): HTMLElement | null {
+    return this.outlets().stage?.dealFx ?? null
   }
 
   canister() {

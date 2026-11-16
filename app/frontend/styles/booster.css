@@ -2,7 +2,7 @@
  * The booster screen: the `booster` root controller, its canister, its
  * dealt cards and their effects. Timings live in app/frontend/lib/booster.ts;
  * the controllers animate transform and opacity through WAAPI. Here only
- * the steady states and the loops (breath, rays, sheen), all
+ * the steady states and the loops (rays, sheen), all
  * transform-only and stopped under reduced motion.
  *
  * The card stack (.booster-card) keeps every grouping property (opacity
@@ -18,12 +18,13 @@
  * tray, the actions under the stage, the card zoom). The server renders
  * every layout's parts; the stylesheet shows the current layout's.
  *
- * This file is the screen at its base: layout, panel and stage. The canister
- * and the dealt cards are in booster-canister.css, the effects and the result
- * banner in booster-effects.css, the set celebration and the loops in
- * booster-celebration.css, then the narrower layouts in booster-layouts.css
- * and booster-layouts-tray.css: each file overrides the ones before it, so
- * the order of the six is part of the cascade.
+ * This file is the screen at its base: layout, panel and stage. The dealt
+ * cards are in booster-canister.css, the capsule in booster-capsule.css and
+ * booster-capsule-parts.css (animated from booster_capsule_timeline.ts), the
+ * effects and the result banner in booster-effects.css, the set celebration
+ * and the loops in booster-celebration.css, then the narrower layouts in
+ * booster-layouts.css and booster-layouts-tray.css: each file overrides the
+ * ones before it, so the order of the eight is part of the cascade.
  */
 
 /* The server's fallback, without JavaScript or until the root controller

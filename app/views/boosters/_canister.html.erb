@@ -8,25 +8,9 @@
     <div class="booster-canister__wrap">
       <div class="booster-canister__rays" aria-hidden="true"></div>
       <button type="button" class="booster-canister" aria-label="<%= booster_canister_label(season, next_size) %>" data-action="booster-canister#activate">
-        <span class="booster-canister__idle">
-          <span class="booster-canister__move">
-            <span class="booster-canister__body">
-              <% if season %>
-                <span class="booster-canister__line booster-canister__line--season"><%= t("booster.canister_season", number: season.number) %></span>
-              <% end %>
-              <span class="booster-canister__line booster-canister__line--title"><%= season_title(season) %></span>
-              <span class="booster-canister__hazard"></span>
-              <span class="booster-canister__led booster-canister__led--1"></span>
-              <span class="booster-canister__led booster-canister__led--2"></span>
-              <span class="booster-canister__led booster-canister__led--3"></span>
-            </span>
-            <span class="booster-canister__cap booster-canister__cap--top">
-              <span class="booster-canister__led booster-canister__led--cap"></span>
-            </span>
-            <span class="booster-canister__cap booster-canister__cap--bottom"></span>
-          </span>
-        </span>
+        <%= render "boosters/capsule", season: %>
       </button>
+      <span class="booster-canister__fx" aria-hidden="true"></span>
     </div>
   </template>
   <p class="booster__origin" data-booster-canister-target="origin"<%= " hidden" unless origin %>><%= origin %></p>

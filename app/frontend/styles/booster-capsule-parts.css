@@ -1,0 +1,357 @@
+/* The capsule's seal, end caps, fuse and the dealt row's glow. Imported after booster-capsule.css. */
+
+/* ---- The paper seal across the top joint, torn in two ---- */
+
+.booster-canister__seal {
+  width: 24px;
+  background: #efe6cf;
+  box-shadow: inset -3px 0 0 rgba(0, 0, 0, 0.12);
+}
+
+.booster-canister__seal--low {
+  left: 236px;
+  top: 82px;
+  height: 36px;
+  clip-path: polygon(
+    0 1px,
+    4px 4px,
+    8px 0,
+    12px 5px,
+    16px 1px,
+    20px 6px,
+    24px 2px,
+    24px 33px,
+    20px 36px,
+    16px 33px,
+    12px 36px,
+    8px 33px,
+    4px 36px,
+    0 33px
+  );
+}
+
+.booster-canister__seal--up {
+  left: 236px;
+  top: 44px;
+  height: 42px;
+  clip-path: polygon(
+    0 3px,
+    4px 0,
+    8px 3px,
+    12px 0,
+    16px 3px,
+    20px 0,
+    24px 3px,
+    24px 38px,
+    20px 42px,
+    16px 37px,
+    12px 41px,
+    8px 36px,
+    4px 40px,
+    0 37px
+  );
+}
+
+.booster-canister__stamp {
+  left: 4px;
+  top: 8px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #a8322a;
+}
+
+.booster-canister__stamp-dot {
+  left: 9px;
+  top: 13px;
+  width: 6px;
+  height: 6px;
+  background: #a8322a;
+}
+
+.booster-canister__seal--low .booster-canister__signature {
+  left: 9px;
+  top: 6px;
+  width: 5px;
+  height: 22px;
+}
+
+.booster-canister__seal--up .booster-canister__signature {
+  left: 9px;
+  top: 28px;
+  width: 5px;
+  height: 12px;
+}
+
+/* ---- The end caps and their break bands ---- */
+
+.booster-canister__top {
+  left: 0;
+  top: 0;
+  width: 320px;
+  height: 120px;
+}
+
+.booster-canister__bottom {
+  left: 0;
+  top: 352px;
+  width: 320px;
+  height: 92px;
+}
+
+.booster-canister__cap {
+  left: 28px;
+  width: 264px;
+  background: linear-gradient(
+    90deg,
+    #17283a 0 5%,
+    #24405a 5% 14%,
+    #3a5c7c 14% 26%,
+    #5c80a0 26% 34%,
+    #9ab6cc 34% 38%,
+    #5c80a0 38% 46%,
+    #3a5c7c 46% 62%,
+    #24405a 62% 82%,
+    #17283a 82% 100%
+  );
+}
+
+.booster-canister__cap--top {
+  top: 8px;
+  height: 64px;
+  clip-path: polygon(16px 0, 248px 0, 264px 16px, 264px 64px, 0 64px, 0 16px);
+}
+
+.booster-canister__cap--bottom {
+  top: 20px;
+  height: 56px;
+  clip-path: polygon(0 0, 264px 0, 264px 40px, 248px 56px, 16px 56px, 0 40px);
+}
+
+.booster-canister__bevel {
+  left: 16px;
+  top: 0;
+  width: 232px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.booster-canister__notches {
+  left: 0;
+  width: 264px;
+  background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.42) 0 4px, transparent 4px 12px);
+}
+
+.booster-canister__cap--top .booster-canister__notches {
+  top: 34px;
+  height: 30px;
+}
+
+.booster-canister__cap--bottom .booster-canister__notches {
+  top: 0;
+  height: 26px;
+}
+
+.booster-canister__stencil {
+  --capsule-ink: #0e1a26;
+
+  left: 0;
+  top: 16px;
+  justify-content: center;
+  width: 264px;
+}
+
+.booster-canister__stencil > .booster-canister__word {
+  width: 72px;
+  height: 6px;
+}
+
+.booster-canister__band {
+  left: 20px;
+  width: 280px;
+  height: 20px;
+  background: #0b1118;
+}
+
+.booster-canister__band--top {
+  top: 72px;
+}
+
+.booster-canister__band--bottom {
+  top: 0;
+}
+
+.booster-canister__tape,
+.booster-canister__tape-sheen,
+.booster-canister__perforation,
+.booster-canister__seam {
+  left: 0;
+  width: 280px;
+}
+
+.booster-canister__tape {
+  height: 10px;
+  background: repeating-linear-gradient(-45deg, #ffc21a 0 7px, #16130b 7px 14px);
+}
+
+.booster-canister__tape-sheen {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.booster-canister__perforation {
+  height: 2px;
+  background: repeating-linear-gradient(90deg, #8fa8bf 0 4px, transparent 4px 8px);
+}
+
+.booster-canister__seam {
+  height: 2px;
+  background: #ff5a1f;
+  box-shadow: 0 0 8px #ff5a1f;
+  opacity: 0.2;
+}
+
+.booster-canister__band--top :is(.booster-canister__tape, .booster-canister__tape-sheen) {
+  top: 3px;
+}
+
+.booster-canister__band--top :is(.booster-canister__perforation, .booster-canister__seam) {
+  top: 15px;
+}
+
+.booster-canister__band--bottom :is(.booster-canister__tape, .booster-canister__tape-sheen) {
+  top: 7px;
+}
+
+.booster-canister__band--bottom :is(.booster-canister__perforation, .booster-canister__seam) {
+  top: 3px;
+}
+
+.booster-canister__foot {
+  left: 72px;
+  top: 76px;
+  width: 176px;
+  height: 8px;
+  background: #0e1a26;
+  box-shadow: inset 0 2px 0 #24405a;
+}
+
+/* ---- The fuse, hidden until lit ---- */
+
+.booster-canister__burn,
+.booster-canister__spark,
+.booster-canister__flash {
+  opacity: 0;
+}
+
+.booster-canister__burn {
+  left: 20px;
+  width: 280px;
+  height: 2px;
+  background: #ff8a1f;
+  box-shadow: 0 0 6px #ff5a1f;
+}
+
+.booster-canister__burn--top {
+  top: 87px;
+  transform-origin: 0 50%;
+}
+
+.booster-canister__burn--bottom {
+  top: 355px;
+  transform-origin: 100% 50%;
+}
+
+.booster-canister__spark {
+  left: 20px;
+  width: 8px;
+  height: 8px;
+  background: #fff6d0;
+  box-shadow:
+    0 0 6px 2px #ffb02a,
+    0 0 14px 4px rgba(255, 90, 31, 0.6);
+}
+
+.booster-canister__spark--top {
+  top: 84px;
+}
+
+.booster-canister__spark--bottom {
+  top: 352px;
+}
+
+.booster-canister__flash {
+  left: -40px;
+  width: 400px;
+  height: 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 243, 196, 0),
+    #fff3c4 30%,
+    #fff 50%,
+    #fff3c4 70%,
+    rgba(255, 243, 196, 0)
+  );
+}
+
+.booster-canister__flash--top {
+  top: 84px;
+}
+
+.booster-canister__flash--bottom {
+  top: 354px;
+}
+
+/* ---- The row's glow and twinkles, behind the dealt cards; the opening
+   places them on the row ---- */
+
+.booster__deal-area {
+  position: relative;
+}
+
+.booster__deal-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.booster__deal-glow,
+.booster__twinkle {
+  position: absolute;
+  display: block;
+  opacity: 0;
+}
+
+.booster__deal-glow {
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(255, 170, 80, 0.22),
+    rgba(102, 192, 244, 0.1) 45%,
+    transparent 70%
+  );
+}
+
+.booster__twinkle {
+  width: 6px;
+  height: 6px;
+  background: #fff3c4;
+  box-shadow: 0 0 8px #ffc21a;
+}
+
+/* Thrown at the blast from the capsule's layer, placed and moved by script. */
+.booster-canister__puff {
+  background: rgba(200, 212, 224, 0.5);
+}
+
+.booster-canister__burst {
+  background: #fff;
+  box-shadow:
+    0 0 30px 16px #fff3c4,
+    0 0 60px 30px rgba(255, 170, 80, 0.5);
+  clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%);
+}
+
+.booster-canister__shock {
+  border: 4px solid #fff3c4;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #ffc21a;
+}

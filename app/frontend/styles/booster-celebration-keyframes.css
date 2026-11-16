@@ -180,17 +180,6 @@
   }
 }
 
-@keyframes booster-breath {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
 @keyframes booster-back-sheen {
   0%,
   55% {

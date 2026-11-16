@@ -1902,6 +1902,10 @@ fr:
     canister_hint: "Cliquez pour ouvrir"
     canister_name_fallback: "grand catalogue"
     canister_season: "Saison %{number}"
+    canister_kind:
+      standard: "STANDARD"
+      bonus: "QUOTIDIEN"
+      reward: "OBJECTIF"
     result: "Résultat de la capsule"
     card_label: "%{title} — %{details}"
     legendary_banner: "%{rarity} !"

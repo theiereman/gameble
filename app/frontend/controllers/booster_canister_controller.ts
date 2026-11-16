@@ -5,11 +5,7 @@ import { cloneTemplate } from "../lib/templates"
 export type CanisterParts = Readonly<{
   wrap: HTMLElement | null
   button: HTMLButtonElement | null
-  move: HTMLElement | null
-  body: HTMLElement | null
-  capTop: HTMLElement | null
-  capBottom: HTMLElement | null
-  rays: HTMLElement | null
+  fx: HTMLElement | null
 }>
 
 export type CanisterView = Readonly<{
@@ -47,15 +43,10 @@ export default class BoosterCanisterController extends Controller<HTMLElement> {
 
   get parts(): CanisterParts {
     const wrap = this.wrap
-    const part = (name: string) => wrap?.querySelector<HTMLElement>(`.booster-canister__${name}`) ?? null
     return {
       wrap,
       button: wrap?.querySelector<HTMLButtonElement>(".booster-canister") ?? null,
-      move: part("move"),
-      body: part("body"),
-      capTop: part("cap--top"),
-      capBottom: part("cap--bottom"),
-      rays: part("rays"),
+      fx: wrap?.querySelector<HTMLElement>(".booster-canister__fx") ?? null,
     }
   }
 

@@ -49,11 +49,12 @@ export type BannerView = Readonly<{
 export type CardIntent = { index: number }
 
 export default class BoosterStageController extends Controller<HTMLElement> {
-  static targets = ["shake", "fx", "flash", "dealArea", "deal", "hint", "pileArea", "pile", "card", "banner"]
+  static targets = ["shake", "fx", "flash", "dealFx", "dealArea", "deal", "hint", "pileArea", "pile", "card", "banner"]
 
   declare readonly shakeTarget: HTMLElement
   declare readonly fxTarget: HTMLElement
   declare readonly flashTarget: HTMLElement
+  declare readonly dealFxTarget: HTMLElement
   declare readonly dealAreaTarget: HTMLElement
   declare readonly dealTarget: HTMLOListElement
   declare readonly hintTarget: HTMLElement
@@ -81,6 +82,10 @@ export default class BoosterStageController extends Controller<HTMLElement> {
 
   get flash(): HTMLElement {
     return this.flashTarget
+  }
+
+  get dealFx(): HTMLElement {
+    return this.dealFxTarget
   }
 
   get lastDragEnd(): number {

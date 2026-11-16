@@ -22,39 +22,35 @@ import {
   type OpeningRefusal,
   type Reserve,
 } from "./booster"
-import { animate, blast, settle, stageFlash, stageShake } from "./booster_effects"
+import {
+  BLAST_AT,
+  OPENED_AT,
+  breakCapsule,
+  holdAll,
+  lightFuse,
+  quakeFrames,
+  quakeTiming,
+  releaseAll,
+} from "./booster_capsule_timeline"
+import {
+  ROW_REST,
+  cardFlight,
+  darkenRow,
+  flightRank,
+  flightTurn,
+  leavesAfterBlast,
+  lightRow,
+} from "./booster_deal_flight"
+import { animate, settle } from "./booster_effects"
 import type { BoosterStageHost } from "./booster_host"
+import { dockKeyframes, fadeKeyframes, sinkKeyframes } from "./booster_keyframes"
 import {
-  armKeyframes,
-  bodyKeyframes,
-  capBottomKeyframes,
-  capTopKeyframes,
-  dockKeyframes,
-  fadeKeyframes,
-  sinkKeyframes,
-} from "./booster_keyframes"
-import {
-  ARM_MS,
-  BODY_MS,
-  CAPS_MS,
-  DEAL_LAND_AT,
-  DEAL_MS,
-  DEAL_STAGGER,
   DOCK,
-  FLASH_MS,
-  HEAD_DELAY,
-  LAND_SHAKE_MS,
-  PHONE_DEAL_STAGGER,
-  RAYS_FADE_MS,
   RM_CANISTER_FADE,
   RM_CARD_FADE,
   RM_FADE_STAGGER,
-  SHAKE_MS,
   SINK,
   SINK_STAGGER,
-  dealKeyframes,
-  dealOrder,
-  dealRotation,
   pileDepth,
   pileOrder,
   pilePose,
@@ -85,6 +81,7 @@ export class OpeningSequence {
   private deal = 0
   private skipped: Promise<void> = new Promise(() => {})
   private skipNow = (): void => {}
+  private fuse: Animation[] = []
 
   constructor(private readonly host: OpeningSequenceHost) {}
 
@@ -113,7 +110,7 @@ export class OpeningSequence {
     host.apply((s) => touchMarked(arming(s, null), touchedAt))
     const reduced = this.arm()
     const awaited = heldFor(host.current()) ? true : host.awaitConfirmation(host.current().reserve)
-    const [landed] = await Promise.all([awaited, this.pause(reduced ? 0 : ARM_MS)])
+    const [landed] = await Promise.all([awaited, this.untilBlast(reduced)])
     if (host.timers().disposed) return
     const entry = heldEntry(host.current(), newKey())
     if (!entry) {
@@ -136,7 +133,7 @@ export class OpeningSequence {
     rememberPack(null)
     host.apply((s) => touchMarked(arming(s, key), touchedAt))
     const reduced = this.arm()
-    const [result] = await Promise.all([request, this.pause(reduced ? 0 : ARM_MS)])
+    const [result] = await Promise.all([request, this.untilBlast(reduced)])
     await this.answered(result)
   }
 
@@ -152,8 +149,14 @@ export class OpeningSequence {
 
   private arm(): boolean {
     const reduced = motionReduced()
-    if (!reduced) animate(this.host.canister()?.move, armKeyframes(), { duration: ARM_MS, fill: "forwards" })
+    this.fuse = reduced ? [] : lightFuse(this.host.canister()?.wrap)
     return reduced
+  }
+
+  // The fuse burns to the break; with no answer yet, the capsule holds there.
+  private async untilBlast(reduced: boolean): Promise<void> {
+    await this.pause(reduced ? 0 : BLAST_AT)
+    if (!this.skipping) holdAll(this.fuse)
   }
 
   private async answered(result: OpeningResult): Promise<void> {
@@ -196,7 +199,8 @@ export class OpeningSequence {
 
   private refuse(result: OpeningRefusal): void {
     const { host } = this
-    settle(host.canister()?.move)
+    this.fuse.forEach((animation) => animation.cancel())
+    this.fuse = []
     const message = host.apply((s) => openingRefused(s, result, host.failedMessage)).reason ?? host.failedMessage
     host.announce(message)
     const refused = result.kind === "refused"
@@ -214,6 +218,7 @@ export class OpeningSequence {
     const count = host.current().answer?.cards.length ?? 0
     const alreadyDocked = nextCapsuleWaiting(host.current())
     host.apply(retracting)
+    darkenRow(host.dealFx())
     if (!motionReduced()) {
       for (let index = 0; index < count; index++) {
         const travel = host.part(index, "travel")
@@ -243,49 +248,38 @@ export class OpeningSequence {
     const { host } = this
     const parts = host.canister()
     host.apply(ejecting)
-    animate(parts?.capTop, capTopKeyframes(), {
-      duration: CAPS_MS,
-      easing: "cubic-bezier(.12,.8,.3,1)",
-      fill: "forwards",
-    })
-    animate(parts?.capBottom, capBottomKeyframes(), {
-      duration: CAPS_MS,
-      easing: "cubic-bezier(.12,.8,.3,1)",
-      fill: "forwards",
-    })
-    animate(parts?.body, bodyKeyframes(), { duration: BODY_MS, easing: "cubic-bezier(.5,0,1,.6)", fill: "forwards" })
-    animate(parts?.rays, fadeKeyframes(1, 0), { duration: RAYS_FADE_MS, fill: "forwards" })
-    blast(host.fx(), parts?.button)
-    stageFlash(host.flash(), "warm", 0.35, FLASH_MS)
-    stageShake(host.shake(), 5, SHAKE_MS)
-    await this.pause(HEAD_DELAY)
+    releaseAll(this.fuse)
+    breakCapsule(parts?.fx)
+    animate(host.shake(), quakeFrames(), quakeTiming)
     host.apply(resultHeadShown)
-
-    const origin = host.canister()?.button?.getBoundingClientRect()
-    const phone = host.phoneLayout()
-    const stagger = phone ? PHONE_DEAL_STAGGER : DEAL_STAGGER
     host.apply(cardsDealt)
-    let end = 0
-    ;(phone ? pileOrder(count) : dealOrder(count)).forEach((index, position) => {
-      const delay = position * stagger
-      this.tapWhenDealt(index, delay)
+
+    const origin = parts?.button?.getBoundingClientRect()
+    const phone = host.phoneLayout()
+    const order = phone ? pileOrder(count) : Array.from({ length: count }, (_, index) => index)
+    const row: DOMRect[] = []
+    order.forEach((index, position) => {
+      const rank = phone ? position : flightRank(index, count)
+      this.tapWhenDealt(index, leavesAfterBlast(rank))
       const slot = host.slot(index)
       const travel = host.part(index, "travel")
       if (!slot || !travel || !origin) return
-      const rect = slot.querySelector(".booster-card__frame")?.getBoundingClientRect() ?? slot.getBoundingClientRect()
-      const dx = origin.left + origin.width / 2 - (rect.left + rect.width / 2)
-      const dy = origin.top + origin.height / 2 - (rect.top + rect.height / 2)
-      const rest = phone ? pilePose(pileDepth(index, host.current().stored)) : undefined
-      animate(travel, dealKeyframes(dx, dy, dealRotation(index, count), rest), {
-        duration: DEAL_MS,
-        delay,
-        fill: "backwards",
-        easing: "linear",
+      const rect = (slot.querySelector(".booster-card__frame") ?? slot).getBoundingClientRect()
+      row.push(rect)
+      const { keyframes, options } = cardFlight({
+        dx: origin.left + origin.width / 2 - (rect.left + rect.width / 2),
+        dy: origin.top + origin.height / 2 - (rect.top + rect.height / 2),
+        index,
+        rank,
+        turn: flightTurn(index, count),
+        height: rect.height,
+        rest: phone ? pilePose(pileDepth(index, host.current().stored)) : ROW_REST,
+        floats: !phone,
       })
-      this.laterInThisDeal(delay + DEAL_MS * DEAL_LAND_AT, () => stageShake(host.shake(), 1.5, LAND_SHAKE_MS))
-      end = Math.max(end, delay + DEAL_MS)
+      animate(travel, keyframes, options)
     })
-    await this.pause(end)
+    if (!phone) lightRow(host.dealFx(), row)
+    await this.pause(OPENED_AT - BLAST_AT)
   }
 
   private tapWhenDealt(index: number, delay: number): void {

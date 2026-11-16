@@ -12,41 +12,6 @@ export function fadeKeyframes(from: number, to: number): Keyframe[] {
   return [{ opacity: from }, { opacity: to }]
 }
 
-export function armKeyframes(): Keyframe[] {
-  return [
-    { transform: pose(), easing: "cubic-bezier(.4,0,.6,1)" },
-    { transform: pose(0, 8, 0, 1.1, 0.9), offset: 0.4, easing: "cubic-bezier(.3,.9,.4,1)" },
-    { transform: pose(-1.5, -2, -1, 0.96, 1.06), offset: 0.62 },
-    { transform: pose(1.5, -3, 1, 0.97, 1.07), offset: 0.76 },
-    { transform: pose(-1, -4, -1, 0.96, 1.09), offset: 0.9 },
-    { transform: pose(0, -4, 0, 0.95, 1.1) },
-  ]
-}
-
-export function capTopKeyframes(): Keyframe[] {
-  return [
-    { transform: pose(), opacity: 1 },
-    { transform: pose(-60, -300, -230), opacity: 1, offset: 0.72 },
-    { transform: pose(-76, -360, -290), opacity: 0 },
-  ]
-}
-
-export function capBottomKeyframes(): Keyframe[] {
-  return [
-    { transform: pose(), opacity: 1 },
-    { transform: pose(70, 270, 210), opacity: 1, offset: 0.72 },
-    { transform: pose(88, 330, 260), opacity: 0 },
-  ]
-}
-
-export function bodyKeyframes(): Keyframe[] {
-  return [
-    { transform: pose(), opacity: 1 },
-    { transform: pose(0, 0, 0, 1.16, 0.9), opacity: 1, offset: 0.35 },
-    { transform: pose(0, 0, 0, 1.3, 1.3), opacity: 0 },
-  ]
-}
-
 export function dockKeyframes(): Keyframe[] {
   return [
     { transform: `translateY(${DOCK_PX}px)`, opacity: 0 },

@@ -8,18 +8,6 @@ export function scaled(base: number): number {
   return Math.round(base * TIME_SCALE)
 }
 
-export const ARM_MS = scaled(320)
-export const CAPS_MS = scaled(620)
-export const BODY_MS = scaled(150)
-export const RAYS_FADE_MS = scaled(220)
-export const FLASH_MS = scaled(170)
-export const SHAKE_MS = scaled(300)
-export const HEAD_DELAY = scaled(60)
-export const DEAL_MS = scaled(460)
-export const DEAL_STAGGER = scaled(45)
-export const LAND_SHAKE_MS = scaled(110)
-export const DEAL_LAND_AT = 0.7
-
 export const TREMBLE_MS = [0, 90, 170, 280].map(scaled)
 export const LIFT_PX = [0, 8, 16, 26]
 export const COMMON_LIFT_MS = scaled(70)
@@ -65,16 +53,6 @@ export const ART_POLL = 50
 
 export function tierIndex(tier: Rarity): number {
   return RARITIES.indexOf(tier)
-}
-
-export function dealOrder(count: number): number[] {
-  const centre = Math.floor(count / 2)
-  const order = count > 0 ? [centre] : []
-  for (let step = 1; order.length < count; step++) {
-    if (centre - step >= 0) order.push(centre - step)
-    if (centre + step < count) order.push(centre + step)
-  }
-  return order
 }
 
 export type SummaryStrings = {
@@ -135,31 +113,6 @@ export function pose(x = 0, y = 0, rotate = 0, scaleX = 1, scaleY = scaleX): str
   return `translate(${round(x, 1)}px, ${round(y, 1)}px) rotate(${round(rotate)}deg) scale(${round(scaleX, 3)}, ${round(scaleY, 3)})`
 }
 
-export function dealKeyframes(dx: number, dy: number, rotate: number, rest: PilePose = PILE_REST): Keyframe[] {
-  const { y, scale, rotate: tilt } = rest
-  return [
-    { transform: pose(dx, dy, rotate, 0.2), opacity: 0, easing: "cubic-bezier(.15,.8,.3,1)" },
-    {
-      transform: pose(dx * 0.2, Math.min(dy * 0.4, 0) - 70, -rotate * 0.3, 1.1),
-      opacity: 1,
-      offset: 0.42,
-      easing: "cubic-bezier(.6,0,.9,.5)",
-    },
-    {
-      transform: pose(0, y + 10, tilt, scale * 1.14, scale * 0.84),
-      opacity: 1,
-      offset: DEAL_LAND_AT,
-      easing: "ease-out",
-    },
-    { transform: pose(0, y - 6, tilt, scale * 0.95, scale * 1.06), opacity: 1, offset: 0.86, easing: "ease-in-out" },
-    { transform: pose(0, y, tilt, scale), opacity: 1 },
-  ]
-}
-
-export function dealRotation(index: number, count: number): number {
-  return (index - Math.floor(count / 2)) * 26
-}
-
 export function shakeKeyframes(amplitude: number): Keyframe[] {
   const steps = 8
   const frames: Keyframe[] = []
@@ -190,8 +143,6 @@ export function cardBackProperties(back: CardBackView): Array<[string, string]> 
 }
 
 export type PilePose = { y: number; scale: number; rotate: number }
-
-const PILE_REST: PilePose = { y: 0, scale: 1, rotate: 0 }
 
 export function pilePose(depth: number): PilePose {
   const rotate = depth === 0 ? 0 : (depth % 2 === 1 ? 1.4 : -1.4) * Math.min(depth, 2)
@@ -235,7 +186,6 @@ export function showcaseSwell(scale: number): number {
   return Number((1 + (scale - 1) * SHOWCASE_SWELL).toFixed(4))
 }
 
-export const PHONE_DEAL_STAGGER = Math.round(DEAL_STAGGER * 1.5)
 export const STORE_MS = 260
 export const SLOT_POP_MS = 260
 export const SPRING_BACK_MS = 260
