@@ -1,13 +1,17 @@
 <% templates = t("shell.packs.in_reserve") %>
-<div class="packs-chips" data-controller="reserve-chip"
+<div id="reserve-chip" class="packs-chips" data-controller="reserve-chip"
    data-reserve-chip-delimiter-value="<%= t("number.format.delimiter") %>"
    data-reserve-chip-templates-value="<%= templates.to_json %>"
-   data-reserve-chip-special-templates-value="<%= t("shell.packs.special_label").to_json %>">
-  <p class="packs-chip packs-chip--static">
+   data-reserve-chip-special-templates-value="<%= t("shell.packs.special_label").to_json %>"
+   data-reserve-chip-refresh-url-value="<%= packs_chip_path(reserve: true) %>"
+   data-reserve-chip-full-value="<%= bank[:reserve_full].present? %>"
+   data-reserve-chip-next-value="<%= bank[:next_available_at]&.utc&.iso8601 %>">
+  <div class="packs-chip packs-chip--static">
     <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
     <span class="packs-chip__count" data-reserve-chip-target="count"><%= number_with_delimiter(bank[:available]) %></span>
     <span class="packs-chip__label" data-reserve-chip-target="label"><%= t("shell.packs.in_reserve", count: bank[:available], number: "").strip %></span>
-  </p>
+    <%= render "shell/packs_next", bank:, refresh: false, refresh_url: packs_chip_path(reserve: true) %>
+  </div>
   <%= render "shell/special_chip", bank:, link: false %>
   <%= render "shell/bank_counter", bank: %>
 </div>

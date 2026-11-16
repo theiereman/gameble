@@ -192,11 +192,15 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[common uncommon rare epic legendary], css_select(".top-bar .rarity-counter__count").map { it["data-tier"] }
     assert_select ".top-bar #rarity-legend tbody tr", 5
     assert_select ".top-bar #rarity-legend [data-rarity-counter-target]", false
-    assert_select ".top-bar .packs-chips[data-controller=reserve-chip] p.packs-chip--static" do
+    assert_select ".top-bar .packs-chips#reserve-chip[data-controller=reserve-chip] div.packs-chip--static" do
       assert_select ".packs-chip__count[data-reserve-chip-target=count]", "9"
       assert_select ".packs-chip__label[data-reserve-chip-target=label]", "in reserve"
+      assert_select ".packs-chip__next[data-controller=countdown][data-countdown-refresh-value=false] .packs-chip__fill [data-countdown-target=segment]"
+      assert_select ".packs-chip__next [data-countdown-target=clock]", /\A\d\d:\d\d\z/
     end
+    assert_equal "/en/packs-chip?reserve=true", css_select(".packs-chip--static .packs-chip__next").sole["data-countdown-refresh-url-value"]
     chip = css_select(".packs-chips").sole
+    assert_equal [ "/en/packs-chip?reserve=true", "false" ], [ chip["data-reserve-chip-refresh-url-value"], chip["data-reserve-chip-full-value"] ]
     assert_equal({ "one" => "%{number} in reserve", "other" => "%{number} in reserve" }, JSON.parse(chip["data-reserve-chip-templates-value"]))
     assert_select ".top-bar a.packs-chip", 0
     assert_select ".tab-bar[data-controller=navigation-lock] a.tab-bar__tab[href='/en/booster'][aria-current=page]"

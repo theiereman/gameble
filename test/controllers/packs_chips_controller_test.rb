@@ -44,6 +44,21 @@ class PacksChipsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/en/packs-chip", refresh["data-countdown-refresh-url-value"]
   end
 
+  test "from the booster screen, the refresh answers its static reserve chip with the countdown and the timer it follows" do
+    now = Time.utc(2026, 10, 2, 14, 22)
+    travel_to(now) { create_pack(@player, available_at: now + 10.minutes) }
+    sign_in(@player)
+
+    travel_to(now) { get packs_chip_path(locale: :en, reserve: true), as: :turbo_stream }
+
+    assert_response :success
+    assert_select "turbo-stream[target=packs-chip]", false
+    chip = "turbo-stream[action=replace][target=reserve-chip] template div#reserve-chip[data-reserve-chip-full-value=false]"
+    assert_select "#{chip}[data-reserve-chip-next-value='2026-10-02T14:32:00Z'] div.packs-chip--static .packs-chip__count", "0"
+    assert_select "#{chip} .packs-chip__next [data-countdown-target=clock]", "10:00"
+    assert_equal "/en/packs-chip?reserve=true", css_select("#{chip} .packs-chip__next").sole["data-countdown-refresh-url-value"]
+  end
+
   test "the chip reads in the request's locale, and follows it on the next refresh" do
     now = Time.utc(2026, 10, 2, 9, 0)
     travel_to(now) { create_pack(@player, available_at: now + 5.minutes) }
