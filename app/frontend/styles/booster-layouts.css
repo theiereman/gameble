@@ -133,14 +133,14 @@
   height: 8px;
 }
 
-/* The stage: the pile over the plate band and the tray; the canister
+/* The stage: the plate band's hint, the pile under it, then the tray; the canister
    (or the empty reserve) across the whole stage. A short screen scrolls. */
 .booster[data-layout="phone"] .booster__stage {
   min-height: 474px;
 }
 
 .booster[data-layout="phone"] .booster__shake {
-  grid-template: minmax(0, 1fr) auto auto / minmax(0, 1fr);
+  grid-template: auto minmax(0, 1fr) auto / minmax(0, 1fr);
   row-gap: var(--space-3);
   min-height: 510px;
   padding-bottom: 6px;
@@ -168,7 +168,7 @@
 }
 
 .booster__pile-area {
-  grid-area: 1 / 1;
+  grid-area: 2 / 1;
   align-self: end;
   display: flex;
   justify-content: center;
@@ -244,15 +244,16 @@
   opacity: 0.18;
 }
 
-/* The plate band: the hint line under the pile. Above the stage's dim (a Légendaire's banner plays there),
+/* The plate band: the hint line over the pile. Above the stage's dim (a Légendaire's banner plays there),
    under the cards (a stored card flies over it to the tray). */
 .booster-plate-band {
   position: relative;
   z-index: 6;
-  grid-area: 2 / 1;
+  grid-area: 1 / 1;
 }
 
 .booster-plate-band__hint {
+  padding-top: var(--space-3);
   font: var(--font-body-small);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0;
