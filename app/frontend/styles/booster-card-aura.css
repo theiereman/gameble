@@ -163,13 +163,30 @@
     filter 120ms linear;
 }
 
-/* While a Légendaire spins, a white-hot glare hides its face until the
-   flash. */
+/* While a Légendaire spins, a golden glare swept by a strip of light
+   leaves its face barely readable until the flash. */
 .booster-card[data-veiled] .booster-card__front::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(118deg, var(--booster-tier-hi), var(--color-text-max) 30% 70%, var(--booster-tier-hi));
+  background:
+    linear-gradient(
+        118deg,
+        transparent 30%,
+        color-mix(in srgb, var(--color-text-max) 70%, transparent) 45% 55%,
+        transparent 70%
+      )
+      100% 0 / 300% 100%,
+    color-mix(in srgb, var(--booster-tier) 58%, transparent);
+  animation: booster-legendary-glare 0.32s linear infinite;
+}
+
+@keyframes booster-legendary-glare {
+  to {
+    background-position:
+      0 0,
+      0 0;
+  }
 }
 
 @keyframes booster-legendary-crackle {
