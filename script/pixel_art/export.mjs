@@ -1306,24 +1306,46 @@ function random(seed) {
   }
 }
 
-// The star field's tile (atmosphere): 2px and 4px squares of
-// {colors.star} on the 2px grid, at a few brightnesses, repeated by CSS.
+// The star field's tile (atmosphere): 2px and 4px squares on the 2px grid,
+// at a few brightnesses, repeated by CSS. Most are {colors.star}; the rest
+// lean faintly gold, orange, blue or red, as in a deep-sky photograph.
+const STAR_TINTS = [
+  ["#c7d5e0", 0.55],
+  ["#e6d9b8", 0.17],
+  ["#e8c09a", 0.12],
+  ["#adc6ea", 0.11],
+  ["#e0a596", 0.05],
+]
+
+function starTint(roll) {
+  let left = roll
+  for (const [colour, share] of STAR_TINTS) {
+    if ((left -= share) < 0) return colour
+  }
+  return STAR_TINTS[0][0]
+}
+
 function starfieldSvg() {
   const SIZE = 480
-  const STAR = "#c7d5e0"
   const next = random(20261005)
-  const byOpacity = new Map()
+  // Its own sequence, so the tints leave every star where it was.
+  const nextTint = random(20261116)
+  const groups = new Map()
   for (let i = 0; i < 70; i++) {
     const big = next() < 0.15
     const size = big ? 4 : 2
     const x = Math.floor(next() * ((SIZE - size) / 2)) * 2
     const y = Math.floor(next() * ((SIZE - size) / 2)) * 2
     const opacity = [0.35, 0.55, 0.8][Math.floor(next() * 3)]
-    if (!byOpacity.has(opacity)) byOpacity.set(opacity, [])
-    byOpacity.get(opacity).push(`M${x} ${y}h${size}v${size}h-${size}z`)
+    const key = `${opacity} ${starTint(nextTint())}`
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(`M${x} ${y}h${size}v${size}h-${size}z`)
   }
-  const body = [...byOpacity.entries()].sort(([a], [b]) => a - b)
-    .map(([opacity, d]) => `<path fill="${STAR}" fill-opacity="${opacity}" d="${d.join("")}"/>`).join("")
+  const body = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, d]) => {
+      const [opacity, colour] = key.split(" ")
+      return `<path fill="${colour}" fill-opacity="${opacity}" d="${d.join("")}"/>`
+    }).join("")
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE} ${SIZE}" width="${SIZE}" height="${SIZE}" shape-rendering="crispEdges">${body}</svg>\n`
 }
 
@@ -1819,7 +1841,7 @@ const DESCRIPTIONS = {
   ...Object.fromEntries(Object.entries(BACK_OFFICE_ICONS).map(([name, { look }]) => [`office-${name}.svg`, `Back-office tile icon, ${name.replace("-", " ")}: ${look}, 11 × 11 (text colour)`])),
   ...Object.fromEntries(Object.entries(PICOIN_MARKS).map(([name, { look, size }]) => [`${name}.svg`, `PiCoin mark: ${look}, ${size} × ${size}`])),
   "menu.svg": "The phone header's menu: profile, settings and the extras (text colour)",
-  "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
+  "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content; a few stars faintly tinted gold, orange, blue or red",
   "nebula.png": `Nebula tile behind the star field: faint blue and violet clouds and a pale band of the galaxy, ${NEBULA_WIDTH} × ${NEBULA_HEIGHT}, drawn at 4 CSS px per pixel`,
   ...Object.fromEntries([...BASE_BACK_DESIGNS, ...NAMED_BACK_DESIGNS].flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),

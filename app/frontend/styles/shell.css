@@ -166,8 +166,8 @@ body:has(.landing) .atmosphere__stars {
 }
 
 /* A dozen stars, each repeated down the screen one tile apart so the
-   landing's scroll drift never runs out of them, stay lit and now and then
-   fade out and back in, each on its own period and delay. */
+   landing's scroll drift never runs out of them, stay lit and every few
+   seconds fade out and back in, each on its own period and delay. */
 .atmosphere__twinkle {
   position: absolute;
   inset: 0;
@@ -198,7 +198,7 @@ body:has(.landing) .atmosphere__twinkle {
 /* The four larger stars flare instead: now and then they brighten and a
    small cross of light with a soft halo opens around them. */
 .atmosphere__twinkle > i:nth-child(3n + 2) {
-  --period-flare: calc(3 * var(--period, 10s));
+  --period-flare: calc(2 * var(--period, 10s));
 
   animation-name: star-flare;
   animation-duration: var(--period-flare);
@@ -206,7 +206,7 @@ body:has(.landing) .atmosphere__twinkle {
 
 .atmosphere__twinkle > i:nth-child(3n + 2)::before,
 .atmosphere__twinkle > i:nth-child(3n + 2)::after {
-  --glint-halo: rgb(199 213 224 / 25%);
+  --glint-halo: rgb(199 213 224 / 40%);
 
   position: absolute;
   content: "";
@@ -229,19 +229,20 @@ body:has(.landing) .atmosphere__twinkle {
 
 .atmosphere__twinkle > i:nth-child(3n + 2)::before {
   top: calc(50% - 1px);
-  left: calc(50% - 5px);
-  width: 10px;
+  left: calc(50% - 7px);
+  width: 14px;
   height: 2px;
 }
 
 .atmosphere__twinkle > i:nth-child(3n + 2)::after {
-  top: calc(50% - 5px);
+  top: calc(50% - 7px);
   left: calc(50% - 1px);
   width: 2px;
-  height: 10px;
+  height: 14px;
 }
 
-/* Places (x y), sizes, delays and periods of the twelve. */
+/* Places (x y), sizes, delays and periods of the twelve, and the faint
+   tint of three. */
 .atmosphere__twinkle > i:nth-child(1) {
   --x: 8%;
   --y: 58px;
@@ -262,6 +263,8 @@ body:has(.landing) .atmosphere__twinkle {
   --y: 134px;
   --delay: 6s;
   --period: 8s;
+
+  color: #e6d9b8;
 }
 
 .atmosphere__twinkle > i:nth-child(4) {
@@ -291,6 +294,8 @@ body:has(.landing) .atmosphere__twinkle {
   --y: 340px;
   --delay: 2s;
   --period: 11s;
+
+  color: #e8c09a;
 }
 
 .atmosphere__twinkle > i:nth-child(8) {
@@ -313,6 +318,8 @@ body:has(.landing) .atmosphere__twinkle {
   --y: 422px;
   --delay: 9s;
   --period: 8s;
+
+  color: #adc6ea;
 }
 
 .atmosphere__twinkle > i:nth-child(11) {
@@ -330,11 +337,52 @@ body:has(.landing) .atmosphere__twinkle {
   --period: 9s;
 }
 
+/* Now and then a star shoots down and to the left, each of the two on its
+   own period so they seldom cross the sky together. */
+.atmosphere__meteors > i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 2px;
+  height: 2px;
+  background: #eef4f8;
+  box-shadow:
+    2px -2px rgb(238 244 248 / 92%),
+    4px -4px rgb(238 244 248 / 84%),
+    6px -6px rgb(238 244 248 / 76%),
+    8px -8px rgb(238 244 248 / 68%),
+    10px -10px rgb(199 213 224 / 60%),
+    12px -12px rgb(199 213 224 / 52%),
+    14px -14px rgb(199 213 224 / 44%),
+    16px -16px rgb(199 213 224 / 36%),
+    18px -18px rgb(199 213 224 / 28%),
+    20px -20px rgb(199 213 224 / 20%),
+    22px -22px rgb(199 213 224 / 12%),
+    24px -24px rgb(199 213 224 / 6%);
+  opacity: 0;
+  animation: meteor var(--period) linear var(--delay) infinite;
+}
+
+.atmosphere__meteors > i:nth-child(1) {
+  --x: 78%;
+  --y: 14%;
+  --delay: 4s;
+  --period: 19s;
+}
+
+.atmosphere__meteors > i:nth-child(2) {
+  --x: 42%;
+  --y: 6%;
+  --delay: 13s;
+  --period: 31s;
+}
+
 /* At most six infinite animations show at once on a phone view, the
-   booster's own among them, so only three stars twinkle there, without a
-   glint. */
+   booster's own among them, so only two stars twinkle there, without a
+   glint, and one shoots. */
 @media (max-width: 719px) {
-  .atmosphere__twinkle > i:nth-child(n + 4) {
+  .atmosphere__twinkle > i:nth-child(n + 3),
+  .atmosphere__meteors > i:nth-child(n + 2) {
     display: none;
   }
 
@@ -346,12 +394,12 @@ body:has(.landing) .atmosphere__twinkle {
 
 @keyframes star-twinkle {
   0%,
-  76%,
+  50%,
   100% {
     opacity: 0.75;
   }
 
-  88% {
+  75% {
     opacity: 0.05;
   }
 }
@@ -364,7 +412,7 @@ body:has(.landing) .atmosphere__twinkle {
   }
 
   93% {
-    opacity: 0.95;
+    opacity: 1;
   }
 }
 
@@ -377,7 +425,24 @@ body:has(.landing) .atmosphere__twinkle {
   }
 
   93% {
-    opacity: 0.5;
+    opacity: 0.85;
+  }
+}
+
+@keyframes meteor {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+
+  1% {
+    opacity: 1;
+  }
+
+  5%,
+  100% {
+    opacity: 0;
+    transform: translate3d(-320px, 320px, 0);
   }
 }
 
