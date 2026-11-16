@@ -341,17 +341,3 @@
 .booster-canister__puff {
   background: rgba(200, 212, 224, 0.5);
 }
-
-.booster-canister__burst {
-  background: #fff;
-  box-shadow:
-    0 0 30px 16px #fff3c4,
-    0 0 60px 30px rgba(255, 170, 80, 0.5);
-  clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%);
-}
-
-.booster-canister__shock {
-  border: 4px solid #fff3c4;
-  border-radius: 50%;
-  box-shadow: 0 0 12px #ffc21a;
-}

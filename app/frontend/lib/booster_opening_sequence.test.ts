@@ -62,6 +62,8 @@ function sequenceFrom(initial: BoosterState, timers: Timers, overrides: HostOver
     shake: () => null,
     fx: () => null,
     flash: () => null,
+    sparks: () => null,
+    scanlines: () => null,
     dealFx: () => null,
     canister: () => null,
     phoneLayout: () => false,
@@ -184,7 +186,7 @@ describe("OpeningSequence", () => {
     expect(state().phase).toBe("dealt")
   })
 
-  it("taps once on the touch, then once per card as the cards leave the capsule, the centre card first", async () => {
+  it("taps once on the touch, then once per card as the cards land, the centre card first", async () => {
     const timers = heldTimers()
     const { sequence } = sequenceFrom(startWith(), timers)
     const taps: string[] = []
@@ -205,6 +207,29 @@ describe("OpeningSequence", () => {
     stops.forEach((stop) => stop())
 
     expect(taps).toEqual(["touch", "card 1", "card 0", "card 2"])
+  })
+
+  it("taps harder and harder while the fuse burns, then once heavily at the blast", async () => {
+    const timers = heldTimers()
+    const { sequence } = sequenceFrom(startWith(), timers)
+    const taps: string[] = []
+    const stops = [
+      onGameble("gameble:capsule-charging", ({ level }) => taps.push(`charge ${level}`)),
+      onGameble("gameble:capsule-burst", () => taps.push("burst")),
+    ]
+
+    const opened = sequence.open()
+    await settled()
+    ;[...timers.laters].sort((a, b) => a.ms - b.ms).forEach(({ action }) => action())
+    timers.flush()
+    await settled()
+    timers.flush()
+    await settled()
+    sequence.skip()
+    await opened
+    stops.forEach((stop) => stop())
+
+    expect(taps).toEqual(["charge 1", "charge 2", "charge 3", "burst"])
   })
 
   it("stops the remaining card taps once the deal is skipped", async () => {

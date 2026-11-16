@@ -32,7 +32,10 @@ import {
   quakeTiming,
   releaseAll,
 } from "./booster_capsule_timeline"
+import { flashBlast, glitchScreen, shakeScreen, slamCard } from "./booster_blast"
+import { CHARGE_TAPS, chargeCapsule } from "./booster_capsule_charge"
 import {
+  CARD_LANDS_AFTER_LEAVING,
   ROW_REST,
   cardFlight,
   darkenRow,
@@ -58,6 +61,7 @@ import {
   pose,
 } from "./booster_motion"
 import { csrfToken, newKey, rememberPack } from "./booster_page"
+import { Sparks, type SparkPoint } from "./booster_sparks"
 import { dispatchGameble } from "./events"
 import { motionReduced } from "./motion"
 import { sendOpening, type OpeningAnswer, type OpeningResult } from "./opening"
@@ -82,8 +86,11 @@ export class OpeningSequence {
   private skipped: Promise<void> = new Promise(() => {})
   private skipNow = (): void => {}
   private fuse: Animation[] = []
+  private readonly sparks: Sparks
 
-  constructor(private readonly host: OpeningSequenceHost) {}
+  constructor(private readonly host: OpeningSequenceHost) {
+    this.sparks = new Sparks(() => host.sparks())
+  }
 
   async open(): Promise<void> {
     const { host } = this
@@ -149,7 +156,13 @@ export class OpeningSequence {
 
   private arm(): boolean {
     const reduced = motionReduced()
-    this.fuse = reduced ? [] : lightFuse(this.host.canister()?.wrap)
+    const wrap = this.host.canister()?.wrap
+    this.fuse = reduced ? [] : [...lightFuse(wrap), ...chargeCapsule(wrap, this.host.scanlines())]
+    if (!reduced) {
+      CHARGE_TAPS.forEach(([delay, level]) =>
+        this.laterInThisDeal(delay, () => dispatchGameble("gameble:capsule-charging", { level })),
+      )
+    }
     return reduced
   }
 
@@ -192,6 +205,7 @@ export class OpeningSequence {
   }
 
   private finishAnimations(): void {
+    this.sparks.clear()
     for (const animation of this.host.root.getAnimations?.({ subtree: true }) ?? []) {
       if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish()
     }
@@ -251,20 +265,21 @@ export class OpeningSequence {
     releaseAll(this.fuse)
     breakCapsule(parts?.fx)
     animate(host.shake(), quakeFrames(), quakeTiming)
+    const phone = host.phoneLayout()
+    const origin = parts?.button?.getBoundingClientRect()
+    this.blast(origin, phone)
     host.apply(resultHeadShown)
     host.apply(cardsDealt)
 
-    const origin = parts?.button?.getBoundingClientRect()
-    const phone = host.phoneLayout()
     const order = phone ? pileOrder(count) : Array.from({ length: count }, (_, index) => index)
     const row: DOMRect[] = []
     order.forEach((index, position) => {
       const rank = phone ? position : flightRank(index, count)
-      this.tapWhenDealt(index, leavesAfterBlast(rank))
       const slot = host.slot(index)
       const travel = host.part(index, "travel")
-      if (!slot || !travel || !origin) return
-      const rect = (slot.querySelector(".booster-card__frame") ?? slot).getBoundingClientRect()
+      const rect = slot ? (slot.querySelector(".booster-card__frame") ?? slot).getBoundingClientRect() : null
+      this.setDown(index, leavesAfterBlast(rank) + CARD_LANDS_AFTER_LEAVING, rect, phone)
+      if (!rect || !travel || !origin) return
       row.push(rect)
       const { keyframes, options } = cardFlight({
         dx: origin.left + origin.width / 2 - (rect.left + rect.width / 2),
@@ -280,8 +295,29 @@ export class OpeningSequence {
     await this.pause(OPENED_AT - BLAST_AT)
   }
 
-  private tapWhenDealt(index: number, delay: number): void {
-    this.laterInThisDeal(delay, () => dispatchGameble("gameble:card-dealt", { index }))
+  private blast(origin: DOMRect | undefined, phone: boolean): void {
+    const { host } = this
+    dispatchGameble("gameble:capsule-burst", null)
+    flashBlast(host.flash())
+    shakeScreen(host.shake(), phone)
+    glitchScreen(host.shake(), host.scanlines())
+    const centre = origin && this.onSparks(origin.left + origin.width / 2, origin.top + origin.height / 2)
+    if (centre) this.sparks.burst(centre, phone ? 70 : 110)
+  }
+
+  // The card lands: a tap, a knock on the stage and a puff of dust under it.
+  private setDown(index: number, delay: number, frame: DOMRect | null, phone: boolean): void {
+    this.laterInThisDeal(delay, () => {
+      dispatchGameble("gameble:card-dealt", { index })
+      slamCard(this.host.shake(), phone)
+      const floor = frame && this.onSparks(frame.left + frame.width / 2, frame.bottom)
+      if (floor && frame) this.sparks.dust(floor, frame.width / 2 - 10)
+    })
+  }
+
+  private onSparks(x: number, y: number): SparkPoint | null {
+    const box = this.sparks.origin()
+    return box ? { x: x - box.left, y: y - box.top } : null
   }
 
   private laterInThisDeal(delay: number, action: () => void): void {
@@ -297,7 +333,7 @@ export class OpeningSequence {
     host.apply(resultHeadShown)
     host.apply(cardsDealt)
     for (let index = 0; index < count; index++) {
-      this.tapWhenDealt(index, index * RM_FADE_STAGGER)
+      this.laterInThisDeal(index * RM_FADE_STAGGER, () => dispatchGameble("gameble:card-dealt", { index }))
       animate(host.part(index, "travel"), fadeKeyframes(0, 1), {
         duration: RM_CARD_FADE,
         delay: index * RM_FADE_STAGGER,

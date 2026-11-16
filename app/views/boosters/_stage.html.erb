@@ -29,6 +29,8 @@
       <p class="booster__banner-line"></p>
     </div>
   </template>
+  <canvas class="booster__sparks" aria-hidden="true" data-booster-stage-target="sparks"></canvas>
+  <div class="booster__scanlines" aria-hidden="true" data-booster-stage-target="scanlines"><span class="booster__tear"></span><span class="booster__tear"></span></div>
   <div class="booster__flash" aria-hidden="true" data-booster-stage-target="flash"></div>
   <%= render "boosters/card", repost: season.present?, market: market_open %>
 </div>

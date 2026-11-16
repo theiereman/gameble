@@ -1,0 +1,70 @@
+/* What the capsule's opening adds around it: the seams' glow while the fuse
+   burns, the console's scan lines and tears, and the pixels thrown at the
+   blast. All rest hidden; booster_capsule_charge.ts and booster_blast.ts
+   animate them. Imported after booster-capsule-parts.css. */
+
+.booster-canister {
+  transform-origin: 50% 80%;
+}
+
+.booster-canister__glow {
+  left: -10px;
+  top: -13px;
+  width: 340px;
+  height: 470px;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(255, 138, 31, 0.55),
+    rgba(255, 90, 31, 0.18) 45%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.booster__flash[data-tone="blast"] {
+  position: absolute;
+  background: var(--color-rarity-legendaire-hi);
+}
+
+.booster__scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 29;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.55) 0 2px, transparent 2px 4px),
+    linear-gradient(90deg, rgba(255, 0, 60, 0.12), transparent 30%, transparent 70%, rgba(0, 200, 255, 0.12));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.booster__tear {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: block;
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  border-top: 2px solid rgba(255, 255, 255, 0.35);
+  opacity: 0;
+}
+
+.booster__tear:first-child {
+  top: 37%;
+  height: 14px;
+}
+
+.booster__tear:last-child {
+  top: 63%;
+  height: 22px;
+}
+
+.booster__sparks {
+  position: absolute;
+  inset: 0;
+  z-index: 28;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  image-rendering: pixelated;
+}

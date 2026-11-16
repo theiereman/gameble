@@ -20,11 +20,11 @@
  *
  * This file is the screen at its base: layout, panel and stage. The dealt
  * cards are in booster-canister.css, the capsule in booster-capsule.css and
- * booster-capsule-parts.css (animated from booster_capsule_timeline.ts), the
- * effects and the result banner in booster-effects.css, the set celebration
+ * booster-capsule-parts.css (animated from booster_capsule_timeline.ts), what
+ * its blast adds around it in booster-blast.css, the effects and the result banner in booster-effects.css, the set celebration
  * and the loops in booster-celebration.css, then the narrower layouts in
  * booster-layouts.css and booster-layouts-tray.css: each file overrides the
- * ones before it, so the order of the eight is part of the cascade.
+ * ones before it, so the order of the nine is part of the cascade.
  */
 
 /* The server's fallback, without JavaScript or until the root controller
