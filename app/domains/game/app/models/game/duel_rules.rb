@@ -35,13 +35,19 @@ module Game
     end
 
     def self.by_value(caller_card, answer_card, stat, direction)
-      order = caller_card.stat(stat).value <=> answer_card.stat(stat).value
+      order = exact_value(caller_card, stat) <=> exact_value(answer_card, stat)
       order = -order if (stat == :discovery) ^ (direction == :low)
       return NO_POINT if order.zero?
 
       Outcome.new(winner: order.positive? ? :caller : :answerer, decided_on_value: true, margin: BigDecimal(0))
     end
     private_class_method :by_value
+
+    def self.exact_value(card, stat)
+      value = card.stat(stat).value
+      stat == :rating ? [ value, card.stat(:popularity).value ] : value
+    end
+    private_class_method :exact_value
 
     def initialize(duel, rounds)
       @duel = duel

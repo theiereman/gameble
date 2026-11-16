@@ -115,6 +115,14 @@ class Game::DuelRulesTest < ActiveSupport::TestCase
     assert_equal [ :answerer, true, 0 ], outcome(first, last, :discovery, :low)
   end
 
+  test "equal ratings go to the edition with more reviews, whatever the direction" do
+    popular = duel_card(1, rating: 70, values: { rating: 90, popularity: 5_000 })
+    obscure = duel_card(2, rating: 70, values: { rating: 90, popularity: 4_000 })
+
+    assert_equal [ :caller, true, 0 ], outcome(popular, obscure, :rating, :high)
+    assert_equal [ :answerer, true, 0 ], outcome(popular, obscure, :rating, :low)
+  end
+
   test "equal percentiles and equal values score nothing" do
     assert_equal [ nil, false, 0 ], outcome(duel_card(1, rating: 70), duel_card(2, rating: 70), :rating, :high)
     assert_equal [ nil, false, 0 ], outcome(duel_card(1, rating: 70), duel_card(2, rating: 70), :rating, :low)
