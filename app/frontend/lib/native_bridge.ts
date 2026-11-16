@@ -12,7 +12,11 @@ export const IMPACTS: Record<Rarity, ImpactStyle> = {
 
 export const TOUCH_IMPACT: ImpactStyle = "light"
 
-export const DEAL_IMPACT: ImpactStyle = "light"
+export const CHARGE_IMPACTS: Record<1 | 2 | 3, ImpactStyle> = { 1: "light", 2: "medium", 3: "heavy" }
+
+export const BURST_IMPACT: ImpactStyle = "heavy"
+
+export const DEAL_IMPACT: ImpactStyle = "medium"
 
 export type PushGrant = { token: string; platform: string }
 

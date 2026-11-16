@@ -238,20 +238,8 @@ const puffFrames = (dx: number, dy: number): Keyframe[] => [
   ...at([54, 100], { opacity: 0, transform: `${move(dx, dy)} scale(2.6)` }),
 ]
 
-const burstFrames = (): Keyframe[] => [
-  ...at([0, 28.9], { opacity: 0, transform: "scale(0.2)" }),
-  ...at([30.4], { opacity: 1, transform: "scale(2.4)" }),
-  ...at([40, 100], { opacity: 0, transform: "scale(5)" }),
-]
-
-const waveFrames = (): Keyframe[] => [
-  ...at([0, 29.9], { opacity: 0, transform: "scale(0.3)" }),
-  ...at([30.4], { opacity: 1, transform: "scale(0.6)" }),
-  ...at([40, 100], { opacity: 0, transform: "scale(6.5)" }),
-]
-
-// At the blast: debris, smoke, the white burst, the shock wave and the body
-// breaking into pieces, all thrown from the capsule's own layer.
+// At the blast: debris, smoke and the body breaking into pieces, all thrown
+// from the capsule's own layer.
 export function breakCapsule(fx: HTMLElement | null | undefined): void {
   if (!fx) return
   DEBRIS.forEach(([left, top, size, colour, dx, dy]) =>
@@ -265,8 +253,6 @@ export function breakCapsule(fx: HTMLElement | null | undefined): void {
   PUFFS.forEach(([left, top, dx, dy]) =>
     spawn(fx, "booster-canister__puff", { left, top, width: 24, height: 24 }, puffFrames(dx, dy)),
   )
-  spawn(fx, "booster-canister__burst", { left: 120, top: 182, width: 80, height: 80 }, burstFrames())
-  spawn(fx, "booster-canister__shock", { left: 130, top: 192, width: 60, height: 60 }, waveFrames())
   SHARDS.forEach(([colour, outline, dx, dy, turn], index) => {
     const look = { background: colour, clipPath: `polygon(${outline})`, boxShadow: colour === LABEL ? "" : LIT_EDGE }
     const box = { left: 16 + (index % 4) * 72, top: 92 + Math.floor(index / 4) * 86, width: 72, height: 86, look }
@@ -298,4 +284,4 @@ export function quakeFrames(): Keyframe[] {
 
 export const quakeTiming: KeyframeAnimationOptions = { ...fromBlast, fill: "none" }
 
-export { fromBlast as blastTiming }
+export { fromBlast as blastTiming, fromTouch as fuseTiming }

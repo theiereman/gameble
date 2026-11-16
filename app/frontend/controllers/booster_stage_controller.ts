@@ -51,11 +51,26 @@ export type MarketIntent = CardIntent & { place: MarketPlace }
 export type MarketPlace = "entrust" | "sell"
 
 export default class BoosterStageController extends Controller<HTMLElement> {
-  static targets = ["shake", "fx", "flash", "dealFx", "dealArea", "deal", "pileArea", "pile", "card", "banner"]
+  static targets = [
+    "shake",
+    "fx",
+    "flash",
+    "sparks",
+    "scanlines",
+    "dealFx",
+    "dealArea",
+    "deal",
+    "pileArea",
+    "pile",
+    "card",
+    "banner",
+  ]
 
   declare readonly shakeTarget: HTMLElement
   declare readonly fxTarget: HTMLElement
   declare readonly flashTarget: HTMLElement
+  declare readonly sparksTarget: HTMLCanvasElement
+  declare readonly scanlinesTarget: HTMLElement
   declare readonly dealFxTarget: HTMLElement
   declare readonly dealAreaTarget: HTMLElement
   declare readonly dealTarget: HTMLOListElement
@@ -83,6 +98,14 @@ export default class BoosterStageController extends Controller<HTMLElement> {
 
   get flash(): HTMLElement {
     return this.flashTarget
+  }
+
+  get sparks(): HTMLCanvasElement {
+    return this.sparksTarget
+  }
+
+  get scanlines(): HTMLElement {
+    return this.scanlinesTarget
   }
 
   get dealFx(): HTMLElement {

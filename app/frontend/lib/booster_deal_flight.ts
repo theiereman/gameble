@@ -8,6 +8,7 @@ import type { PilePose } from "./booster_motion"
 const REFERENCE_CARD_HEIGHT = 146
 const FIRST_OUT = 1056
 const RANK_STAGGER = 48
+const SQUASH_AT = 378
 
 export type Flight = Readonly<{
   dx: number
@@ -17,6 +18,9 @@ export type Flight = Readonly<{
   height: number
   rest: PilePose
 }>
+
+// A card squashes onto its place this long after it leaves the capsule.
+export const CARD_LANDS_AFTER_LEAVING = SQUASH_AT
 
 export const ROW_REST: PilePose = { y: 0, scale: 1, rotate: 0 }
 
@@ -51,7 +55,7 @@ export function cardFlight({ dx, dy, rank, turn, height, rest }: Flight): {
       },
     ],
     [
-      378,
+      SQUASH_AT,
       { opacity: 1, transform: place(0, y + 5 * k, scale * 1.1, scale * 0.88, tilt - turn * 0.35), easing: "ease-out" },
     ],
     [
