@@ -48,6 +48,10 @@ module Game
       end
     end
 
+    def reachable(player, friend)
+      ReachableFriends.call(player).any? { it.player.id == friend.id } ? Success() : Failure(:friend_unavailable)
+    end
+
     def ready_deck(player_id, token)
       deck = Deck.find_by(player_id:, token:) if token.is_a?(String)
       return Failure(:deck_not_ready) unless deck

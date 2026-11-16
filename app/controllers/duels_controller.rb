@@ -2,7 +2,7 @@ class DuelsController < ApplicationController
   def show
     authorize :duel, :show?
     @decks = DeckList.new(current_player, locale: I18n.locale)
-    @lobby = DuelLobby.new(current_player, decks: @decks)
+    @lobby = DuelLobby.new(current_player, decks: @decks, friend_token: params[:friend])
     @landing = flash[:deck_deleted] ? "" : nil
   end
 

@@ -52,4 +52,33 @@ class PlayerStreamChannelTest < ActionCable::Channel::TestCase
 
     assert subscription.rejected?
   end
+
+  test "subscribing leases reachability for 45 seconds, rejecting writes nothing" do
+    stub_connection current_player: @player
+    travel_to(Time.utc(2026, 11, 16, 12)) do
+      subscribe signed_stream_name: signed(*PlayerStream.streamables(accounts_players(:moderator), :en))
+      assert_nil @player.reload.reachable_until
+
+      subscribe signed_stream_name: signed(*PlayerStream.streamables(@player, :en))
+      assert_equal Time.current + 45.seconds, @player.reload.reachable_until
+    end
+  end
+
+  test "a 30 second timer renews the lease and leaving writes nothing" do
+    stub_connection current_player: @player
+    renew, options = PlayerStreamChannel.periodic_timers.sole
+    assert_equal 30.seconds, options[:every]
+
+    travel_to(Time.utc(2026, 11, 16, 12)) do
+      subscribe signed_stream_name: signed(*PlayerStream.streamables(@player, :en))
+      travel 30.seconds
+      subscription.instance_exec(&renew)
+      assert_equal Time.current + 45.seconds, @player.reload.reachable_until
+
+      travel 5.seconds
+      expected = @player.reload.reachable_until
+      unsubscribe
+      assert_equal expected, @player.reload.reachable_until
+    end
+  end
 end

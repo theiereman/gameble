@@ -19,4 +19,5 @@
           href: new_trade_path(friend: owner.token),
           aria_label: t("public_profiles.show.trade_label", name: title)) do %><%= t("public_profiles.show.trade") %><% end %>
   <% end %>
+  <%= render "duels/challenge_button", friend: owner %>
 <% end %>

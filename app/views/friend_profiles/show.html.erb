@@ -20,6 +20,7 @@
         <% else %>
           <%= render ButtonComponent.new(href: new_trade_path(friend: @owner.token)) do %><%= t(".trade") %><% end %>
         <% end %>
+        <%= render "duels/challenge_button", friend: @owner %>
       </div>
       <%= render "friends/more_actions", player: @owner, menu_id: friend_profile_actions_menu_id(@owner.token),
             report_dialog_id: friend_report_dialog_id(@owner.token), remove_dialog_id: friend_profile_remove_dialog_id(@owner.token) %>

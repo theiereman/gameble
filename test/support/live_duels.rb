@@ -9,6 +9,7 @@ module LiveDuels
 
   def befriend(first, second)
     low, high = [ first.id, second.id ].minmax
+    Accounts::Player.where(id: [ first.id, second.id ]).update_all(reachable_until: 1.day.from_now)
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
   end
 

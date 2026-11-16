@@ -11,6 +11,7 @@
             href: new_trade_path(friend: player.token),
             aria_label: t(".trade_with", name:)) do %><%= t(".trade") %><% end %>
     <% end %>
+    <%= render "duels/challenge_button", friend: player %>
     <% if Game::Visibility.open_to_friends?(player) %>
       <%= render ButtonComponent.new(variant: :secondary, size: :small, href: brother_collection_path(token: player.token),
             aria_label: t(".collection_of", name:)) do %><%= t(".collection") %><% end %>

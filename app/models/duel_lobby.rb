@@ -2,9 +2,10 @@ class DuelLobby
   Received = Data.define(:token, :move_number, :challenger)
   Seated = Data.define(:token, :active, :opponent)
 
-  def initialize(player, decks:)
+  def initialize(player, decks:, friend_token: nil)
     @player = player
     @decks = decks
+    @friend_token = friend_token
   end
 
   def received
@@ -19,7 +20,13 @@ class DuelLobby
 
   def decks = @decks.rows.select(&:complete?)
 
-  def friends = @friends ||= Game::FriendsOf.call(@player).select { Game::Visibility.open_to_friends?(it) }
+  def reachable = @reachable ||= Game::ReachableFriends.call(@player)
+
+  def friends = reachable.reject(&:in_duel).map(&:player)
+
+  def chosen_friend = friends.find { it.token == @friend_token } || friends.first
+
+  def befriended? = Game::FriendsOf.call(@player).any?
 
   def closed? = !Game::Visibility.open_to_friends?(@player)
 

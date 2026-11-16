@@ -1828,6 +1828,12 @@ en:
         call: Your call
         their_answer_html: "%{name} is answering…"
         their_call_html: "%{name} is calling…"
+    challenge:
+      button: "Challenge"
+      button_in_duel: "Challenge to a duel"
+      in_duel: "In a duel"
+      label: "Challenge %{name}"
+      label_in_duel: "Challenge %{name} to a duel"
     decks:
       complete:
         one: ", %{count} card"
@@ -1845,10 +1851,14 @@ en:
       heading: Challenge a friend
       in_progress_html: "Duel in progress against %{name}."
       no_deck: You need a complete 12-card deck to challenge.
-      no_friends: Add friends to challenge them.
       received_html: "%{name} challenges you to a duel."
       resume: Resume
       waiting_html: "Waiting for %{name}'s answer…"
+    online:
+      add_friends: "Add friends"
+      heading: "Online · %{count}"
+      no_friends: "Add friends to challenge them."
+      none: "No friend is online right now."
     play:
       title: Duel
     show:
@@ -2014,6 +2024,7 @@ en:
       no_season: No season of cards is open yet. Come back later for the daily capsule.
       not_a_friend: This player is not one of your friends.
       friend_busy: This friend is already in a duel or has a challenge waiting.
+      friend_unavailable: This friend is not online right now.
       deck_not_ready: "A draft cannot play: it needs 12 cards."
       not_your_move: This move is no longer yours to play.
       stat_already_called: You have already called this stat.

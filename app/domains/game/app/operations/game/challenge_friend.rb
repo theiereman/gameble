@@ -9,6 +9,7 @@ module Game
       transaction do
         TradeLocks.players(player.id, friend.id)
         step friends_to_duel(player, friend.id)
+        step reachable(player, friend)
         step idle(player)
         step free(friend)
         step ready_deck(player.id, deck_token)

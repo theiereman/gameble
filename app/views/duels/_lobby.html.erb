@@ -28,16 +28,14 @@
     <p class="duel-lobby__line duel-lobby__line--muted"><%= Game::ChallengeFriend.failure_message(:own_duels_closed) %></p>
   <% elsif lobby.decks.empty? %>
     <p class="duel-lobby__line duel-lobby__line--muted"><%= t("duels.lobby.no_deck") %></p>
-  <% elsif lobby.friends.empty? %>
-    <p class="duel-lobby__line duel-lobby__line--muted"><%= t("duels.lobby.no_friends") %></p>
-  <% else %>
+  <% elsif lobby.friends.any? %>
     <%= form_with url: duel_challenges_path, method: :post, id: "duel-challenge", class: "duel-lobby__form" do %>
       <%= render "duels/deck_choice", decks: lobby.decks %>
       <fieldset class="duel-lobby__choice">
         <legend class="duel-lobby__legend"><%= t("duels.lobby.friend") %></legend>
-        <% lobby.friends.each_with_index do |friend, index| %>
+        <% lobby.friends.each do |friend| %>
           <label class="duel-lobby__option">
-            <%= radio_button_tag :friend, friend.token, index.zero?, id: nil %>
+            <%= radio_button_tag :friend, friend.token, friend == lobby.chosen_friend, id: nil %>
             <%= duel_player_name(friend) %>
           </label>
         <% end %>

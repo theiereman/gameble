@@ -1,0 +1,24 @@
+<%# locals: (lobby:) %>
+<%= render PanelComponent.new(tag: :section, class: "duel-online", aria: { labelledby: "duel-online-heading" }) do %>
+  <h2 id="duel-online-heading" class="duel-lobby__heading"><%= t("duels.online.heading", count: lobby.reachable.size) %></h2>
+  <% if lobby.reachable.any? %>
+    <ul class="duel-online__list">
+      <% lobby.reachable.each do |row| %>
+        <li class="duel-online__row">
+          <%= duel_player_name(row.player) %>
+          <% if row.in_duel %>
+            <span class="duel-online__note"><%= t("duels.challenge.in_duel") %></span>
+          <% else %>
+            <%= render ButtonComponent.new(variant: :secondary, size: :small, href: duels_path(friend: row.player.token, anchor: "duel-challenge"),
+                  aria_label: t("duels.challenge.label", name: friend_name(row.player))) do %><%= t("duels.challenge.button") %><% end %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% elsif lobby.befriended? %>
+    <p class="duel-lobby__line duel-lobby__line--muted"><%= t("duels.online.none") %></p>
+  <% else %>
+    <p class="duel-lobby__line duel-lobby__line--muted"><%= t("duels.online.no_friends") %></p>
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, href: friends_path) do %><%= t("duels.online.add_friends") %><% end %>
+  <% end %>
+<% end %>

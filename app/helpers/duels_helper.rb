@@ -1,6 +1,11 @@
 module DuelsHelper
   MARGIN_SIGNS = { 1 => "+", -1 => "−" }.freeze
 
+  def duel_reachable(friend)
+    @reachable_friends ||= Game::ReachableFriends.call(current_player).index_by { it.player.id }
+    @reachable_friends[friend.id]
+  end
+
   def duel_player_name(player)
     return tag.span(t("player_name.anonymous"), class: "player-name player-name--anonymous") if player.nil?
 

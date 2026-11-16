@@ -4,5 +4,8 @@
 <section class="duels" aria-labelledby="duels-heading" data-controller="live-refresh" data-live-refresh-signal-value="duels-updated">
   <h1 id="duels-heading" class="duels__title"><%= t(".title") %></h1>
   <%= render "duels/lobby", lobby: @lobby %>
+  <% unless @lobby.closed? %>
+    <%= render "duels/online", lobby: @lobby %>
+  <% end %>
   <%= render "duels/decks", decks: @decks, landing: @landing %>
 </section>

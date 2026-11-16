@@ -69,6 +69,14 @@ class Game::DuelChallengeOperationsTest < ActiveSupport::TestCase
     assert_refused(:own_duels_closed) { challenge }
   end
 
+  test "a challenge is refused to a friend whose lease lapsed or never began" do
+    @hugo.update_columns(reachable_until: 1.second.ago)
+    assert_refused(:friend_unavailable) { challenge }
+
+    @hugo.update_columns(reachable_until: nil)
+    assert_refused(:friend_unavailable) { challenge }
+  end
+
   test "a challenge is refused to a player already seated, and to a friend seated or invited" do
     seated = seat(@lea, "seated")
     assert_refused(:duel_in_progress) { challenge }
