@@ -191,7 +191,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     get how_it_works_path(locale: :fr)
 
     assert_select "a.tab-bar__tab[aria-current]", false
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
+    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Mon profil/
   end
 
   test "the screen renders the same with no published season" do

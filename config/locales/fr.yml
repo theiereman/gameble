@@ -167,7 +167,7 @@ fr:
       achievements: "Succès"
       sign_in: "Connexion"
       legal: "Mentions légales"
-      me: "Moi"
+      me: "Mon profil"
       how_it_works: "Comment ça marche"
       back_office: "Back-office"
       listing: "Annonce"
@@ -227,7 +227,7 @@ fr:
         zero: "%{number} enchère dépassée"
         one: "%{number} enchère dépassée"
         other: "%{number} enchères dépassées"
-      me: "Moi"
+      me: "Mon profil"
       landing: "Accueil"
       all_cards: "Toutes les cartes"
       trades_waiting:
@@ -1754,7 +1754,7 @@ fr:
       unlock: "Succès : %{achievement}"
       worn: "Porté"
     show:
-      title: "Moi"
+      title: "Mon profil"
       change: "Modifier"
       choose_title: "Choisir un titre"
       card_back: "Dos de carte · vous seul"

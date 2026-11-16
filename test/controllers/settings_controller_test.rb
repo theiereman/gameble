@@ -502,7 +502,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :fr)
 
     assert_select "a.tab-bar__tab[aria-current]", false
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
+    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Mon profil/
   end
 
   # The public profile in brief

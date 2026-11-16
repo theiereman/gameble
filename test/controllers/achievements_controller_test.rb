@@ -201,7 +201,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     get achievements_path(locale: :fr)
 
     assert_select "a.tab-bar__tab[aria-current]", false
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
+    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Mon profil/
   end
 
   test "menu 06 and the Me page lead a player to the achievements, with the count earned" do

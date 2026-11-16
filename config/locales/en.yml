@@ -3665,7 +3665,7 @@ en:
       change: Change
       choose_title: Choose a title
       customize: Customize
-      title: Me
+      title: My profile
       title_label: Title
   personalizations:
     show:
@@ -4163,7 +4163,7 @@ en:
       legal: Legal notice
       listing: Listing
       market: Market
-      me: Me
+      me: My profile
       my_bids: My bids
       my_sales: My sales
       profile: Profile
@@ -4190,7 +4190,7 @@ en:
       market_outbid:
         one: "%{number} auction outbid"
         other: "%{number} auctions outbid"
-      me: Me
+      me: My profile
       sets: Sets
       trades: Trades
       trades_waiting:
