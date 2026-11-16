@@ -1,13 +1,14 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import {
-  BELL_SEEN_CAP,
   dismissibleKeys,
   hiddenLines,
+  keysToSend,
+  legacyStorageKey,
   linesSeenHere,
-  markSeen,
   opensTarget,
-  readSeen,
-  seenStorageKey,
+  READ_KEYS_PER_POST,
+  sendRead,
+  takeLegacySeen,
   type BellLine,
   type BellStorage,
 } from "./bell"
@@ -19,7 +20,7 @@ function memory(): BellStorage & { items: Map<string, string> } {
   return {
     items,
     getItem: (key) => items.get(key) ?? null,
-    setItem: (key, value) => void items.set(key, value),
+    removeItem: (key) => void items.delete(key),
   }
 }
 
@@ -27,64 +28,14 @@ const refusing: BellStorage = {
   getItem: () => {
     throw new Error("denied")
   },
-  setItem: () => {
+  removeItem: () => {
     throw new Error("denied")
   },
 }
 
-const trade: BellLine = { key: "trade:abc:1", path: "/en/trades/abc", lasting: false }
-const invitation: BellLine = { key: "invitation:def", path: "/en/friends", lasting: false }
-const daily: BellLine = { key: "daily:2026-10-07", path: "/en/booster", lasting: true }
-
-describe("bell seen set", () => {
-  it("remembers the lines seen, once each, newest last", () => {
-    const storage = memory()
-    markSeen(["trade:abc:1"], storage, OWNER)
-    markSeen(["mission:2026-10-05", "trade:abc:1"], storage, OWNER)
-
-    expect(JSON.parse(storage.items.get(seenStorageKey(OWNER)) ?? "")).toEqual(["mission:2026-10-05", "trade:abc:1"])
-    expect(readSeen(storage, OWNER)).toEqual(new Set(["mission:2026-10-05", "trade:abc:1"]))
-  })
-
-  it("keeps each player's seen lines apart on a shared browser", () => {
-    const storage = memory()
-    markSeen(["mission:2026-10-05"], storage, OWNER)
-
-    expect(readSeen(storage, "lea-token")).toEqual(new Set())
-    expect(readSeen(storage, OWNER)).toEqual(new Set(["mission:2026-10-05"]))
-  })
-
-  it("keeps only the newest keys past the cap", () => {
-    const storage = memory()
-    for (let week = 0; week < BELL_SEEN_CAP + 5; week++) markSeen([`mission:${week}`], storage, OWNER)
-
-    const seen = readSeen(storage, OWNER)
-    expect(seen.size).toBe(BELL_SEEN_CAP)
-    expect(seen.has("mission:0")).toBe(false)
-    expect(seen.has(`mission:${BELL_SEEN_CAP + 4}`)).toBe(true)
-  })
-
-  it("sees nothing without storage, with refusing storage, or with a damaged entry", () => {
-    expect(readSeen(null, OWNER)).toEqual(new Set())
-    expect(() => markSeen(["trade:abc:1"], refusing, OWNER)).not.toThrow()
-    expect(readSeen(refusing, OWNER)).toEqual(new Set())
-
-    const damaged = memory()
-    damaged.items.set(seenStorageKey(OWNER), "{not json")
-    expect(readSeen(damaged, OWNER)).toEqual(new Set())
-    damaged.items.set(seenStorageKey(OWNER), JSON.stringify({ trade: 1 }))
-    expect(readSeen(damaged, OWNER)).toEqual(new Set())
-    damaged.items.set(seenStorageKey(OWNER), JSON.stringify(["mission:1", 7]))
-    expect(readSeen(damaged, OWNER)).toEqual(new Set(["mission:1"]))
-  })
-
-  it("writes nothing for no key", () => {
-    const storage = memory()
-    markSeen(["", ""], storage, OWNER)
-
-    expect(storage.items.has(seenStorageKey(OWNER))).toBe(false)
-  })
-})
+const trade: BellLine = { key: "trade:abc:1", path: "/en/trades/abc", lasting: false, read: false }
+const invitation: BellLine = { key: "invitation:def", path: "/en/friends", lasting: false, read: false }
+const daily: BellLine = { key: "daily:2026-10-07", path: "/en/booster", lasting: true, read: false }
 
 describe("bell lines", () => {
   it("a line's target is opened only on its exact pathname", () => {
@@ -100,23 +51,89 @@ describe("bell lines", () => {
     expect(linesSeenHere([trade, invitation, daily], "/en/booster")).toEqual([])
   })
 
-  it("hides the seen lines; a lasting line stays until its state ends", () => {
-    const seen = new Set(["trade:abc:1", "daily:2026-10-07"])
+  it("hides the lines read on any device or just now here; a lasting line stays until its state ends", () => {
+    const readElsewhere = { ...invitation, read: true }
 
-    expect(hiddenLines([trade, invitation, daily], seen)).toEqual(new Set(["trade:abc:1"]))
-    expect(hiddenLines([trade, invitation], new Set(["trade:abc:1", "invitation:def"])).size).toBe(2)
-    expect(hiddenLines([], seen).size).toBe(0)
+    expect(hiddenLines([trade, readElsewhere, daily], new Set())).toEqual(new Set(["invitation:def"]))
+    expect(hiddenLines([trade, invitation, daily], new Set(["trade:abc:1", "daily:2026-10-07"]))).toEqual(
+      new Set(["trade:abc:1"]),
+    )
+    expect(hiddenLines([{ ...daily, read: true }], new Set()).size).toBe(0)
+    expect(hiddenLines([], new Set(["trade:abc:1"])).size).toBe(0)
   })
 })
 
 describe("dismissibleKeys", () => {
-  it("lists the lines that can be seen away, not the lasting ones", () => {
-    const lines: BellLine[] = [
-      { key: "trade:abc:1", path: "/en/trades/abc", lasting: false },
-      { key: "daily:2026-11-04", path: "/en/booster", lasting: true },
-    ]
-
-    expect(dismissibleKeys(lines)).toEqual(["trade:abc:1"])
+  it("lists the lines that can be read away, not the lasting ones", () => {
+    expect(dismissibleKeys([trade, daily])).toEqual(["trade:abc:1"])
     expect(dismissibleKeys([])).toEqual([])
+  })
+})
+
+describe("keysToSend", () => {
+  it("sends each key once, never one the server or this page already holds", () => {
+    const readElsewhere = { ...invitation, read: true }
+
+    expect(keysToSend(["trade:abc:1", "trade:abc:1", "invitation:def", ""], [trade, readElsewhere], new Set())).toEqual(
+      ["trade:abc:1"],
+    )
+    expect(keysToSend(["trade:abc:1"], [trade], new Set(["trade:abc:1"]))).toEqual([])
+    expect(keysToSend(["mission:2026-10-05"], [], new Set())).toEqual(["mission:2026-10-05"])
+  })
+})
+
+describe("takeLegacySeen", () => {
+  it("hands over this browser's old seen lines once, then forgets them", () => {
+    const storage = memory()
+    storage.items.set(legacyStorageKey(OWNER), JSON.stringify(["trade:abc:1", 7, "", "mission:1"]))
+    storage.items.set(legacyStorageKey("lea-token"), JSON.stringify(["invitation:def"]))
+
+    expect(takeLegacySeen(storage, OWNER)).toEqual(["trade:abc:1", "mission:1"])
+    expect(takeLegacySeen(storage, OWNER)).toEqual([])
+    expect(storage.items.has(legacyStorageKey("lea-token"))).toBe(true)
+  })
+
+  it("finds nothing without storage, with refusing storage, or with a damaged entry", () => {
+    expect(takeLegacySeen(null, OWNER)).toEqual([])
+    expect(takeLegacySeen(refusing, OWNER)).toEqual([])
+
+    const damaged = memory()
+    damaged.items.set(legacyStorageKey(OWNER), "{not json")
+    expect(takeLegacySeen(damaged, OWNER)).toEqual([])
+    expect(damaged.items.has(legacyStorageKey(OWNER))).toBe(false)
+  })
+
+  it("keeps only the newest keys past one post", () => {
+    const storage = memory()
+    const keys = Array.from({ length: READ_KEYS_PER_POST + 5 }, (_, week) => `mission:${week}`)
+    storage.items.set(legacyStorageKey(OWNER), JSON.stringify(keys))
+
+    const taken = takeLegacySeen(storage, OWNER)
+    expect(taken).toHaveLength(READ_KEYS_PER_POST)
+    expect(taken[0]).toBe("mission:5")
+  })
+})
+
+describe("sendRead", () => {
+  it("posts the keys as JSON with the CSRF token", async () => {
+    const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+
+    expect(await sendRead({ url: "/en/bell/read", keys: ["trade:abc:1"], csrfToken: "tok", fetch })).toBe(true)
+
+    const [url, init] = fetch.mock.calls[0]
+    expect(url).toBe("/en/bell/read")
+    expect(init.method).toBe("POST")
+    expect(init.headers["X-CSRF-Token"]).toBe("tok")
+    expect(JSON.parse(init.body)).toEqual({ keys: ["trade:abc:1"] })
+  })
+
+  it("posts nothing for no key and reports a refused or failed post", async () => {
+    const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 422 }))
+    expect(await sendRead({ url: "/en/bell/read", keys: [], csrfToken: null, fetch })).toBe(true)
+    expect(fetch).not.toHaveBeenCalled()
+
+    expect(await sendRead({ url: "/en/bell/read", keys: ["trade:abc:1"], csrfToken: null, fetch })).toBe(false)
+    const failing = vi.fn().mockRejectedValue(new Error("offline"))
+    expect(await sendRead({ url: "/en/bell/read", keys: ["trade:abc:1"], csrfToken: null, fetch: failing })).toBe(false)
   })
 })

@@ -69,6 +69,8 @@ Rails.application.routes.draw do
     resource :rarity_legend, path: "rarity-legend", only: :show
     # What is new for the player, the lines of the header's bell, in a frame.
     resource :bell, only: :show
+    # Bell lines read on one device leave the bell on every other device.
+    post "bell/read" => "bell_reads#create", as: :bell_read
 
     # The collection, reached from the hub's menu: its entry, the player's
     # sets; the grid of every card of the season; every set behind a search.

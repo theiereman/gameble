@@ -1,5 +1,5 @@
-<%# locals: (line:) %>
-<%= tag.li id: line.dom_id, class: "bell__line", data: { bell_target: "item", bell_key: line.key, bell_path: line.path, bell_lasting: line.lasting } do %>
+<%# locals: (line:, read_keys:) %>
+<%= tag.li id: line.dom_id, class: "bell__line", data: { bell_target: "item", bell_key: line.key, bell_path: line.path, bell_lasting: line.lasting, bell_read: (!line.lasting && read_keys.include?(line.key)) } do %>
   <%= link_to line.href, class: "bell__link", data: { action: "bell#follow", bell_key_param: line.key, turbo_prefetch: false } do %>
     <span class="bell__sentence"><%= line.sentence %></span>
     <% if line.reactions.any? || line.subject %>
