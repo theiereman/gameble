@@ -199,6 +199,6 @@ class Game::Market::MarketAchievementsTest < ActiveSupport::TestCase
 
     keys = Game::AchievementBoard.call(@seller).map(&:key)
 
-    assert_equal %i[hostile_takeover competitive_tender capital_gain quarterly_targets_met insider_trading], keys.last(5)
+    assert_equal %i[hostile_takeover competitive_tender capital_gain quarterly_targets_met insider_trading], keys[keys.index(:hostile_takeover), 5]
   end
 end

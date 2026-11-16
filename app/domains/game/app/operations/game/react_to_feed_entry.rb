@@ -8,7 +8,7 @@ module Game
       transaction do
         entry = step visible_entry(player, entry_token)
         step write(player, entry, kind)
-        step publish(FeedEntryReacted.new(data: { player_id: player.id, feed_entry_id: entry.id, kind: }), stream_name: stream_name(player.id))
+        step publish(reacted(player, entry, kind), stream_name: stream_name(player.id))
         entry
       end
     end
@@ -22,6 +22,10 @@ module Game
     def visible_entry(player, token)
       entry = VisibleFeedEntry.call(player, token)
       entry ? Success(entry) : Failure(:entry_not_found)
+    end
+
+    def reacted(player, entry, kind)
+      FeedEntryReacted.new(data: { player_id: player.id, feed_entry_id: entry.id, kind:, author_id: entry.player_id, partner_id: entry.partner_id })
     end
 
     def write(player, entry, kind)

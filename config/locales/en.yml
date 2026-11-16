@@ -113,6 +113,38 @@ en:
       statistical_non_compliance: Two Rare or better cards in one standard capsule
       streamlined_opening_procedure: 10 capsules in a row opened with "Reveal all"
       three_complete_sets: Complete 3 sets
+      boosters_1000: Open 1,000 capsules
+      boosters_5000: Open 5,000 capsules
+      boosters_10000: Open 10,000 capsules
+      reposts_10: Repost 10 cards
+      reposts_50: Repost 50 cards
+      reposts_200: Repost 200 cards
+      trades_10: Complete 10 trades
+      trades_50: Complete 50 trades
+      trades_100: Complete 100 trades
+      picoins_50k: Hold 50,000 PiCoins, your running bids included
+      picoins_500k: Hold 500,000 PiCoins, your running bids included
+      picoins_1m: Hold 1,000,000 PiCoins, your running bids included
+      friends_10: Have 10 friends
+      friends_25: Have 25 friends
+      friends_50: Have 50 friends
+      reactions_50: React to 50 entries of the activity feed
+      reactions_200: React to 200 entries of the activity feed
+      reactions_500: React to 500 entries of the activity feed
+      self_assessment: React to one of your own entries in the activity feed
+      viral_memo: Get 10 reactions on one of your entries in the activity feed
+      showcase_full: Fill all 5 places of your showcase
+      everything_must_go: Empty your showcase after filling it
+      entrusted_100: Entrust 100 cards to the Archives
+      entrusted_1000: Entrust 1,000 cards to the Archives
+      entrusted_5000: Entrust 5,000 cards to the Archives
+      entrusted_10000: Entrust 10,000 cards to the Archives
+      employee_of_the_week: Be named the luckiest member of the week by the Flukeometer
+      room_for_improvement: Finish a week in last place on the Flukeometer
+      sustained_growth: End 3 weeks in a row with luck above zero on the Flukeometer
+      turnaround_plan: End 3 weeks in a row with luck below zero on the Flukeometer
+      statement_of_requirements: Create a custom set of 10 games or more
+      delivered_on_schedule: Complete a custom set of 10 games or more
     names:
       boosters_10: Probation Period Completed
       boosters_100: Outstanding Consumption Record
@@ -144,6 +176,38 @@ en:
       statistical_non_compliance: Statistical Non-Compliance
       streamlined_opening_procedure: Streamlined Opening Procedure
       three_complete_sets: Archival Excellence
+      boosters_1000: Key Account
+      boosters_5000: Major Shareholder
+      boosters_10000: Part of the Furniture
+      reposts_10: Brand Ambassador
+      reposts_50: Communications Department
+      reposts_200: Chief Communications Officer
+      trades_10: Lasting Partnership
+      trades_50: Chamber of Commerce
+      trades_100: Free Trade Agreement
+      picoins_50k: Rainy-Day Fund
+      picoins_500k: Taxable Estate
+      picoins_1m: First Million
+      friends_10: Professional Network
+      friends_25: Team Building
+      friends_50: Annual Company Retreat
+      reactions_50: Constructive Feedback
+      reactions_200: Satisfaction Survey
+      reactions_500: Head of Engagement
+      self_assessment: Self-Assessment
+      viral_memo: Viral Memo
+      showcase_full: Point-of-Sale Layout
+      everything_must_go: Everything Must Go
+      entrusted_100: Legal Deposit
+      entrusted_1000: Archive Collection
+      entrusted_5000: Corporate Patronage
+      entrusted_10000: Heritage Bequest
+      employee_of_the_week: Employee of the Week
+      room_for_improvement: Room for Improvement
+      sustained_growth: Sustained Growth
+      turnaround_plan: Turnaround Plan
+      statement_of_requirements: Statement of Requirements
+      delivered_on_schedule: Delivered on Schedule
     show:
       earned_label: Achievements earned
       groups:

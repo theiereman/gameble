@@ -753,9 +753,10 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   end
 
   test "every trigger enqueues the grant for its players" do
-    data = { player_id: @player.id, proposer_id: @player.id, recipient_id: @other.id, seller_id: @player.id, winner_id: @other.id }
+    data = { player_id: @player.id, proposer_id: @player.id, recipient_id: @other.id, seller_id: @player.id, winner_id: @other.id,
+      author_id: @other.id, partner_id: nil, kind: "thumb", sender_id: @player.id }
 
-    assert_enqueued_jobs 11, only: Game::GrantAchievementsJob do
+    assert_enqueued_jobs 20, only: Game::GrantAchievementsJob do
       Game::Handlers::Achievements::EVENTS.each_key { Game::Handlers::Achievements.call(it.new(data:)) }
     end
   end

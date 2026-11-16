@@ -167,6 +167,51 @@ module Game
                         AND bought.final_price * %d <= sale.final_price)
     SQL
 
+    PICOINS_HELD_SQL = "SELECT COALESCE(SUM(available + committed), 0) FROM game_market_wallets WHERE player_id = :player_id".freeze
+    FRIENDS_SQL = "SELECT COUNT(*) FROM game_friendships WHERE low_player_id = :player_id OR high_player_id = :player_id".freeze
+    REACTIONS_GIVEN_SQL = "SELECT COUNT(*) FROM game_feed_reactions WHERE player_id = :player_id".freeze
+
+    REACTIONS_ON_PLAYER_ENTRIES = <<~SQL.squish.freeze
+      game_feed_reactions JOIN game_feed_entries ON game_feed_entries.id = game_feed_reactions.feed_entry_id
+       WHERE (game_feed_entries.player_id = :player_id OR game_feed_entries.partner_id = :player_id)
+    SQL
+    SELF_REACTIONS_SQL = "SELECT COUNT(*) FROM #{REACTIONS_ON_PLAYER_ENTRIES} AND game_feed_reactions.player_id = :player_id".freeze
+    MOST_REACTIONS_ON_A_POST_SQL = <<~SQL.squish.freeze
+      SELECT COALESCE(MAX(reactions), 0) FROM (
+        SELECT COUNT(*) AS reactions FROM #{REACTIONS_ON_PLAYER_ENTRIES}
+           AND game_feed_reactions.player_id <> game_feed_entries.player_id
+           AND game_feed_reactions.player_id IS DISTINCT FROM game_feed_entries.partner_id
+         GROUP BY game_feed_reactions.feed_entry_id
+      ) AS posts
+    SQL
+
+    SHOWCASE_CARDS_SQL = "SELECT COUNT(*) FROM game_showcase_entries WHERE player_id = :player_id".freeze
+    SHOWCASE_CLEARED_AFTER_FULL_SQL = <<~SQL.squish.freeze
+      SELECT COUNT(*) FROM game_achievement_unlocks
+       WHERE player_id = :player_id AND achievement = 'showcase_full'
+         AND NOT EXISTS (SELECT 1 FROM game_showcase_entries WHERE player_id = :player_id)
+    SQL
+
+    CARDS_ENTRUSTED_SQL = "SELECT COALESCE(SUM(quantity), 0) FROM game_market_archive_deposits WHERE player_id = :player_id".freeze
+    VERDICTS_WON_SQL = "SELECT COUNT(*) FROM game_feed_entries WHERE player_id = :player_id AND kind = 'verdict'".freeze
+
+    def self.week_run_sql(luck)
+      longest_run_sql(<<~SQL.squish)
+        SELECT week_start - CAST(7 * ROW_NUMBER() OVER (ORDER BY week_start) AS integer) AS run
+          FROM game_fortunes WHERE player_id = :player_id AND week_start < :current_week AND z_score #{luck}
+      SQL
+    end
+
+    CUSTOM_SET_SIZES = <<~SQL.squish.freeze
+      SELECT COUNT(*) AS games, COUNT(*) FILTER (WHERE game_custom_set_games.card_id IN (#{HELD_GAMES_SQL})) AS held
+        FROM game_custom_set_games
+        JOIN game_custom_sets ON game_custom_sets.id = game_custom_set_games.custom_set_id
+       WHERE game_custom_sets.player_id = :player_id AND game_custom_sets.kind = 'custom'
+       GROUP BY game_custom_set_games.custom_set_id
+    SQL
+    LARGEST_CUSTOM_SET_SQL = "SELECT COALESCE(MAX(games), 0) FROM (#{CUSTOM_SET_SIZES}) AS custom_sets".freeze
+    LARGEST_COMPLETED_CUSTOM_SET_SQL = "SELECT COALESCE(MAX(games), 0) FROM (#{CUSTOM_SET_SIZES}) AS custom_sets WHERE held = games".freeze
+
     METRIC_SQL = {
       packs_opened: PACKS_OPENED_SQL,
       epics_obtained: format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic)),
@@ -191,20 +236,33 @@ module Game
       cards_sold: CARDS_SOLD_SQL,
       most_bidders_on_a_sale: MOST_BIDDERS_ON_A_SALE_SQL,
       comeback_wins: COMEBACK_WINS_SQL,
-      doubled_resales: DOUBLED_RESALES_SQL
+      doubled_resales: DOUBLED_RESALES_SQL,
+      picoins_held: PICOINS_HELD_SQL,
+      friends: FRIENDS_SQL,
+      reactions_given: REACTIONS_GIVEN_SQL,
+      reactions_to_own_posts: SELF_REACTIONS_SQL,
+      most_reactions_on_a_post: MOST_REACTIONS_ON_A_POST_SQL,
+      showcase_cards: SHOWCASE_CARDS_SQL,
+      showcase_cleared_after_full: SHOWCASE_CLEARED_AFTER_FULL_SQL,
+      cards_entrusted: CARDS_ENTRUSTED_SQL,
+      verdicts_won: VERDICTS_WON_SQL,
+      lucky_week_streak: week_run_sql("> 0"),
+      unlucky_week_streak: week_run_sql("< 0"),
+      largest_custom_set: LARGEST_CUSTOM_SET_SQL,
+      largest_completed_custom_set: LARGEST_COMPLETED_CUSTOM_SET_SQL
     }.freeze
 
-    STUDIO_METRIC = :most_games_of_a_studio
+    RUBY_METRICS = %i[most_games_of_a_studio last_places].freeze
 
-    METRICS = (METRIC_SQL.keys + [ STUDIO_METRIC ]).freeze
+    METRICS = (METRIC_SQL.keys + RUBY_METRICS).freeze
 
     def self.call(player, metrics)
       metrics = metrics.uniq
       return metrics.index_with(0) if player.nil?
       return {} if metrics.empty?
 
-      read = sql_metrics(player, metrics - [ STUDIO_METRIC ])
-      read[STUDIO_METRIC] = most_games_of_a_studio(player) if metrics.include?(STUDIO_METRIC)
+      read = sql_metrics(player, metrics - RUBY_METRICS)
+      (metrics & RUBY_METRICS).each { read[it] = send(it, player) }
       metrics.index_with { read.fetch(it) }
     end
 
@@ -221,8 +279,20 @@ module Game
       Catalog::StudioKeys.call(card_ids).values.tally.values.max || 0
     end
 
-    def self.sanitized(sql, player) = Pack.sanitize_sql_array([ sql, { player_id: player.id } ])
+    def self.last_places(player)
+      mine = Fortune.listed.where(player_id: player.id, week_start: ...current_week)
+      ranked_behind = listed_that_week("game_fortunes.z_score < mine.z_score OR (game_fortunes.z_score = mine.z_score AND game_fortunes.player_id > mine.player_id)")
+      rival = listed_that_week("game_fortunes.player_id <> mine.player_id")
+      Fortune.from(mine, :mine).where(ranked_behind.exists.not).where(rival.exists).count
+    end
 
-    private_class_method :sql_metrics, :most_games_of_a_studio, :sanitized, :longest_run_sql, :pack_run_sql
+    def self.listed_that_week(condition) = Fortune.listed.where("game_fortunes.week_start = mine.week_start AND (#{condition})").arel
+
+    def self.current_week = WeeklyGoal.week_start(Time.current)
+
+    def self.sanitized(sql, player) = Pack.sanitize_sql_array([ sql, { player_id: player.id, current_week: } ])
+
+    private_class_method :sql_metrics, :most_games_of_a_studio, :last_places, :listed_that_week, :current_week, :sanitized, :longest_run_sql,
+      :pack_run_sql, :week_run_sql
   end
 end

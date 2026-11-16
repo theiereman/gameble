@@ -70,7 +70,11 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
   test "only an achievement with a threshold above one is countable" do
     assert_equal %i[boosters_10 boosters_100 boosters_500 three_complete_sets luck_is_a_marketing_concept leave_request_denied
       streamlined_opening_procedure diligence_beyond_the_call_of_duty diversified_portfolio market_concentration
-      a_strictly_professional_relationship competitive_tender quarterly_targets_met insider_trading],
+      a_strictly_professional_relationship competitive_tender quarterly_targets_met insider_trading
+      boosters_1000 boosters_5000 boosters_10000 reposts_10 reposts_50 reposts_200 trades_10 trades_50 trades_100
+      picoins_50k picoins_500k picoins_1m friends_10 friends_25 friends_50 reactions_50 reactions_200 reactions_500
+      viral_memo showcase_full entrusted_100 entrusted_1000 entrusted_5000 entrusted_10000
+      sustained_growth turnaround_plan statement_of_requirements delivered_on_schedule],
       Game::AchievementBoard.call(@player).select(&:countable?).map(&:key)
   end
 

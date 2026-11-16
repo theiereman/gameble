@@ -3,8 +3,9 @@ require_relative "../../support/game_packs"
 require_relative "../../support/custom_sets"
 require_relative "../../support/holdings"
 
-# A custom set has no tiers and earns nothing: the opening that completes it
-# writes and announces what the same opening writes for a player without it.
+# A custom set has no tiers, feed entry or card back: the opening that completes it
+# writes and announces what the same opening writes for a player without it. The
+# set stays under ten games, the size from which completing one earns an achievement.
 class Game::CustomSetEarnsNothingTest < ActiveSupport::TestCase
   include GamePacks
   include CustomSets

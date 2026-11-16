@@ -59,7 +59,8 @@ class Game::ReactToFeedEntryTest < ActiveSupport::TestCase
     assert_difference -> { events.size }, 1 do
       react(@reader, @entry, "heart")
     end
-    assert_equal({ player_id: @reader.id, feed_entry_id: @entry.id, kind: "heart" }, events.last.data.symbolize_keys)
+    assert_equal({ player_id: @reader.id, feed_entry_id: @entry.id, kind: "heart", author_id: @author.id, partner_id: nil },
+      events.last.data.symbolize_keys)
   end
 
   test "a failure publishes nothing and writes nothing" do
