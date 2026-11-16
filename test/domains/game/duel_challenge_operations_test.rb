@@ -126,14 +126,14 @@ class Game::DuelChallengeOperationsTest < ActiveSupport::TestCase
 
   test "the frozen decks hold whatever becomes of the decks afterwards" do
     duel = accept(challenge.value!).value!
-    views = seats_of(duel).values.map { Game::DuelView.for(Game::Duel.find(duel.id), it) }
+    views = seats_of(duel).values.map { Game::DuelView.for(Game::Duel.find(duel.id), it).with(server_time: nil) }
     cards = Game::Duel.find(duel.id).challenger_cards
 
     Game::DeckCard.where(deck_id: @lea_deck.id).order(:slot).first.destroy!
     Game::DeleteDeck.new.call(player: @hugo, token: @hugo_deck.token).value!
 
     assert_equal cards, Game::Duel.find(duel.id).challenger_cards
-    assert_equal views, seats_of(duel).values.map { Game::DuelView.for(Game::Duel.find(duel.id), it) }
+    assert_equal views, seats_of(duel).values.map { Game::DuelView.for(Game::Duel.find(duel.id), it).with(server_time: nil) }
   end
 
   test "an acceptance finding a deck no longer ready lapses the challenge and is refused" do

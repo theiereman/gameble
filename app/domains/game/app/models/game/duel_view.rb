@@ -22,7 +22,9 @@ module Game
         deadline: deadline(duel), server_time: Time.current)
     end
 
-    def self.deadline(duel) = duel.move_deadline_at if DuelClock.new(duel, []).open?
+    def self.deadline(duel)
+      duel.move_deadline_at if DuelClock.new(duel, []).open?
+    end
 
     def self.empty_side(role) = Side.new(role:, deck: [], played: [], score: 0, margin: BigDecimal(0), stats_left: DuelStat::STATS)
 

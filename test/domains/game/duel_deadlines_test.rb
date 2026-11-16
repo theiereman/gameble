@@ -120,7 +120,7 @@ class Game::DuelDeadlinesTest < ActiveSupport::TestCase
 
   test "an answer whose time is up is played as the rules would and marked, then the next call gets its time" do
     duel = call_round(accept(challenge))
-    rules = rules_of(duel)
+    rules = rules_of(current(duel))
     expected = rules.automatic_answer
     travel 48.seconds
 

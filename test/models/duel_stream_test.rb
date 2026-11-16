@@ -21,7 +21,7 @@ class DuelStreamTest < ActiveSupport::TestCase
   end
 
   test "every change of a started duel is heard" do
-    expected = %w[DuelChallengeAccepted DuelRoundCalled DuelRoundAnswered DuelFinished].map { "Game::#{it}" }
+    expected = %w[DuelChallengeAccepted DuelChallengeLapsed DuelRoundCalled DuelRoundAnswered DuelFinished].map { "Game::#{it}" }
 
     assert_equal expected, DuelStream::EVENTS.map(&:name)
   end
