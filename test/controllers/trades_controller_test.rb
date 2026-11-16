@@ -233,7 +233,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :fr)
     assert_select ".hub-menu a.menu-item[href='/fr/trades'] #menu-trades-badge .menu-item__badge", 0
-    assert_select ".tab-bar__badge", 0
+    assert_select ".tab-bar__badge--alert", 0
   end
 
   test "an acceptance refused shows the reason on the board and in a toast; nothing moves" do
@@ -1045,7 +1045,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".trade-row__name", /Joueur sans nom/
     assert_select ".trade-row .trade-chip--muted", text: "Clos", count: 2
     assert_select ".trade-row__when", /annulé/
-    assert_select ".tab-bar__badge", 0
+    assert_select ".tab-bar__badge--alert", 0
     assert_equal 0, holding(@alice, @soldier).reserved
 
     [ yours, theirs ].each do |trade|
