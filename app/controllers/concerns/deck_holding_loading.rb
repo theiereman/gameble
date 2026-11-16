@@ -1,5 +1,3 @@
-# The player's decked editions on the sale and entrust screens: the decks naming each cell, by ref, and the views their
-# removal dialogs draw.
 module DeckHoldingLoading
   extend ActiveSupport::Concern
 

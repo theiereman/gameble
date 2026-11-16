@@ -1,4 +1,3 @@
-# What the Duels screen lists: the player's decks in creation order, each with its twelve covers in slot order.
 class DeckList
   Cover = Data.define(:image_url)
 

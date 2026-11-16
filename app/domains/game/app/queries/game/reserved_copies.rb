@@ -1,6 +1,4 @@
 module Game
-  # Why a player's reserved copies of each game are set apart: one copy per edition in a deck, then the copies on sale, then
-  # what no deck nor listing explains, in a trade.
   module ReservedCopies
     Reserved = Data.define(:in_deck, :on_sale, :in_trade)
 
@@ -35,7 +33,7 @@ module Game
     private_class_method :listed
 
     def self.decked(player)
-      DeckCard.joins(:deck).where(game_decks: { player_id: player.id }).distinct.select(:card_season_id)
+      DeckCard.of_player(player.id).distinct.select(:card_season_id)
     end
     private_class_method :decked
   end

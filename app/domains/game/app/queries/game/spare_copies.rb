@@ -1,5 +1,4 @@
 module Game
-  # A player's spare copies of a game: its free copies, summed over its editions with a rarity, beyond the one its holder keeps.
   module SpareCopies
     BY_GAME = <<~SQL.squish.freeze
       SELECT game_holdings.player_id, catalog_card_seasons.card_id,
@@ -12,7 +11,6 @@ module Game
        GROUP BY game_holdings.player_id, catalog_card_seasons.card_id
     SQL
 
-    # { [player_id, card_id] => spare copies } for the games with at least one.
     def self.by_game(player_ids, card_ids: nil)
       return {} if player_ids.empty? || card_ids&.empty?
 

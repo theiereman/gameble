@@ -1,5 +1,4 @@
 module Game
-  # A deck's filled slots: the card-season in each, by slot.
   module DeckSlots
     def self.call(deck)
       return {} if deck.nil?

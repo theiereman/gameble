@@ -661,6 +661,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-every-card-s-detail-shows-its-duel-profile-recomputed-each-m-plan.md`
   summary: `LibraryControllerTest` "a player sees their unique cards…" fails on develop: it still expects the all-seasons rarity legend figure ("3 / 155") that the shell commit dropping the all-seasons column removed.
   evidence: `test/controllers/library_controller_test.rb:119`, Expected ["3 / 150", "3 / 155"], Actual ["3 / 150"]; the commit `f22bf3b7` changed the legend and its shell and booster tests but not this one; unrelated to the duel stats.
+  resolved: `f62dd90d` brought the test level; it expects "3 / 150" alone (refactor sweep of the duel stats and decks epic, 2026-11-16).
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-every-card-s-detail-shows-its-duel-profile-recomputed-each-m-plan.md`
   summary: After a season publication between two Mondays, the next Monday's last weekly percentiles are the season run's values, not the previous Monday's, so the Monday feed entry and the editor's arrows miss what moved between that Monday and the publication.
   evidence: a `first` or `weekly` run copies the row's current percentiles into the weekly ones (`Game::DuelStatRows#weekly_percentiles`), and a `season` run has already replaced those current percentiles; the row keeps one previous set only. Two ways out, an author's choice: a second set of stored percentiles (the last weekly run's), or a season run that keeps the rows of card-seasons already ranked and ranks only the new season (groups are per season, so the old rows stay consistent). The Monday feed entry story reads these percentiles first; it bites from the first season published after the duel stats ship.
@@ -689,3 +690,15 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-the-duels-tab-the-duels-screen-with-the-player-s-decks-and-e-plan.md`
   summary: On the market screens a gap shows between the ÉCHANGES sub-tab bar and the market panel, since the market keeps its own top padding.
   evidence: `app/views/exchanges/_tabs.html.erb` renders above the `market-tab` frame, whose `.market-screen` keeps its padding (`app/frontend/styles/exchanges-tabs.css`); cosmetic.
+
+## Deferred from: build of story-refactor-sweep-plan (2026-11-16)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-refactor-sweep-plan.md`
+  summary: A failed or throttled deck deletion, and a deck removal with no referer, land on the new-deck editor rather than the Duels screen.
+  evidence: `app/controllers/decks_controller.rb` (`throttle_player ... path: -> { new_deck_path }`, `redirect_refused(..., new_deck_path)`) and `app/controllers/deck_removals_controller.rb` (`throttle_player` path, `redirect_back_or_to new_deck_path`); the removal's two are asserted in `test/controllers/deck_blocked_copies_test.rb:127,138`, the deletion's two by no test; a leftover of the editor being built before the Duels screen; moving them changes where a player lands, so it is a story, not cleanup.
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-refactor-sweep-plan.md`
+  summary: `TradeSuggestions.still_spared` and the suggestions' `Spare.copies` still count free copies through `FreeEditions`, beside the one spare rule of `Game::SpareCopies`.
+  evidence: `app/domains/game/app/queries/game/trade_suggestions.rb` (`still_spared`, `DUPLICATE_COPIES`); the two differ only on unrated editions, so reading `SpareCopies` there changes which suggestions survive.
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-refactor-sweep-plan.md`
+  summary: The duel profile's bar copies the progress-bar rules other screens repeat, and its day format the `:long_day` / `:long_day_first` choice four other helpers repeat.
+  evidence: `app/frontend/styles/duel-profile.css` beside `hub-daily-sets.css` (`.set-row__bar`) and the other stylesheets styling `progress`; `DuelProfileHelper#duel_profile_date` beside `card_details_helper.rb`, `card_backs_helper.rb`, `custom_sets_helper.rb` and `market_health_helper.rb`; one shared class and one helper touch screens outside the epic.

@@ -11,9 +11,11 @@ module Game
     end
 
     Profile = Data.define(:card_season_id, :stats, :trump_stat, :trump_direction, :computed_at) do
-      def trump = stats.find { it.name == trump_stat }
+      def stat(name) = stats.find { it.name == name }
 
-      def ranked? = stats.find { it.name == :discovery }.value?
+      def trump = stat(trump_stat)
+
+      def ranked? = stat(:discovery).value?
     end
 
     Change = Data.define(:card_season_id, :card_id, :stat, :from, :to) do

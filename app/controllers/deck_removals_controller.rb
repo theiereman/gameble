@@ -1,4 +1,3 @@
-# Frees a deck-blocked copy from the trade, sale and entrust screens: the edition leaves every deck, and the screen reloads.
 class DeckRemovalsController < ApplicationController
   throttle_player to: 60, only: :create, path: -> { new_deck_path }, alert: "decks.removal.throttled"
 

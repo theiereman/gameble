@@ -1,5 +1,4 @@
 module Game
-  # The trades sub-tab a player last used: between friends until they open the market.
   module ExchangesTab
     TABS = %w[friends market].freeze
     DEFAULT = "friends".freeze

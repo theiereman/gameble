@@ -1,6 +1,4 @@
 module Game
-  # The cards whose duel standing moved most since the last weekly percentiles: each card's one largest stat change
-  # across its editions, then the largest rises and the largest falls.
   class DuelStatMoves
     PER_DIRECTION = 3
 

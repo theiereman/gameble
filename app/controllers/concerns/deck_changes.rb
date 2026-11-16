@@ -1,4 +1,3 @@
-# The deck editor's saves: JSON answers, a refusal by its code and message, at most sixty changes a minute per player.
 module DeckChanges
   extend ActiveSupport::Concern
 

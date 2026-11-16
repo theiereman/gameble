@@ -1,5 +1,3 @@
-# What the deck editor draws: one entry per edition the player owns, by title then season, each with its trump or why it
-# cannot enter the deck, and the deck's twelve slots.
 class DeckEditor
   Entry = Data.define(:ref, :game, :title, :season_number, :image_url, :trump_stat, :availability, :percentiles, :moves) do
     def available? = availability == :available
@@ -55,7 +53,7 @@ class DeckEditor
     end
 
     def percentiles(profile)
-      Game::DuelStat::STATS.index_with { |stat| profile&.stats&.find { it.name == stat }&.percentile&.to_f }
+      Game::DuelStat::STATS.index_with { |stat| profile&.stat(stat)&.percentile&.to_f }
     end
 
     def moves(profile)

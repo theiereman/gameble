@@ -29,7 +29,7 @@ module Game
 
     def requestable(request, holder_id)
       owned = Holding.where(player_id: holder_id, card_season_id: request.keys).pluck(:card_season_id, :quantity).to_h
-      decked = DeckCard.joins(:deck).where(game_decks: { player_id: holder_id }, card_season_id: request.keys).distinct.pluck(:card_season_id).to_set
+      decked = DeckCard.of_player(holder_id).where(card_season_id: request.keys).distinct.pluck(:card_season_id).to_set
       offerable = ->(card_season_id) { owned.fetch(card_season_id, 0) - (decked.include?(card_season_id) ? 1 : 0) }
       request.all? { |card_season_id, quantity| quantity <= offerable.(card_season_id) } ? Success() : Failure(:request_exceeds_holdings)
     end

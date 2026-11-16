@@ -1,6 +1,5 @@
 module Game
   module HeldCopies
-    # `offerable`: what a friend may ask for, the copy a deck blocks left out.
     Row = Data.define(:quantity, :reserved, :in_deck) do
       def initialize(quantity:, reserved:, in_deck: false) = super
 

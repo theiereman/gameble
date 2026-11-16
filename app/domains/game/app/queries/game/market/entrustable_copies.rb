@@ -1,7 +1,7 @@
 module Game
   module Market
     # What a player can entrust: every unreserved copy of an edition that has a rarity, with what the Brotherhood pays for it,
-    # most valuable first, then by season, title and ref. An edition a deck holds shows even with no free copy, to be freed there.
+    # most valuable first, then by season, title and ref.
     module EntrustableCopies
       Copy = Data.define(:ref, :title, :rarity, :season_number, :free, :owned, :value, :card)
 

@@ -1,5 +1,4 @@
 module Game
-  # Takes an edition out of every deck of the player, freeing the copy the decks blocked; the number of decks it left.
   class RemoveFromDecks < Operation
     include DeckSteps
 

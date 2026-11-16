@@ -1,7 +1,6 @@
 module Game
   module Market
     # What a player can put up for sale: the editions with a free copy and a title in the locale, rarest first, then by season, title and ref.
-    # An edition a deck holds shows even with no free copy, to be freed there.
     module SellableCopies
       Copy = Data.define(:ref, :card, :free, :reserved)
 

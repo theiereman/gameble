@@ -15,7 +15,7 @@ module Game
     def self.key(stat, direction) = "#{stat}-#{direction}"
 
     def self.percentile_in(profile, stat, direction)
-      percentile = profile&.stats&.find { it.name == stat }&.percentile
+      percentile = profile&.stat(stat)&.percentile
       return if percentile.nil?
 
       direction == "high" ? percentile : 100 - percentile

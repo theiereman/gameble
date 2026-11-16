@@ -1,5 +1,4 @@
 module Game
-  # Keeps the trades sub-tab a player last opened, so the trades tab leads back to it.
   class KeepExchangesTab < Operation
     def call(player:, tab:)
       player = step require_player(player)

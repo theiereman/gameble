@@ -42,7 +42,6 @@
       <span class="feed__tags">
         <% if verdict %>
           <span class="feed__tag feed__tag--verdict"><%= t("feeds.show.verdict_tag") %></span>
-        <% elsif duel %>
         <% elsif set_entry %>
           <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") unless post && item.entry.set_count == 1 %>
         <% elsif trade %>
@@ -54,7 +53,7 @@
           <span class="feed__tag feed__tag--repost"><%= t("feeds.show.repost_tag") %></span>
         <% elsif sale %>
           <span class="feed__tag feed__tag--sale"><%= t("feeds.show.sale_tag") %></span>
-        <% else %>
+        <% elsif card %>
           <span class="feed__tag feed__tag--<%= card.rarity %>">
             <%= pixel_icon("rarity-#{Catalog::Rarity::TIERS.key(card.rarity.to_sym)}", class: "feed__tag-icon") %>
             <span><%= feed_rarity_name(card) %></span>
