@@ -215,6 +215,7 @@ Rails.application.routes.draw do
     end
     post "trades/:token/seen" => "trade_seens#create", as: :trade_seen,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "links/:link/opened" => "external_link_opens#create", as: :link_open
     # The phone's Me tab opens the player's own profile.
     get "me" => "own_profiles#show", as: :me
     # Every card the player holds, each chosen for the showcase or taken out in one tap.

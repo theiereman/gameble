@@ -124,7 +124,7 @@
   <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-source" }) do %>
     <h2 id="legal-source" class="legal__heading"><%= t(".source.title") %></h2>
     <p><%= t(".source.text") %></p>
-    <%= external_link_to t(".source.link"), ExternalLinksHelper::SOURCE_CODE_URL, button: true, class: "button button--secondary button--small legal__source" %>
+    <%= source_code_link_to t(".source.link"), class: "button button--secondary button--small legal__source" %>
   <% end %>
 
   <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-support" }) do %>

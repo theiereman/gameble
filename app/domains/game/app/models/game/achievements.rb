@@ -68,7 +68,14 @@ module Game
       Achievement.new(:sustained_growth, :lucky_week_streak, 3),
       Achievement.new(:turnaround_plan, :unlucky_week_streak, 3),
       Achievement.new(:statement_of_requirements, :largest_custom_set, 10),
-      Achievement.new(:delivered_on_schedule, :largest_completed_custom_set, 10)
+      Achievement.new(:delivered_on_schedule, :largest_completed_custom_set, 10),
+      Achievement.new(:goals_10, :goals_completed, 10),
+      Achievement.new(:goals_25, :goals_completed, 25),
+      Achievement.new(:goals_50, :goals_completed, 50),
+      Achievement.new(:avatar_changed, :avatar_choices, 1),
+      Achievement.new(:avatar_rebrand, :avatar_choices, 5),
+      Achievement.new(:source_audit, :source_code_opened, 1),
+      Achievement.new(:funding_review, :support_opened, 1)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze

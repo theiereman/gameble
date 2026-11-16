@@ -145,6 +145,13 @@ en:
       turnaround_plan: End 3 weeks in a row with luck below zero on the Flukeometer
       statement_of_requirements: Create a custom set of 10 games or more
       delivered_on_schedule: Complete a custom set of 10 games or more
+      goals_10: Reach 10 goals
+      goals_25: Reach 25 goals
+      goals_50: Reach 50 goals
+      avatar_changed: Choose an avatar
+      avatar_rebrand: Choose an avatar 5 times
+      source_audit: Open the game's source code on GitHub
+      funding_review: Open the support page
     names:
       boosters_10: Probation Period Completed
       boosters_100: Outstanding Consumption Record
@@ -208,6 +215,13 @@ en:
       turnaround_plan: Turnaround Plan
       statement_of_requirements: Statement of Requirements
       delivered_on_schedule: Delivered on Schedule
+      goals_10: Project Review
+      goals_25: Project Manager
+      goals_50: Programme Director
+      avatar_changed: ID Photo
+      avatar_rebrand: Corporate Rebrand
+      source_audit: Compliance Audit
+      funding_review: Funding Review
     show:
       earned_label: Achievements earned
       groups:
@@ -1697,6 +1711,7 @@ en:
       back_locked: This card back is still locked.
       avatar_locked: This avatar is still locked.
       unknown_avatar: This avatar does not exist.
+      unknown_link: This link does not exist.
       card_already_showcased: This card is already in your showcase.
       card_not_owned: You do not own this card.
       card_not_showcased: This card is not in your showcase.
@@ -3623,7 +3638,7 @@ en:
           steam: Steam (Valve) handles sign-in and provides your profile name and, once
             a day while the sync is on, the games of your Steam library;
         stored:
-          activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals, achievements,
+          activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals and the number you reached, whether you opened the source code and support links, achievements,
             card back unlocks and active card back, capsules, daily bonuses, weekly
             mission rewards, trades, friendships, invitations, friend code, activity feed
             entries, your reactions to feed entries and latest activity;'

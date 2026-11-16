@@ -22,7 +22,9 @@ module AchievementsHelper
     first_claim_all_rights_reserved: "flag", a_discovery_of_ours: "lens", a_strictly_professional_relationship: "clasp",
     no_time_to_waste: "stopwatch", night_owl: "moon",
     hostile_takeover: "takeover", competitive_tender: "gavel", capital_gain: "growth", quarterly_targets_met: "ledger",
-    insider_trading: "briefcase"
+    insider_trading: "briefcase",
+    goals_10: "ledger", goals_25: "ledger", goals_50: "ledger",
+    avatar_changed: "portrait", avatar_rebrand: "portrait", source_audit: "lens", funding_review: "coin"
   }.freeze
 
   def achievement_icon(tile)

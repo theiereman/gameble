@@ -38,6 +38,20 @@ class Game::GoalsReachedTest < ActiveSupport::TestCase
     assert_empty game_events(@player).grep(Game::GoalRemoved)
   end
 
+  test "a reached goal is counted for its player, a goal removed by hand is not" do
+    insert_set([ catalog_card_seasons(:common_card_one).id, *unheld_cards(2) ], { complete: 3 }, key: "roguelike", params: { "theme" => "roguelike" })
+    add(kind: "theme", key: "roguelike")
+    add(kind: "studio", key: "valve")
+    assert_equal 0, Game::AchievementProgress.call(@player, [ :goals_completed ]).fetch(:goals_completed)
+
+    create_pack(@player, cards: Array.new(Game::Pack::SIZE, @portal))
+    Game::OpenPack.new.call(player: @player).value!
+    Game::RemoveGoal.new.call(player: @player, kind: "studio", key: "valve").value!
+
+    assert_equal 1, Game::AchievementProgress.call(@player, [ :goals_completed ]).fetch(:goals_completed)
+    assert_equal 0, Game::AchievementProgress.call(@friend, [ :goals_completed ]).fetch(:goals_completed)
+  end
+
   test "a custom set its owner edits down to games they all hold leaves the goals" do
     custom_set = create_custom_set(@player, card_ids: fixture_card_ids.values_at(0, 1, 4))
     hold(@player, catalog_card_seasons(:common_card_one).id)

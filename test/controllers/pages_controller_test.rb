@@ -142,7 +142,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_equal %w[noopener noreferrer external], link["rel"].split
       assert_equal "(nouvel onglet)", link.at_css(".visually-hidden").text.strip
       assert link.at_css("svg.menu-item__external")
-      assert_nil link["data-action"]
+      assert_equal link["href"] == "https://discord.gg/B5utMfwEN", link["data-action"].nil?
+      assert_includes link["data-action"], "link-open#record" unless link["href"] == "https://discord.gg/B5utMfwEN"
     end
   end
 

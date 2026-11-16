@@ -71,8 +71,11 @@ class Game::MoreAchievementsTest < ActiveSupport::TestCase
       [ :statement_of_requirements, :largest_custom_set, 10 ], [ :delivered_on_schedule, :largest_completed_custom_set, 10 ]
     ]
 
-    assert_equal expected, Game::Achievements::CATALOGUE.drop(30).map { [ it.key, it.metric, it.threshold ] }
-    assert_equal 62, Game::Achievements::CATALOGUE.size
+    assert_equal expected, Game::Achievements::CATALOGUE.drop(30).first(32).map { [ it.key, it.metric, it.threshold ] }
+    assert_equal [ [ :goals_10, :goals_completed, 10 ], [ :goals_25, :goals_completed, 25 ], [ :goals_50, :goals_completed, 50 ],
+      [ :avatar_changed, :avatar_choices, 1 ], [ :avatar_rebrand, :avatar_choices, 5 ], [ :source_audit, :source_code_opened, 1 ],
+      [ :funding_review, :support_opened, 1 ] ], Game::Achievements::CATALOGUE.last(7).map { [ it.key, it.metric, it.threshold ] }
+    assert_equal 69, Game::Achievements::CATALOGUE.size
   end
 
   test "PiCoins held add the coins committed to bids to the available ones" do
@@ -369,6 +372,42 @@ class Game::MoreAchievementsTest < ActiveSupport::TestCase
     assert_includes unlocked(@player), "employee_of_the_week"
     assert_includes unlocked(@other), "room_for_improvement"
     assert_not_includes unlocked(@player), "room_for_improvement"
+  end
+
+  test "avatar choices count the player's own events, a repeated choice included" do
+    base = metric(:avatar_choices)
+    2.times { Rails.configuration.event_store.publish(Game::AvatarChosen.new(data: { player_id: @player.id, avatar: "x" })) }
+    Rails.configuration.event_store.publish(Game::AvatarChosen.new(data: { player_id: @other.id, avatar: "x" }))
+
+    assert_equal base + 2, metric(:avatar_choices)
+  end
+
+  test "the first click on a link is kept, a repeat writes nothing and publishes nothing" do
+    assert_equal [ 0, 0 ], [ metric(:source_code_opened), metric(:support_opened) ]
+
+    Game::MarkLinkOpened.new.call(player: @player, link: "source_code").value!
+    first = Game::PlayerState.find_by!(player_id: @player.id).source_code_opened_at
+    travel 1.hour
+    assert_no_difference -> { Rails.configuration.event_store.read.of_type(Game::LinkOpened).count } do
+      Game::MarkLinkOpened.new.call(player: @player, link: "source_code").value!
+    end
+
+    assert_equal first, Game::PlayerState.find_by!(player_id: @player.id).source_code_opened_at
+    assert_equal [ 1, 0 ], [ metric(:source_code_opened), metric(:support_opened) ]
+  end
+
+  test "an unknown link fails and writes nothing" do
+    assert_equal :unknown_link, Game::MarkLinkOpened.new.call(player: @player, link: "other").failure
+    assert_nil Game::PlayerState.find_by(player_id: @player.id)&.source_code_opened_at
+    assert_nil Game::PlayerState.find_by(player_id: @player.id)&.support_opened_at
+  end
+
+  test "the new achievements are met at their thresholds" do
+    progress = { goals_completed: 25, avatar_choices: 5, source_code_opened: 1, support_opened: 0 }
+    met = %i[goals_10 goals_25 avatar_changed avatar_rebrand source_audit]
+    assert_equal met, met.select { Game::Achievements.find(it).met?(progress) }
+    assert_not Game::Achievements.find(:goals_50).met?(progress)
+    assert_not Game::Achievements.find(:funding_review).met?(progress)
   end
 
   test "the deploy backfill grants what history already meets, without a toast" do

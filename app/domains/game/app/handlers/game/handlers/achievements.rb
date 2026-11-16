@@ -17,7 +17,9 @@ module Game
         Game::ShowcaseCardAdded => [ :player_id ],
         Game::ShowcaseCardRemoved => [ :player_id ],
         Game::CustomSetCreated => [ :player_id ],
-        Game::CustomSetEdited => [ :player_id ]
+        Game::CustomSetEdited => [ :player_id ],
+        Game::AvatarChosen => [ :player_id ],
+        Game::LinkOpened => [ :player_id ]
       }.freeze
 
       def self.call(event)

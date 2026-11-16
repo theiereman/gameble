@@ -14,19 +14,19 @@ module ExternalLinksHelper
   end
 
   def donation_link_to(name, **options)
-    external_link_to(name, DONATION_URL, button: true, **options)
+    external_link_to(name, DONATION_URL, button: true, **with_open_beacon("support", options))
   end
 
   def donation_menu_item_to(name, **options)
-    external_menu_item_to(name, DONATION_URL, **options)
+    external_menu_item_to(name, DONATION_URL, **with_open_beacon("support", options))
   end
 
   def source_code_menu_item_to(name, **options)
-    external_menu_item_to(name, SOURCE_CODE_URL, **options)
+    external_menu_item_to(name, SOURCE_CODE_URL, **with_open_beacon("source_code", options))
   end
 
   def source_code_link_to(name, **options)
-    external_link_to(name, SOURCE_CODE_URL, button: true, **options)
+    external_link_to(name, SOURCE_CODE_URL, button: true, **with_open_beacon("source_code", options))
   end
 
   def community_menu_item_to(name, **options)
@@ -34,6 +34,14 @@ module ExternalLinksHelper
   end
 
   private
+
+  def with_open_beacon(link, options)
+    return options unless current_player
+
+    data = options.fetch(:data, {})
+    options.merge(data: data.merge(controller: [ data[:controller], "link-open" ].compact.join(" "),
+      action: [ data[:action], "click->link-open#record auxclick->link-open#record" ].compact.join(" "), link_open_url_value: link_open_path(link:)))
+  end
 
   def external_menu_item_to(name, url, number: nil, **options)
     content = safe_join([

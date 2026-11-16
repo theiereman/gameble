@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_16_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_16_190000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -853,6 +853,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_180000) do
     t.string "active_title_rank"
     t.integer "active_card_back_season"
     t.string "active_avatar"
+    t.integer "goals_completed", default: 0, null: false
+    t.datetime "source_code_opened_at"
+    t.datetime "support_opened_at"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
     t.check_constraint "(active_title_kind IS NULL) = (active_title_key IS NULL) AND (active_title_key IS NULL) = (active_title_rank IS NULL)", name: "game_player_states_active_title_whole_check"
   end
