@@ -63,7 +63,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_empty written
-    assert_select "title", /\AMe/
+    assert_select "title", /\AMy profile/
     assert_select "main .me[data-controller=me][data-me-back-value=standard][data-action='back-picker:equipped->me#wear'] section.profile"
     assert_select "main h1#profile-heading", "Gabe the Brave"
     assert_select "header.profile-band + section.profile-stage + section.me-customize h2#me-customize-heading", "Customize"
@@ -262,7 +262,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller~=me]", false
   end
 
-  test "a card opened from Me goes back to Me, labelled Me; without a session the context is ignored" do
+  test "a card opened from My profile goes back to it, labelled My profile; without a session the context is ignored" do
     choose(:portal_one)
     sign_in(@player)
 
@@ -272,7 +272,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get href
     assert_response :success
-    assert_select ".top-bar__phone-back[href=?]", me_path(locale: :en), /Me/
+    assert_select ".top-bar__phone-back[href=?]", me_path(locale: :en), /My profile/
 
     delete session_path(locale: :en)
     get card_season_path(locale: :en, slug: "portal", number: 1, from: "me")
@@ -292,7 +292,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get me_path(locale: :fr)
 
-    assert_select "title", /\AMoi/
+    assert_select "title", /\AMon profil/
     assert_select "#me-customize-heading", "Personnalisation"
     assert_select "a[href='#me-title-sheet'] .me-opener__kicker", "Titre"
     assert_select "a[href='#me-title-sheet'] .me-opener__value", "Choisir un titre"
