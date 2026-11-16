@@ -19,7 +19,8 @@ module Game
         Game::CustomSetCreated => [ :player_id ],
         Game::CustomSetEdited => [ :player_id ],
         Game::AvatarChosen => [ :player_id ],
-        Game::LinkOpened => [ :player_id ]
+        Game::LinkOpened => [ :player_id ],
+        Game::CodeContributionGranted => [ :player_id ]
       }.freeze
 
       def self.call(event)

@@ -73,7 +73,10 @@
                 </td>
               <% else %>
                 <td data-player-state="good_standing"><%= t(".states.good_standing") %></td>
-                <td><%= render "back_office/bans/ban_action", player:, name:, back: %></td>
+                <td>
+                  <%= render "back_office/bans/ban_action", player:, name:, back: %>
+                  <%= render "back_office/code_contributions/grant_action", player:, name:, back: %>
+                </td>
               <% end %>
               <td data-player-history><%= link_to t(".history_link"), back_office_history_path(player: player.token) %></td>
             </tr>

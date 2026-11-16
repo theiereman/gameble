@@ -152,6 +152,7 @@ en:
       avatar_rebrand: Choose an avatar 5 times
       source_audit: Open the game's source code on GitHub
       funding_review: Open the support page
+      code_contribution: Be granted by the author for contributing to the game's code
     names:
       boosters_10: Probation Period Completed
       boosters_100: Outstanding Consumption Record
@@ -222,6 +223,7 @@ en:
       avatar_rebrand: Corporate Rebrand
       source_audit: Compliance Audit
       funding_review: Funding Review
+      code_contribution: Contribution in Kind
     show:
       earned_label: Achievements earned
       groups:
@@ -431,6 +433,12 @@ en:
           m: size M
           s: size S
           xl: size XL
+    code_contributions:
+      actions:
+        grant: GRANT CODE CONTRIBUTION
+        grant_confirm: Grant the code contribution achievement to %{name}? It cannot be taken back.
+      create:
+        granted: "%{name} earned the code contribution achievement."
     market_closings:
       create:
         closed: "The market is closed and the announcement is on the banner."
@@ -1712,6 +1720,8 @@ en:
       avatar_locked: This avatar is still locked.
       unknown_avatar: This avatar does not exist.
       unknown_link: This link does not exist.
+      code_contribution_already_granted: This player already has the code contribution achievement.
+      player_not_found: That profile could not be found.
       card_already_showcased: This card is already in your showcase.
       card_not_owned: You do not own this card.
       card_not_showcased: This card is not in your showcase.
@@ -3638,7 +3648,7 @@ en:
           steam: Steam (Valve) handles sign-in and provides your profile name and, once
             a day while the sync is on, the games of your Steam library;
         stored:
-          activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals and the number you reached, whether you opened the source code and support links, achievements,
+          activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals and the number you reached, whether you opened the source code and support links, whether the author granted you the code contribution achievement, achievements,
             card back unlocks and active card back, capsules, daily bonuses, weekly
             mission rewards, trades, friendships, invitations, friend code, activity feed
             entries, your reactions to feed entries and latest activity;'

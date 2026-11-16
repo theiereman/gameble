@@ -248,6 +248,8 @@ Rails.application.routes.draw do
         post :discard, on: :member
       end
 
+      resources :code_contributions, path: "code-contributions", only: :create
+
       resources :seasons, only: %i[index show update], param: :number, constraints: { number: /\d+/ } do
         post :publish, on: :collection
       end

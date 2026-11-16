@@ -75,7 +75,8 @@ module Game
       Achievement.new(:avatar_changed, :avatar_choices, 1),
       Achievement.new(:avatar_rebrand, :avatar_choices, 5),
       Achievement.new(:source_audit, :source_code_opened, 1),
-      Achievement.new(:funding_review, :support_opened, 1)
+      Achievement.new(:funding_review, :support_opened, 1),
+      Achievement.new(:code_contribution, :code_contributions, 1)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze

@@ -24,7 +24,8 @@ module AchievementsHelper
     hostile_takeover: "takeover", competitive_tender: "gavel", capital_gain: "growth", quarterly_targets_met: "ledger",
     insider_trading: "briefcase",
     goals_10: "ledger", goals_25: "ledger", goals_50: "ledger",
-    avatar_changed: "portrait", avatar_rebrand: "portrait", source_audit: "lens", funding_review: "coin"
+    avatar_changed: "portrait", avatar_rebrand: "portrait", source_audit: "lens", funding_review: "coin",
+    code_contribution: "clasp"
   }.freeze
 
   def achievement_icon(tile)

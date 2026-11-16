@@ -11,7 +11,7 @@ class PlayerExportTest < ActiveSupport::TestCase
   include FeedReactions
 
   SECTIONS = %i[exportedAt profile identities collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
-    firstDiscoveries feedEntries feedReactions achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals goalsCompleted linksOpened wallet picoinEntries listings bids reportsFiled reportsReceived
+    firstDiscoveries feedEntries feedReactions achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals goalsCompleted linksOpened codeContributionGrantedAt wallet picoinEntries listings bids reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent available committed goalsCompleted availableDelta committedDelta startingPrice
     currentPrice finalPrice durationHours maximum priceAfter].freeze
@@ -136,6 +136,7 @@ class PlayerExportTest < ActiveSupport::TestCase
     %i[collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers firstDiscoveries feedEntries
        feedReactions achievements trades customSets goals picoinEntries listings bids reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal 0, hash[:goalsCompleted]
+    assert_nil hash[:codeContributionGrantedAt]
     assert_equal({}, hash[:linksOpened])
     assert_equal({ available: 0, committed: 0 }, hash[:wallet])
     assert_equal({ count: 0 }, hash[:friends])

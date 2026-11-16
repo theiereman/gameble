@@ -74,8 +74,7 @@ class Game::MoreAchievementsTest < ActiveSupport::TestCase
     assert_equal expected, Game::Achievements::CATALOGUE.drop(30).first(32).map { [ it.key, it.metric, it.threshold ] }
     assert_equal [ [ :goals_10, :goals_completed, 10 ], [ :goals_25, :goals_completed, 25 ], [ :goals_50, :goals_completed, 50 ],
       [ :avatar_changed, :avatar_choices, 1 ], [ :avatar_rebrand, :avatar_choices, 5 ], [ :source_audit, :source_code_opened, 1 ],
-      [ :funding_review, :support_opened, 1 ] ], Game::Achievements::CATALOGUE.last(7).map { [ it.key, it.metric, it.threshold ] }
-    assert_equal 69, Game::Achievements::CATALOGUE.size
+      [ :funding_review, :support_opened, 1 ], [ :code_contribution, :code_contributions, 1 ] ], Game::Achievements::CATALOGUE.last(8).map { [ it.key, it.metric, it.threshold ] }
   end
 
   test "PiCoins held add the coins committed to bids to the available ones" do

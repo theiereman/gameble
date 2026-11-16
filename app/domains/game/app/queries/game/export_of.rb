@@ -21,7 +21,7 @@ module Game
     LibraryRow = Data.define(:token, :created_at, :synced_at, :library_private_since, :card_ids)
     GoalRow = Data.define(:position, :set_kind, :set_key, :custom_set_token, :created_at)
 
-    Markers = Data.define(:goals_completed, :source_code_opened_at, :support_opened_at)
+    Markers = Data.define(:goals_completed, :source_code_opened_at, :support_opened_at, :code_contribution_at)
 
     Result = Data.define(:friend_code, :held_cards, :showcase, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
       :set_tiers, :discoveries, :feed_entries, :reactions, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets, :steam_library, :goals, :markers, :market) do
@@ -162,7 +162,7 @@ module Game
 
     def self.markers(player)
       state = PlayerState.find_by(player_id: player.id)
-      Markers.new(goals_completed: state&.goals_completed.to_i, source_code_opened_at: state&.source_code_opened_at, support_opened_at: state&.support_opened_at)
+      Markers.new(goals_completed: state&.goals_completed.to_i, source_code_opened_at: state&.source_code_opened_at, support_opened_at: state&.support_opened_at, code_contribution_at: state&.code_contribution_at)
     end
 
     private_class_method :markers, :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :reactions, :set_refs, :trades, :custom_sets, :steam_library, :goals
