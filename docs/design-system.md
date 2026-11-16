@@ -38,6 +38,7 @@ The rules sit above the visual identity (console frame, pixel art, VT323 and Jet
 - **A panel on its own carries its heading inside, at the top**, with any figure (`0 / 5`) or link aligned to the right. Examples: Goals, Invitations, the market's exchange preview.
 - **A heading above panels only heads a group of several panels or tiles**, for example "In progress" and "My sets" in the Collection, or "All listings" in the Market. It uses the kicker style: `--font-kicker`, accent colour, uppercase.
 - The two placements never mix for the same job.
+- Both placements use one style: `--font-kicker`, accent colour, uppercase, `--tracking-kicker`. A panel's heading is never white, grey or another size.
 - The hero and banner styles (`--font-hero`, `--font-banner`) are only for showcase screens: landing, roadmap, set album, public profile.
 
 ## Components

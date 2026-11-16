@@ -26,9 +26,9 @@
 
 .legal__heading {
   margin: 0;
-  color: var(--color-text-max);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
 }
 
@@ -148,9 +148,9 @@
 
 .how-it-works__heading {
   margin: 0;
-  color: var(--color-text-max);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
 }
 

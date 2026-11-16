@@ -62,7 +62,8 @@ module ShellHelper
     "achievements" => :achievements,
     "pages#legal" => :legal,
     "pages#how_it_works" => :how_it_works,
-    "own_profiles" => :me
+    "own_profiles" => :me,
+    "market/exchanges" => :exchange
   }.freeze
 
   def shell_top_level_screen?

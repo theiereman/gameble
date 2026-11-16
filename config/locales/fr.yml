@@ -173,6 +173,7 @@ fr:
       listing: "Annonce"
       my_bids: "Mes enchères"
       my_sales: "Mes ventes"
+      exchange: "Bourse"
     rarity:
       label: "Raretés"
       legend: "Raretés"

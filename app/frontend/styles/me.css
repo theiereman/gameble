@@ -4,13 +4,6 @@
  * settings rows. Every opener is a touch target of at least 44px.
  */
 
-.me {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--space-8) + var(--space-3));
-  min-width: 0;
-}
-
 /* What only the owner changes, under the band visitors see: the title
    and the card back, each a tile that opens its sheet. */
 .me-customize {

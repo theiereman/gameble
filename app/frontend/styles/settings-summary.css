@@ -6,9 +6,9 @@
 
 .settings-summary__title {
   margin: 0;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
 }
 
