@@ -61,7 +61,7 @@
 }
 
 .profile-stage__slot {
-  --fan-width: 20cqi;
+  --fan-width: 23cqi;
   --fan-rotate: 0deg;
   --fan-drop: 0px;
   --fan-from: 0cqi;
@@ -70,7 +70,7 @@
   position: relative;
   flex: none;
   width: var(--fan-width);
-  margin-inline: -5cqi;
+  margin-inline: -6cqi;
   container-type: inline-size;
   transform-origin: 50% 100%;
   rotate: var(--fan-rotate);
@@ -104,7 +104,7 @@
 }
 
 .profile-stage__slot--2 {
-  --fan-width: 26cqi;
+  --fan-width: 30cqi;
   --fan-rotate: -6deg;
   --fan-drop: 2cqi;
   --fan-from: 26cqi;
@@ -115,7 +115,7 @@
 }
 
 .profile-stage__slot--3 {
-  --fan-width: 26cqi;
+  --fan-width: 30cqi;
   --fan-rotate: 6deg;
   --fan-drop: 2cqi;
   --fan-from: -26cqi;
@@ -211,9 +211,9 @@
   }
 
   .profile-stage__slot {
-    --fan-width: 18cqi;
+    --fan-width: 21cqi;
 
-    margin-inline: -2.5cqi;
+    margin-inline: -3.5cqi;
   }
 
   .profile-stage__slot--1 {
@@ -222,7 +222,7 @@
 
   .profile-stage__slot--2,
   .profile-stage__slot--3 {
-    --fan-width: 22cqi;
+    --fan-width: 26cqi;
   }
 
   .profile-stage__name {
