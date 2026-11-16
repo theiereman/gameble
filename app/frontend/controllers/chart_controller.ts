@@ -30,6 +30,8 @@ export default class extends Controller<HTMLElement> {
       onMotionChange(redraw),
       this.watchMedia(NARROW, redraw),
       this.watchMedia(FORCED_COLORS, redraw),
+      // A morphing refresh resets the canvas's size attributes, which clears what Chart.js drew.
+      this.listen(document, "turbo:morph", redraw),
       this.listen(document, "keydown", (event) => {
         if ((event as KeyboardEvent).key === "Escape") this.closeTooltip()
       }),
