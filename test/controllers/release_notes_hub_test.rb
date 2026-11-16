@@ -29,6 +29,7 @@ class ReleaseNotesHubTest < ActionDispatch::IntegrationTest
       assert_select ".release-note__section-title", "Nouveautés"
       assert_select ".release-note__item", "Les capsules s'ouvrent d'un coup"
       assert_select "button.button--primary[data-action='welcome#close']", "Compris"
+      assert_select "a.button--link[href='/fr/release-notes']", "Toutes les notes de version"
     end
     assert_select "#release-note-dialog [style]", 0
 

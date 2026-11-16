@@ -1,0 +1,27 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<% content_for :phone_back do %>
+  <%= phone_back_link t("shell.tabs.hub"), home_path %>
+<% end %>
+<div class="release-note-log page page--reading">
+  <h1 class="visually-hidden"><%= t(".title") %></h1>
+  <% if @release_notes.any? %>
+    <ol class="release-note-log__list">
+      <% @release_notes.each do |note| %>
+        <li>
+          <%= render PanelComponent.new(tag: :article, brackets: true, class: "release-note-log__panel", aria: { labelledby: "release-note-#{note.token}" }) do %>
+            <div class="release-note-dialog__head">
+              <%= render "release_notes/kicker", note:, version_only: true %>
+            </div>
+            <div class="release-note-log__screen">
+              <%= render ReleaseNoteComponent.of(note, title_id: "release-note-#{note.token}") %>
+            </div>
+          <% end %>
+        </li>
+      <% end %>
+    </ol>
+  <% else %>
+    <p class="release-note-log__empty"><%= t(".empty") %></p>
+  <% end %>
+</div>

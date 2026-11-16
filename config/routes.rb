@@ -230,6 +230,8 @@ Rails.application.routes.draw do
     get "credits" => "pages#credits", as: :credits
     # The rules of the game, readable signed out.
     get "how-it-works" => "pages#how_it_works", as: :how_it_works
+    # Every release note players were shown, newest first, as the hub's dialog draws them.
+    get "release-notes" => "release_notes#index", as: :release_notes
 
     # Staff only: moderators and administrators.
     get "back-office" => "back_office/dashboard#show", as: :back_office

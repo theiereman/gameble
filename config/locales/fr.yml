@@ -71,6 +71,10 @@ fr:
         loading: "Chargement des options de connexion…"
         signing_in: "Connexion en cours…"
   release_notes:
+    all: "Toutes les notes de version"
+    index:
+      empty: "Aucune note de version pour l'instant."
+      title: "Notes de version"
     credited: "%{change} (merci %{people})"
     close: "Fermer les notes de version"
     done: "Compris"
@@ -323,6 +327,7 @@ fr:
         extras_label: "Extras"
         community: "Discord"
         how_it_works: "Comment ça marche"
+        release_notes: "Notes de version"
         support: "Soutenir"
         source_code: "GitHub"
       showcase:
@@ -2061,6 +2066,7 @@ fr:
         label: "Soutenir"
         link: "Soutenir"
       how_it_works: "Comment ça marche"
+      release_notes: "Notes de version"
       source_code: "Code source"
       legal: "Mentions légales"
       summary:

@@ -173,6 +173,10 @@
           </li>
 
           <li class="settings-row">
+            <%= render ButtonComponent.new(variant: :link, href: release_notes_path) do %><%= t(".release_notes") %><% end %>
+          </li>
+
+          <li class="settings-row">
             <%= source_code_link_to t(".source_code"), class: "button button--link" %>
           </li>
 

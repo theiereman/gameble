@@ -1,5 +1,9 @@
-<%# locals: (note:) %>
+<%# locals: (note:, version_only: false) %>
 <p class="modal__title release-note-kicker">
   <span class="release-note-kicker__light" aria-hidden="true"></span>
-  <span><%= t("release_notes.kicker") %> · <span class="release-note-kicker__version"><%= note.version %></span></span>
+  <% if version_only %>
+    <span class="release-note-kicker__version"><%= note.version %></span>
+  <% else %>
+    <span><%= t("release_notes.kicker") %> · <span class="release-note-kicker__version"><%= note.version %></span></span>
+  <% end %>
 </p>

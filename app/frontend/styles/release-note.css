@@ -41,7 +41,9 @@
 
 .release-note-dialog__foot {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
   margin: 0;
   padding: var(--space-5) var(--space-6) var(--space-3);
   box-shadow: inset 0 var(--space-unit) 0 0 var(--color-line-soft);
@@ -177,7 +179,12 @@ html[data-motion="reduced"] .release-note__prompt::after {
   .release-note-dialog__foot {
     display: grid;
     justify-content: stretch;
+    gap: var(--space-3);
     padding: var(--space-5) var(--space-gutter-phone) 0;
+  }
+
+  .release-note-dialog__foot .button--link {
+    order: 1;
   }
 }
 
@@ -430,4 +437,27 @@ html[data-motion="reduced"] .claude-writer-status__waiting {
 .release-note-review__source--forgotten .release-note-review__meta,
 .release-note-review__warning {
   color: var(--color-danger-text);
+}
+
+.release-note-log__list {
+  display: grid;
+  gap: var(--space-stack-page);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.release-note-log__panel {
+  padding: 0;
+}
+
+.release-note-log__screen {
+  padding: var(--space-6) var(--space-7) var(--space-3);
+  background: repeating-linear-gradient(0deg, var(--release-note-scanline) 0 1px, transparent 1px 3px);
+}
+
+.release-note-log__empty {
+  margin: 0;
+  color: var(--color-dim);
+  font: var(--font-body);
 }

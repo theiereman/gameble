@@ -18,9 +18,14 @@ module Accounts
 
     # The note production shows now: the newest ready one written for the running release or one before it.
     def self.live(running:)
-      return unless running
+      published(running:).first
+    end
 
-      ReleaseNote.ready.select { it.release_version <= running }.max_by(&:release_version)
+    # Every ready note written for the running release or one before it, newest first.
+    def self.published(running:)
+      return [] unless running
+
+      ReleaseNote.ready.select { it.release_version <= running }.sort_by(&:release_version).reverse
     end
 
     def self.unseen_by(player, running:)

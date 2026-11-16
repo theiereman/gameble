@@ -3187,6 +3187,7 @@ en:
           one: "%{number} online"
           other: "%{number} online"
         how_it_works: How it works
+        release_notes: "Release notes"
         invitations_waiting:
           one: "%{number} invitation waiting for your answer"
           other: "%{number} invitations waiting for your answer"
@@ -3940,6 +3941,7 @@ en:
       language:
         label: Language
       how_it_works: How it works
+      release_notes: "Release notes"
       legal: Legal notice
       source_code: Source code
       motion:
@@ -4029,6 +4031,10 @@ en:
       separator: or
       title: Sign in
   release_notes:
+    all: "All release notes"
+    index:
+      empty: "No release notes yet."
+      title: "Release notes"
     credited: "%{change} (thanks %{people})"
     close: "Close the release notes"
     done: "Got it"
