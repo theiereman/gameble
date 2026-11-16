@@ -1,15 +1,14 @@
-/* The ready daily capsule on the capsule screen: one line and its collect button. */
+/* The ready daily capsule: in the panel's free corner under the information column, at the top on a phone. */
 .booster-daily {
   display: flex;
-  grid-column: 1 / -1;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3) var(--space-4);
-  min-height: 44px;
-  padding: var(--space-2) var(--space-4);
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  padding: var(--space-4);
   background: var(--color-panel-sunken);
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+  box-shadow:
+    inset 0 var(--space-unit) 0 var(--color-gold),
+    var(--panel-soft-border);
 }
 
 .booster-daily__head {
@@ -34,10 +33,23 @@
   color: var(--color-lime);
 }
 
+.booster-daily .button-form,
+.booster-daily .button {
+  width: 100%;
+  margin: 0;
+}
+
 .booster-daily .button {
   min-height: 44px;
 }
 
 .booster[data-layout="phone"] .booster-daily {
-  margin-top: var(--space-2);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3);
+}
+
+.booster[data-layout="phone"] .booster-daily :is(.button-form, .button) {
+  width: auto;
 }

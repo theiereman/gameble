@@ -1,5 +1,7 @@
 module Catalog
   class PublishSeason < ApplicationOperation
+    include SeasonEditing
+
     operate_on :call, :number_published
 
     def self.refusal_message(code, panel)
@@ -20,7 +22,9 @@ module Catalog
       @random = random
     end
 
-    def call(number:)
+    def call(number:, name_en:, name_fr:)
+      names = step validate_season_names(name_en:, name_fr:)
+
       transaction do
         season = step lock_draft(number)
         step require_no_staged_batch
@@ -33,7 +37,7 @@ module Catalog
         now = Time.current
         step write_season_data(rows, tiers, now)
         step build_sets(season, rows)
-        step flip(season, now)
+        step flip(season, now, names)
         step publish(SeasonPublished.new(data: { season_id: season.id }), stream_name: Season.stream_name(season.id))
         season
       end
@@ -62,11 +66,6 @@ module Catalog
 
     def require_no_staged_batch
       StagedCardSeason.exists? ? Failure(:staged_batch_waiting) : Success()
-    end
-
-    def lock_published(number)
-      season = Season.published.where(number:).lock("FOR UPDATE").take
-      season ? Success(season) : Failure(:no_published_season)
     end
 
     def unnumbered_card_seasons(season)
@@ -147,8 +146,8 @@ module Catalog
       Success()
     end
 
-    def flip(season, now)
-      season.update!(status: :published, published_at: now)
+    def flip(season, now, names)
+      season.update!(status: :published, published_at: now, **names)
       Success(season)
     end
   end

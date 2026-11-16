@@ -120,8 +120,8 @@ export class BoosterRenderer {
     const info = {
       lit: special ? 0 : available,
       size: this.host.number(shownSize),
-      reserve: t(this.strings.reserveCount, { count: available, n: this.host.number(available) }),
-      tone: view.tone,
+      count: this.host.number(available),
+      reserve: t(this.strings.reserveUnit, { count: available }),
       reserveFull: reserveFull && !special,
       next: special ? null : this.nextLine(state),
       origin: origin && (state.phase === "sealed" ? origin : t(this.strings.originOpening, { origin })),
@@ -164,7 +164,7 @@ export class BoosterRenderer {
           : null,
       label:
         season > 0
-          ? t(this.strings.canisterLabel, { season, count: nextSize })
+          ? t(this.strings.canisterLabel, { season, name: this.host.seasonName, count: nextSize })
           : t(this.strings.canisterLabelPlain, { count: nextSize }),
       busy: state.phase !== "sealed" && state.phase !== "dealt",
       armed: state.armed,
@@ -221,8 +221,10 @@ export class BoosterRenderer {
         legendary: state.legendary === index,
         name: cardName(card, index),
         tierLabel: this.host.tierLabel(card.tier),
+        rarityTip: t(this.strings.rarityTip, { rarity: this.host.rarityNames()[card.tier] }),
         firstCopy: card.firstCopy,
         repostName: t(this.strings.repostCard, { card: card.title }),
+        shareName: t(this.strings.shareCard, { card: card.title }),
         depth: phone ? pileDepth(index, state.stored) : null,
       })
     })
@@ -247,7 +249,6 @@ export class BoosterRenderer {
     stage.render(
       {
         legendary: state.legendary !== null,
-        headShown: state.headShown,
         hand: this.hand(state),
         hint: !phone && view.hint ? this.hintText(view.hint) : null,
       },

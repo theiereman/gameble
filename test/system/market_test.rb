@@ -31,12 +31,13 @@ class MarketTest < ApplicationSystemTestCase
     listing!(seller: @seller, card_season: catalog_card_seasons(:rare_card_one), starting_price: 9_000, hours: 72)
 
     visit market_path(locale: :en)
-    assert_selector "h1", text: "Market"
+    assert_selector "h1", text: "Market", visible: :all
     assert_selector ".listing-tile", count: 2
     assert_equal "Tin Soldier", first(".listing-tile a")["aria-label"].split(",").first
 
+    find(".sort summary").click
     click_on "Price, high to low"
-    assert_selector ".market-screen__sort[aria-current=true]", text: "Price, high to low"
+    assert_selector ".sort__current", text: /\APrice, high to low\z/i
     assert_equal "Blue Depths", first(".listing-tile a")["aria-label"].split(",").first
 
     find(".listing-tile a[href$='#{cheap.token}']").click

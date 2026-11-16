@@ -1,15 +1,5 @@
 /* ---- The Brotherhood's Exchange: the economy's public charts under the market ---- */
 
-.exchange {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  width: 100%;
-  max-width: var(--space-content-max);
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-gutter-phone);
-}
-
 .exchange__title {
   margin: 0;
   color: var(--color-gold);
@@ -119,10 +109,6 @@
 }
 
 @media (min-width: 720px) {
-  .exchange {
-    padding: var(--space-8) var(--space-gutter-desktop);
-  }
-
   .rarity-tiles {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }

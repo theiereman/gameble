@@ -60,7 +60,7 @@ class MarketFiltersTest < ActionDispatch::IntegrationTest
     get market_path(locale: :en, rarity: [ "rare" ], genre: [ "roguelike" ], sort: "price_asc")
 
     assert_equal 24, tokens.size
-    assert_select ".market-screen__sort[href*='rarity%5B%5D=rare'][href*='genre%5B%5D=roguelike']", 4
+    assert_select ".sort__option[href*='rarity%5B%5D=rare'][href*='genre%5B%5D=roguelike']", 4
     assert_select "#market-pages a[rel=next][href*='rarity%5B%5D=rare'][href*='page=2'][href*='sort=price_asc']"
     assert_select "input[name=sort][value=price_asc]"
 

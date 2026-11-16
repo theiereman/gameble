@@ -23,12 +23,17 @@
 }
 
 .ticker {
-  position: relative;
-  z-index: 1;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
   flex: none;
   margin-top: var(--space-unit);
   background: var(--color-steam-bar);
   box-shadow: var(--ticker-rule);
+}
+
+html:has(body > .ticker) {
+  scroll-padding-bottom: var(--space-ticker-height);
 }
 
 body:has(> .ticker) .app-version {
@@ -224,6 +229,11 @@ body:has(> .ticker) .app-version {
   letter-spacing: 0;
   line-height: 16px;
   text-align: center;
+}
+
+.tab-bar__badge--accent {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
 }
 
 .tab-bar__badge--alert {

@@ -82,7 +82,7 @@ class GoalsTest < ApplicationSystemTestCase
     visit booster_path(locale: :en)
     find(".booster-canister").click
     assert_selector ".booster-card[data-dealt]", count: 5, wait: 10
-    assert_selector ".booster__state", text: /\AINVENTORY\z/
+    assert_selector "#booster[data-status=inventory]"
     (1..4).each do |position|
       find(".booster-card:nth-child(#{position}) .booster-card__hit").click
       assert_selector ".booster-card:nth-child(#{position})[data-revealed]"

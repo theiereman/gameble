@@ -8,7 +8,7 @@
   </section>
 <% else %>
   <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
-  <div class="set-browser" data-controller="last-album" data-action="turbo:frame-load->last-album#mark">
+  <div class="set-browser page page--regular" data-controller="last-album" data-action="turbo:frame-load->last-album#mark">
     <h1 class="visually-hidden"><%= t("library.sets.heading") %></h1>
     <%= render "library/set_filters", browser: @browser, clear_path: library_sets_path, results_count: @browser_pagy.count %>
     <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace", controller: "next-page", action: "focusout->next-page#focusLeft" } do %>

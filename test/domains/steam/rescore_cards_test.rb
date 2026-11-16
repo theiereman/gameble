@@ -105,13 +105,13 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
     draft = Catalog::DraftSeason.call
     assert_equal 21, draft.card_seasons.count
     draft.card_seasons.joins(:card).where(catalog_cards: { source_key: "steam:10" }).update_all(prestige_score_version: Steam::PrestigeScore::VERSION - 1)
-    assert_equal :mixed_score_versions, Catalog::PublishSeason.new.call(number: draft.number).failure
+    assert_equal :mixed_score_versions, Catalog::PublishSeason.new.call(number: draft.number, name_en: "Spring", name_fr: "Printemps").failure
 
     rescore(run)
     run_pages_and_promote(run)
 
     assert_equal [ Steam::PrestigeScore::VERSION ], draft.card_seasons.distinct.pluck(:prestige_score_version)
-    assert Catalog::PublishSeason.new.call(number: draft.number).success?
+    assert Catalog::PublishSeason.new.call(number: draft.number, name_en: "Spring", name_fr: "Printemps").success?
   end
 
   test "a card the rescore now refuses leaves the draft once the batch is promoted, not before" do

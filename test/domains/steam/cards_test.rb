@@ -120,7 +120,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     cards_page(run)
     season = promote_batch(run)
 
-    result = Catalog::PublishSeason.new.call(number: season.number)
+    result = Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps")
     assert result.success?, result.inspect
 
     rarities = Catalog::CardSeason.where(season:).joins(:card).pluck("catalog_cards.source_key", :rarity).to_h
@@ -246,7 +246,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     cards_page(run)
     season = promote_batch(run)
 
-    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    assert Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").success?
 
     dreamfall = Catalog::CardSeason.find_by!(season:, card: card_of(6300))
     assert_equal "adventure", dreamfall.main_theme

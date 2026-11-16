@@ -103,9 +103,8 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   private readonly priceFor = (key: string): Node | null =>
-    this.cardTargets
-      .find((card) => card.dataset.key === key)
-      ?.querySelector(".average-price")
+    this.element
+      .querySelector(`[data-trade-board-target~="card"][data-key="${CSS.escape(key)}"] .average-price`)
       ?.cloneNode(true) ?? null
 
   private readonly beforeCache = (): void => {

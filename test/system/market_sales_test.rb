@@ -42,15 +42,15 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
     page.execute_script("window.marketVisits = 0; addEventListener('turbo:visit', () => window.marketVisits++)")
 
     within(".market-screen__chips") { click_on "MY SALES" }
-    assert_selector ".market-screen__chip--current", text: "MY SALES"
+    assert_selector ".tabs__tab--current", text: "MY SALES"
     assert_selector ".market-row", count: 1
     assert_current_path market_my_sales_path(locale: :en)
     assert_title "My sales"
-    assert_selector ".market-desk h1", text: "Market"
+    assert_selector ".market-desk h1", text: "Market", visible: :all
     assert_no_selector ".top-bar__phone-back"
 
     within(".market-screen__chips") { click_on "MY BIDS" }
-    assert_selector ".market-screen__chip--current", text: "MY BIDS"
+    assert_selector ".tabs__tab--current", text: "MY BIDS"
     assert_current_path market_my_bids_path(locale: :en)
 
     within(".market-screen__chips") { click_on "LISTINGS" }
@@ -68,7 +68,7 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
     assert_selector ".listing-tile", count: 1
 
     find(".market-mine__item", text: "sale in progress").click
-    assert_selector ".market-screen__chip--current", text: "MY SALES"
+    assert_selector ".tabs__tab--current", text: "MY SALES"
     assert_current_path market_my_sales_path(locale: :en)
     assert_chips_in_view
 

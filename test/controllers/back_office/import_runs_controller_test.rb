@@ -279,7 +279,7 @@ module BackOffice
       assert_equal I18n.t("errors.steam.run_awaiting_promotion", locale: :en), flash[:alert]
       assert_equal 1, Steam::ImportRun.count
 
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
       assert_equal I18n.t("back_office.seasons.publish.import_awaiting_promotion", locale: :en), flash[:alert]
       assert_predicate draft.reload, :draft?
 
@@ -291,7 +291,7 @@ module BackOffice
       assert_empty Catalog::StagedCardSeason.where(batch_token: run.token)
       assert_equal before, draft.card_seasons.order(:id).pluck(:id, :prestige_score)
 
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
       assert_equal I18n.t("back_office.seasons.publish.published", number: draft.number, locale: :en), flash[:notice]
     end
 
@@ -301,9 +301,9 @@ module BackOffice
       run = Steam::ImportRun.create!(status: :ready, step: "cards", counts: { "cards_written" => 1, "season_number" => season.number },
         started_at: 1.hour.ago, finished_at: 1.minute.ago)
       Catalog::StageCardSeason.new.call(batch_token: run.token, card_id: Catalog::Card.first.id, prestige_score: 0.5, prestige_score_version: 1, rating: 80.0)
-      assert Catalog::PublishSeason.new.call(number: season.number).failure == :staged_batch_waiting
+      assert Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").failure == :staged_batch_waiting
       Catalog::StagedCardSeason.delete_all
-      assert Catalog::PublishSeason.new.call(number: season.number).success?
+      assert Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").success?
       Catalog::StageCardSeason.new.call(batch_token: run.token, card_id: Catalog::Card.first.id, prestige_score: 0.5, prestige_score_version: 1, rating: 80.0)
 
       post promote_back_office_import_run_path(run, locale: :en)
@@ -544,7 +544,7 @@ module BackOffice
       assert_select "form[action$='/abandon']", false
       assert_select ".ledger-errors li", /boom/
 
-      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
       assert_equal I18n.t("back_office.seasons.publish.published", number: draft.number, locale: :fr), flash[:notice]
       assert_predicate draft.reload, :published?
 

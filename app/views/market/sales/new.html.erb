@@ -1,13 +1,12 @@
 <% content_for :title, t(".heading") %>
+<% content_for :screen_title, t(".heading") %>
 <% content_for :public_page, true unless current_player %>
 <% content_for :back_button, true %>
 <% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
 <% signed_out = current_player.nil? || @signed_out %>
-<section class="market-sale" aria-labelledby="market-sale-heading">
+<section class="market-sale page page--regular" aria-labelledby="market-sale-heading">
   <header class="market-sale__header">
-    <p class="market-sale__kicker"><%= t(".kicker") %></p>
-    <h1 id="market-sale-heading" class="market-sale__title"><%= t(".heading") %></h1>
-    <p class="market-sale__intro"><%= t(".intro") %></p>
+    <h1 id="market-sale-heading" class="visually-hidden"><%= t(".heading") %></h1>
     <%= render "shell/balance_chip", placement: :header %>
   </header>
 
@@ -57,7 +56,7 @@
             <%= render "market/copy_filters", filter: @filter, form: "sale-filter", search_id: "sale-search" %>
             <%= render "market/sales/grid" %>
           </div>
-          <div class="sale-form">
+          <div class="sale-form dock">
             <%= render "market/sales/fields" %>
             <%= render "market/sales/summary" %>
           </div>

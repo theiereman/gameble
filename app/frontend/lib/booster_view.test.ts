@@ -132,7 +132,6 @@ describe("controls", () => {
       openDisabled: false,
       busy: false,
       revealAllDisabled: true,
-      tone: "rest",
       hint: null,
       top: null,
     })
@@ -145,7 +144,6 @@ describe("controls", () => {
       open: "skip",
       openDisabled: false,
       busy: true,
-      tone: "alert",
     })
   })
 
@@ -175,14 +173,7 @@ describe("controls", () => {
   it("marks the controls busy while anything holds the navigation", () => {
     expect(controls(lock(dealt()))).toMatchObject({ busy: true })
     expect(controls({ ...dealt(), storing: true })).toMatchObject({ busy: true, revealAllDisabled: true })
-    expect(controls(legendarySignalled(dealt(), 0))).toMatchObject({ revealAllDisabled: true, tone: "gold" })
-  })
-
-  it("tones the state line", () => {
-    const tones = (
-      ["sealed", "arming", "ejecting", "inventory", "legendarySignal", "complete", "waiting"] as const
-    ).map((status) => controls({ ...startWith(), status }).tone)
-    expect(tones).toEqual(["rest", "alert", "alert", "rest", "gold", "done", "rest"])
+    expect(controls(legendarySignalled(dealt(), 0))).toMatchObject({ revealAllDisabled: true })
   })
 
   it("tells the phone's pile: tap, swipe, the plate under a revealed top card, done", () => {

@@ -39,7 +39,7 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
   test "a newly published season reloads the pool" do
     first = Game::DrawPool.current
     season = seed_card_seasons(distinct_scores(150))
-    Catalog::PublishSeason.new.call(number: season.number).value!
+    Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").value!
 
     pool = Game::DrawPool.current
 
@@ -85,7 +85,7 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
     assert_equal [ season.id, season.published_at ], pool.key
 
     later = seed_card_seasons(distinct_scores(150))
-    Catalog::PublishSeason.new.call(number: later.number).value!
+    Catalog::PublishSeason.new.call(number: later.number, name_en: "Spring", name_fr: "Printemps").value!
     other = Game::DrawPool.of(later.reload)
 
     assert_not_same pool, other

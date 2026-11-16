@@ -1,0 +1,8 @@
+<details class="sort" data-controller="sort-menu" data-action="click@window->sort-menu#closeOutside keydown.esc->sort-menu#close">
+  <summary class="sort__button"><%= prefix %> <b class="sort__current"><%= current_label %></b></summary>
+  <nav class="sort__menu" aria-label="<%= label %>">
+    <% options.each do |option| %>
+      <%= link_to option.label, option.href, class: "sort__option", aria: { current: ("true" if option.current) }, data: link_data %>
+    <% end %>
+  </nav>
+</details>

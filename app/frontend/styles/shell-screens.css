@@ -32,11 +32,16 @@ html[data-sub-view-step] .main {
   view-transition-name: none;
 }
 
-/* The phone tab bar and the toasts are captured apart so the sliding screen,
-   drawn above the root picture, never covers them; they do not move, and
-   their new picture replaces the old one at once. */
+/* The phone tab bar, the ticker held at the bottom and the toasts are
+   captured apart so the sliding screen, drawn above the root picture, never
+   covers them; they do not move, and their new picture replaces the old one
+   at once. */
 .tab-bar {
   view-transition-name: tab-bar;
+}
+
+.ticker {
+  view-transition-name: ticker;
 }
 
 .toasts {
@@ -44,13 +49,16 @@ html[data-sub-view-step] .main {
 }
 
 ::view-transition-group(tab-bar),
+::view-transition-group(ticker),
 ::view-transition-group(toasts),
 ::view-transition-new(tab-bar),
+::view-transition-new(ticker),
 ::view-transition-new(toasts) {
   animation: none;
 }
 
 ::view-transition-old(tab-bar),
+::view-transition-old(ticker),
 ::view-transition-old(toasts) {
   animation: none;
   opacity: 0;
@@ -71,12 +79,6 @@ html[data-sub-view-step] .main {
 }
 
 /* ---- Widths and breakpoints ---- */
-
-/* A screen with a back button keeps the bar for finding the way back;
-   the booster, whose counts climb as capsules open, keeps them. */
-.top-bar:has(.top-bar__bridge):not(:has(.packs-chip--static)) .rarity-counter {
-  display: none;
-}
 
 @media (max-width: 1179px) {
   .main {
@@ -124,17 +126,28 @@ html[data-sub-view-step] .main {
     padding-bottom: var(--space-7);
   }
 
+  html:has(body > .ticker) {
+    scroll-padding-bottom: calc(
+      var(--space-ticker-height-phone) + var(--tabbar-height) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
   .ticker__inner {
     height: var(--space-ticker-height-phone);
   }
 
+  .top-bar__start {
+    flex: 1 1 auto;
+    gap: var(--space-3);
+  }
+
+  .top-bar__end {
+    flex: none;
+  }
+
   .top-bar__title {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+    min-width: 0;
+    font: var(--font-screen-title-phone);
   }
 
   .rarity-counter,
@@ -156,12 +169,21 @@ html[data-sub-view-step] .main {
     display: flex;
   }
 
-  .top-bar__start--phone-back > .button:not(.top-bar__phone-back) {
-    display: none;
+  .top-bar__start--phone-back > .top-bar__phone-back {
+    order: -1;
+    display: inline-flex;
+    min-width: var(--space-touch-min);
+    justify-content: center;
+    padding-inline: var(--space-2);
   }
 
-  .top-bar__start--phone-back > .top-bar__phone-back {
-    display: inline-flex;
+  .top-bar__start > .top-bar__phone-back .button__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .button {
@@ -178,6 +200,10 @@ html[data-sub-view-step] .main {
   .collection-status,
   .rarity-legend__link {
     min-height: var(--space-chip-height-touch);
+  }
+
+  .player-chip__avatar {
+    --player-chip-avatar-size: calc(var(--space-chip-height-touch) - 2 * var(--space-unit));
   }
 
   .toast__close,

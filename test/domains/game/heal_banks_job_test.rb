@@ -16,19 +16,19 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
     season = seed_card_seasons(distinct_scores(150))
 
     assert_enqueued_with(job: Game::HealBanksJob) do
-      Catalog::PublishSeason.new.call(number: season.number).value!
+      Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").value!
     end
   end
 
   test "a failed publication enqueues nothing" do
-    assert_no_enqueued_jobs { Catalog::PublishSeason.new.call(number: 99) }
+    assert_no_enqueued_jobs { Catalog::PublishSeason.new.call(number: 99, name_en: "Spring", name_fr: "Printemps") }
   end
 
   test "players without any pack get ten; a short bank is topped up to ten; a banned player gets none" do
     create_pack(accounts_players(:moderator), opened_at: 1.minute.ago)
     season = seed_card_seasons(distinct_scores(150))
 
-    perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number).value! }
+    perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").value! }
 
     assert_equal 10, Game::Pack.where(player_id: accounts_players(:player).id, season_id: season.id).count
     assert_equal 10, Game::Pack.where(player_id: accounts_players(:administrator).id).count
@@ -46,7 +46,7 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
     kept = [ create_pack(short, available_at: now - 1.minute), create_pack(short, available_at: now + 5.minutes) ]
     season = seed_card_seasons(distinct_scores(150))
 
-    travel_to(now) { perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number).value! } }
+    travel_to(now) { perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").value! } }
 
     bank = Game::Pack.bank(bankless.id)
     assert_equal [ now ] * 10, bank.pluck(:available_at)
@@ -71,7 +71,7 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
   end
 
   def publish(season)
-    perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number).value! }
+    perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").value! }
   end
 
   test "a full bank, a reward and a bonus pack of an earlier season are redrawn in place, each card in its old card's tier" do
@@ -123,7 +123,7 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
     player = accounts_players(:player)
     kept = 3.times.map { create_pack(player, cards: fixture_tier_ids) }
     season = seed_card_seasons(distinct_scores(150))
-    Catalog::PublishSeason.new.call(number: season.number).value!
+    Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").value!
 
     assert_equal 7, Game::HealBank.new.call(player:).value!
     assert_equal 0, Game::HealBank.new.call(player:).value!
@@ -235,7 +235,7 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
     assert_equal 0, Game::Pack.bank(player.id).count
 
     season = seed_card_seasons(distinct_scores(150))
-    travel_to(now) { perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number).value! } }
+    travel_to(now) { perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").value! } }
 
     bank = Game::Pack.bank(player.id)
     assert_equal 10, bank.count

@@ -31,15 +31,22 @@ module BackOffice
       assert_select "tr[data-season-number='2'] td[data-season-tier]", false
       assert_select "form[action='/fr/back-office/seasons/publish'][method=post][data-turbo-confirm]" do
         assert_select "input[type=hidden][name=number][value='2']"
-        assert_select "button", "Publier la saison 2"
+        assert_select "label[for=season-name-fr]", "Nom en français"
+        assert_select "input#season-name-fr[name=name_fr][lang=fr][required][maxlength='60']"
+        assert_select "label[for=season-name-en]", "Nom en anglais"
+        assert_select "input#season-name-en[name=name_en][lang=en][required][maxlength='60']"
+        assert_select "p:has(#season-name-fr) + p:has(#season-name-en) + p button[type=submit]", "Publier la saison 2"
       end
+      assert_select "tr[data-season-number='1'] td[data-season-name]", "—"
 
-      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
 
       assert_redirected_to back_office_seasons_path(locale: :fr)
       follow_redirect!
       assert_equal I18n.t("back_office.seasons.publish.published", number: 2, locale: :fr), flash[:notice]
       assert_select "tr[data-season-number='2'][data-season-status=published]"
+      assert_select "tr[data-season-number='2'] td[data-season-name]", "Printemps · Spring"
+      assert_equal [ "Spring", "Printemps" ], draft.reload.slice(:name_en, :name_fr).values
       assert_equal %w[2 6 15 37 90], tier_cells
       assert_select "form[action$='/seasons/publish']", false
 
@@ -57,7 +64,7 @@ module BackOffice
       assert_equal [ "Themes", "Franchises", "Studios", "Hall of fame", "UFOs" ],
         css_select("table.ledger").first.css("thead th").map(&:text).last(5)
 
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
       follow_redirect!
 
       assert_select "tr[data-season-number='2'] td[data-season-sets-theme='4']", "4"
@@ -94,7 +101,7 @@ module BackOffice
       assert_select "p[data-preview-ufo-count='7']:not([data-preview-ufo-over-limit])", /7 cards in the UFOs, 4\.7% of the season\./
       assert_equal %w[4 0 0 0 1], %w[theme franchise studio hall-of-fame ufo].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
 
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
       follow_redirect!
 
       assert_equal %w[2 6 15 37 90], tier_cells
@@ -126,7 +133,7 @@ module BackOffice
       assert_select "[data-preview-tier=legendary]", "2"
       assert_select "form[action$='/seasons/publish']"
 
-      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
 
       assert_redirected_to back_office_seasons_path(locale: :fr)
       assert_equal message, flash[:alert]
@@ -144,7 +151,7 @@ module BackOffice
       assert_select "[data-preview-verdict=unfilled_sources]", message
       assert_select "p[data-preview-ufo-count='1']:not([data-preview-ufo-over-limit])", /1 carte dans les OVNI/
 
-      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
 
       assert_redirected_to back_office_seasons_path(locale: :fr)
       assert_equal message, flash[:alert]
@@ -162,7 +169,7 @@ module BackOffice
 
       assert_select "[data-preview-verdict=unclassified_tags]", message
 
-      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
 
       assert_redirected_to back_office_seasons_path(locale: :fr)
       assert_equal message, flash[:alert]
@@ -181,7 +188,7 @@ module BackOffice
       assert_select "p[data-preview-ufo-count='6'][data-preview-ufo-over-limit]"
       assert_select "[data-preview-verdict=ufo_share_over_limit]", message
 
-      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
 
       assert_redirected_to back_office_seasons_path(locale: :fr)
       assert_equal message, flash[:alert]
@@ -262,7 +269,7 @@ module BackOffice
       draft = seed_card_seasons(distinct_scores(21))
       Steam::ImportRun.create!(status: :running, step: "app_list", started_at: 1.minute.ago)
 
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
 
       assert_redirected_to back_office_seasons_path(locale: :en)
       assert_equal I18n.t("back_office.seasons.publish.import_active", locale: :en), flash[:alert]
@@ -276,7 +283,7 @@ module BackOffice
       Steam::ImportRun.create!(status: :failed, step: "app_list", created_at: 2.days.ago, finished_at: 2.days.ago)
       Steam::ImportRun.create!(status: :completed, step: "reviews", created_at: 1.hour.ago, finished_at: 1.minute.ago)
 
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
 
       assert_equal I18n.t("back_office.seasons.publish.published", number: draft.number, locale: :en), flash[:notice]
       assert_predicate draft.reload, :published?
@@ -291,10 +298,24 @@ module BackOffice
       get back_office_seasons_path(locale: :en)
       assert_no_match I18n.t("back_office.seasons.publish.import_active", locale: :en), response.body
 
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number, name_en: "Spring", name_fr: "Printemps" }
 
       assert_equal I18n.t("back_office.seasons.publish.published", number: draft.number, locale: :en), flash[:notice]
       assert_predicate draft.reload, :published?
+    end
+
+    test "publishing without a name in both languages is refused and leaves the draft" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(21))
+
+      [ { name_en: "Spring" }, { name_en: "Spring", name_fr: " " }, { name_en: "x" * 61, name_fr: "Printemps" } ].each do |names|
+        post publish_back_office_seasons_path(locale: :en), params: { number: draft.number, **names }
+
+        assert_redirected_to back_office_seasons_path(locale: :en)
+        assert_equal I18n.t("errors.catalog.invalid_season_name", locale: :en), flash[:alert]
+      end
+      assert_predicate draft.reload, :draft?
+      assert_nil draft.name_en
     end
 
     test "publishing with no draft is refused with no_draft" do
@@ -303,7 +324,7 @@ module BackOffice
       get back_office_seasons_path(locale: :en)
       assert_select "form[action$='/seasons/publish']", false
 
-      post publish_back_office_seasons_path(locale: :en), params: { number: "2" }
+      post publish_back_office_seasons_path(locale: :en), params: { number: "2", name_en: "Spring", name_fr: "Printemps" }
 
       assert_equal I18n.t("errors.catalog.no_draft", locale: :en), flash[:alert]
     end
@@ -319,9 +340,9 @@ module BackOffice
     test "an administrator follows a published season from the list to its stored rarities, which match its row" do
       sign_in(accounts_players(:administrator))
       season_two = seed_sets_draft
-      post publish_back_office_seasons_path(locale: :en), params: { number: season_two.number }
+      post publish_back_office_seasons_path(locale: :en), params: { number: season_two.number, name_en: "Spring", name_fr: "Printemps" }
       season_three = seed_card_seasons(distinct_scores(300))
-      post publish_back_office_seasons_path(locale: :en), params: { number: season_three.number }
+      post publish_back_office_seasons_path(locale: :en), params: { number: season_three.number, name_en: "Spring", name_fr: "Printemps" }
 
       get back_office_seasons_path(locale: :en)
       assert_select "tr[data-season-number='2'] td a[href='/en/back-office/seasons/2']", "2"
@@ -361,7 +382,7 @@ module BackOffice
     test "a published season scored by two formulas lists both versions" do
       sign_in(accounts_players(:administrator))
       season = seed_sets_draft
-      post publish_back_office_seasons_path(locale: :fr), params: { number: season.number }
+      post publish_back_office_seasons_path(locale: :fr), params: { number: season.number, name_en: "Spring", name_fr: "Printemps" }
       Catalog::CardSeason.where(season_id: season.id).order(:id).limit(10).update_all(prestige_score_version: 2)
 
       get back_office_season_path(season.number, locale: :fr)
@@ -422,6 +443,7 @@ module BackOffice
       yield :get, back_office_season_path(1, locale: :fr), {}
       yield :get, back_office_season_path(draft.number, locale: :fr), {}
       yield :post, publish_back_office_seasons_path(locale: :fr), { number: draft.number }
+      yield :patch, back_office_season_path(1, locale: :fr), { name_en: "Winter", name_fr: "Hiver" }
     end
 
     test "a moderator is refused every season action with 403" do
@@ -435,6 +457,61 @@ module BackOffice
         assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :fr))
       end
       assert_predicate draft.reload, :draft?
+      assert_nil catalog_seasons(:one).reload.name_en
+    end
+
+    test "an administrator renames a published season from its page" do
+      sign_in(accounts_players(:administrator))
+
+      get back_office_season_path(1, locale: :en)
+
+      assert_select "dd[data-season-name]", "—"
+      assert_select "form[action='/en/back-office/seasons/1'][method=post]" do
+        assert_select "input[type=hidden][name=_method][value=patch]"
+        assert_select "label[for=season-name-fr]", "Name in French"
+        assert_select "input#season-name-fr[name=name_fr][required]:not([value])"
+        assert_select "input#season-name-en[name=name_en][required]:not([value])"
+        assert_select "button[type=submit]", "Rename the season"
+      end
+
+      patch back_office_season_path(1, locale: :en), params: { name_en: " Winter ", name_fr: "Hiver" }
+
+      assert_redirected_to back_office_season_path(1, locale: :en)
+      assert_response :see_other
+      assert_equal I18n.t("back_office.seasons.update.updated", number: 1, locale: :en), flash[:notice]
+      assert_equal [ "Winter", "Hiver" ], catalog_seasons(:one).reload.slice(:name_en, :name_fr).values
+      assert_equal [ Catalog::SeasonRenamed ],
+        Rails.configuration.event_store.read.stream(Catalog::Season.stream_name(catalog_seasons(:one).id)).to_a.map(&:class)
+
+      follow_redirect!
+
+      assert_select "dd[data-season-name]", "Hiver · Winter"
+      assert_select "input#season-name-fr[value=Hiver]"
+      assert_select "input#season-name-en[value=Winter]"
+    end
+
+    test "a rename with a bad name or of a draft is refused, and an unknown number is a 404" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(21))
+
+      patch back_office_season_path(1, locale: :en), params: { name_en: "Winter", name_fr: "" }
+
+      assert_redirected_to back_office_season_path(1, locale: :en)
+      assert_equal I18n.t("errors.catalog.invalid_season_name", locale: :en), flash[:alert]
+      assert_nil catalog_seasons(:one).reload.name_fr
+
+      patch back_office_season_path(draft.number, locale: :en), params: { name_en: "Winter", name_fr: "Hiver" }
+
+      assert_redirected_to back_office_season_path(draft.number, locale: :en)
+      assert_equal I18n.t("errors.catalog.no_published_season", locale: :en), flash[:alert]
+      assert_nil draft.reload.name_en
+
+      get back_office_season_path(draft.number, locale: :en)
+      assert_select "form[action='/en/back-office/seasons/#{draft.number}']", false
+
+      patch back_office_season_path(99, locale: :en), params: { name_en: "Winter", name_fr: "Hiver" }
+
+      assert_unknown_address
     end
   end
 end

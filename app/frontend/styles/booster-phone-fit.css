@@ -1,0 +1,68 @@
+/* On a phone the tab's panel fills the room down to the tab bar, from where
+   it starts (fit-viewport): the stage takes what the daily row and actions leave,
+   and the capsule or the pile shrinks with it, so every action stays in view. */
+.booster[data-layout="phone"] .booster__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: calc(
+    100dvh - var(--fit-top, 320px) - var(--tabbar-height) - env(safe-area-inset-bottom, 0px) - var(--space-7)
+  );
+  min-height: 430px;
+}
+
+.booster[data-layout="phone"] .booster__stage {
+  container: booster-stage / size;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.booster[data-layout="phone"] .booster__shake {
+  height: 100%;
+  min-height: 0;
+}
+
+.booster[data-layout="phone"] .booster__phone-actions {
+  flex: none;
+  padding-top: 0;
+}
+
+.booster[data-layout="phone"] .booster-daily {
+  flex: none;
+  padding-block: var(--space-2);
+}
+
+@container booster-stage (max-height: 500px) {
+  .booster__pile-area,
+  .booster__zone {
+    zoom: 0.86;
+  }
+}
+
+@container booster-stage (max-height: 440px) {
+  .booster__pile-area,
+  .booster__zone {
+    zoom: 0.74;
+  }
+}
+
+@container booster-stage (max-height: 380px) {
+  .booster__pile-area,
+  .booster__zone {
+    zoom: 0.62;
+  }
+}
+
+@container booster-stage (max-height: 320px) {
+  .booster__pile-area,
+  .booster__zone {
+    zoom: 0.38;
+  }
+}
+
+@container booster-stage (max-height: 270px) {
+  .booster__pile-area,
+  .booster__zone {
+    zoom: 0.3;
+  }
+}

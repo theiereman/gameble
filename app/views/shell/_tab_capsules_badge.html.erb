@@ -1,0 +1,6 @@
+<%# locals: (bank:) %>
+<% ready = bank[:available] + bank[:special] %>
+<%= tag.span class: "tab-bar__capsules", hidden: ready.zero?, data: { controller: "tab-capsules", tab_capsules_available_value: bank[:available], tab_capsules_special_value: bank[:special], tab_capsules_delimiter_value: t("number.format.delimiter"), tab_capsules_templates_value: t("shell.tabs.capsules_ready").to_json } do %>
+  <span class="tab-bar__badge tab-bar__badge--accent" aria-hidden="true" data-tab-capsules-target="badge"><%= number_with_delimiter(ready) %></span>
+  <span class="visually-hidden" data-tab-capsules-target="label"><%= t("shell.tabs.capsules_ready", count: ready, number: number_with_delimiter(ready)) %></span>
+<% end %>

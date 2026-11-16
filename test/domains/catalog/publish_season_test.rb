@@ -8,7 +8,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   include CatalogSeeds
 
   def publish(number, random: SecureRandom)
-    Catalog::PublishSeason.new(random:).call(number:)
+    Catalog::PublishSeason.new(random:).call(number:, name_en: "Spring", name_fr: "Printemps")
   end
 
   def events_of(season)
@@ -48,6 +48,30 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     events = events_of(season)
     assert_equal [ Catalog::SeasonPublished ], events.map(&:class)
     assert_equal({ season_id: season.id }, events.first.data)
+  end
+
+  test "publishing names the season in both languages, squished" do
+    season = seed_card_seasons(distinct_scores(21))
+
+    assert Catalog::PublishSeason.new.call(number: season.number, name_en: "  Early   spring ", name_fr: "Printemps").success?
+
+    assert_equal [ "Early spring", "Printemps" ], season.reload.slice(:name_en, :name_fr).values
+    assert_equal "Printemps", season.name(:fr)
+    assert_equal "Early spring", season.name(:en)
+  end
+
+  test "a season needs a name in each language, 60 characters at most, or nothing is published" do
+    season = seed_card_seasons(distinct_scores(21))
+
+    assert_nothing_written(season) do
+      [ { name_en: "", name_fr: "Printemps" }, { name_en: "Spring", name_fr: "  " }, { name_en: nil, name_fr: "Printemps" }, { name_fr: "Printemps" },
+        { name_en: "Spring", name_fr: 12 }, { name_en: "x" * 61, name_fr: "Printemps" } ].each do |names|
+        result = Catalog::PublishSeason.new.call(number: season.number, **{ name_en: nil, name_fr: nil }.merge(names))
+        assert_equal :invalid_season_name, result.failure, names.inspect
+      end
+    end
+    assert_predicate season.reload, :draft?
+    assert Catalog::PublishSeason.new.call(number: season.number, name_en: "x" * 60, name_fr: "Printemps").success?
   end
 
   def sets_of(season)
@@ -334,7 +358,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   test "every failure code of the publication has a message in both locales" do
     %i[en fr].each do |locale|
       I18n.with_locale(locale) do
-        %i[no_draft stale_draft empty_season mixed_score_versions unfilled_sources empty_tier].each do |code|
+        %i[no_draft stale_draft empty_season mixed_score_versions unfilled_sources empty_tier invalid_season_name].each do |code|
           assert_not_includes Catalog::PublishSeason.failure_message(code), "Translation missing", "#{code} #{locale}"
         end
         assert_not_includes Catalog::PublishSeason.failure_message(:unclassified_tags, count: 3), "Translation missing", locale.to_s

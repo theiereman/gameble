@@ -216,6 +216,10 @@ fr:
       label: "Navigation principale"
       hub: "Pont"
       booster: "Capsule"
+      capsules_ready:
+        zero: "%{number} capsule à ouvrir"
+        one: "%{number} capsule à ouvrir"
+        other: "%{number} capsules à ouvrir"
       sets: "Sets"
       trades: "Échanges"
       market: "Marché"
@@ -1205,10 +1209,11 @@ fr:
         published: "Publiée"
       index:
         heading: "Les saisons du catalogue"
-        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en thèmes, franchises, studios, panthéon et OVNI, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
+        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en thèmes, franchises, studios, panthéon et OVNI, et l'ouvre au tirage, d'un seul coup. Une saison publiée garde pour toujours ses cartes, ses raretés, leurs numéros et ses collections ; seul son nom peut encore changer."
         empty: "Aucune saison pour l'instant. Le premier import ouvrira le brouillon."
         caption: "Saisons du catalogue, par numéro"
         number: "Saison"
+        name: "Nom"
         status: "État"
         card_count: "Cartes"
         published_at: "Publiée"
@@ -1223,16 +1228,22 @@ fr:
           zero: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
           one: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
           other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et leurs numéros ne changeront plus jamais."
+      name_fields:
+        name_fr: "Nom en français"
+        name_en: "Nom en anglais"
       show:
         heading: "La saison %{number}"
         all_seasons: "Toutes les saisons"
+        name: "Nom"
+        rename_heading: "Le nom de la saison"
+        rename: "Renommer la saison"
         status: "État"
         published_at: "Publiée"
         score_versions: "Versions de la formule de prestige"
         score_version: "version %{version}"
         no_score_version: "aucune notée (avant les versions)"
         published_heading: "La saison %{number}, telle que publiée"
-        published_intro: "Ce que la publication a inscrit pour cette saison, lu tel quel : les cartes et le score minimal de chaque rareté, et les collections. Rien n'est écrit ici et rien n'est retaillé. Les thèmes et les OVNI sont les collections inscrites à la publication."
+        published_intro: "Ce que la publication a inscrit pour cette saison, lu tel quel : les cartes et le score minimal de chaque rareté, et les collections. Seul le nom de la saison se change ici ; rien d'autre n'est écrit et rien n'est retaillé. Les thèmes et les OVNI sont les collections inscrites à la publication."
       preview:
         heading: "La saison %{number}, si elle était publiée maintenant"
         intro: "Ce que donnerait la publication du brouillon aujourd'hui, lu sur ses cartes telles qu'elles sont. Rien n'est écrit ici. La formule de prestige et les parts des raretés vivent dans le code ; les thèmes se gèrent sur la page des thèmes. Change l'un ou l'autre, recalcule le dernier import si la formule ou les thèmes ont changé, puis relis ceci."
@@ -1275,6 +1286,8 @@ fr:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
         import_active: "Un import Steam n'est pas fini, officier. Laisse-le finir ou reprends-le, ou abandonne-le s'il s'est interrompu, avant de publier la saison."
         import_awaiting_promotion: "Un import Steam terminé t'attend, officier. Ouvre-le et promeus ses cartes dans le brouillon, ou jette-les, avant de publier la saison."
+      update:
+        updated: "La saison %{number} est renommée, officier."
     roadmaps:
       translate:
         nothing: "Chaque ligne a déjà son anglais : rien à traduire."
@@ -1435,10 +1448,8 @@ fr:
       all_cards_tile:
         title: "Toutes mes cartes"
         unique: "cartes uniques"
-        open: "Ouvrir"
       all_sets_tile:
         title: "Tous les sets"
-        open: "Ouvrir"
         unit:
           zero: "set"
           one: "set"
@@ -1857,19 +1868,11 @@ fr:
   booster:
     kicker: "Capsule · Saison %{number}"
     kicker_plain: "Capsule"
+    kicker_cards_html:
+      zero: "%{size} carte"
+      one: "%{size} carte"
+      other: "%{size} cartes"
     title: "Grand catalogue"
-    cards_per_pack: "Cartes par capsule"
-    in_reserve: "En réserve"
-    state: "État"
-    states:
-      sealed: "Scellée"
-      arming: "Armement"
-      ejecting: "Éjection"
-      inventory: "Inventaire"
-      legendary_signal: "Signal légendaire"
-      complete: "Inventaire complet"
-      waiting: "En attente"
-    reserve: "Réserve"
     next_in: "+1 dans"
     reserve_full: "Réserve pleine"
     open: "Ouvrir la capsule"
@@ -1890,12 +1893,12 @@ fr:
       collect: "Récupérer"
     reveal_all: "Tout révéler"
     canister_hint: "Cliquez pour ouvrir"
+    canister_name_fallback: "grand catalogue"
     canister_season: "Saison %{number}"
     result: "Résultat de la capsule"
     card_label: "%{title} — %{details}"
     legendary_banner: "%{rarity} !"
-    strip_title: "Saison %{number} · Grand catalogue"
-    strip_title_plain: "Grand catalogue"
+    strip_title: "Saison %{number} · %{name}"
     canister_hint_touch: "Touchez pour ouvrir"
     hint_tap: "Touchez la carte pour la révéler"
     hint_swipe: "Glissez la carte pour la ranger · ou touchez-la"
@@ -1909,6 +1912,8 @@ fr:
     zoom_previous: "Carte précédente"
     zoom_next: "Carte suivante"
     repost: "Reposter"
+    repost_tip: "Reposter dans le fil"
+    share_tip: "Partager la carte"
     first_copy: "Nouveau"
     strings:
       origin_bonus: "CAPSULE QUOTIDIENNE"
@@ -1918,13 +1923,13 @@ fr:
       standard_ready: "Une capsule standard est prête."
       tab_special: "SPÉCIALES · %{n}"
       tab_standard: "STANDARD · %{n}"
-      reserve_count:
-        zero: "%{n} capsule"
-        one: "%{n} capsule"
-        other: "%{n} capsules"
+      reserve_unit:
+        zero: "capsule en réserve"
+        one: "capsule en réserve"
+        other: "capsules en réserve"
       next_at: "Prochaine capsule : %{time}"
       empty_next: "Prochaine capsule dans %{time}"
-      canister_label: "Ouvrir la capsule Saison %{season}, grand catalogue, %{count} cartes"
+      canister_label: "Ouvrir la capsule Saison %{season}, %{name}, %{count} cartes"
       canister_label_plain: "Ouvrir la capsule, grand catalogue, %{count} cartes"
       hint_remaining:
         zero: "Cliquez une carte pour la révéler · %{n} restante"
@@ -1960,6 +1965,10 @@ fr:
       repost_card: "Reposter %{card}"
       reposted: "Carte repostée dans le fil."
       repost_failed: "Le repost n'a pas abouti. Vérifiez votre connexion, puis réessayez."
+      share_card: "Partager %{card}"
+      shared: "Lien de la carte copié."
+      share_failed: "Le lien n'a pas pu être copié."
+      rarity_tip: "Rareté : %{rarity}"
       celebration:
         tier_title: "PALIER %{tier}"
         complete_title: "SET COMPLET"
@@ -2401,9 +2410,7 @@ fr:
           other: "%{count} exemplaires libres"
         grid_label: "Vos éditions à confier"
         heading: "Confier à la Confrérie"
-        intro: "Choisissez les cartes à confier à la Confrérie. Chaque exemplaire vous rapporte des PiCoins."
         keys_hint: "Les flèches changent de carte, Espace ou Entrée coche, + et - changent les exemplaires."
-        kicker: "Les Archives"
         not_returned: "Les cartes confiées ne vous sont pas rendues."
         prompt: "Cochez les cartes à confier."
         receive: "Vous recevez"
@@ -2501,8 +2508,6 @@ fr:
           one: "%{count} disponible"
           other: "%{count} disponibles"
         heading: "Mettre en vente"
-        intro: "Choisissez une carte, fixez son prix et laissez les membres enchérir."
-        kicker: "Les Archives"
         received: "Vendue au prix de départ, vous recevez"
         relisting: "Ces montants sont ceux de votre vente précédente."
         rules: "La carte est réservée pendant la vente. Vous pouvez annuler tant qu'aucune offre n'est en tête."
@@ -2547,6 +2552,7 @@ fr:
       empty: "Aucune annonce pour le moment."
       more: "Charger plus"
       pages_label: "Autres annonces"
+      sort_prefix: "Tri :"
       sorts_label: "Trier les annonces"
       all_heading: "TOUTES LES ANNONCES"
       found_heading: "ANNONCES TROUVÉES"
@@ -2554,7 +2560,6 @@ fr:
       soon_note: "dans l'heure"
       soon_label: "Annonces qui se terminent dans l'heure"
       desk:
-        kicker: "COMPTOIR DE LA CONFRÉRIE"
         listings:
           zero: "Aucune annonce en cours."
           one: "%{number} annonce en cours."
@@ -2590,13 +2595,6 @@ fr:
           other: "dont %{number} avec une offre"
         raise: "RELEVER"
         see: "VOIR"
-      newcomer:
-        title: "Bienvenue au comptoir"
-        body: "Ici tout se paie en PiCoins. Confiez vos exemplaires en double aux Archives : la Confrérie vous les crédite sur-le-champ."
-        spare:
-          zero: "Vous n'avez aucun exemplaire en double pour l'instant."
-          one: "Vous avez %{number} exemplaire en double."
-          other: "Vous avez %{number} exemplaires en double."
     show:
       kicker: "Chantier"
       heading: "La Confrérie construit le marché"
@@ -2638,6 +2636,11 @@ fr:
           other: "%{count} exemplaires dans votre collection"
         wanted: "Voulue"
         wanted_spoken: "manque à vos objectifs"
+      stand:
+        leading_amount: "max"
+        leading_spoken: "vous êtes en tête avec un maximum de %{amount}"
+        outbid_amount: "mini"
+        outbid_spoken: "votre offre est dépassée, offre minimale %{amount}"
     time_left:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
@@ -2654,7 +2657,6 @@ fr:
   fortune_registers:
     show:
       title: "Le Chattomètre"
-      intro: "La Confrérie classe ses membres selon la chance de leurs capsules : ce que leurs cartes ont rapporté face à ce que les capsules promettent. Chaque semaine, les 10 % les plus chanceux sont Privilégiés."
       empty:
         week: "Aucun membre n'a encore ouvert de capsule cette semaine."
         all_time: "Aucun membre n'a encore ouvert de capsule."
@@ -3419,7 +3421,6 @@ fr:
         summary: "Sur 30 jours, %{minted} PiCoins frappés et %{destroyed} détruits (%{ratio}). %{circulation} en circulation."
         title: "FRAPPÉS ET DÉTRUITS PAR JOUR"
       heading: "LE RÉACTEUR DES BRIÉTÉS"
-      line: "« Le 100-6-Tron frappe chaque PiCoin qu'il vous remet et réduit en cendres chaque timbre et chaque effort. Voici sa comptabilité, sans fard. »"
       window: "30 derniers jours"
       words:
         balance: "Solde du jour : %{amount}"
@@ -3640,7 +3641,7 @@ fr:
         open_feed: "Ouvrir le fil d'activité"
         open_register: "Voir Le Chattomètre"
         season: "Saison en cours"
-        season_name: "Saison %{number} · Grand catalogue"
+        season_name: "Saison %{number} · %{name}"
         facts:
           players: "Joueurs actifs cette semaine"
           packs: "Capsules ouvertes aujourd'hui"
@@ -3838,6 +3839,7 @@ fr:
   cards:
     face:
       image_missing: "Image indisponible"
+      loading: "Chargement"
     show:
       invitation: "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
       pitch_title: "Vos jeux Steam, en cartes à collectionner."
@@ -3999,6 +4001,7 @@ fr:
       unfilled_sources: "Des cartes de la saison en brouillon ont été importées avant que leurs sources soient enregistrées, officier : un genre d'avant les thèmes ou aucun nombre d'avis. Publiées, elles tomberaient dans les OVNI et laisseraient les sets franchise, studio et panthéon incomplets sans qu'on le voie. Lance steam:fill_card_sources, puis publie."
       invalid_tag: "Ce n'est pas un tag Steam que les registres connaissent, officier."
       invalid_theme_name: "Un thème a besoin d'un nom en français et en anglais, de 60 caractères au plus, officier."
+      invalid_season_name: "Une saison a besoin d'un nom en français et en anglais, de 60 caractères au plus, officier."
       unclassified_tags:
         zero: "Plus aucun tag à classer, officier."
         one: "%{count} tag des cartes du brouillon n'est pas encore classé, officier. Rattache-le à un thème ou écarte-le sur la page des thèmes, puis publie."

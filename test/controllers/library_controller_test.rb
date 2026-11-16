@@ -74,6 +74,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
   end
 
   STREAM = { "Accept" => "text/vnd.turbo-stream.html" }.freeze
+  NATIVE_APP_WITH_BAR = "Mozilla/5.0 (iPhone) Hotwire Native iOS; Turbo Native iOS; bridge-components: [top-bar]".freeze
 
   # The slots a stream answer appends to the grid, read as `slots`.
   def appended_slots = slots("turbo-stream[action=append][target=collection-slots] template > li.collection-slot")
@@ -109,18 +110,14 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "All cards · Gameble"
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     assert_select ".top-bar__title", "Collection"
-    assert_select ".top-bar__end button.collection-status[type=button][popovertarget=rarity-legend]" do
-      assert_select ".collection-status__label[aria-hidden=true]", "Unique cards:"
-      assert_select ".collection-status__value[aria-hidden=true]", "3 / 150"
-      assert_select ".visually-hidden", "3 unique cards out of 150"
-      assert_select "progress.collection-status__bar[value='3'][max='150'][aria-hidden=true]"
-    end
-    assert_select ".top-bar__end > .collection-status + #rarity-legend[popover]"
+    assert_select ".top-bar .collection-status", false
+    assert_select ".top-bar__end .rarity-counter"
+    assert_select "#rarity-legend[popover]", 1
     assert_equal [ "3 / 150" ], css_select("#rarity-legend tfoot td > [aria-hidden=true]").map { it.text.squish }
     assert_equal [ "Rarity", "This season", "Copies" ], css_select("#rarity-legend thead th").map { it.text.strip }
     assert_select "#rarity-legend tfoot td.rarity-legend__copies", "5"
     assert_equal "/en/library/cards?rarity%5B%5D=epic", css_select("#rarity-legend a.rarity-legend__link")[3]["href"]
-    assert_select ".top-bar .rarity-counter, .top-bar .packs-chip", false
+    assert_select ".top-bar .rarity-counter", 1
     assert_select ".top-bar .player-chip"
     assert_select "h1.visually-hidden", "All cards"
     assert_select ".set-row, .collection-sets, .collection-kind", false
@@ -226,7 +223,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     # The seventeen of a player's grid, the state asked sparing the count
     # read again from the query cache and adding the watermark.
-    assert_request_queries(25) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
+    assert_request_queries(27) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
     seen = css_select(".collection-grid a.card-link").map { Rack::Utils.parse_nested_query(URI(it["href"]).query).dig("grid", "seen") }
     assert_equal [ "2026-10-08T09:30:15.123456Z" ] * 2, seen
 
@@ -662,8 +659,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_cards_path(locale: :fr, state: %w[all])
 
-    assert_select ".collection-status__label", "Cartes uniques\u202F:"
-    assert_select ".collection-status .visually-hidden", "1 carte unique sur 150"
     assert_select "#rarity-legend .shell-popover__title", "Raretés"
     assert_select "#rarity-legend a.rarity-legend__link[href=?] .rarity-legend__name", "/fr/library/cards?rarity%5B%5D=epic", "Épique"
     assert_select "#rarity-legend tfoot th", "Total"
@@ -740,7 +735,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # season holds, the sets of the kind shown; the tab bar's trades and
     # invitations waiting; the themes' names; the player's goals. No set per
     # card: the links carry the grid, which the detail reads itself.
-    assert_request_queries(24) { get library_cards_path(locale: :en) }
+    assert_request_queries(26) { get library_cards_path(locale: :en) }
 
     delete session_path(locale: :en)
     # The same without the lookup, the player's editions, the figures, the
@@ -1025,7 +1020,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Collection"
     assert_select "h1.visually-hidden", "Collection"
     assert_select ".top-bar__title", "Collection"
-    assert_select ".top-bar__end .collection-status .collection-status__value", "74 / 300"
+    assert_select ".top-bar .collection-status", false
     assert_equal [ "Goals", "My sets" ], css_select(".set-entry h2").map(&:text)
     assert_select ".set-entry form[role=search]", false
     assert_select "a.all-cards-tile[href='/en/library/cards']" do
@@ -1034,15 +1029,13 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       assert_select ".visually-hidden", "74 unique cards out of 300"
       assert_select "progress.all-cards-tile__bar[value='74'][max='300']"
       assert_select ".all-cards-tile__side[aria-hidden=true] .all-cards-tile__fan > .all-cards-tile__card > .card.card--s", 3
-      assert_select ".all-cards-tile__open", "Open"
     end
     assert_select "a.all-cards-tile[href='/en/library/sets']" do
       assert_select ".all-cards-tile__title", "All sets"
       assert_select ".all-cards-tile__count", "5"
       assert_select ".all-cards-tile__unit", "sets"
-      assert_select ".all-cards-tile__open", "Open"
     end
-    assert_select ".set-entry > section#goals:first-child + a.all-cards-tile + a.all-cards-tile + " \
+    assert_select ".set-entry > section#goals:first-child + div.set-entry__shortcuts + " \
       "turbo-frame#set-entry-in-progress.set-entry__in-progress[src='/en/library/in-progress'][loading=lazy][target=_top] + section.custom-sets"
     assert_select "turbo-frame#set-entry-in-progress p.set-entry__loading", "Loading the sets in progress…"
     assert_select ".set-tile, .set-row, .set-entry__empty", false
@@ -1304,7 +1297,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # avatar; the player's own sets, read once with their Steam library set,
     # and goals; with no goal, the sets suggested, their standings and the
     # themes' names; and the market settings in force.
-    assert_equal 21, forty
+    assert_equal 23, forty
   end
 
   test "the way to all the cards fans the three cards gained last, the latest on top" do
@@ -1335,9 +1328,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       assert_select ".all-cards-tile__title", "Toutes mes cartes"
       assert_select ".all-cards-tile__count", "0/300"
       assert_select ".all-cards-tile__fan", false
-      assert_select ".all-cards-tile__open", "Ouvrir"
     end
-    assert_select "section#goals + a.all-cards-tile + a.all-cards-tile[href='/fr/library/sets'] + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress'] + section.custom-sets"
+    assert_select ".set-entry__shortcuts > a.all-cards-tile[href='/fr/library/cards'] + a.all-cards-tile[href='/fr/library/sets']:last-child"
+    assert_select "section#goals + div.set-entry__shortcuts + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress'] + section.custom-sets"
     assert_select "#goals p.goals__empty", "Aucun objectif. Ouvrez l'album d'un set et marquez-le comme objectif."
     assert_select "#goals .goal-suggestions, #goals .goals__list", false
 
@@ -1434,7 +1427,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "All sets · Gameble"
     assert_select "h1.visually-hidden", "All sets"
     assert_select ".top-bar__title", "Collection"
-    assert_select ".top-bar__end .collection-status .collection-status__value", "33 / 300"
+    assert_select ".top-bar .collection-status", false
     assert_select ".set-browser[data-controller=last-album][data-action='turbo:frame-load->last-album#mark']"
     assert_equal %w[Halo Roguelike Horror Pirates Portal], browser_rows.map(&:first)
     assert_equal [ [ "Halo", "Franchise", "No tier" ], [ "Portal", "Franchise", "Complete" ] ], browser_rows.values_at(0, 4).map { it.first(3) }
@@ -1675,14 +1668,13 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     epic, = two_editions(season, player)
     sign_in(player)
 
-    assert_request_queries(24) { get library_cards_path(locale: :en, state: %w[owned]) }
+    assert_request_queries(26) { get library_cards_path(locale: :en, state: %w[owned]) }
 
     assert_equal [ [ :owned, title(epic), "x2", nil ] ], slots
     assert_equal [ "/seasons/#{season.number}" ], tile_hrefs
     assert_select ".collection-slot .card.card--rarity-epic"
     assert_select ".collection-slot__editions[aria-hidden=true]", "2 ed."
     assert_select ".collection-slot .visually-hidden", "2 editions"
-    assert_select ".collection-status__value", "1 / 150"
     assert_equal({ "Total cards" => "2", "Duplicates" => "1", "Common" => "0", "Uncommon" => "0", "Rare" => "0", "Epic" => "1", "Legendary" => "0" },
       report)
     assert_select ".report--fold summary .report__line", "2 cards · 1 duplicate"
@@ -1757,8 +1749,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ :not_owned ] * 30, slots.drop(30).map(&:first)
     assert_equal [ "/seasons/#{season.number}" ] * 30, tile_hrefs.first(30)
     assert_equal [ "/seasons/#{newer.number}" ] * 30, tile_hrefs.drop(30)
-    assert_select ".collection-status__value", "30 / 150"
-    assert_select "progress.collection-status__bar[value='30'][max='150']"
     assert_equal before, report
 
     get library_cards_path(locale: :en, state: %w[owned])
@@ -1773,9 +1763,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     hold(player, catalog_card_seasons(:portal_one).id, 1)
     sign_in(player)
 
-    get library_path(locale: :en)
-    assert_select ".collection-status__value", "151 / 150"
-    assert_select "progress.collection-status__bar[value='150'][max='150']"
+    get library_path(locale: :en), headers: { "User-Agent" => NATIVE_APP_WITH_BAR }
+    assert_select ".native-status .collection-status__value", "151 / 150"
+    assert_select ".native-status progress.collection-status__bar[value='150'][max='150']"
   end
 
   test "a visitor sees the published season's tiles, with no edition count and no unique cards" do

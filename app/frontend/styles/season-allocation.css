@@ -4,14 +4,6 @@
  * the 2px grid.
  */
 
-.allocation {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  max-width: 760px;
-  margin: 0 auto;
-}
-
 .allocation__title {
   margin: 0;
   color: var(--color-text-bright);

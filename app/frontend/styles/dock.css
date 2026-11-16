@@ -1,0 +1,14 @@
+/* Pick-then-confirm flows (entrust, sale): the summary and the confirm button float at the bottom of the screen,
+   wider than the content column, over the grid. */
+[data-layout="wide"] .dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin-inline: calc(-1 * var(--space-7));
+  padding: var(--space-4) var(--space-6);
+  background: var(--color-panel-raised);
+  box-shadow:
+    inset 0 var(--space-unit) 0 var(--color-lime),
+    var(--panel-border),
+    var(--dock-shadow);
+}

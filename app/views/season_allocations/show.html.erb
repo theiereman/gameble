@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <% turbo_exempts_page_from_cache %>
-<section class="allocation" aria-labelledby="allocation-heading">
+<section class="allocation page page--reading" aria-labelledby="allocation-heading">
   <h1 id="allocation-heading" class="allocation__title" tabindex="-1" autofocus><%= t(".heading", number: @recap.season_number) %></h1>
   <% if @recap.earned.any? %>
     <%= render "season_allocations/section", id: "earned", heading: t("season_allocations.show.earned.heading", number: @recap.ended_season_number) do %>

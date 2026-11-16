@@ -12,6 +12,12 @@
         <%= helpers.pixel_icon("picture", class: "card__missing-icon") %>
         <span class="card__missing-text"><%= t("cards.face.image_missing") %></span>
       </span>
+      <% if loader %>
+        <span class="card__loader" aria-hidden="true">
+          <span class="card__loader-meter"></span>
+          <span class="card__loader-text"><%= t("cards.face.loading") %></span>
+        </span>
+      <% end %>
     </span>
     <span class="card__line">
       <% if genre %>

@@ -41,7 +41,7 @@ class Game::HeldPacksTest < ActiveSupport::TestCase
     without_published_season { assert_equal({ "standard" => nil, "special" => nil }, held) }
 
     season = seed_card_seasons(distinct_scores(150))
-    Catalog::PublishSeason.new.call(number: season.number).value!
+    Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").value!
     assert_equal({ "standard" => nil, "special" => nil }, held)
   end
 

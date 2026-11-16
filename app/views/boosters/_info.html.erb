@@ -1,31 +1,21 @@
 <%# locals: (season:, bank:, size:, reserve:) %>
+<% available = booster_reserve_size(bank, reserve) %>
+<% origin = booster_origin(bank, reserve) %>
 <aside class="booster__info" data-controller="booster-info">
-  <div class="booster__hazard" aria-hidden="true"></div>
   <div class="booster__id">
-    <p class="booster__kicker"><%= season ? t("booster.kicker", number: season.number) : t("booster.kicker_plain") %></p>
-    <h2 id="booster-panel-title" class="booster__title"><%= t("booster.title") %></h2>
+    <p class="booster__kicker"><%= booster_kicker(season, size) %></p>
+    <h2 id="booster-panel-title" class="booster__title"><%= season_title(season) %></h2>
   </div>
-  <dl class="booster__panel panel panel--brackets">
-    <div class="booster__row">
-      <dt><%= t("booster.cards_per_pack") %></dt>
-      <dd class="booster__value" data-booster-info-target="size"><%= number_with_delimiter(size) %></dd>
-    </div>
-    <div class="booster__row">
-      <dt><%= t("booster.in_reserve") %></dt>
-      <dd class="booster__value booster__value--reserve" data-booster-info-target="reserve"><%= booster_reserve_count(booster_reserve_size(bank, reserve)) %></dd>
-    </div>
-    <div class="booster__row booster__row--origin"<%= " hidden" unless booster_origin(bank, reserve) %>>
-      <dt><%= t("booster.origin_label") %></dt>
-      <dd class="booster__value" data-booster-info-target="origin"><%= booster_origin(bank, reserve) %></dd>
-    </div>
-    <div class="booster__row booster__row--state">
-      <dt><%= t("booster.state") %></dt>
-      <dd class="booster__state" data-booster-info-target="state"><span class="booster__light" aria-hidden="true"></span><span class="booster__state-word"><%= booster_state_words %></span></dd>
-    </div>
-  </dl>
   <div class="booster__reserve">
+    <p class="booster__figure">
+      <span class="booster__count" data-booster-info-target="count"><%= number_with_delimiter(available) %></span>
+      <span class="booster__unit" data-booster-info-target="reserve"><%= booster_reserve_unit(available) %></span>
+    </p>
+    <p class="booster__source"<%= " hidden" unless origin %>>
+      <span class="booster__source-label"><%= t("booster.origin_label") %></span>
+      <span class="booster__source-name" data-booster-info-target="origin"><%= origin %></span>
+    </p>
     <p class="booster__reserve-head">
-      <span><%= t("booster.reserve") %></span>
       <%= render "boosters/next", full_class: "booster__next booster__next--full", next_class: "booster__next" %>
     </p>
     <div class="booster__pips" aria-hidden="true"><%= booster_pips([ bank[:available], BoostersHelper::RESERVE_PIPS ].min) %></div>

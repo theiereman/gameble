@@ -49,6 +49,8 @@ export function gameplayFor({
     repostUrl,
     reposted: strings.reposted,
     repostFailed: strings.repostFailed,
+    shared: strings.shared,
+    shareFailed: strings.shareFailed,
   })
   const everyReveal = new RevealAll({
     ...stage,

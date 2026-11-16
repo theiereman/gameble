@@ -1,11 +1,6 @@
 <% content_for :public_page, true unless current_player %>
 <% content_for :title, t(".heading") %>
 <% tab = capture do %>
-<div class="market-screen__bar">
-  <%= render "markets/chips", current: :listings %>
-  <%= render "markets/sorts", sort: @sort, filters: @filters %>
-</div>
-
 <%= render "markets/filters", filters: @filters, options: @options, sort: @sort, wanted_count: @wanted_count %>
 
 <% if @pulse.soonest.any? && !@filters.any? %>
@@ -27,10 +22,10 @@
     <span class="market-screen__section-note"><%= number_with_delimiter(@filters.any? ? @found : @pulse.open) %></span>
   </h2>
   <ul id="market-tiles" class="market-screen__tiles" aria-label="<%= t(".list_label") %>">
-    <%= render "markets/tiles", rows: @listings.rows, marks: @marks %>
+    <%= render "markets/tiles", rows: @listings.rows, marks: @marks, stands: @stands %>
   </ul>
 <% end %>
 <%= render "markets/pages", listings: @listings, sort: @sort, page: @page, filters: @filters %>
 <% end %>
-<%= render "markets/tab", title: content_for(:title), pulse: @pulse, desk: @desk, suspended: @suspended,
+<%= render "markets/tab", title: content_for(:title), current: :listings, pulse: @pulse, desk: @desk, suspended: @suspended,
       data: { controller: "next-page", action: "focusout->next-page#focusLeft" }, content: tab %>

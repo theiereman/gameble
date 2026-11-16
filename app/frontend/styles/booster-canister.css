@@ -51,8 +51,7 @@
   animation: booster-breath 6s ease-in-out infinite;
 }
 
-.booster-canister__wrap[data-busy] .booster-canister__idle,
-.booster-canister__wrap[data-busy] .booster-canister__sweep-band {
+.booster-canister__wrap[data-busy] .booster-canister__idle {
   animation: none;
 }
 
@@ -114,7 +113,13 @@
 
 .booster-canister__line--title {
   top: 47px;
+  display: -webkit-box;
+  overflow: hidden;
   font: var(--font-weight-regular) 1.625rem / 1.625rem var(--font-family-vt323);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
 }
 
 .booster-canister__hazard {
@@ -181,26 +186,6 @@
 
 .booster-canister__wrap[data-armed] .booster-canister__hazard {
   background: repeating-linear-gradient(-45deg, var(--color-alert) 0 6px, var(--color-panel-sunken) 6px 12px);
-}
-
-/* A band of light sweeping across the body, in steps. */
-.booster-canister__sweep {
-  position: absolute;
-  inset: 0;
-  display: block;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.booster-canister__sweep-band {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  display: block;
-  width: 34px;
-  background: color-mix(in srgb, var(--color-text-max) 22%, transparent);
-  animation: booster-sweep 2.8s steps(28) infinite;
 }
 
 /* ---- A dealt card ---- */

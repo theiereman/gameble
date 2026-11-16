@@ -1,13 +1,11 @@
 module BoostersHelper
   RESERVE_PIPS = 10
-  STATUSES = { sealed: "sealed", arming: "arming", ejecting: "ejecting", inventory: "inventory",
-               legendarySignal: "legendary_signal", complete: "complete", waiting: "waiting" }.freeze
   BOOSTER_CHILDREN = %w[booster-info].freeze
   BOOSTER_ACTIONS = {
     "booster-actions" => { open: :open, skip: :skip, reveal: :revealAll, back: :guardBack },
     "booster-reserves" => { select: :selectReserve },
     "booster-canister" => { open: :open },
-    "booster-stage" => { activate: :activateCard, repost: :repostCard, press: :pressCard, release: :releaseCard },
+    "booster-stage" => { activate: :activateCard, repost: :repostCard, share: :shareCard, press: :pressCard, release: :releaseCard },
     "booster-plate" => { store: :storeTop },
     "booster-tray" => { zoom: :openZoom },
     "booster-zoom" => { step: :stepZoom, see: :seeZoomed, repost: :repostZoomed, close: :closeZoom },
@@ -22,7 +20,8 @@ module BoostersHelper
       booster_repost_url_value: season ? card_repost_path(slug: "SLUG", number: "NUMBER") : "",
       booster_bank_url_value: booster_path(format: :json), booster_delimiter_value: t("number.format.delimiter"),
       booster_pack_size_value: Game::Pack::SIZE, booster_season_value: season&.number || 0,
-      booster_bank_value: booster_bank_values(values), booster_reserve_value: reserve, booster_held_value: held,
+      booster_season_name_value: booster_canister_name(season), booster_bank_value: booster_bank_values(values),
+      booster_reserve_value: reserve, booster_held_value: held,
       booster_strings_value: screen_strings("booster.strings"), origin: booster_origin_kind(bank, reserve)
     }.merge(screen_outlets("booster", BOOSTER_ACTIONS.keys + BOOSTER_CHILDREN))
   end
@@ -60,22 +59,28 @@ module BoostersHelper
     t("booster.origin.#{kind}") if kind
   end
 
-  def booster_state_words
-    safe_join(STATUSES.map { |status, key| tag.span(t("booster.states.#{key}"), data: { status: }) })
-  end
-
   def booster_pips(lit)
     safe_join(Array.new(RESERVE_PIPS) { |index| tag.span(class: "booster__pip", data: { lit: ("" if index < lit) }) })
   end
 
-  def booster_reserve_count(available)
-    t("booster.strings.reserve_count", count: available, n: number_with_delimiter(available))
+  def booster_reserve_unit(available)
+    t("booster.strings.reserve_unit", count: available)
+  end
+
+  def booster_kicker(season, size)
+    capsule = season ? t("booster.kicker", number: season.number) : t("booster.kicker_plain")
+    cards = t("booster.kicker_cards_html", count: size, size: tag.span(number_with_delimiter(size), data: { booster_info_target: "size" }))
+    safe_join([ capsule, cards ], " · ")
   end
 
   def booster_canister_label(season, count)
     return t("booster.strings.canister_label_plain", count:) unless season
 
-    t("booster.strings.canister_label", season: season.number, count:)
+    t("booster.strings.canister_label", season: season.number, name: booster_canister_name(season), count:)
+  end
+
+  def booster_canister_name(season)
+    season&.name(I18n.locale).presence || t("booster.canister_name_fallback")
   end
 
   def booster_canister_facts(count)

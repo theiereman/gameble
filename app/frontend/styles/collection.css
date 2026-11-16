@@ -47,26 +47,8 @@
   min-width: 0;
 }
 
-.set-entry {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-  width: 100%;
-  max-width: 880px;
-  margin-inline: auto;
-}
-
 .set-entry > turbo-frame {
   display: contents;
-}
-
-.set-browser {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  width: 100%;
-  max-width: 880px;
-  margin-inline: auto;
 }
 
 .set-entry__section {
@@ -170,10 +152,17 @@
   color: var(--color-accent);
 }
 
+.set-entry__shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
 /* The way to every card of the season: a tile, so it never reads as the search's button. */
 .all-cards-tile {
   --all-cards-scale: 0.42;
 
+  position: relative;
   display: flex;
   overflow: clip;
   align-items: center;
@@ -192,6 +181,15 @@
   }
 }
 
+.all-cards-tile::after {
+  content: "▸";
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-5);
+  color: var(--color-accent);
+  font: var(--font-number);
+}
+
 .all-cards-tile__summary {
   display: flex;
   flex: 1;
@@ -202,6 +200,7 @@
 
 .all-cards-tile__title {
   display: inline-flex;
+  padding-right: var(--space-5);
   align-items: center;
   gap: var(--space-3);
   color: var(--color-accent);
@@ -243,14 +242,16 @@
 }
 
 .all-cards-tile__bar {
-  max-width: 420px;
+  width: 100%;
 }
 
 .all-cards-tile__side {
   display: flex;
   flex: none;
-  align-items: center;
-  gap: var(--space-6);
+  margin-right: var(--space-5);
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-4);
 }
 
 .all-cards-tile__fan {
@@ -279,16 +280,18 @@ html .all-cards-tile__card > .card.card--s {
   transform-origin: top left;
 }
 
-.all-cards-tile__open {
-  margin: 0;
-  pointer-events: none;
-}
-
 @media (max-width: 719px) {
-  .all-cards-tile {
-    --all-cards-scale: 0.34;
+  .set-entry__shortcuts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
 
-    padding: var(--space-5);
+  .all-cards-tile {
+    padding: var(--space-4);
+  }
+
+  .all-cards-tile__side {
+    display: none;
   }
 
   .all-cards-tile__count {
@@ -298,15 +301,5 @@ html .all-cards-tile__card > .card.card--s {
 
   .all-cards-tile__figures {
     flex-direction: column;
-  }
-
-  .all-cards-tile__side {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: var(--space-4);
-  }
-
-  .all-cards-tile__open {
-    min-height: 40px;
   }
 }

@@ -1,10 +1,10 @@
 <% content_for :title, t(".heading") %>
+<% content_for :screen_title, t(".heading") %>
 <% content_for :public_page, true unless current_player %>
-<section class="market-entrust" aria-labelledby="market-entrust-heading">
+<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
+<section class="market-entrust page page--regular" aria-labelledby="market-entrust-heading">
   <header class="market-entrust__header">
-    <p class="market-entrust__kicker"><%= t(".kicker") %></p>
-    <h1 id="market-entrust-heading" class="market-entrust__title"><%= t(".heading") %></h1>
-    <p class="market-entrust__intro"><%= t(".intro") %></p>
+    <h1 id="market-entrust-heading" class="visually-hidden"><%= t(".heading") %></h1>
     <%= render "shell/balance_chip", placement: :header %>
   </header>
   <%= render "market/entrustments/region" %>

@@ -1,0 +1,82 @@
+/* The art loader of a card page: a terminal meter filling block by block
+   until the art is drawn. It fades in late, so a cached cover never flashes it. */
+.card__loader {
+  display: none;
+}
+
+.card__art:not([data-art]) .card__loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  color: var(--color-accent);
+  font: var(--card-meta-font);
+  letter-spacing: var(--card-meta-tracking);
+  text-transform: uppercase;
+  animation: card-loader-in 200ms steps(2) 250ms both;
+}
+
+.card__loader-meter {
+  position: relative;
+  width: 50px;
+  height: 10px;
+  border: 2px solid var(--color-accent);
+  background: var(--color-panel-sunken);
+}
+
+.card__loader-meter::before {
+  content: "";
+  position: absolute;
+  inset: 2px auto 2px 2px;
+  width: 0;
+  max-width: calc(100% - 4px);
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 6px, transparent 6px 8px);
+  animation: card-loader-fill 1.4s steps(7) infinite;
+}
+
+.card__loader-text::after {
+  content: "_";
+  animation: card-loader-cursor 1s steps(1) infinite;
+}
+
+@keyframes card-loader-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes card-loader-fill {
+  to {
+    width: 56px;
+  }
+}
+
+@keyframes card-loader-cursor {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .card__loader-meter::before {
+    width: 24px;
+    animation: none;
+  }
+
+  html:not([data-motion="full"]) .card__loader-text::after {
+    animation: none;
+  }
+}
+
+html[data-motion="reduced"] .card__loader-meter::before {
+  width: 24px;
+  animation: none;
+}
+
+html[data-motion="reduced"] .card__loader-text::after {
+  animation: none;
+}
