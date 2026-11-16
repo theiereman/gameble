@@ -46,7 +46,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       assert_equal "1", reserve_badge(:special)
       assert_select ".daily-booster.daily-booster--collected .daily-booster__state", "Collected"
       assert_select ".daily-booster .daily-booster__clock", "02:00:00"
-      assert_select ".daily-booster form, .daily-booster button", 0
+      assert_select ".daily-booster form, .daily-booster button:not(.hub-fold)", 0
 
       post daily_bonus_path(locale: :en)
 
@@ -92,7 +92,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__special-count", "1"
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--standard", "9"
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--special", "1"
-      assert_select "turbo-stream[target=hub-showcase-actions]", false
+      assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
       assert_select "turbo-stream[action=remove][target=bell-daily]"
       assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
         "A capsule joins your reserve. The next one will be ready on 2026-10-03 00:00 UTC."

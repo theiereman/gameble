@@ -1,0 +1,8 @@
+<div id="hub-showcase-actions" class="hub-showcase__actions">
+  <% if bank[:openable].positive? %>
+    <%= render ButtonComponent.new(href: booster_path) do %><%= t("pages.home.showcase.empty.open") %><% end %>
+  <% else %>
+    <%= render ButtonComponent.new(disabled: true) do %><%= t("pages.home.showcase.empty.open") %><% end %>
+    <p class="hub-showcase__reason"><%= t("pages.home.showcase.empty.reserve_empty") %></p>
+  <% end %>
+</div>

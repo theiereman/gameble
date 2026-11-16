@@ -324,6 +324,14 @@ fr:
         how_it_works: "Comment ça marche"
         support: "Soutenir"
         source_code: "GitHub"
+      showcase:
+        kicker: "Dernière obtention"
+        see_card: "Voir la fiche"
+        empty:
+          title: "Ouvrez votre première capsule"
+          text: "Votre plus belle carte s'affichera ici."
+          open: "Ouvrir une capsule"
+          reserve_empty: "Réserve vide"
       daily:
         title: "Capsule quotidienne"
         ready: "Prête"
@@ -332,6 +340,7 @@ fr:
         collected: "Récupérée"
         next_in: "Prochaine dans"
         next_at: "Prochaine capsule : %{time}"
+      fold: "%{title} : détails"
       goal:
         title: "Mission hebdo"
         line: "Ouvrez %{target} capsules cette semaine."
