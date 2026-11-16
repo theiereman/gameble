@@ -308,7 +308,7 @@ module Game
       Fortune.from(mine, :mine).where(ranked_behind.exists.not).where(rival.exists).count
     end
 
-    def self.listed_that_week(condition) = Fortune.listed.where("game_fortunes.week_start = mine.week_start AND (#{condition})").arel
+    def self.listed_that_week(condition) = Fortune.listed.where("game_fortunes.week_start = mine.week_start").where(condition).arel
 
     def self.current_week = WeeklyGoal.week_start(Time.current)
 
