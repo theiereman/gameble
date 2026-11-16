@@ -138,7 +138,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
       assert_includes dialog.at_css("form[action$='/refusal']")["action"], duel.token
       assert_empty streams(fragment, "append")
     end
-    assert_empty streams(received(@lea, :en), "update", "duel-sheet-outcome")
+    assert_empty broadcasts(PlayerStream.name(@lea, :en))
   end
 
   test "a challenge cancelled or lapsed empties the dialog and tells the invited player with a toast" do

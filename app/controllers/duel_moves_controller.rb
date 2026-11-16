@@ -1,5 +1,5 @@
 class DuelMovesController < ApplicationController
-  throttle_player to: 60, only: %i[challenge accept refuse cancel announce answer], path: -> { duels_path }, alert: "duels.throttled"
+  throttle_player to: 60, only: %i[challenge accept decline cancel announce answer], path: -> { duels_path }, alert: "duels.throttled"
 
   def challenge
     authorize :duel, :challenge?, policy_class: DuelPolicy
@@ -20,7 +20,7 @@ class DuelMovesController < ApplicationController
     redirect_to duel_path(token: duel.token), status: :see_other
   end
 
-  def refuse
+  def decline
     duel = authorized_duel(:refuse?)
     result = Game::RefuseChallenge.new.call(player: current_player, token: duel.token)
     return redirect_refused(Game::RefuseChallenge, result, duels_path) if result.failure?

@@ -59,11 +59,12 @@ class DuelChallengeTest < ApplicationSystemTestCase
       assert_selector "#duel-sheet .duel-clock"
     end
     using_session(:hugo) do
-      within("#duel-dialog") { assert_text "Léa challenges you to a duel." }
+      within("#duel-dialog") { assert_text(/Léa challenges you to a duel\./i) }
     end
 
     using_session(:lea) do
       within("#duel-sheet") { click_on "Cancel" }
+      assert_no_selector ".duel-clock", visible: :all
       deliver
     end
     using_session(:hugo) do

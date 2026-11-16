@@ -194,12 +194,12 @@ class Game::DuelChallengeOperationsTest < ActiveSupport::TestCase
 
   def refuse(duel, player: @hugo) = Game::RefuseChallenge.new.call(player:, token: duel.token)
 
-  def assert_ended(duel, state, event)
+  def assert_ended(duel, state, event, by: @lea)
     duel.reload
     assert_equal [ state, 1 ], [ duel.state, duel.move_number ]
     assert duel.ended_at
     assert_equal %w[left left], seats_of(duel).values.map(&:status)
-    assert_equal [ duel_data(duel) ], game_events(@lea, event).map(&:data)
+    assert_equal [ duel_data(duel) ], game_events(by, event).map(&:data)
     assert_equal 1, Rails.configuration.event_store.read.of_type([ event ]).count
     assert_empty Game::HeldSeats.call(@lea).to_h.values.compact
   end
@@ -217,7 +217,7 @@ class Game::DuelChallengeOperationsTest < ActiveSupport::TestCase
 
     refuse(duel).value!
 
-    assert_ended(duel, "refused", Game::DuelChallengeRefused)
+    assert_ended(duel, "refused", Game::DuelChallengeRefused, by: @hugo)
   end
 
   test "a cancellation or a refusal by the other side or an outsider writes nothing" do

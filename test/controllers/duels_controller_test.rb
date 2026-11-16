@@ -144,7 +144,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
       assert_select "input[type=radio][name=deck][aria-disabled=true]:not([checked])", 1
       assert_select "input[type=radio][name=friend]", 1
       assert_select "input[type=radio][name=friend][value='#{hugo.token}'][checked]"
-      assert_select "label .player-name", "Hugo"
+      assert_select "label .duel-choice__name", "Hugo"
       assert_select "button[type=submit]:not([aria-disabled])", "Challenge"
     end
   end

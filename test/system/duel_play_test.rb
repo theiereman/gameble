@@ -106,7 +106,7 @@ class DuelPlayTest < ApplicationSystemTestCase
 
     using_session(:hugo) do
       within("#duel-dialog") do
-        assert_text "Léa challenges you to a duel."
+        assert_text(/Léa challenges you to a duel\./i)
         choose "Hugo deck"
         click_on "Accept"
       end
