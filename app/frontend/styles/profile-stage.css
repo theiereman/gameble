@@ -250,7 +250,6 @@
   color: var(--color-rarity-legendaire);
 }
 
-
 @media (min-width: 720px) {
   .profile-stage__floor {
     max-width: 600px;
