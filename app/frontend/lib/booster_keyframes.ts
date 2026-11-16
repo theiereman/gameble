@@ -48,23 +48,23 @@ export function trembleKeyframes(level: number, height: number, swell: Swell): K
 }
 
 export function liftKeyframes(height: number, swell: Swell): Keyframe[] {
-  return [{ transform: pose() }, { transform: pose(0, -height, 0, swell(1.03)) }]
+  return [{ transform: pose() }, { transform: pose(0, -height, 0, swell(1.06)) }]
 }
 
 export function flipKeyframes(): Keyframe[] {
   return [
-    { transform: "rotateY(0deg)" },
-    { transform: "rotateY(200deg)", offset: 0.72 },
-    { transform: "rotateY(172deg)", offset: 0.88 },
+    { transform: "rotateY(0deg)", easing: "cubic-bezier(.4,.1,.3,1)" },
+    { transform: "rotateY(196deg)", offset: 0.6, easing: "ease-in-out" },
+    { transform: "rotateY(176deg)", offset: 0.8, easing: "ease-in-out" },
     { transform: "rotateY(180deg)" },
   ]
 }
 
 export function settleKeyframes(height: number, swell: Swell): Keyframe[] {
   return [
-    { transform: pose(0, -height, 0, swell(1.06)) },
-    { transform: pose(0, -height * 0.4, 0, swell(1.14), swell(0.9)), offset: 0.25 },
-    { transform: pose(0, 4, 0, swell(0.95), swell(1.06)), offset: 0.6 },
+    { transform: pose(0, -height, 0, swell(1.06)), easing: "cubic-bezier(.5,0,.9,.6)" },
+    { transform: pose(0, 3, 0, swell(1.14), swell(0.9)), offset: 0.3, easing: "cubic-bezier(.2,.7,.4,1)" },
+    { transform: pose(0, -height * 0.2, 0, swell(0.97), swell(1.04)), offset: 0.62, easing: "ease-in-out" },
     { transform: pose() },
   ]
 }

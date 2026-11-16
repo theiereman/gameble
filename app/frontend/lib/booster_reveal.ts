@@ -156,7 +156,7 @@ export class RevealSequence {
       await wait(COMMON_LIFT_MS)
     }
 
-    animate(flip, flipKeyframes(), { duration: FLIP_MS[level], easing: "cubic-bezier(.3,.1,.3,1)", fill: "none" })
+    animate(flip, flipKeyframes(), { duration: FLIP_MS[level], fill: "none" })
     this.turn(index, FLIP_MS[level])
     await wait(FLIP_MS[level] * MARK_AT)
     this.mark(index, quiet)
@@ -177,11 +177,7 @@ export class RevealSequence {
       }
     }
     settle(lift)
-    animate(lift, settleKeyframes(height, swell), {
-      duration: SETTLE_MS[level],
-      easing: "cubic-bezier(.2,.8,.3,1)",
-      fill: "none",
-    })
+    animate(lift, settleKeyframes(height, swell), { duration: SETTLE_MS[level], fill: "none" })
     await wait(SETTLE_MS[level])
   }
 

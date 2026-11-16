@@ -117,6 +117,11 @@
   transform: translateY(-8px);
 }
 
+/* Turned, the card leaves its hover height gently, falling with the settle. */
+.booster-card[data-revealed] .booster-card__hover {
+  transition-timing-function: ease-in-out;
+}
+
 .booster-card__lift {
   perspective: 1000px;
 }
