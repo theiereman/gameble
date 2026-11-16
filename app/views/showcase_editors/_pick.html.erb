@@ -1,0 +1,8 @@
+<%# locals: (card:, chosen:, full:) %>
+<%= tag.li class: class_names("collection-slot", "showcase-pick", "showcase-pick--chosen": chosen) do %>
+  <span class="showcase-pick__art" aria-hidden="true"><%= render CardComponent.new(card:, size: :grid, tilt: false) %></span>
+  <%= button_to "", card_showcase_path(slug: card.id, number: card.season_number), method: chosen ? :delete : :post,
+        class: "showcase-pick__toggle", form_class: "showcase-pick__form", disabled: full && !chosen,
+        aria: { pressed: chosen, label: card.title } %>
+  <% if chosen %><%= pixel_icon("check", class: "showcase-pick__check") %><% end %>
+<% end %>

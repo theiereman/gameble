@@ -215,6 +215,8 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # The phone's Me tab opens the player's own profile.
     get "me" => "own_profiles#show", as: :me
+    # Every card the player holds, each chosen for the showcase or taken out in one tap.
+    get "me/showcase" => "showcase_editors#show", as: :edit_showcase
     # The notes of the running release on their own, which the app opens as a native sheet over the hub.
     get "me/sheets/release-note" => "release_note_sheets#show", as: :release_note_sheet
     # One of the profile's choice sheets on its own, which the app opens as a native sheet.

@@ -1,7 +1,6 @@
 /*
- * The Me page: the player's own profile, whose title, card back and
- * showcase each open a bottom sheet to change them, then the help and
- * settings rows. Every opener is a touch target of at least 44px.
+ * The Me page: the player's own profile, whose title and card back each
+ * open a bottom sheet to change them, then the help and settings rows. Every opener is a touch target of at least 44px.
  */
 
 /* What only the owner changes, under the band visitors see: the title
@@ -191,23 +190,4 @@
 
 .me-choices .filter-chip .filter-chip__text {
   min-height: var(--space-touch-min);
-}
-
-/* The owner confirms before a card leaves the showcase. */
-.showcase-removal__form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
-.showcase-removal__text {
-  margin: 0;
-  color: var(--color-text);
-  font: var(--font-body);
-}
-
-.showcase-removal__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
 }

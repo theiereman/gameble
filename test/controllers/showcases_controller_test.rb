@@ -123,9 +123,7 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  def showcase_slugs(selector = ".profile-showcase .profile-showcase__slot > a.card-link")
-    css_select(selector).map { it["href"][%r{/cards/([^/]+)/}, 1] }
-  end
+  def showcase_slugs = css_select(".profile-stage__slot > a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }.first(3)
 
   [ :en, :fr ].each do |locale|
     test "a new order is read on the Me page and leads the public profile's stage in #{locale}" do
@@ -138,50 +136,8 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
       get me_path(locale:)
       assert_equal %w[green-hills portal tin-soldier], showcase_slugs
       get brother_path(locale:, token: @player.token)
-      assert_equal %w[green-hills portal tin-soldier], showcase_slugs(".profile-stage__slot > a.card-link").first(3)
+      assert_equal %w[green-hills portal tin-soldier], showcase_slugs
     end
-  end
-
-  test "removing a card names it in a toast and sends the focus to the remove button of the next card" do
-    choose(:portal_one, :common_card_one, :uncommon_card_one)
-    sign_in(@player)
-
-    delete showcase_path(slug: "portal", locale: :fr), headers: { "HTTP_REFERER" => me_path(locale: :fr) }
-
-    assert_redirected_to me_path(locale: :fr)
-    assert_equal "Retiré de la vitrine", flash[:toast_title]
-    assert_match(/n'est plus dans votre vitrine/, flash[:notice])
-    follow_redirect!
-    assert_select "#toasts .toast__title", "Retiré de la vitrine"
-    assert_equal %w[tin-soldier green-hills], showcase_slugs
-    assert_select ".profile-showcase__slot:nth-child(1) button.profile-showcase__remove[autofocus][aria-label^=Retirer]"
-    assert_select "[autofocus]", 1
-  end
-
-  test "the focus goes to the previous card after the last one, and to the card list link after the only one" do
-    choose(:portal_one, :common_card_one)
-    sign_in(@player)
-
-    delete showcase_path(slug: "tin-soldier"), headers: { "HTTP_REFERER" => me_path(locale: :en) }
-    follow_redirect!
-    assert_select "#toasts .toast__title", "Removed from showcase"
-    assert_select ".profile-showcase__slot:nth-child(1) button.profile-showcase__remove[autofocus][aria-label^=Remove]"
-
-    delete showcase_path(slug: "portal"), headers: { "HTTP_REFERER" => me_path(locale: :en) }
-    follow_redirect!
-    assert_select "a.profile-showcase__browse[autofocus]"
-    assert_select ".profile-showcase", false
-  end
-
-  test "a removal asked in JSON writes no flash" do
-    choose(:portal_one)
-    sign_in(@player)
-
-    delete showcase_path, as: :json
-
-    assert_response :no_content
-    assert_nil flash[:removed_showcase_card]
-    assert_nil flash[:toast_title]
   end
 
   test "the cards of the Me page lead to a detail that goes back to it" do
@@ -189,7 +145,7 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get me_path(locale: :en)
-    hrefs = css_select(".profile-showcase__slot > a.card-link").map { it["href"] }
+    hrefs = css_select(".profile-stage__slot > a.card-link").map { it["href"] }
     assert_equal [ card_season_path(locale: :en, slug: "portal", number: 1, from: "me"),
                    card_season_path(locale: :en, slug: "tin-soldier", number: 1, from: "me") ], hrefs
 

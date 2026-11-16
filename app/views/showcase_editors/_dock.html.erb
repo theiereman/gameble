@@ -1,0 +1,24 @@
+<%# locals: (cards:) %>
+<% size = Game::ChosenShowcase::SIZE %>
+<%= render PanelComponent.new(tag: :aside, class: "showcase-dock dock", aria: { labelledby: "showcase-dock-heading" }) do %>
+  <div class="showcase-dock__head">
+    <h2 id="showcase-dock-heading" class="showcase-dock__heading"><%= t("showcase_editors.show.dock") %></h2>
+    <p class="showcase-dock__count" role="status"><%= t("showcase_editors.show.count", chosen: cards.size, total: size) %></p>
+    <p class="showcase-dock__hint"><%= t("showcase_editors.show.hint") %></p>
+  </div>
+  <ol class="showcase-dock__picks">
+    <% cards.each do |card| %>
+      <li class="showcase-dock__pick">
+        <%= render CardComponent.new(card:, size: :s, tilt: false) %>
+        <%= button_to card_showcase_path(slug: card.id, number: card.season_number), method: :delete, class: "showcase-dock__remove",
+              form_class: "showcase-dock__remove-form", aria: { label: t("showcase_editors.show.remove", title: card.title) } do %>
+          <%= pixel_icon("close", class: "showcase-dock__remove-icon") %>
+        <% end %>
+      </li>
+    <% end %>
+    <% (size - cards.size).times do %>
+      <li class="showcase-dock__free" aria-hidden="true"></li>
+    <% end %>
+  </ol>
+  <%= render ButtonComponent.new(href: me_path) do %><%= t("showcase_editors.show.done") %><% end %>
+<% end %>

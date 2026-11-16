@@ -1207,7 +1207,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "Add to showcase", "disabled" ] ], showcase_buttons
     assert_select ".card-detail__showcase form", false
     assert_select ".card-detail__holder-actions > .card-detail__showcase + .card-detail__showcase-full:last-child", /\AShowcase full: remove a card to add another.\s+Open my showcase\z/
-    assert_select ".card-detail__showcase-full a.card-detail__showcase-open[href=?]", "/en/me?card=portal&edition=1#showcase"
+    assert_select ".card-detail__showcase-full a.card-detail__showcase-open[href=?]", "/en/me/showcase"
     assert_select ".card-detail__holder-actions > form.button-form:first-child button.button--primary", "Repost"
   end
 
