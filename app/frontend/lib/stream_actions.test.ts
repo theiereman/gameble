@@ -19,6 +19,7 @@ describe("streamSignal", () => {
     expect(streamSignal("trades-updated")).toBe("trades-updated")
     expect(streamSignal("friends-updated")).toBe("friends-updated")
     expect(streamSignal("reactions-updated")).toBe("reactions-updated")
+    expect(streamSignal("duels-updated")).toBe("duels-updated")
     expect(streamSignal("toast")).toBeNull()
     expect(streamSignal("")).toBeNull()
     expect(streamSignal(null)).toBeNull()
@@ -34,18 +35,21 @@ describe("the gameble-event stream action", () => {
     target.addEventListener("gameble:friends-updated", (event) => seen.push(event.type))
     target.addEventListener("gameble:reactions-updated", (event) => seen.push(event.type))
     target.addEventListener("gameble:bank-updated", (event) => seen.push(event.type))
+    target.addEventListener("gameble:duels-updated", (event) => seen.push(event.type))
     const action = registered(target)
 
     action.call(streamElement({ event: "trades-updated" }))
     action.call(streamElement({ event: "friends-updated" }))
     action.call(streamElement({ event: "reactions-updated" }))
     action.call(streamElement({ event: "bank-updated" }))
+    action.call(streamElement({ event: "duels-updated" }))
 
     expect(seen).toEqual([
       "gameble:trades-updated",
       "gameble:friends-updated",
       "gameble:reactions-updated",
       "gameble:bank-updated",
+      "gameble:duels-updated",
     ])
   })
 

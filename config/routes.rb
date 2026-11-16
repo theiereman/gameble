@@ -96,6 +96,12 @@ Rails.application.routes.draw do
     post "duels/decks/:token/cards" => "deck_cards#create", as: :deck_cards, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     delete "duels/decks/:token/cards" => "deck_cards#destroy", constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "duels/decks/:token/fill" => "deck_fills#create", as: :deck_fill, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    # A challenge to a friend, and a duel by its token: its screen, the acceptance and each call and answer.
+    post "duels/challenges" => "duel_moves#challenge", as: :duel_challenges
+    get "duels/:token" => "duels#play", as: :duel, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "duels/:token/acceptance" => "duel_moves#accept", as: :duel_acceptance, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "duels/:token/calls" => "duel_moves#announce", as: :duel_calls, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "duels/:token/answers" => "duel_moves#answer", as: :duel_answers, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # A player's goals, each named by its set: a kind and key, or a custom
     # set's token, never a position.
     post "library/goals" => "goals#create", as: :library_goals

@@ -1,0 +1,36 @@
+<%# locals: (screen:) %>
+<section id="duel-hand" class="duel-hand" aria-labelledby="duel-hand-heading">
+  <h2 id="duel-hand-heading" class="duel-board__heading"><%= t("duels.board.hand") %></h2>
+  <% case screen.turn %>
+  <% when :call %>
+    <%= form_with url: duel_calls_path(token: screen.token), method: :post, id: "duel-call", class: "duel-hand__form",
+          authenticity_token: false do %>
+      <%= hidden_field_tag :move_number, screen.move_number, id: nil %>
+      <%= render "duels/hand_cards", screen: %>
+      <fieldset class="duel-hand__choice">
+        <legend class="duel-hand__legend"><%= t("duels.board.stat") %></legend>
+        <% screen.calls.each do |call| %>
+          <label class="<%= class_names("duel-hand__option", "duel-hand__option--called": !call.open) %>">
+            <%= radio_button_tag :call, "#{call.stat}-#{call.direction}", false, id: nil, disabled: !call.open, required: true %>
+            <span><%= duel_direction(call.stat, call.direction) %></span>
+            <% unless call.open %><span class="duel-hand__note"><%= t("duels.board.already_called") %></span><% end %>
+          </label>
+        <% end %>
+      </fieldset>
+      <%= render ButtonComponent.new(type: :submit) do %><%= t("duels.board.call") %><% end %>
+    <% end %>
+  <% when :answer %>
+    <%= form_with url: duel_answers_path(token: screen.token), method: :post, id: "duel-answer", class: "duel-hand__form",
+          authenticity_token: false do %>
+      <%= hidden_field_tag :move_number, screen.move_number, id: nil %>
+      <%= render "duels/hand_cards", screen: %>
+      <%= render ButtonComponent.new(type: :submit) do %><%= t("duels.board.answer") %><% end %>
+    <% end %>
+  <% else %>
+    <ul class="duel-hand__cards">
+      <% screen.hand.each do |card| %>
+        <li class="duel-hand__card"><%= screen.title(card) %></li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

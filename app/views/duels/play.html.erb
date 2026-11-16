@@ -1,0 +1,12 @@
+<% turbo_exempts_page_from_cache %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<% content_for :back_button, true %>
+<% content_for :phone_back do %>
+  <%= phone_back_link t("shell.tabs.duels"), duels_path %>
+<% end %>
+<%= turbo_stream_from(*DuelStream.streamables(@screen.stream_key), channel: DuelSeatChannel) %>
+<section class="duel page page--regular" aria-labelledby="duel-heading" data-controller="duel">
+  <h1 id="duel-heading" class="visually-hidden"><%= t(".title") %></h1>
+  <%= render "duels/board", screen: @screen %>
+</section>

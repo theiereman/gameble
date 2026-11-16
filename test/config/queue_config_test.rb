@@ -56,6 +56,17 @@ class QueueConfigTest < ActiveSupport::TestCase
     end
   end
 
+  test "the duel pushes run on their own worker, one process of three threads polling every tenth of a second" do
+    assert_equal "duels", DuelStreamJob.new.queue_name
+
+    %w[development test production].each do |env|
+      workers = load_config("queue.yml").fetch(env).fetch("workers")
+
+      assert_equal [ { "queues" => [ "duels" ], "threads" => 3, "processes" => 1, "polling_interval" => 0.1 } ],
+        workers.select { Array(it["queues"]).include?("duels") }, env
+    end
+  end
+
   test "the retention job runs every day in development and production" do
     recurring = YAML.safe_load(Rails.root.join("config/recurring.yml").read, aliases: true)
 

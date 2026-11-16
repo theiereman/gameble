@@ -1,12 +1,15 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 require_relative "../support/decks"
+require_relative "../support/live_duels"
 
-# GET /:locale/duels: the DUELS tab's root, the player's decks in creation order, each a link to its editor with its
-# twelve covers, and the way to a new deck while fewer than five.
+# GET /:locale/duels: the DUELS tab's root, the challenge block above the player's decks in creation order, each a link
+# to its editor with its twelve covers, and the way to a new deck while fewer than five. GET /:locale/duels/:token: a
+# duel's board, for the players holding its seats only.
 class DuelsControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
   include Decks
+  include LiveDuels
 
   setup do
     @player = accounts_players(:player)
@@ -118,5 +121,130 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     get duels_path(locale: :en)
 
     assert_empty rows
+  end
+
+  test "the challenge form: the complete decks and the friends open to friends as radios, the first of each chosen" do
+    deck = complete_deck(@player, "Lea")
+    create_deck("Brouillon")
+    hugo = accounts_players(:moderator)
+    hugo.update!(persona_name: "Hugo")
+    befriend(@player, hugo)
+    befriend(@player, accounts_players(:administrator))
+    accounts_players(:administrator).update_columns(visibility: "private")
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    assert_select ".duels[data-controller=live-refresh][data-live-refresh-signal-value=duels-updated]"
+    assert_select "#duel-lobby-heading", "Challenge a friend"
+    assert_select "form#duel-challenge[action='/en/duels/challenges'][method=post]" do
+      assert_select "input[type=radio][name=deck]", 1
+      assert_select "input[type=radio][name=deck][value='#{deck.token}'][checked]"
+      assert_select "input[type=radio][name=friend]", 1
+      assert_select "input[type=radio][name=friend][value='#{hugo.token}'][checked]"
+      assert_select "label .player-name", "Hugo"
+      assert_select "button[type=submit]", "Challenge"
+    end
+  end
+
+  test "the challenge form gives way to the line that says why it cannot be sent" do
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+    assert_select ".duel-lobby__line", "You need a complete 12-card deck to challenge."
+
+    complete_deck(@player, "Lea")
+    get duels_path(locale: :en)
+    assert_select ".duel-lobby__line", "Add friends to challenge them."
+
+    @player.update_columns(visibility: "private")
+    get duels_path(locale: :fr)
+    assert_select ".duel-lobby__line", "Vos duels sont fermés tant que votre profil est privé."
+    assert_select "form#duel-challenge", 0
+  end
+
+  test "a received challenge offers the complete decks and its move number to accept it" do
+    hugo = accounts_players(:moderator)
+    hugo.update!(persona_name: "Hugo")
+    befriend(@player, hugo)
+    complete_deck(hugo, "Hugo")
+    deck = complete_deck(@player, "Lea")
+    duel = Game::ChallengeFriend.new.call(player: hugo, friend: @player, deck_token: deck_token_of(hugo)).value!
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    assert_select "#duel-received .duel-lobby__line", "Hugo challenges you to a duel."
+    assert_select "#duel-received form[action='/en/duels/#{duel.token}/acceptance'][method=post]" do
+      assert_select "input[type=hidden][name=move_number][value='0']"
+      assert_select "input[type=radio][name=deck][value='#{deck.token}'][checked]"
+      assert_select "button[type=submit]", "Accept"
+    end
+  end
+
+  test "the challenger waits for the answer, then is led back to the duel in progress" do
+    hugo = accounts_players(:moderator)
+    hugo.update!(persona_name: "Hugo")
+    befriend(@player, hugo)
+    complete_deck(@player, "Lea")
+    complete_deck(hugo, "Hugo")
+    duel = Game::ChallengeFriend.new.call(player: @player, friend: hugo, deck_token: deck_token_of(@player)).value!
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+    assert_select "#duel-seated .duel-lobby__line", "Waiting for Hugo's answer…"
+    assert_select "form#duel-challenge", 0
+
+    Game::AcceptChallenge.new.call(player: hugo, token: duel.token, deck_token: deck_token_of(hugo), move_number: 0).value!
+    get duels_path(locale: :en)
+    assert_select "#duel-seated .duel-lobby__line", "Duel in progress against Hugo."
+    assert_select "#duel-seated a[href='/en/duels/#{duel.token}']", "Resume"
+  end
+
+  test "a duel is shown to the players holding its seats only" do
+    hugo = accounts_players(:moderator)
+    befriend(@player, hugo)
+    complete_deck(@player, "Lea")
+    complete_deck(hugo, "Hugo")
+    duel = start_duel(@player, hugo)
+
+    get duel_path(locale: :en, token: duel.token)
+    assert_redirected_to home_path(locale: :en)
+
+    sign_in(accounts_players(:administrator))
+    get duel_path(locale: :en, token: duel.token)
+    assert_response :forbidden
+
+    get duel_path(locale: :en, token: "Zz" * 12)
+    assert_response :forbidden
+  end
+
+  test "a seat's board: the opponent, the round, the score, both decks, its own hand alone, and no style" do
+    hugo = accounts_players(:moderator)
+    hugo.update!(persona_name: "Hugo")
+    befriend(@player, hugo)
+    complete_deck(@player, "Lea")
+    complete_deck(hugo, "Hugo")
+    duel = start_duel(@player, hugo)
+    rules = rules_of(Game::Duel.find(duel.id))
+    sign_in(@player)
+
+    get duel_path(locale: :en, token: duel.token)
+
+    assert_response :success
+    assert_select ".top-bar__title", "Duel"
+    assert_select "turbo-cable-stream-source[channel=DuelSeatChannel]", 1
+    assert_select "section.duel.page.page--regular[data-controller=duel] #duel-board[data-duel-target=board][data-move-number='1']"
+    assert_select "#duel-board .duel-board__opponent", "Hugo"
+    assert_select "#duel-board .duel-board__round", "Round 1 / 10"
+    assert_select "#duel-board .duel-board__figure", "0 – 0"
+    assert_select "#duel-their-deck li", 12
+    assert_select "#duel-my-deck li", 12
+    hand = css_select("#duel-hand").text
+    rules.hand(:challenger).each { assert_includes hand, Catalog::CardText.where(card_id: card_of(it.card_season_id)).pick(:title) }
+    assert_no_match(/Hugo card/, hand)
+    assert_select(rules.caller == :challenger ? "form#duel-call" : "#duel-hand ul li", minimum: 1)
+    assert_select "[style]", 0
+    assert_select "#duel-board input[name=authenticity_token]", 0
   end
 end

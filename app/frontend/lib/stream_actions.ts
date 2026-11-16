@@ -11,6 +11,7 @@ export const STREAM_SIGNALS = [
   "bank-updated",
   "market-updated",
   "listing-updated",
+  "duels-updated",
 ] as const
 
 export type StreamSignal = (typeof STREAM_SIGNALS)[number]

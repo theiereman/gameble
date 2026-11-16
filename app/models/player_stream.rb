@@ -11,8 +11,10 @@ module PlayerStream
     Game::Market::BidPlaced
   ].freeze
   MARKET_EVENTS = [ Game::Market::LeadVoided, Game::Market::ListingCancelled ].freeze
+  DUEL_EVENTS = [ Game::DuelChallengeSent, Game::DuelChallengeAccepted, Game::DuelChallengeLapsed ].freeze
   EVENTS = (TRADE_EVENTS + SEEN_EVENTS + INVITATION_EVENTS + FRIENDSHIP_EVENTS +
-    [ Game::AchievementUnlocked, Game::AchievementClaimed, Game::CardBackUnlocked, Game::DailyBonusCollected ] + BALANCE_EVENTS + MARKET_EVENTS).freeze
+    [ Game::AchievementUnlocked, Game::AchievementClaimed, Game::CardBackUnlocked, Game::DailyBonusCollected ] + BALANCE_EVENTS + MARKET_EVENTS +
+    DUEL_EVENTS).freeze
   CUT_OFF_EVENTS = [ Accounts::PlayerDeleted, Accounts::PlayerBanned ].freeze
   PRIVACY_EVENTS = [ Accounts::VisibilityChanged ].freeze
 
@@ -47,6 +49,8 @@ module PlayerStream
         [ data[:proposer_id], data[:recipient_id] ].map { trades_notice(it) }
       when *SEEN_EVENTS
         [ trades_notice(data[:player_id]) ]
+      when *DUEL_EVENTS
+        data.values_at(:challenger_id, :opponent_id).compact.map { { player_id: it, topic: "duels" } }
       when Game::InvitationAccepted
         [ friends_notice(data[:sender_id]).merge(friend_id: data[:recipient_id]), friends_notice(data[:recipient_id]) ]
       when Game::InvitationSent, Game::InvitationCancelled

@@ -1,0 +1,10 @@
+<%# locals: (screen:) %>
+<fieldset class="duel-hand__choice">
+  <legend class="visually-hidden"><%= t("duels.board.hand") %></legend>
+  <% screen.hand.each do |card| %>
+    <label class="duel-hand__option">
+      <%= radio_button_tag :card, screen.position(card), false, id: nil, required: true %>
+      <span><%= screen.title(card) %></span>
+    </label>
+  <% end %>
+</fieldset>

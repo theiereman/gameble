@@ -53,6 +53,7 @@ export interface GamebleEventMap {
   "gameble:bank-updated": StreamUpdatedDetail
   "gameble:market-updated": StreamUpdatedDetail
   "gameble:listing-updated": StreamUpdatedDetail
+  "gameble:duels-updated": StreamUpdatedDetail
   "gameble:sheet-shown": SheetShownDetail
   "gameble:touch-held": TouchHeldDetail
   "gameble:screen-shown": null

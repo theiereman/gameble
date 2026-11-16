@@ -50,6 +50,7 @@ Rails.configuration.to_prepare do
 
   event_store.subscribe(PlayerStream, to: PlayerStream::EVENTS)
   event_store.subscribe(ListingStream, to: ListingStream::EVENTS)
+  event_store.subscribe(DuelStream, to: DuelStream::EVENTS)
   event_store.subscribe(PushNotices, to: PushNotices::EVENTS)
   # Every market line of the bell that is not a wanted card also reaches the player's phone.
   event_store.subscribe(MarketPushNotice, to: MarketPushNotice::EVENTS)

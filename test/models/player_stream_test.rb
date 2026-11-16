@@ -68,6 +68,19 @@ class PlayerStreamTest < ActiveSupport::TestCase
       PlayerStream.notices(Game::InvitationAccepted.new(data:))
   end
 
+  test "a challenge sent, accepted or lapsed tells both players' Duels screens; a round tells no one" do
+    data = { duel_id: 1, challenger_id: @alice.id, opponent_id: @bob.id }
+
+    PlayerStream::DUEL_EVENTS.each do |type|
+      assert_includes PlayerStream::EVENTS, type
+      assert_equal [ { player_id: @alice.id, topic: "duels" }, { player_id: @bob.id, topic: "duels" } ],
+        PlayerStream.notices(type.new(data:)), type.name
+    end
+    assert_equal %w[Game::DuelChallengeSent Game::DuelChallengeAccepted Game::DuelChallengeLapsed], PlayerStream::DUEL_EVENTS.map(&:name)
+    assert_empty PlayerStream.notices(Game::DuelRoundCalled.new(data: { duel_id: 1, number: 1 }))
+    assert_empty PlayerStream.notices(Game::DuelFinished.new(data:))
+  end
+
   test "an ignored invitation tells its recipient alone, so the sender never learns of it" do
     data = { invitation_id: 1, sender_id: @alice.id, recipient_id: @bob.id }
 

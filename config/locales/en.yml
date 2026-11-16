@@ -1798,6 +1798,36 @@ en:
         high: Newer than %{percent} of cards
         low: Older than %{percent} of cards
   duels:
+    board:
+      already_called: Already called
+      answer: Answer with this card
+      automatic: Move played automatically
+      call: Call
+      calls_left: "Calls left: %{stats}"
+      decided_on_margin: "Decided on margin: %{margin} percentile points"
+      decided_on_value: decided on the exact value
+      ended: This challenge has ended.
+      hand: Your hand
+      hidden_call: Hidden call
+      margin: margin
+      my_deck: Your deck
+      played: Played
+      result:
+        draw_html: "Draw with %{name} · %{score} – %{other_score}"
+        loss_html: "Loss against %{name} · %{score} – %{other_score}"
+        win_html: "Win against %{name} · %{score} – %{other_score}"
+      reveal:
+        drawn: "Round %{number} drawn: %{card}, %{value}, against %{other_card}, %{other_value}, %{direction}. %{score} to %{other_score}."
+        lost: "Round %{number} lost: %{card}, %{value}, against %{other_card}, %{other_value}, %{direction}. %{score} to %{other_score}."
+        won: "Round %{number} won: %{card}, %{value}, against %{other_card}, %{other_value}, %{direction}. %{score} to %{other_score}."
+      round: "Round %{number} / 10"
+      stat: Stat
+      their_deck: Their deck
+      turn:
+        answer: Your answer
+        call: Your call
+        their_answer_html: "%{name} is answering…"
+        their_call_html: "%{name} is calling…"
     decks:
       complete:
         one: ", %{count} card"
@@ -1807,8 +1837,23 @@ en:
       heading: My decks
       heading_spoken: My decks, %{count} of 5
       new: "+ New deck"
+    lobby:
+      accept: Accept
+      challenge: Challenge
+      deck: Your deck
+      friend: Friend
+      heading: Challenge a friend
+      in_progress_html: "Duel in progress against %{name}."
+      no_deck: You need a complete 12-card deck to challenge.
+      no_friends: Add friends to challenge them.
+      received_html: "%{name} challenges you to a duel."
+      resume: Resume
+      waiting_html: "Waiting for %{name}'s answer…"
+    play:
+      title: Duel
     show:
       title: Duels
+    throttled: Too many moves in a minute. Try again in a moment.
   errors:
     accounts:
       incomplete_release_note: "A ready note needs its title and its text in both languages."
@@ -1968,6 +2013,16 @@ en:
       no_pack_available: Your reserve is empty. The next capsule is on its way.
       no_season: No season of cards is open yet. Come back later for the daily capsule.
       not_a_friend: This player is not one of your friends.
+      friend_busy: This friend is already in a duel or has a challenge waiting.
+      deck_not_ready: "A draft cannot play: it needs 12 cards."
+      not_your_move: This move is no longer yours to play.
+      stat_already_called: You have already called this stat.
+      card_not_in_hand: This card is not in your hand.
+      duel_in_progress: You already have a duel in progress.
+      own_duels_closed: Your duels are closed while your profile is private.
+      friend_duels_closed: Duels closed while this profile is private.
+      duel_not_found: That duel could not be found.
+      invalid_move: That move could not be read. Reload the page.
       not_allowed: That is not yours to do in this trade.
       not_found: That invitation is no longer there.
       not_friends: You can only trade with a friend.

@@ -1,0 +1,230 @@
+/* ---- Duels' challenge block and the duel screen: a plain layout, the
+   board stacked in reading order. ---- */
+
+.duel-lobby {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.duel-lobby__heading,
+.duel-board__heading {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.duel-lobby__block,
+.duel-lobby__form,
+.duel-hand__form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.duel-lobby__line,
+.duel-board__line {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.duel-lobby__line--muted {
+  color: var(--color-muted);
+}
+
+.duel-lobby__choice,
+.duel-hand__choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.duel-lobby__legend,
+.duel-hand__legend {
+  width: 100%;
+  margin-bottom: var(--space-3);
+  padding: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.duel-lobby__option,
+.duel-hand__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-touch-min);
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.duel-hand__option--called {
+  color: var(--color-disabled-text);
+}
+
+.duel-hand__note {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.duel-board {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-page);
+}
+
+.duel-board__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-5);
+}
+
+.duel-board__head > p {
+  margin: 0;
+}
+
+.duel-board__opponent {
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.duel-board__round,
+.duel-board__margin {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.duel-board__score {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.duel-board__figure {
+  color: var(--color-text-bright);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+.duel-board__turn {
+  width: 100%;
+  color: var(--color-accent);
+  font: var(--font-body-small);
+}
+
+.duel-board__result {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-body-large);
+}
+
+.duel-side,
+.duel-call,
+.duel-hand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.duel-side__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.duel-side__card {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.duel-side__card--played {
+  color: var(--color-dim);
+}
+
+.duel-side__played {
+  flex: none;
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.duel-side__calls {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.duel-call__card {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-body-large);
+}
+
+.duel-call__values {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.duel-call__value dt {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.duel-call__value dd {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.duel-hand__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.duel-hand__card {
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.duel-rounds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding-left: var(--space-6);
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.duel-rounds__mark {
+  margin-left: var(--space-3);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}

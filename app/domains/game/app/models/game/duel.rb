@@ -12,5 +12,7 @@ module Game
     def cards(role) = (self[:"#{role}_cards"] || []).map { DuelCard.from_snapshot(it) }
 
     def draw_order(role) = self[:"#{role}_draw_order"] || []
+
+    def seat_of(player) = player && seats.find { it.player_id == player.id }
   end
 end
