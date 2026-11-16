@@ -5,7 +5,7 @@
   <% elsif (row = duel_reachable(friend)) && row.in_duel %>
     <span class="duel-online__note"><%= t("duels.challenge.in_duel") %></span>
   <% elsif row %>
-    <%= render ButtonComponent.new(variant: :secondary, size: :small, href: duels_path(friend: friend.token, anchor: "duel-challenge"),
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, href: duels_path(friend: friend.token),
           aria_label: t("duels.challenge.label_in_duel", name: friend_name(friend))) do %><%= t("duels.challenge.button_in_duel") %><% end %>
   <% end %>
 <% end %>

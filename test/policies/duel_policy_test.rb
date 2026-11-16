@@ -26,7 +26,7 @@ class DuelPolicyTest < ActiveSupport::TestCase
   test "only a player holding a seat may open a duel and move in it" do
     duel = duel_with_seat_of(:player)
 
-    %i[play? accept? announce? answer?].each do |query|
+    %i[play? accept? refuse? cancel? announce? answer?].each do |query|
       assert policy_for(:player, duel).public_send(query), query
       assert_not policy_for(:moderator, duel).public_send(query), query
       assert_not policy_for(:administrator, duel).public_send(query), query

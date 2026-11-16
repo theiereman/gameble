@@ -1,0 +1,16 @@
+<%# locals: (choices:, guard:) %>
+<fieldset class="duel-choices">
+  <legend class="duel-choices__legend"><%= t("duels.lobby.deck") %></legend>
+  <% choices.each do |choice| %>
+    <label class="duel-choice<%= " duel-choice--disabled" if choice.draft? %>">
+      <%= radio_button_tag :deck, choice.token, choice.selected, id: nil, aria: { disabled: (true if choice.draft?) }, data: { action: "click->#{guard}" } %>
+      <span class="duel-choice__text">
+        <span class="duel-choice__name"><%= choice.name %></span>
+        <% if choice.draft? %>
+          <span class="duel-choice__note"><%= t("duels.sheet.deck_cards", count: choice.count, total: Game::Deck::SLOTS.size) %></span>
+          <span class="duel-choice__note"><%= Game::ChallengeFriend.failure_message(:deck_not_ready) %></span>
+        <% end %>
+      </span>
+    </label>
+  <% end %>
+</fieldset>

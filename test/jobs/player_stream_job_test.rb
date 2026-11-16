@@ -117,6 +117,66 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     end
   end
 
+  def duel_between(challenger, opponent, state:, seats:)
+    duel = Game::Duel.create!(state:, ended_at: (Time.current if %w[cancelled refused lapsed].include?(state)))
+    Game::DuelSeat.create!(duel:, role: "challenger", player_id: challenger.id, status: seats.first)
+    Game::DuelSeat.create!(duel:, role: "opponent", player_id: opponent.id, status: seats.last)
+    duel
+  end
+
+  def duel_notice(player, duel, kind, role) = { player_id: player.id, topic: "duels", duel_id: duel.id, kind:, role: }
+
+  test "a challenge sent to the invited player pushes the received dialog, in each locale" do
+    duel = duel_between(@lea, @hugo, state: "challenged", seats: %w[seated invited])
+
+    PlayerStreamJob.perform_now([ duel_notice(@hugo, duel, "sent", "opponent") ])
+
+    { en: "Léa challenges you to a duel.", fr: "Léa vous défie en duel." }.each do |locale, title|
+      fragment = received(@hugo, locale)
+      dialog = template(streams(fragment, "update", "duel-received").sole)
+      assert_equal title, dialog.at_css("dialog#duel-dialog .modal__title").text
+      assert_includes dialog.at_css("form[action$='/refusal']")["action"], duel.token
+      assert_empty streams(fragment, "append")
+    end
+    assert_empty streams(received(@lea, :en), "update", "duel-sheet-outcome")
+  end
+
+  test "a challenge cancelled or lapsed empties the dialog and tells the invited player with a toast" do
+    cancelled = duel_between(@lea, @hugo, state: "cancelled", seats: %w[left left])
+    lapsed = duel_between(@lea, @hugo, state: "lapsed", seats: %w[left left])
+
+    PlayerStreamJob.perform_now([ duel_notice(@hugo, cancelled, "cancelled", "opponent") ])
+    PlayerStreamJob.perform_now([ duel_notice(@hugo, lapsed, "lapsed", "opponent") ])
+
+    english = broadcasts(PlayerStream.name(@hugo, :en)).map { Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(it)) }
+    english.each { assert_empty template(streams(it, "update", "duel-received").sole).children }
+    assert_equal [ "Léa cancelled their challenge.", "Léa's challenge has expired." ],
+      english.map { template(streams(it, "append", "toasts").sole).at_css(".toast__message").text }
+    french = Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(broadcasts(PlayerStream.name(@hugo, :fr)).first))
+    assert_equal "Léa a annulé son défi.", template(streams(french, "append", "toasts").sole).at_css(".toast__message").text
+  end
+
+  test "a challenge refused or lapsed tells the challenger in the open sheet, one that is accepted lands on the duel" do
+    @hugo.update!(persona_name: "Hugo")
+    refused = duel_between(@lea, @hugo, state: "refused", seats: %w[left left])
+
+    PlayerStreamJob.perform_now([ duel_notice(@lea, refused, "refused", "challenger") ])
+    line = template(streams(received(@lea, :en), "update", "duel-sheet-outcome").sole).at_css("p[data-duel-sheet-target=outcome]")
+    assert_equal "Hugo has no complete deck.", line.text, "the friend holds no complete deck"
+    assert_nil line["data-duel-sheet-landing"]
+
+    lapsed = duel_between(@lea, @hugo, state: "lapsed", seats: %w[left left])
+    PlayerStreamJob.perform_now([ duel_notice(@lea, lapsed, "lapsed", "challenger") ])
+    french = Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(broadcasts(PlayerStream.name(@lea, :fr)).last))
+    assert_equal "Hugo n'a pas répondu.", template(streams(french, "update", "duel-sheet-outcome").sole).at_css("p").text
+
+    accepted = duel_between(@lea, @hugo, state: "challenged", seats: %w[seated seated])
+    PlayerStreamJob.perform_now([ duel_notice(@lea, accepted, "accepted", "challenger") ])
+    english = Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(broadcasts(PlayerStream.name(@lea, :en)).last))
+    landing = template(streams(english, "update", "duel-sheet-outcome").sole).at_css("p")
+    assert_equal "/en/duels/#{accepted.token}", landing["data-duel-sheet-landing"]
+  end
+
   test "a market notice sends the market signal once and the trades badges" do
     PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "market" }, { player_id: @hugo.id, topic: "market" } ])
 

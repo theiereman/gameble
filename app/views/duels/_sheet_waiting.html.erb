@@ -1,0 +1,8 @@
+<%# locals: (seated:) %>
+<div class="duel-sheet__waiting" tabindex="-1" data-duel-sheet-target="waiting">
+  <p class="duel-lobby__line"><%= t("duels.lobby.waiting_html", name: duel_player_name(seated.opponent)) %></p>
+  <% if seated.deadline %>
+    <%= render "duels/clock", name: duel_player_name(seated.opponent), deadline: seated.deadline, server_time: Time.current %>
+  <% end %>
+  <%= render ButtonComponent.new(variant: :secondary, href: duel_cancellation_path(token: seated.token), method: :post) do %><%= t("duels.sheet.cancel") %><% end %>
+</div>

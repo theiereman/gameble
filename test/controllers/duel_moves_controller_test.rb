@@ -23,7 +23,7 @@ class DuelMovesControllerTest < ActionDispatch::IntegrationTest
 
     post duel_challenges_path(locale: :en), params: { friend: @hugo.token, deck: deck_token_of(@lea) }
 
-    assert_redirected_to duels_path(locale: :en)
+    assert_redirected_to duels_path(locale: :en, friend: @hugo.token)
     assert_nil flash[:alert]
     assert_equal [ "challenged" ], Game::Duel.pluck(:state)
 
@@ -41,6 +41,59 @@ class DuelMovesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to duels_path(locale: :fr)
     assert_equal "Ce joueur ne fait pas partie de vos amis.", flash[:alert]
+  end
+
+  test "a challenge to a friend no longer reachable or already busy comes back with the friend named, not the alert" do
+    sign_in(@lea)
+    @hugo.update_columns(reachable_until: 1.minute.ago)
+
+    post duel_challenges_path(locale: :en), params: { friend: @hugo.token, deck: deck_token_of(@lea) }
+
+    assert_redirected_to duels_path(locale: :en, friend: @hugo.token)
+    assert_equal @hugo.token, flash[:gone_friend]
+    assert_nil flash[:alert]
+    assert_equal 0, Game::Duel.count
+  end
+
+  test "a refusal ends the challenge and leads back with its notice; the challenger cannot refuse" do
+    duel = challenge
+
+    sign_in(@lea)
+    post duel_refusal_path(locale: :en, token: duel.token)
+    assert_redirected_to duels_path(locale: :en)
+    assert_equal "This move is no longer yours to play.", flash[:alert]
+
+    sign_in(@hugo)
+    post duel_refusal_path(locale: :en, token: duel.token), headers: { "HTTP_REFERER" => friends_url(locale: :en) }
+
+    assert_redirected_to friends_url(locale: :en)
+    assert_equal "Challenge refused.", flash[:notice]
+    assert_equal "refused", duel.reload.state
+  end
+
+  test "a cancellation ends the challenge and leads back to Duels; the invited friend cannot cancel" do
+    duel = challenge
+
+    sign_in(@hugo)
+    post duel_cancellation_path(locale: :en, token: duel.token)
+    assert_equal "This move is no longer yours to play.", flash[:alert]
+
+    sign_in(@lea)
+    post duel_cancellation_path(locale: :en, token: duel.token)
+
+    assert_redirected_to duels_path(locale: :en)
+    assert_equal "cancelled", duel.reload.state
+  end
+
+  test "an outsider cannot refuse nor cancel" do
+    duel = challenge
+    sign_in(accounts_players(:administrator))
+
+    post duel_refusal_path(locale: :en, token: duel.token)
+    assert_response :forbidden
+    post duel_cancellation_path(locale: :en, token: duel.token)
+    assert_response :forbidden
+    assert_equal "challenged", duel.reload.state
   end
 
   test "an acceptance opens the duel; a stale one goes back to Duels with the refusal" do

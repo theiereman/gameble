@@ -1,23 +1,5 @@
 <%# locals: (lobby:) %>
-<%= render PanelComponent.new(tag: :section, class: "duel-lobby", aria: { labelledby: "duel-lobby-heading" }) do %>
-  <h2 id="duel-lobby-heading" class="duel-lobby__heading"><%= t("duels.lobby.heading") %></h2>
-  <% if (received = lobby.received) %>
-    <div id="duel-received" class="duel-lobby__block">
-      <p class="duel-lobby__line"><%= t("duels.lobby.received_html", name: duel_player_name(received.challenger)) %></p>
-      <% if received.deadline %>
-        <%= render "duels/clock", name: t("duels.clock.you"), deadline: received.deadline, server_time: Time.current %>
-      <% end %>
-      <% if lobby.decks.any? %>
-        <%= form_with url: duel_acceptance_path(token: received.token), method: :post, class: "duel-lobby__form" do %>
-          <%= hidden_field_tag :move_number, received.move_number, id: nil %>
-          <%= render "duels/deck_choice", decks: lobby.decks %>
-          <%= render ButtonComponent.new(type: :submit) do %><%= t("duels.lobby.accept") %><% end %>
-        <% end %>
-      <% else %>
-        <p class="duel-lobby__line duel-lobby__line--muted"><%= Game::AcceptChallenge.failure_message(:deck_not_ready) %></p>
-      <% end %>
-    </div>
-  <% end %>
+<%= render PanelComponent.new(tag: :section, class: "duel-lobby", aria: { label: t("duels.sheet.title") }) do %>
   <% if (seated = lobby.seated) %>
     <div id="duel-seated" class="duel-lobby__block">
       <% if seated.active %>
@@ -30,23 +12,6 @@
         <% end %>
       <% end %>
     </div>
-  <% elsif lobby.closed? %>
-    <p class="duel-lobby__line duel-lobby__line--muted"><%= Game::ChallengeFriend.failure_message(:own_duels_closed) %></p>
-  <% elsif lobby.decks.empty? %>
-    <p class="duel-lobby__line duel-lobby__line--muted"><%= t("duels.lobby.no_deck") %></p>
-  <% elsif lobby.friends.any? %>
-    <%= form_with url: duel_challenges_path, method: :post, id: "duel-challenge", class: "duel-lobby__form" do %>
-      <%= render "duels/deck_choice", decks: lobby.decks %>
-      <fieldset class="duel-lobby__choice">
-        <legend class="duel-lobby__legend"><%= t("duels.lobby.friend") %></legend>
-        <% lobby.friends.each do |friend| %>
-          <label class="duel-lobby__option">
-            <%= radio_button_tag :friend, friend.token, friend == lobby.chosen_friend, id: nil %>
-            <%= duel_player_name(friend) %>
-          </label>
-        <% end %>
-      </fieldset>
-      <%= render ButtonComponent.new(type: :submit) do %><%= t("duels.lobby.challenge") %><% end %>
-    <% end %>
   <% end %>
+  <%= render ButtonComponent.new(opens: "duel-sheet") do %><%= t("duels.sheet.open") %><% end %>
 <% end %>

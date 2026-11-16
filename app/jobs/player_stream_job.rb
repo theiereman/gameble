@@ -22,10 +22,11 @@ class PlayerStreamJob < ApplicationJob
         pending: (pending_for(player) if invitations_changed || rewards_changed),
         achievements: own.filter_map { it[:achievement] }.uniq,
         card_backs: own.filter_map { it[:card_back] }.uniq,
+        duel: DuelUpdate.new(player, own),
         signals: topics.map { "#{it}-updated" }
       }
       outbid_listings = own.filter_map { it[:outbid_listing_id] }.uniq
-      I18n.available_locales.each { broadcast(player, it, locals.merge(outbid_lines: outbid_lines(player, it, outbid_listings))) }
+      I18n.available_locales.each { broadcast(player, it, locals.merge(outbid_lines: outbid_lines(player, it, outbid_listings), player:)) }
     end
   end
 

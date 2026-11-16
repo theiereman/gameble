@@ -1,0 +1,26 @@
+<%# locals: (player:) %>
+<% lobby = DuelLobby.new(player) %>
+<% if (received = lobby.received) %>
+  <% sheet = DuelSheet.new(lobby, decks: DeckList.new(player, locale: I18n.locale)) %>
+  <dialog id="duel-dialog" class="modal duel-dialog" aria-labelledby="duel-dialog-title" data-controller="duel-received"
+          data-action="turbo:before-morph-attribute->duel-received#keepOpen cancel->duel-received#keepPending">
+    <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+      <div class="modal__head">
+        <p id="duel-dialog-title" class="modal__title"><%= t("duels.lobby.received_html", name: duel_player_name(received.challenger)) %></p>
+      </div>
+      <% if received.deadline %>
+        <%= render "duels/clock", name: t("duels.clock.you"), deadline: received.deadline, server_time: Time.current %>
+      <% end %>
+      <% if sheet.complete_deck? %>
+        <%= form_with url: duel_acceptance_path(token: received.token), method: :post, class: "duel-dialog__form" do %>
+          <%= hidden_field_tag :move_number, received.move_number, id: nil %>
+          <%= render "duels/deck_radios", choices: sheet.deck_choices, guard: "duel-received#guard" %>
+          <%= render ButtonComponent.new(type: :submit) do %><%= t("duels.lobby.accept") %><% end %>
+        <% end %>
+      <% else %>
+        <p class="duel-lobby__line duel-lobby__line--muted"><%= Game::AcceptChallenge.failure_message(:deck_not_ready) %></p>
+      <% end %>
+      <%= render ButtonComponent.new(variant: :secondary, href: duel_refusal_path(token: received.token), method: :post) do %><%= t("duels.received.refuse") %><% end %>
+    <% end %>
+  </dialog>
+<% end %>

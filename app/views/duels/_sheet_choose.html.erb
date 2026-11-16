@@ -1,0 +1,25 @@
+<%# locals: (sheet:) %>
+<% reason = sheet.disabled_reason %>
+<%= form_with url: duel_challenges_path, method: :post, class: "duel-sheet__form",
+      data: { duel_sheet_target: "form", action: "submit->duel-sheet#submit" } do %>
+  <%= render "duels/deck_radios", choices: sheet.deck_choices, guard: "duel-sheet#guard" %>
+  <fieldset class="duel-choices">
+    <legend class="duel-choices__legend"><%= t("duels.lobby.friend") %></legend>
+    <% sheet.friend_choices.each do |choice| %>
+      <% name = friend_name(choice.player) %>
+      <% free = choice.state == :free %>
+      <label class="duel-choice<%= " duel-choice--disabled" unless free %>">
+        <%= radio_button_tag :friend, choice.player.token, choice.selected, id: nil, aria: { disabled: (true unless free) }, data: { action: "click->duel-sheet#guard" } %>
+        <%= player_avatar(choice.player, class_name: "duel-choice__avatar") %>
+        <span class="duel-choice__text">
+          <span class="duel-choice__name"><%= choice.state == :in_duel ? t("duels.sheet.in_duel", name: name) : name %></span>
+          <% if choice.state == :gone %>
+            <span class="duel-choice__note"><%= t("duels.sheet.gone", name: name) %></span>
+          <% end %>
+        </span>
+      </label>
+    <% end %>
+  </fieldset>
+  <% if reason %><p id="duel-sheet-reason" class="duel-sheet__reason"><%= reason %></p><% end %>
+  <%= render ButtonComponent.new(type: :submit, aria_disabled: reason.present?, describedby: ("duel-sheet-reason" if reason)) do %><%= t("duels.lobby.challenge") %><% end %>
+<% end %>

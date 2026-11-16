@@ -4056,7 +4056,6 @@ fr:
         other: ", %{count} cartes"
       draft: ", brouillon, %{count} sur %{total}"
     lobby:
-      heading: "Défier un ami"
       deck: "Votre deck"
       friend: "Ami"
       challenge: "Défier"
@@ -4065,7 +4064,6 @@ fr:
       received_html: "%{name} vous défie en duel."
       waiting_html: "En attente de la réponse de %{name}…"
       in_progress_html: "Duel en cours contre %{name}."
-      no_deck: "Il vous faut un deck complet de 12 cartes pour défier."
     online:
       add_friends: "Ajouter des amis"
       heading: "En ligne · %{count}"
@@ -4073,6 +4071,24 @@ fr:
       none: "Aucun ami en ligne pour l'instant."
     play:
       title: "Duel"
+    received:
+      cancelled: "%{name} a annulé son défi."
+      lapsed: "Le défi de %{name} a expiré."
+      refuse: "Refuser"
+      refused: "Défi refusé."
+    sheet:
+      cancel: "Annuler"
+      deck_cards: "%{count} / %{total}"
+      gone: "%{name} n'est plus disponible."
+      in_duel: "%{name}, duel en cours"
+      no_deck: "Il vous faut un deck complet de 12 cartes pour défier."
+      open: "Défier un ami"
+      outcome:
+        accepted: "%{name} a accepté."
+        lapsed: "%{name} n'a pas répondu."
+        no_deck: "%{name} n'a pas de deck complet."
+        refused: "%{name} a décliné."
+      title: "Défier un ami"
     board:
       round: "Manche %{number} / 10"
       margin: "écart"

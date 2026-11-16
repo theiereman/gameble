@@ -189,4 +189,71 @@ class Game::DuelChallengeOperationsTest < ActiveSupport::TestCase
     Game::Friendship.delete_all
     assert_refused(:not_a_friend, duel) { accept(duel) }
   end
+
+  def cancel(duel, player: @lea) = Game::CancelChallenge.new.call(player:, token: duel.token)
+
+  def refuse(duel, player: @hugo) = Game::RefuseChallenge.new.call(player:, token: duel.token)
+
+  def assert_ended(duel, state, event)
+    duel.reload
+    assert_equal [ state, 1 ], [ duel.state, duel.move_number ]
+    assert duel.ended_at
+    assert_equal %w[left left], seats_of(duel).values.map(&:status)
+    assert_equal [ duel_data(duel) ], game_events(@lea, event).map(&:data)
+    assert_equal 1, Rails.configuration.event_store.read.of_type([ event ]).count
+    assert_empty Game::HeldSeats.call(@lea).to_h.values.compact
+  end
+
+  test "the challenger cancels a challenge nobody answered: both seats leave and one event is written" do
+    duel = challenge.value!
+
+    cancel(duel).value!
+
+    assert_ended(duel, "cancelled", Game::DuelChallengeCancelled)
+  end
+
+  test "the invited friend refuses a challenge: both seats leave and one event is written" do
+    duel = challenge.value!
+
+    refuse(duel).value!
+
+    assert_ended(duel, "refused", Game::DuelChallengeRefused)
+  end
+
+  test "a cancellation or a refusal by the other side or an outsider writes nothing" do
+    duel = challenge.value!
+
+    assert_refused(:not_your_move, duel) { cancel(duel, player: @hugo) }
+    assert_refused(:not_your_move, duel) { refuse(duel, player: @lea) }
+    assert_refused(:duel_not_found, duel) { cancel(duel, player: @max) }
+    assert_refused(:duel_not_found, duel) { refuse(duel, player: @max) }
+    assert_refused(:duel_not_found, duel) { Game::CancelChallenge.new.call(player: @lea, token: nil) }
+  end
+
+  test "a challenge accepted cannot be cancelled nor refused" do
+    accepted = accept(challenge.value!).value!
+
+    assert_refused(:not_your_move, accepted) { cancel(accepted) }
+    assert_refused(:not_your_move, accepted) { refuse(accepted) }
+  end
+
+  test "a challenge lapsed or already ended cannot be cancelled nor refused again" do
+    lapsed = challenge.value!
+    travel 61.seconds
+    Game::LapseChallenge.new.call(player: @lea, token: lapsed.token, move_number: 0).value!
+    assert_refused(:not_your_move, lapsed) { cancel(lapsed) }
+    assert_refused(:not_your_move, lapsed) { refuse(lapsed) }
+
+    refused = challenge.value!
+    refuse(refused).value!
+    assert_refused(:not_your_move, refused) { cancel(refused) }
+    assert_refused(:not_your_move, refused) { refuse(refused) }
+  end
+
+  test "after a cancellation or a refusal both players are free to challenge again" do
+    cancel(challenge.value!).value!
+    refuse(challenge.value!).value!
+
+    assert_equal "challenged", challenge.value!.state
+  end
 end

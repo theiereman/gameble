@@ -1,0 +1,11 @@
+<%# locals: (sheet:, lobby:) %>
+<div data-controller="duel-sheet" data-action="turbo:before-morph-attribute->duel-sheet#keepOpen click@document->duel-sheet#opened">
+  <%= render BottomSheetComponent.new(id: "duel-sheet", title: t("duels.sheet.title"), open: sheet.open?) do %>
+    <div id="duel-sheet-outcome" class="duel-sheet__outcome"></div>
+    <% if (seated = lobby.seated) && !seated.active %>
+      <%= render "duels/sheet_waiting", seated: seated %>
+    <% else %>
+      <%= render "duels/sheet_choose", sheet: sheet %>
+    <% end %>
+  <% end %>
+</div>

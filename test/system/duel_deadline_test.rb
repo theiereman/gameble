@@ -44,7 +44,7 @@ class DuelDeadlineTest < ApplicationSystemTestCase
     using_session(:hugo) do
       sign_in @hugo
       visit duels_path(locale: :en)
-      assert_selector "#duel-received .duel-clock", text: "You"
+      assert_selector "#duel-dialog .duel-clock", text: "You"
       listening
     end
     using_session(:lea) do
@@ -56,7 +56,7 @@ class DuelDeadlineTest < ApplicationSystemTestCase
 
     run_out(61.seconds)
 
-    using_session(:hugo) { assert_no_selector "#duel-received" }
+    using_session(:hugo) { assert_no_selector "#duel-dialog" }
     using_session(:lea) { assert_no_selector "#duel-seated" }
     assert_equal "lapsed", Game::Duel.find(duel.id).state
   end

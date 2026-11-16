@@ -123,7 +123,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     assert_empty rows
   end
 
-  test "the challenge form: the complete decks and the friends open to friends as radios, the first of each chosen" do
+  test "the sheet holds the complete decks and the friends open to friends as radios, the first of each chosen" do
     deck = complete_deck(@player, "Lea")
     create_deck("Brouillon")
     hugo = accounts_players(:moderator)
@@ -136,34 +136,107 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     get duels_path(locale: :en)
 
     assert_select ".duels[data-controller=live-refresh][data-live-refresh-signal-value=duels-updated]"
-    assert_select "#duel-lobby-heading", "Challenge a friend"
-    assert_select "form#duel-challenge[action='/en/duels/challenges'][method=post]" do
-      assert_select "input[type=radio][name=deck]", 1
-      assert_select "input[type=radio][name=deck][value='#{deck.token}'][checked]"
+    assert_select ".duel-lobby button[aria-haspopup=dialog][data-dialog-opener-dialog-value=duel-sheet]", "Challenge a friend"
+    assert_select "dialog#duel-sheet:not([open]) .modal__title", "Challenge a friend"
+    assert_select "dialog#duel-sheet form[action='/en/duels/challenges'][method=post]" do
+      assert_select "input[type=radio][name=deck]", 2
+      assert_select "input[type=radio][name=deck][value='#{deck.token}'][checked]:not([aria-disabled])"
+      assert_select "input[type=radio][name=deck][aria-disabled=true]:not([checked])", 1
       assert_select "input[type=radio][name=friend]", 1
       assert_select "input[type=radio][name=friend][value='#{hugo.token}'][checked]"
       assert_select "label .player-name", "Hugo"
-      assert_select "button[type=submit]", "Challenge"
+      assert_select "button[type=submit]:not([aria-disabled])", "Challenge"
     end
   end
 
-  test "the challenge form gives way to the line that says why it cannot be sent" do
+  test "a draft radio is aria-disabled and says in its name how many cards it holds and why it cannot play" do
+    complete_deck(@player, "Lea")
+    create_deck("Brouillon")
     sign_in(@player)
 
     get duels_path(locale: :en)
-    assert_select ".duel-lobby__line", "You need a complete 12-card deck to challenge."
+
+    assert_select "#duel-sheet label.duel-choice--disabled", text: /Brouillon\s+0 \/ 12\s+A draft cannot play: it needs 12 cards\./
+  end
+
+  test "the last deck used is chosen when it is still complete" do
+    first = complete_deck(@player, "Lea")
+    second = complete_deck(@player, "Max")
+    hugo = accounts_players(:moderator)
+    befriend(@player, hugo)
+    complete_deck(hugo, "Hugo")
+    duel = Game::ChallengeFriend.new.call(player: @player, friend: hugo, deck_token: second.token).value!
+    Game::CancelChallenge.new.call(player: @player, token: duel.token).value!
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    assert_select "#duel-sheet input[name=deck][value='#{second.token}'][checked]"
+    assert_select "#duel-sheet input[name=deck][value='#{first.token}'][checked]", 0
+  end
+
+  test "a friend row in a duel is aria-disabled and its name carries the duel" do
+    hugo = accounts_players(:moderator)
+    hugo.update!(persona_name: "Hugo")
+    befriend(@player, hugo)
+    complete_deck(@player, "Lea")
+    Game::DuelSeat.create!(duel: Game::Duel.create!, role: "challenger", player_id: hugo.id, status: "seated")
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    assert_select "#duel-sheet input[name=friend][value='#{hugo.token}'][aria-disabled=true]:not([checked])"
+    assert_select "#duel-sheet label.duel-choice--disabled", text: /Hugo, in a duel/
+  end
+
+  test "the sheet disables its challenge with the reason it cannot be sent, and opens for a linked friend" do
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+    assert_select "#duel-sheet button[type=submit][aria-disabled=true][aria-describedby=duel-sheet-reason]", "Challenge"
+    assert_select "#duel-sheet #duel-sheet-reason", "You need a complete 12-card deck to challenge."
 
     complete_deck(@player, "Lea")
     get duels_path(locale: :en)
-    assert_select ".duel-lobby__line", "Add friends to challenge them."
+    assert_select "#duel-sheet #duel-sheet-reason", "Add friends to challenge them."
 
     @player.update_columns(visibility: "private")
     get duels_path(locale: :fr)
-    assert_select ".duel-lobby__line", "Vos duels sont fermés tant que votre profil est privé."
-    assert_select "form#duel-challenge", 0
+    assert_select "#duel-sheet #duel-sheet-reason", "Vos duels sont fermés tant que votre profil est privé."
+    assert_select "#duel-sheet[open]", 0
   end
 
-  test "a received challenge offers the complete decks and its move number to accept it" do
+  test "a friend token in the link opens the sheet on that friend, an unknown one is ignored" do
+    hugo = accounts_players(:moderator)
+    befriend(@player, hugo)
+    complete_deck(@player, "Lea")
+    sign_in(@player)
+
+    get duels_path(locale: :en, friend: hugo.token)
+    assert_select "dialog#duel-sheet[open] input[name=friend][value='#{hugo.token}'][checked]"
+
+    get duels_path(locale: :en, friend: "nobody")
+    assert_select "dialog#duel-sheet input[name=friend][value='#{hugo.token}'][checked]"
+    assert_select "dialog#duel-sheet[open]", 0
+  end
+
+  test "a friend who is gone is greyed in the open sheet with its inline line" do
+    hugo = accounts_players(:moderator)
+    hugo.update!(persona_name: "Hugo")
+    befriend(@player, hugo)
+    complete_deck(@player, "Lea")
+    sign_in(@player)
+    hugo.update_columns(reachable_until: 1.minute.ago)
+
+    post duel_challenges_path(locale: :en), params: { friend: hugo.token, deck: deck_token_of(@player) }
+    follow_redirect!
+
+    assert_select "dialog#duel-sheet[open] input[name=friend][value='#{hugo.token}'][aria-disabled=true]:not([checked])"
+    assert_select "#duel-sheet .duel-choice__note", "Hugo is no longer available."
+    assert_select ".toast--alert", 0
+  end
+
+  test "every page of a signed-in player holds the received challenge as a dialog with its move number" do
     hugo = accounts_players(:moderator)
     hugo.update!(persona_name: "Hugo")
     befriend(@player, hugo)
@@ -172,14 +245,41 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     duel = Game::ChallengeFriend.new.call(player: hugo, friend: @player, deck_token: deck_token_of(hugo)).value!
     sign_in(@player)
 
+    [ duels_path(locale: :en), friends_path(locale: :en) ].each do |path|
+      get path
+
+      assert_select "#duel-received dialog#duel-dialog[data-controller=duel-received] .modal__title", "Hugo challenges you to a duel."
+      assert_select "#duel-dialog form[action='/en/duels/#{duel.token}/acceptance'][method=post]" do
+        assert_select "input[type=hidden][name=move_number][value='0']"
+        assert_select "input[type=radio][name=deck][value='#{deck.token}'][checked]"
+        assert_select "button[type=submit]", "Accept"
+      end
+      assert_select "#duel-dialog form[action='/en/duels/#{duel.token}/refusal'] button", "Refuse"
+      assert_select "#duel-dialog .duel-clock"
+    end
+  end
+
+  test "a received challenge without a complete deck offers to refuse only" do
+    hugo = accounts_players(:moderator)
+    befriend(@player, hugo)
+    complete_deck(hugo, "Hugo")
+    duel = Game::ChallengeFriend.new.call(player: hugo, friend: @player, deck_token: deck_token_of(hugo)).value!
+    sign_in(@player)
+
     get duels_path(locale: :en)
 
-    assert_select "#duel-received .duel-lobby__line", "Hugo challenges you to a duel."
-    assert_select "#duel-received form[action='/en/duels/#{duel.token}/acceptance'][method=post]" do
-      assert_select "input[type=hidden][name=move_number][value='0']"
-      assert_select "input[type=radio][name=deck][value='#{deck.token}'][checked]"
-      assert_select "button[type=submit]", "Accept"
-    end
+    assert_select "#duel-dialog form[action='/en/duels/#{duel.token}/acceptance']", 0
+    assert_select "#duel-dialog .duel-lobby__line", "A draft cannot play: it needs 12 cards."
+    assert_select "#duel-dialog form[action='/en/duels/#{duel.token}/refusal'] button", "Refuse"
+  end
+
+  test "no dialog is rendered when no challenge is held" do
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    assert_select "#duel-received"
+    assert_select "#duel-received dialog", 0
   end
 
   test "the challenger waits for the answer, then is led back to the duel in progress" do
@@ -193,12 +293,18 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
 
     get duels_path(locale: :en)
     assert_select "#duel-seated .duel-lobby__line", "Waiting for Hugo's answer…"
-    assert_select "form#duel-challenge", 0
+    assert_select "#duel-sheet .duel-sheet__waiting[tabindex='-1']" do
+      assert_select "form[action='/en/duels/#{duel.token}/cancellation'] button", "Cancel"
+      assert_select ".duel-clock"
+    end
+    assert_select "#duel-sheet form[action='/en/duels/challenges']", 0
 
     Game::AcceptChallenge.new.call(player: hugo, token: duel.token, deck_token: deck_token_of(hugo), move_number: 0).value!
     get duels_path(locale: :en)
     assert_select "#duel-seated .duel-lobby__line", "Duel in progress against Hugo."
     assert_select "#duel-seated a[href='/en/duels/#{duel.token}']", "Resume"
+    assert_select "#duel-sheet button[type=submit][aria-disabled=true]"
+    assert_select "#duel-sheet #duel-sheet-reason", "You already have a duel in progress."
   end
 
   test "a duel is shown to the players holding its seats only" do

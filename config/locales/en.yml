@@ -1852,9 +1852,7 @@ en:
       challenge: Challenge
       deck: Your deck
       friend: Friend
-      heading: Challenge a friend
       in_progress_html: "Duel in progress against %{name}."
-      no_deck: You need a complete 12-card deck to challenge.
       received_html: "%{name} challenges you to a duel."
       resume: Resume
       waiting_html: "Waiting for %{name}'s answer…"
@@ -1865,6 +1863,24 @@ en:
       none: "No friend is online right now."
     play:
       title: Duel
+    received:
+      cancelled: "%{name} cancelled their challenge."
+      lapsed: "%{name}'s challenge has expired."
+      refuse: Refuse
+      refused: Challenge refused.
+    sheet:
+      cancel: Cancel
+      deck_cards: "%{count} / %{total}"
+      gone: "%{name} is no longer available."
+      in_duel: "%{name}, in a duel"
+      no_deck: You need a complete 12-card deck to challenge.
+      open: Challenge a friend
+      outcome:
+        accepted: "%{name} accepted."
+        lapsed: "%{name} did not answer."
+        no_deck: "%{name} has no complete deck."
+        refused: "%{name} declined."
+      title: Challenge a friend
     show:
       title: Duels
     throttled: Too many moves in a minute. Try again in a moment.

@@ -1,6 +1,6 @@
 module DuelStream
-  EVENTS = [ Game::DuelChallengeAccepted, Game::DuelChallengeLapsed, Game::DuelRoundCalled, Game::DuelRoundAnswered,
-    Game::DuelFinished ].freeze
+  EVENTS = [ Game::DuelChallengeAccepted, Game::DuelChallengeLapsed, Game::DuelChallengeRefused,
+    Game::DuelChallengeCancelled, Game::DuelRoundCalled, Game::DuelRoundAnswered, Game::DuelFinished ].freeze
 
   BATCHES = :duel_stream_batches
   BATCH = AfterCommitBatch.new(BATCHES) { |duel_ids| DuelStreamJob.perform_later(duel_ids.uniq) }

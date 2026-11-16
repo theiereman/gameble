@@ -88,11 +88,19 @@ module Game
       seats.each_value { it.update!(status: "left") }
     end
 
-    def lapse(player, duel, seats)
-      duel.update!(state: "lapsed", ended_at: Time.current, move_number: next_move(duel))
+    def end_challenge(state, event, player, duel, seats)
+      return Failure(:not_your_move) unless duel.state == "challenged"
+
+      duel.update!(state:, ended_at: Time.current, move_number: next_move(duel))
       leave(seats)
-      duel_published(DuelChallengeLapsed, player, duel, seats)
+      duel_published(event, player, duel, seats)
     end
+
+    def lapse(player, duel, seats) = end_challenge("lapsed", DuelChallengeLapsed, player, duel, seats)
+
+    def challenger(seats, player) = seats[:challenger].player_id == player.id ? Success() : Failure(:not_your_move)
+
+    def invited_friend(seats, player) = seats[:opponent].player_id == player.id ? Success() : Failure(:not_your_move)
 
     def schedule(duel, move_number, seconds)
       at = seconds.from_now

@@ -68,15 +68,18 @@ class PlayerStreamTest < ActiveSupport::TestCase
       PlayerStream.notices(Game::InvitationAccepted.new(data:))
   end
 
-  test "a challenge sent, accepted or lapsed tells both players' Duels screens; a round tells no one" do
+  test "every end of a challenge tells both players' Duels screens what happened to whom; a round tells no one" do
     data = { duel_id: 1, challenger_id: @alice.id, opponent_id: @bob.id }
+    kinds = { Game::DuelChallengeSent => "sent", Game::DuelChallengeAccepted => "accepted", Game::DuelChallengeLapsed => "lapsed",
+              Game::DuelChallengeRefused => "refused", Game::DuelChallengeCancelled => "cancelled" }
 
-    PlayerStream::DUEL_EVENTS.each do |type|
+    assert_equal kinds.keys, PlayerStream::DUEL_EVENTS
+    kinds.each do |type, kind|
       assert_includes PlayerStream::EVENTS, type
-      assert_equal [ { player_id: @alice.id, topic: "duels" }, { player_id: @bob.id, topic: "duels" } ],
+      assert_equal [ { player_id: @alice.id, topic: "duels", duel_id: 1, kind:, role: "challenger" },
+                     { player_id: @bob.id, topic: "duels", duel_id: 1, kind:, role: "opponent" } ],
         PlayerStream.notices(type.new(data:)), type.name
     end
-    assert_equal %w[Game::DuelChallengeSent Game::DuelChallengeAccepted Game::DuelChallengeLapsed], PlayerStream::DUEL_EVENTS.map(&:name)
     assert_empty PlayerStream.notices(Game::DuelRoundCalled.new(data: { duel_id: 1, number: 1 }))
     assert_empty PlayerStream.notices(Game::DuelFinished.new(data:))
   end

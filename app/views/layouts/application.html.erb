@@ -20,6 +20,7 @@
 
     <%= render "shell/tab_bar" unless back_office_page? || content_for?(:public_page) || hotwire_native_app? %>
     <%= render "shell/toasts" %>
+    <%= render "shell/duel_received", player: current_player if current_player && !back_office_page? %>
     <%= player_stream_tag %>
     <%= render "shell/market_status" if current_player && !back_office_page? %>
     <% if hotwire_native_app? %><div hidden data-controller="bridge--haptics bridge--sheet bridge--screen bridge--pull-to-refresh" data-bridge--screen-label-value="<%= native_screen_label %>"></div><% end %>

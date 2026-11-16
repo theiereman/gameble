@@ -4,6 +4,8 @@ class DuelPolicy < ApplicationPolicy
 
   def play? = seated?
   def accept? = seated?
+  def refuse? = seated?
+  def cancel? = seated?
   def announce? = seated?
   def answer? = seated?
 

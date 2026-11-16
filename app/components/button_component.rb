@@ -3,13 +3,14 @@ class ButtonComponent < ViewComponent::Base
   SIZES = %i[default small].freeze
 
   def initialize(variant: :primary, href: nil, type: :button, method: nil, params: {}, turbo: true, confirm: nil,
-    size: :default, icon: nil, disabled: false, opens: nil, aria_label: nil, describedby: nil, rel: nil, name: nil, value: nil)
+    size: :default, icon: nil, disabled: false, opens: nil, aria_label: nil, describedby: nil, rel: nil, name: nil, value: nil, aria_disabled: false)
     raise ArgumentError, "unknown button variant: #{variant.inspect}" unless VARIANTS.include?(variant)
     raise ArgumentError, "unknown button size: #{size.inspect}" unless SIZES.include?(size)
     raise ArgumentError, "a form button needs an href" if method && href.nil?
     raise ArgumentError, "only a form button can ask for confirmation" if confirm && method.nil?
     raise ArgumentError, "a dialog opener is a plain button" if opens && (href || disabled)
     raise ArgumentError, "only a plain or submit button carries a name and a value" if (name || value) && (href || method || opens)
+    raise ArgumentError, "only a plain or submit button can be aria-disabled" if aria_disabled && (href || method || opens || disabled)
 
     @variant = variant
     @href = href
@@ -27,6 +28,7 @@ class ButtonComponent < ViewComponent::Base
     @rel = rel
     @name = name
     @value = value
+    @aria_disabled = aria_disabled
   end
 
   private
@@ -48,7 +50,7 @@ class ButtonComponent < ViewComponent::Base
     def field_options = { name: @name, value: @value }.compact
 
     def aria_options
-      aria = { label: @aria_label, describedby: @describedby }.compact
+      aria = { label: @aria_label, describedby: @describedby, disabled: (true if @aria_disabled) }.compact
       aria.empty? ? {} : { aria: }
     end
 

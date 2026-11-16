@@ -11,7 +11,11 @@ module PlayerStream
     Game::Market::BidPlaced
   ].freeze
   MARKET_EVENTS = [ Game::Market::LeadVoided, Game::Market::ListingCancelled ].freeze
-  DUEL_EVENTS = [ Game::DuelChallengeSent, Game::DuelChallengeAccepted, Game::DuelChallengeLapsed ].freeze
+  DUEL_KINDS = {
+    Game::DuelChallengeSent => "sent", Game::DuelChallengeAccepted => "accepted", Game::DuelChallengeLapsed => "lapsed",
+    Game::DuelChallengeRefused => "refused", Game::DuelChallengeCancelled => "cancelled"
+  }.freeze
+  DUEL_EVENTS = DUEL_KINDS.keys.freeze
   EVENTS = (TRADE_EVENTS + SEEN_EVENTS + INVITATION_EVENTS + FRIENDSHIP_EVENTS +
     [ Game::AchievementUnlocked, Game::AchievementClaimed, Game::CardBackUnlocked, Game::DailyBonusCollected ] + BALANCE_EVENTS + MARKET_EVENTS +
     DUEL_EVENTS).freeze
@@ -50,7 +54,7 @@ module PlayerStream
       when *SEEN_EVENTS
         [ trades_notice(data[:player_id]) ]
       when *DUEL_EVENTS
-        data.values_at(:challenger_id, :opponent_id).compact.map { { player_id: it, topic: "duels" } }
+        duel_notices(event)
       when Game::InvitationAccepted
         [ friends_notice(data[:sender_id]).merge(friend_id: data[:recipient_id]), friends_notice(data[:recipient_id]) ]
       when Game::InvitationSent, Game::InvitationCancelled
@@ -93,6 +97,13 @@ module PlayerStream
     end
 
     private
+
+    def duel_notices(event)
+      data = event.data
+      { "challenger" => data[:challenger_id], "opponent" => data[:opponent_id] }.filter_map do |role, player_id|
+        { player_id:, topic: "duels", duel_id: data[:duel_id], kind: DUEL_KINDS.fetch(event.class), role: } if player_id
+      end
+    end
 
     def trades_notice(player_id) = { player_id:, topic: "trades" }
 

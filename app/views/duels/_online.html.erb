@@ -4,12 +4,12 @@
   <% if lobby.reachable.any? %>
     <ul class="duel-online__list">
       <% lobby.reachable.each do |row| %>
-        <li class="duel-online__row">
+        <li class="duel-online__row" data-duel-sheet-friend="<%= row.player.token %>">
           <%= duel_player_name(row.player) %>
           <% if row.in_duel %>
             <span class="duel-online__note"><%= t("duels.challenge.in_duel") %></span>
           <% else %>
-            <%= render ButtonComponent.new(variant: :secondary, size: :small, href: duels_path(friend: row.player.token, anchor: "duel-challenge"),
+            <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: "duel-sheet",
                   aria_label: t("duels.challenge.label", name: friend_name(row.player))) do %><%= t("duels.challenge.button") %><% end %>
           <% end %>
         </li>

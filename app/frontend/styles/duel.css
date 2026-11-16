@@ -17,7 +17,9 @@
 }
 
 .duel-lobby__block,
-.duel-lobby__form,
+.duel-sheet__form,
+.duel-sheet__waiting,
+.duel-dialog__form,
 .duel-hand__form {
   display: flex;
   flex-direction: column;
@@ -36,7 +38,6 @@
   color: var(--color-muted);
 }
 
-.duel-lobby__choice,
 .duel-hand__choice {
   display: flex;
   flex-wrap: wrap;
@@ -46,7 +47,7 @@
   border: 0;
 }
 
-.duel-lobby__legend,
+.duel-choices__legend,
 .duel-hand__legend {
   width: 100%;
   margin-bottom: var(--space-3);
@@ -57,13 +58,69 @@
   text-transform: uppercase;
 }
 
-.duel-lobby__option,
 .duel-hand__option {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   min-height: var(--space-touch-min);
   color: var(--color-text);
+  font: var(--font-body);
+}
+
+.duel-choices {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.duel-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-touch-min);
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.duel-choice--disabled {
+  color: var(--color-muted);
+}
+
+.duel-choice--disabled .duel-choice__avatar {
+  opacity: 0.5;
+}
+
+.duel-choice__avatar {
+  flex: none;
+  width: var(--space-6);
+  height: var(--space-6);
+}
+
+.duel-choice__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.duel-choice__note,
+.duel-sheet__reason {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.duel-sheet__form,
+.duel-sheet__waiting,
+.duel-dialog__form {
+  align-items: stretch;
+}
+
+.duel-sheet__line {
+  margin: 0;
+  color: var(--color-text-bright);
   font: var(--font-body);
 }
 
@@ -273,4 +330,8 @@
 
 .duel-clock--alert {
   color: var(--color-alert);
+}
+
+.duel-sheet__waiting[hidden] {
+  display: none;
 }

@@ -36,7 +36,7 @@ class DuelReachabilityTest < ApplicationSystemTestCase
       visit duels_path(locale: :en)
       assert_selector "#duel-online-heading", text: "ONLINE · 1"
       assert_selector ".duel-online__row", text: "Hugo"
-      assert_selector ".duel-online__row a.button", text: "CHALLENGE"
+      assert_selector ".duel-online__row button.button", text: "CHALLENGE"
 
       visit friends_path(locale: :en)
       assert_selector ".friends__friend a.button", text: "CHALLENGE TO A DUEL"

@@ -93,7 +93,8 @@ class DuelPlayTest < ApplicationSystemTestCase
     using_session(:lea) do
       sign_in @lea
       visit duels_path(locale: :en)
-      within("form#duel-challenge") do
+      click_on "Challenge a friend"
+      within("#duel-sheet") do
         choose "Lea deck"
         choose "Hugo"
         click_on "Challenge"
@@ -104,7 +105,7 @@ class DuelPlayTest < ApplicationSystemTestCase
     deliver
 
     using_session(:hugo) do
-      within("#duel-received") do
+      within("#duel-dialog") do
         assert_text "Léa challenges you to a duel."
         choose "Hugo deck"
         click_on "Accept"
@@ -115,10 +116,6 @@ class DuelPlayTest < ApplicationSystemTestCase
     deliver
 
     using_session(:lea) do
-      within("#duel-seated") do
-        assert_text "Duel in progress against Hugo."
-        click_on "Resume"
-      end
       board_at(1)
       listening
     end
