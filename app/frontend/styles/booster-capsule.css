@@ -2,7 +2,7 @@
    gradients, whole pixels, no rounding. Its opening is
    animated from app/frontend/lib/booster_capsule_timeline.ts; every effect
    piece rests hidden. Imported after booster-canister.css; its seal, caps,
-   fuse and the row's glow follow in booster-capsule-parts.css. */
+   fuse and the row's twinkles follow in booster-capsule-parts.css. */
 
 .booster-canister__wrap {
   position: relative;

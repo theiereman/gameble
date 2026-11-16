@@ -7,7 +7,6 @@
     <%= render("boosters/canister", season:, available:, reserve:, origin:, next_size:) %>
     <div class="booster__deal-area" data-booster-stage-target="dealArea" hidden>
       <span class="booster__deal-fx" aria-hidden="true" data-booster-stage-target="dealFx">
-        <span class="booster__deal-glow"></span>
         <% 5.times do %><span class="booster__twinkle"></span><% end %>
       </span>
       <ol class="booster__deal" aria-label="<%= t("booster.result") %>" data-booster-stage-target="deal" data-action="click->booster-stage#activate"></ol>

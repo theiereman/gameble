@@ -79,8 +79,6 @@ export function cardFlight({ dx, dy, rank, turn, height, rest }: Flight): {
 const at = (percents: number[], frame: Keyframe): Keyframe[] =>
   percents.map((percent) => ({ ...frame, offset: percent / 100 }))
 
-const GLOW_FRAMES: Keyframe[] = [...at([0, 31], { opacity: 0 }), ...at([37, 86, 100], { opacity: 1 })]
-
 const TWINKLE_FRAMES: Keyframe[] = [
   ...at([0, 38], { opacity: 0, transform: "scale(0.5)" }),
   ...at([41], { opacity: 1, transform: "scale(1.3)" }),
@@ -89,9 +87,8 @@ const TWINKLE_FRAMES: Keyframe[] = [
   ...at([70, 100], { opacity: 0, transform: "scale(0.5)" }),
 ]
 
-// The reference's row of five, its glow and its twinkles, in its scene's pixels.
+// The reference's row of five and its twinkles, in its scene's pixels.
 const ROW = { left: 72, top: 319, width: 576, height: 146 }
-const GLOW = { left: 40, top: 259, width: 640, height: 266 }
 const TWINKLES: ReadonlyArray<readonly [number, number]> = [
   [60, 299],
   [660, 329],
@@ -100,7 +97,7 @@ const TWINKLES: ReadonlyArray<readonly [number, number]> = [
   [180, 471],
 ]
 
-// The glow and twinkles laid on the dealt row, scaled from the reference row to the real one.
+// The twinkles laid on the dealt row, scaled from the reference row to the real one.
 export function lightRow(layer: HTMLElement | null, frames: DOMRect[]): void {
   if (!layer || frames.length === 0) return
   const box = layer.getBoundingClientRect()
@@ -110,16 +107,7 @@ export function lightRow(layer: HTMLElement | null, frames: DOMRect[]): void {
   const scaleY = (Math.max(...frames.map((frame) => frame.bottom)) - box.top - top) / ROW.height
   const x = (reference: number) => `${Math.round(left + (reference - ROW.left) * scaleX)}px`
   const y = (reference: number) => `${Math.round(top + (reference - ROW.top) * scaleY)}px`
-  const [glow, ...twinkles] = Array.from(layer.children) as HTMLElement[]
-  settle(glow)
-  const cardsMiddle = top + (ROW.height * scaleY) / 2
-  Object.assign(glow.style, {
-    left: x(GLOW.left),
-    top: `${Math.round(cardsMiddle - (GLOW.height * scaleX) / 2)}px`,
-    width: `${Math.round(GLOW.width * scaleX)}px`,
-    height: `${Math.round(GLOW.height * scaleX)}px`,
-  })
-  animate(glow, GLOW_FRAMES, blastTiming)
+  const twinkles = Array.from(layer.children) as HTMLElement[]
   twinkles.forEach((twinkle, index) => {
     const [tx, ty] = TWINKLES[index % TWINKLES.length]
     settle(twinkle)

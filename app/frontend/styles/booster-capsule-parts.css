@@ -1,4 +1,4 @@
-/* The capsule's seal, end caps, fuse and the dealt row's glow. Imported after booster-capsule.css. */
+/* The capsule's seal, end caps, fuse and the dealt row's twinkles. Imported after booster-capsule.css. */
 
 /* ---- The paper seal across the top joint, torn in two ---- */
 
@@ -301,7 +301,7 @@
   top: 354px;
 }
 
-/* ---- The row's glow and twinkles, behind the dealt cards; the opening
+/* ---- The row's twinkles, behind the dealt cards; the opening
    places them on the row ---- */
 
 .booster__deal-area {
@@ -314,20 +314,10 @@
   pointer-events: none;
 }
 
-.booster__deal-glow,
 .booster__twinkle {
   position: absolute;
   display: block;
   opacity: 0;
-}
-
-.booster__deal-glow {
-  background: radial-gradient(
-    ellipse at 50% 50%,
-    rgba(255, 170, 80, 0.22),
-    rgba(102, 192, 244, 0.1) 45%,
-    transparent 70%
-  );
 }
 
 .booster__twinkle {
