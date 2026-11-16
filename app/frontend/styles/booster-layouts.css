@@ -221,11 +221,6 @@
   background-image: var(--card-back-xl);
 }
 
-/* The tier shows on the plate, not under the card. */
-.booster[data-layout="phone"] .booster-card__label {
-  display: none;
-}
-
 /* On a phone view only the top card runs its sheen and glitter twinkle,
    and shows its rays. */
 .booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__back::after {

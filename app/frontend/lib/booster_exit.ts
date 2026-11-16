@@ -1,5 +1,5 @@
 import type { BoosterState } from "./booster"
-import { cardHref, csrfToken, rememberPack, shareHref, visit } from "./booster_page"
+import { cardHref, csrfToken, rememberPack, visit } from "./booster_page"
 import { dispatchGameble } from "./events"
 import { repostHref, sendRepost } from "./repost"
 
@@ -9,8 +9,6 @@ export type CardExitHost = Readonly<{
   repostUrl: string
   reposted: string
   repostFailed: string
-  shared: string
-  shareFailed: string
 }>
 
 export class CardExit {
@@ -35,24 +33,11 @@ export class CardExit {
     return message
   }
 
-  async share(index: number): Promise<void> {
-    const { host } = this
-    const card = host.state()?.answer?.cards[index]
-    if (!card) return
-    const url = shareHref(host.cardUrl, card.slug, window.location.origin)
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: card.title, url })
-        return
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(url)
-      dispatchGameble("gameble:toast", { message: host.shared, tone: "notice" })
-    } catch {
-      dispatchGameble("gameble:toast", { message: host.shareFailed, tone: "alert" })
-    }
+  leaveForMarket(index: number, marketUrl: string | undefined): void {
+    const answer = this.host.state()?.answer
+    const card = answer?.cards[index]
+    if (!answer || !card || !marketUrl) return
+    rememberPack(answer.pack.token)
+    visit(marketUrl.replace("SLUG", encodeURIComponent(card.slug)))
   }
 }

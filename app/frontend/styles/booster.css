@@ -333,7 +333,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--space-7) var(--space-deal-gap-max);
+  gap: var(--space-8) var(--space-deal-gap-max);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -345,11 +345,6 @@
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
   text-align: center;
-}
-
-/* Once every card is turned, the hint keeps its line, so the row stays put. */
-.booster__hint[data-spent] {
-  visibility: hidden;
 }
 
 /* The flash: one short warm flash over the window at the opening; the

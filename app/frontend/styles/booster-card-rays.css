@@ -13,13 +13,9 @@
   z-index: 0;
 }
 
-.booster:not([data-layout="phone"]) :is(.booster-card__travel, .booster-card__label, .booster-card__repost) {
-  position: relative;
-  z-index: 1;
-}
-
 .booster:not([data-layout="phone"]) .booster-card__travel {
   position: absolute;
+  z-index: 1;
 }
 
 .booster:not([data-layout="phone"]) :is(.booster-card__hit, .booster-card__fx) {

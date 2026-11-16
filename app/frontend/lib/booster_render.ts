@@ -10,7 +10,6 @@ import {
   shownCelebration,
   type BoosterState,
   type Controls,
-  type Hint,
 } from "./booster"
 import { reserveCount } from "./booster_bank"
 import { animate } from "./booster_effects"
@@ -51,7 +50,7 @@ export class BoosterRenderer {
     this.renderInfo(state, view)
     this.renderActions(state, view)
     this.renderCanister(state)
-    this.renderStage(state, view)
+    this.renderStage(state)
     this.renderBanner(state)
     this.renderPlate(state, view)
     this.renderTray(state, view)
@@ -184,15 +183,6 @@ export class BoosterRenderer {
     this.capsuleWaiting = waiting
   }
 
-  private hintText(hint: Hint): string {
-    switch (hint.kind) {
-      case "remaining":
-        return t(this.strings.hintRemaining, { count: hint.count, n: this.host.number(hint.count) })
-      default:
-        return ""
-    }
-  }
-
   private hand(state: BoosterState): HandView | null {
     const answer = state.answer
     const cards = answer?.cards ?? []
@@ -218,11 +208,10 @@ export class BoosterRenderer {
         revealedAt: state.revealedAt[index],
         legendary: state.legendary === index,
         name: cardName(card, index),
-        tierLabel: this.host.tierLabel(card.tier),
-        rarityTip: t(this.strings.rarityTip, { rarity: this.host.rarityNames()[card.tier] }),
         firstCopy: card.firstCopy,
         repostName: t(this.strings.repostCard, { card: card.title }),
-        shareName: t(this.strings.shareCard, { card: card.title }),
+        entrustName: t(this.strings.entrustCard, { card: card.title }),
+        sellName: t(this.strings.sellCard, { card: card.title }),
         depth: phone ? pileDepth(index, state.stored) : null,
       })
     })
@@ -240,15 +229,13 @@ export class BoosterRenderer {
     return card.goals ? this.strings.faceUpGoals : this.strings.faceUp
   }
 
-  private renderStage(state: BoosterState, view: Controls): void {
+  private renderStage(state: BoosterState): void {
     const stage = this.host.outlets().stage
     if (!stage) return
-    const phone = state.layout === "phone"
     stage.render(
       {
         legendary: state.legendary !== null,
         hand: this.hand(state),
-        hint: !phone && view.hint ? this.hintText(view.hint) : null,
       },
       { face: this.host.face, icon: this.host.icon },
     )
@@ -281,10 +268,9 @@ export class BoosterRenderer {
   }
 
   private renderPlate(state: BoosterState, view: Controls): void {
-    const hint = state.layout === "phone" ? view.hint : null
     this.host.outlets().plate?.render({
       shown: onTable(state),
-      hint: hint && hint.kind !== "remaining" ? { kind: hint.kind } : null,
+      hint: view.hint,
       celebrating: Boolean(shownCelebration(state)) && view.plate === null,
     })
   }

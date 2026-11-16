@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { animate } from "../lib/booster_effects"
 import { cardBackClass, cardBackProperties, cardBackSeasonMark, pilePose } from "../lib/booster_motion"
 import { CardSwipe, dragTransform, type SwipeRelease } from "../lib/booster_swipe"
-import { writeData, writeText } from "../lib/dom_writes"
+import { writeData } from "../lib/dom_writes"
 import { BANNER_TIERS, type Fragments } from "../lib/screen"
 import { cloneTemplate } from "../lib/templates"
 import type { Rarity } from "../lib/card_types"
@@ -15,11 +15,10 @@ export type CardView = Readonly<{
   revealedAt: number | undefined
   legendary: boolean
   name: string
-  tierLabel: string
-  rarityTip: string
   firstCopy: boolean
   repostName: string
-  shareName: string
+  entrustName: string
+  sellName: string
   depth: number | null
 }>
 
@@ -34,7 +33,6 @@ export type HandView = Readonly<{
 export type StageView = Readonly<{
   legendary: boolean
   hand: HandView | null
-  hint: string | null
 }>
 
 export type BannerView = Readonly<{
@@ -48,8 +46,12 @@ export type BannerView = Readonly<{
 
 export type CardIntent = { index: number }
 
+export type MarketIntent = CardIntent & { place: MarketPlace }
+
+export type MarketPlace = "entrust" | "sell"
+
 export default class BoosterStageController extends Controller<HTMLElement> {
-  static targets = ["shake", "fx", "flash", "dealFx", "dealArea", "deal", "hint", "pileArea", "pile", "card", "banner"]
+  static targets = ["shake", "fx", "flash", "dealFx", "dealArea", "deal", "pileArea", "pile", "card", "banner"]
 
   declare readonly shakeTarget: HTMLElement
   declare readonly fxTarget: HTMLElement
@@ -57,7 +59,6 @@ export default class BoosterStageController extends Controller<HTMLElement> {
   declare readonly dealFxTarget: HTMLElement
   declare readonly dealAreaTarget: HTMLElement
   declare readonly dealTarget: HTMLOListElement
-  declare readonly hintTarget: HTMLElement
   declare readonly pileAreaTarget: HTMLElement
   declare readonly pileTarget: HTMLOListElement
   declare readonly cardTarget: HTMLTemplateElement
@@ -104,13 +105,11 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     this.swipe.forget()
   }
 
-  render({ legendary, hand, hint }: StageView, fragments: Fragments): void {
+  render({ legendary, hand }: StageView, fragments: Fragments): void {
     this.element.toggleAttribute("data-legendary", legendary)
 
     this.dealAreaTarget.hidden = hand === null
     this.pileAreaTarget.hidden = hand === null
-    this.hintTarget.toggleAttribute("data-spent", hint === null)
-    if (hint !== null) writeText(this.hintTarget, hint)
 
     if ((hand?.key ?? null) !== this.handKey) this.deal(hand, fragments)
     if (hand) this.update(hand)
@@ -145,18 +144,20 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     const slot = target?.closest<HTMLLIElement>(".booster-card")
     if (!target || !slot) return
     const index = this.indexOf(slot)
-    const action = target.closest(".booster-card__repost")
-      ? "repost"
-      : target.closest(".booster-card__share")
-        ? "share"
-        : null
+    const action = target.closest<HTMLElement>(".booster-card__action")
     if (action) {
       event.stopPropagation()
-      if (slot.hasAttribute("data-revealed")) this.dispatch(action, { detail: { index } satisfies CardIntent })
+      if (slot.hasAttribute("data-revealed")) this.dispatchAction(action, index)
       return
     }
     event.preventDefault()
     this.dispatch("activate", { detail: { index } satisfies CardIntent })
+  }
+
+  private dispatchAction(action: HTMLElement, index: number): void {
+    const place = action.dataset.market as MarketPlace | undefined
+    if (place) this.dispatch("market", { detail: { index, place } satisfies MarketIntent })
+    else this.dispatch("repost", { detail: { index } satisfies CardIntent })
   }
 
   press(event: PointerEvent): void {
@@ -246,18 +247,15 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     if (back && seasonMark) back.dataset.seasonMark = seasonMark
     slot.querySelector(".booster-card__front")?.replaceChildren(fragments.face(card.index) ?? "")
     if (!card.firstCopy) slot.querySelector(".booster-card__new")?.remove()
-    slot.querySelector(".booster-card__label-icon-box")?.replaceChildren(fragments.icon(card.tier) ?? "")
-    const name = slot.querySelector(".booster-card__label-name")
-    if (name) name.textContent = card.tierLabel
-    slot.querySelector<HTMLElement>(".booster-card__rarity")?.setAttribute("data-tip", card.rarityTip)
-    const repost = slot.querySelector(".booster-card__repost")
-    const share = slot.querySelector(".booster-card__share")
-    if (hand.phone) {
-      repost?.remove()
-      share?.remove()
-    } else {
-      repost?.setAttribute("aria-label", card.repostName)
-      share?.setAttribute("aria-label", card.shareName)
+    const actions = {
+      repost: card.repostName,
+      entrust: card.entrustName,
+      sell: card.sellName,
+    }
+    for (const [name, label] of Object.entries(actions)) {
+      const action = slot.querySelector(`.booster-card__${name}`)
+      if (hand.phone) action?.remove()
+      else action?.setAttribute("aria-label", label)
     }
     return slot
   }

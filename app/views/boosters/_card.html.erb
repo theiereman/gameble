@@ -1,4 +1,4 @@
-<%# locals: (repost:) %>
+<%# locals: (repost:, market:) %>
 <template data-booster-stage-target="card">
   <li class="booster-card">
     <div class="booster-card__frame">
@@ -22,11 +22,13 @@
       <button type="button" class="booster-card__hit"></button>
     </div>
     <div class="booster-card__badges">
-      <p class="booster-card__label" aria-hidden="true"><span class="booster-card__label-unknown">? ? ?</span><span class="booster-card__rarity"><span class="booster-card__label-icon-box"></span><span class="booster-card__label-name"></span></span></p>
       <% if repost %>
         <button type="button" class="booster-card__action booster-card__repost" data-tip="<%= t("booster.repost_tip") %>"><%= pixel_icon("repost", class: "booster-card__action-icon") %></button>
       <% end %>
-      <button type="button" class="booster-card__action booster-card__share" data-tip="<%= t("booster.share_tip") %>"><%= pixel_icon("share", class: "booster-card__action-icon") %></button>
+      <% if market %>
+        <button type="button" class="booster-card__action booster-card__entrust" data-market="entrust" data-tip="<%= t("booster.entrust_tip") %>"><%= pixel_icon("entrust", class: "booster-card__action-icon") %></button>
+        <button type="button" class="booster-card__action booster-card__sell" data-market="sell" data-tip="<%= t("booster.sell_tip") %>"><%= pixel_icon("sell", class: "booster-card__action-icon") %></button>
+      <% end %>
     </div>
   </li>
 </template>

@@ -55,7 +55,7 @@
 /* ---- The dealt row: three cards, then two ---- */
 
 .booster__deal-area {
-  padding-top: var(--space-8);
+  padding-block: var(--space-7);
 }
 
 .booster__deal {
@@ -73,8 +73,8 @@
 }
 
 /* The stage keeps one height from the sealed capsule to the revealed hand:
-   two rows of cards with their badges (the card's gap, the badges' margin,
-   the label), then the hint. A shorter hand sits in its middle. */
+   two rows of cards with their badges, the same margin above and below.
+   A shorter hand sits in its middle. */
 .booster:not([data-layout="phone"]) {
   --booster-hand-card: var(--card-m-height);
 }
@@ -84,19 +84,21 @@
 }
 
 .booster:not([data-layout="phone"]) .booster__shake {
-  --booster-hand-row: calc(var(--booster-hand-card) + var(--space-4) + var(--space-3) + 22px);
+  --booster-hand-row: calc(var(--booster-hand-card) + var(--space-2) + var(--booster-badge-size));
+  --booster-hand-margin: calc(var(--space-8) + var(--space-6));
 
-  grid-template-rows: minmax(
-    calc(var(--space-8) + 2 * var(--booster-hand-row) + var(--space-7) + var(--space-5) + 1.3125rem + var(--space-7)),
-    auto
-  );
+  grid-template-rows: minmax(calc(2 * var(--booster-hand-row) + var(--space-8) + 2 * var(--booster-hand-margin)), auto);
 }
 
 .booster:not([data-layout="phone"]) .booster__deal-area {
   justify-content: center;
 }
 
-/* ---- A revealed card's badges: its rarity, then repost and share ---- */
+/* ---- A revealed card's actions: repost, entrust, sell, each in its own colour ---- */
+
+.booster {
+  --booster-badge-size: 28px;
+}
 
 .booster-card__badges {
   position: relative;
@@ -104,45 +106,44 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-1);
-  margin-top: var(--space-3);
-}
-
-.booster-card[data-revealed] .booster-card__rarity {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  height: 20px;
-  padding: 0 calc(3 * var(--space-unit));
-  background: color-mix(in srgb, currentcolor 12%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentcolor 50%, transparent);
-  cursor: help;
-}
-
-.booster-card__rarity .booster-card__label-icon {
-  width: 12px;
-  height: 12px;
-  filter: none;
+  gap: var(--space-3);
+  min-height: var(--booster-badge-size);
+  margin-top: var(--space-2);
 }
 
 .booster-card__action {
   display: inline-grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
+  width: var(--booster-badge-size);
+  height: var(--booster-badge-size);
   margin: 0;
   padding: 0;
   border: 0;
   background: color-mix(in srgb, currentcolor 10%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, currentcolor 45%, transparent);
-  color: var(--color-accent);
+  color: var(--booster-action-color);
   cursor: pointer;
+}
+
+.booster-card__repost {
+  --booster-action-color: var(--color-accent);
+  --booster-action-hover: var(--color-accent-hi);
+}
+
+.booster-card__entrust {
+  --booster-action-color: var(--color-gold);
+  --booster-action-hover: var(--color-rarity-legendaire-hi);
+}
+
+.booster-card__sell {
+  --booster-action-color: var(--color-lime);
+  --booster-action-hover: var(--color-primary-hover);
 }
 
 .booster-card__action:hover,
 .booster-card__action:focus-visible {
   background: color-mix(in srgb, currentcolor 22%, transparent);
-  color: var(--color-accent-hi);
+  color: var(--booster-action-hover);
 }
 
 .booster-card__action:focus-visible {
@@ -151,7 +152,7 @@
 }
 
 .booster-card__action-icon {
-  width: 10px;
+  width: 16px;
   height: auto;
 }
 
@@ -160,16 +161,14 @@
 }
 
 /* A badge's name on hover or focus: a small bubble above it, over the neighbouring cards. */
-.booster-card:has(.booster-card__badges:hover, .booster-card__action:focus-visible) {
+.booster-card:has(.booster-card__action:is(:hover, :focus-visible)) {
   z-index: 10;
 }
 
-.booster-card__rarity,
 .booster-card__action {
   position: relative;
 }
 
-.booster-card__rarity[data-tip]::after,
 .booster-card__action[data-tip]::after {
   content: attr(data-tip);
   position: absolute;
@@ -194,7 +193,6 @@
     transform 120ms;
 }
 
-.booster-card[data-revealed] .booster-card__rarity:hover::after,
 .booster-card__action:is(:hover, :focus-visible)::after {
   opacity: 1;
   transform: translate(-50%, 0);

@@ -1049,13 +1049,14 @@ en:
       label: Capsule reserves
     repost: Repost
     repost_tip: Repost to the feed
+    entrust_tip: Entrust to the Brotherhood
+    sell_tip: Sell on the market
     first_copy: New
     reserve_empty: Reserve empty
     reserve_full: Reserve full
     result: Capsule result
     reveal_all: Reveal all
     see_card: See the card
-    share_tip: Share the card
     skip: Skip
     strings:
       announce_card: 'Card %{position}: %{card}. %{rarity}.'
@@ -1112,23 +1113,18 @@ en:
       face_up_store_goals: "%{card}, %{rarity}, %{goals}. Store the card."
       failed: No connection. Your capsule is safe. Try again.
       goal_reached: Goal reached
-      hint_remaining:
-        one: Click a card to reveal it · %{n} left
-        other: Click a card to reveal it · %{n} left
       legendary_signal: Legendary signal
       next_at: 'Next capsule: %{time}'
       refused_title: Opening cancelled
       repost_card: Repost %{card}
+      entrust_card: Entrust %{card} to the Brotherhood
+      sell_card: Sell %{card} on the market
       repost_failed: The repost did not go through. Check your connection, then try
         again.
       reposted: Card reposted to the feed.
-      share_card: Share %{card}
-      share_failed: The link could not be copied.
-      shared: Card link copied.
       origin_bonus: DAILY CAPSULE
       origin_opening: 'OPENING · %{origin}'
       origin_reward: MISSION REWARD
-      rarity_tip: 'Rarity: %{rarity}'
       reserve_unit:
         one: capsule in reserve
         other: capsules in reserve

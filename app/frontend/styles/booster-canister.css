@@ -255,43 +255,7 @@
   pointer-events: none;
 }
 
-/* The label under the card: "? ? ?", then the tier's icon and name. */
-.booster-card__label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 22px;
-  margin: 0;
-  color: var(--color-line);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.booster-card[data-revealed] .booster-card__label {
-  color: var(--booster-tier);
-}
-
-.booster-card[data-revealed] .booster-card__label-unknown,
-.booster-card:not([data-revealed]) .booster-card__label-icon-box,
-.booster-card:not([data-revealed]) .booster-card__label-name {
-  display: none;
-}
-
-.booster-card__label-icon-box {
-  display: inline-flex;
-}
-
-.booster-card__repost {
-  margin: 0;
-}
-
-.booster-card:not([data-revealed]) .booster-card__repost {
-  visibility: hidden;
-}
-
+/* A tier's icon, on the phone's tray and in the zoom. */
 .booster-card__label-icon {
   width: 14px;
   height: 14px;

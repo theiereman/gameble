@@ -1,6 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
+require_relative "../support/market"
 
 # The booster screen: the canister sends the opening exchange and deals the
 # cards face down; one activation reveals a card, "Reveal all" the rest;
@@ -16,6 +17,7 @@ require_relative "../support/steam_sign_in"
 class BoosterTest < ApplicationSystemTestCase
   include GamePacks
   include SteamSignIn
+  include MarketSettings
 
   PHONE = [ 390, 844 ].freeze
 
@@ -125,26 +127,25 @@ class BoosterTest < ApplicationSystemTestCase
     assert_match(/\A\h{8}-\h{4}-4\h{3}-[89ab]\h{3}-\h{12}\z/, request_keys.first)
     assert_selector ".booster-card:not([data-revealed])", count: 5
     assert_selector ".booster-card__back", count: 5
-    assert_selector "#{card(1)} .booster-card__label", text: "? ? ?"
     assert_equal "Card 1 of 5, face down. Reveal.", find(hit(1))["aria-label"]
     assert_focus hit(1)
     # The reserve follows the answer; the counts wait for the reveals.
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
     assert_selector ".booster__pip[data-lit]", count: 1
     assert_equal commons, Integer(rarity_count("common"))
-    assert_selector ".booster__hint", text: "Click a card to reveal it · 5 left"
+    assert_no_selector ".booster__hint"
     assert_button "Open the next one", disabled: true
 
     page.send_keys(:enter)
     assert_selector "#{card(1)}[data-revealed]"
-    assert_selector "#{card(1)} .booster-card__label", text: "COMMON"
+    assert_selector "#{card(1)} .booster-card__front .card--rarity-common"
     assert_announced "Card 1: Tin Soldier — 2024. Common."
     assert_equal commons + 1, Integer(rarity_count("common"))
     assert_equal "Tin Soldier — 2024, Common. Enlarge.", find(hit(1))["aria-label"]
     assert_focus hit(1)
 
     find(hit(4)).click
-    assert_selector "#{card(4)}[data-revealed] .booster-card__label", text: "EPIC"
+    assert_selector "#{card(4)}[data-revealed]"
     assert_announced "Card 4: Portal — Valve, 2007. Epic."
     assert_equal commons + 1, Integer(rarity_count("common"))
     assert_selector "#{card(4)} .booster-card__front .card.card--m.card--booster.card--rarity-epic"
@@ -208,6 +209,38 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal card_ids(:portal_one), reposts
   end
 
+  test "with the market open, a revealed card is entrusted or sold from under it, and coming back shows the hand again" do
+    open_market!(first_opened_at: 1.day.ago)
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
+    open_canister
+    assert_dealt(5)
+    assert_no_selector ".booster-card__entrust"
+
+    find(hit(4)).click
+    assert_selector "#{card(4)}[data-revealed]"
+    assert_equal "Entrust Portal to the Brotherhood", find("#{card(4)} .booster-card__entrust")["aria-label"]
+    assert_equal "Sell Portal on the market", find("#{card(4)} .booster-card__sell")["aria-label"]
+
+    find("#{card(4)} .booster-card__sell").click
+    assert_current_path "/en/market/sell/cards/portal"
+    go_back
+    assert_selector "#{card(4)}[data-revealed]"
+
+    find("#{card(4)} .booster-card__entrust").click
+    assert_current_path "/en/market/entrust/cards/portal"
+  end
+
+  test "with the market closed, a revealed card offers only the repost" do
+    close_market!(first_opened_at: 1.day.ago)
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
+    open_canister
+    assert_dealt(5)
+    find(hit(4)).click
+
+    assert_selector "#{card(4)} .booster-card__repost"
+    assert_no_selector ".booster-card__entrust, .booster-card__sell", visible: :all
+  end
+
   def opened_token
     Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).order(:opened_at).last.token
   end
@@ -235,8 +268,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_announced "4 cards revealed: Legendary × 1, Rare × 1, Uncommon × 1, Common × 1.", wait: 10
     assert_includes announcements, "Legendary signal"
     assert_selector "#booster[data-status=complete]"
-    assert_no_selector ".booster__hint"
-    assert_selector "#{card(2)} .booster-card__label", text: "LEGENDARY!"
+    assert_selector "#{card(2)} .booster-card__front .card--rarity-legendary"
     assert_focus ".booster__open"
     assert_button "Open the next one"
   end

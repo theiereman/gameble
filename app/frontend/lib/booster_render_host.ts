@@ -20,6 +20,7 @@ export type BoosterStrings = {
   canisterLabelPlain: string
   celebration: CelebrationStrings
   emptyNext: string
+  entrustCard: string
   faceDown: string
   faceUp: string
   faceUpGoals: string
@@ -27,21 +28,17 @@ export type BoosterStrings = {
   faceUpStoreGoals: string
   failed: string
   goalReached: string
-  hintRemaining: Template
   legendarySignal: string
   nextAt: string
   refusedTitle: string
-  rarityTip: string
   repostCard: string
   repostFailed: string
   reposted: string
-  shareCard: string
-  shareFailed: string
-  shared: string
   originBonus: string
   originOpening: string
   originReward: string
   reserveUnit: Template
+  sellCard: string
   specialArrived: string
   standardReady: string
   tabSpecial: string

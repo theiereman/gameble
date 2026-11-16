@@ -122,7 +122,7 @@ export type Activation = "reveal" | "store" | "zoom" | "none"
 
 export type OpenVariant = "open" | "next" | "empty" | "skip"
 
-export type Hint = { kind: "remaining"; count: number } | { kind: "tap" | "swipe" }
+export type Hint = { kind: "tap" | "swipe" }
 
 export type Controls = Readonly<{
   open: OpenVariant

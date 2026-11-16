@@ -5,24 +5,29 @@ module BoostersHelper
     "booster-actions" => { open: :open, skip: :skip, reveal: :revealAll, back: :guardBack },
     "booster-reserves" => { select: :selectReserve },
     "booster-canister" => { open: :open },
-    "booster-stage" => { activate: :activateCard, repost: :repostCard, share: :shareCard, press: :pressCard, release: :releaseCard },
+    "booster-stage" => { activate: :activateCard, repost: :repostCard, market: :leaveForMarket, press: :pressCard, release: :releaseCard },
     "booster-tray" => { zoom: :openZoom },
     "booster-zoom" => { step: :stepZoom, see: :seeZoomed, repost: :repostZoomed, close: :closeZoom },
     "booster-celebration" => { leave: :leaveForAlbum, step: :stepCelebration, dismiss: :dismissCelebration }
   }.freeze
 
-  def booster_root_data(bank:, season:, next_pack_sizes:, reserve:, held:)
+  def booster_root_data(bank:, season:, next_pack_sizes:, reserve:, held:, market_open: false)
     values = booster_bank(bank:, next_pack_sizes:)
     {
       controller: "booster", action: "#{screen_actions("booster", BOOSTER_ACTIONS)} gameble:bank-updated@window->booster#bankUpdated",
       booster_open_url_value: packs_path, booster_card_url_value: card_path(slug: "SLUG"),
       booster_repost_url_value: season ? card_repost_path(slug: "SLUG", number: "NUMBER") : "",
+      booster_market_urls_value: market_open ? booster_market_urls : {},
       booster_bank_url_value: booster_path(format: :json), booster_delimiter_value: t("number.format.delimiter"),
       booster_pack_size_value: Game::Pack::SIZE, booster_season_value: season&.number || 0,
       booster_season_name_value: booster_canister_name(season), booster_bank_value: booster_bank_values(values),
       booster_reserve_value: reserve, booster_held_value: held,
       booster_strings_value: screen_strings("booster.strings"), origin: booster_origin_kind(bank, reserve)
     }.merge(screen_outlets("booster", BOOSTER_ACTIONS.keys + BOOSTER_CHILDREN))
+  end
+
+  def booster_market_urls
+    { entrust: new_market_card_entrustment_path(slug: "SLUG"), sell: new_market_card_sale_path(slug: "SLUG") }
   end
 
   def booster_bank_values(values)

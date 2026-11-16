@@ -15,6 +15,7 @@ class BoostersController < ApplicationController
     respond_to do |format|
       format.html do
         @season = Catalog::PublishedSeason.call
+        @market_open = Game::Market::MarketState.call.then { it.first_opened? && it.open? }
         @opened_pack = Game::OpenedPackByToken.call(current_player, params[:pack])
         @opened_cards = @opened_pack && cards_of(@opened_pack)
         @opened_first_copies = @opened_pack ? Game::FirstCopies.call(current_player, @opened_pack) : []

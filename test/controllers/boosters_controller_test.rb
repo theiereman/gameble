@@ -68,7 +68,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the French counts say the same at zero as at one" do
-    %w[hint_remaining summary canister_facts].each do |key|
+    %w[summary canister_facts].each do |key|
       plural = I18n.t("booster.strings.#{key}", locale: :fr)
       assert_equal plural[:one], plural[:zero], key
     end

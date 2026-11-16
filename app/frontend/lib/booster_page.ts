@@ -10,10 +10,6 @@ export const PACK_PARAM = "pack"
 
 export const CELEBRATION_PARAM = "celebration"
 
-export function shareHref(cardUrl: string, slug: string, origin: string): string {
-  return new URL(cardUrl.replace("SLUG", encodeURIComponent(slug)), origin).href
-}
-
 export function cardHref(cardUrl: string, slug: string, token: string, index: number): string {
   const url = new URL(cardUrl.replace("SLUG", encodeURIComponent(slug)), "http://booster.invalid")
   url.searchParams.set(PACK_PARAM, token)

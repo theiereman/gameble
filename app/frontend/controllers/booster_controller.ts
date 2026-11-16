@@ -45,7 +45,7 @@ import type BoosterInfoController from "./booster_info_controller"
 import type BoosterReservesController from "./booster_reserves_controller"
 import type BoosterPlateController from "./booster_plate_controller"
 import type BoosterStageController from "./booster_stage_controller"
-import type { CardIntent } from "./booster_stage_controller"
+import type { CardIntent, MarketIntent, MarketPlace } from "./booster_stage_controller"
 import type BoosterTrayController from "./booster_tray_controller"
 import type BoosterZoomController from "./booster_zoom_controller"
 
@@ -67,6 +67,7 @@ export class BoosterController extends Controller<HTMLElement> {
     reserve: String,
     cardUrl: String,
     repostUrl: String,
+    marketUrls: Object,
     bankUrl: String,
     delimiter: String,
     packSize: Number,
@@ -102,6 +103,7 @@ export class BoosterController extends Controller<HTMLElement> {
   declare readonly reserveValue: Reserve
   declare readonly cardUrlValue: string
   declare readonly repostUrlValue: string
+  declare readonly marketUrlsValue: Partial<Record<MarketPlace, string>>
   declare readonly bankUrlValue: string
   declare readonly delimiterValue: string
   declare readonly packSizeValue: number
@@ -236,8 +238,8 @@ export class BoosterController extends Controller<HTMLElement> {
     void this.gameplay?.cardExit.repost(index)
   }
 
-  shareCard({ detail: { index } }: Intent<CardIntent>): void {
-    void this.gameplay?.cardExit.share(index)
+  leaveForMarket({ detail: { index, place } }: Intent<MarketIntent>): void {
+    this.gameplay?.cardExit.leaveForMarket(index, this.marketUrlsValue[place])
   }
 
   pressCard(event: Intent<CardIntent>): void {

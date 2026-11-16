@@ -83,13 +83,9 @@ export function activation(state: BoosterState, index: number, now: number, last
   return at !== undefined && now - at >= REVEAL_GUARD ? "zoom" : "none"
 }
 
-function hintOf(state: BoosterState, total: number, revealedCount: number, top: number | null): Hint | null {
-  if (state.layout === "phone") {
-    if (top === null) return null
-    return { kind: state.revealed[top] ? "swipe" : "tap" }
-  }
-  const remaining = total - revealedCount
-  return remaining > 0 ? { kind: "remaining", count: remaining } : null
+function hintOf(state: BoosterState, top: number | null): Hint | null {
+  if (state.layout !== "phone" || top === null) return null
+  return { kind: state.revealed[top] ? "swipe" : "tap" }
 }
 
 function openVariant(state: BoosterState, reserveEmpty: boolean): OpenVariant {
@@ -112,7 +108,7 @@ export function controls(state: BoosterState): Controls {
     openDisabled: reserveEmpty || (state.phase === "dealt" && !everyRevealed),
     busy: state.phase === "opening" || state.revealingAll || isLocked || state.storing,
     revealAllDisabled: !handOnTable || everyRevealed || state.revealingAll || state.storing || state.legendary !== null,
-    hint: handOnTable ? hintOf(state, total, revealedCount, top) : null,
+    hint: handOnTable ? hintOf(state, top) : null,
     storedCount: state.stored.filter(Boolean).length,
     top,
     plate: state.layout === "phone" && top !== null && state.revealed[top] ? top : null,

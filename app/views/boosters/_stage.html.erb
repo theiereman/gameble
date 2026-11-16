@@ -1,4 +1,4 @@
-<%# locals: (season:, available:, reserve:, origin:, next_size:) %>
+<%# locals: (season:, available:, reserve:, origin:, next_size:, market_open:) %>
 <div class="booster__stage" data-controller="booster-stage stage-grid" data-action="pointermove->stage-grid#move pointerleave->stage-grid#leave">
   <canvas class="booster__grid" aria-hidden="true" data-stage-grid-target="canvas"></canvas>
   <div class="booster__shake" data-booster-stage-target="shake">
@@ -11,7 +11,6 @@
         <% 5.times do %><span class="booster__twinkle"></span><% end %>
       </span>
       <ol class="booster__deal" aria-label="<%= t("booster.result") %>" data-booster-stage-target="deal" data-action="click->booster-stage#activate"></ol>
-      <p class="booster__hint" data-booster-stage-target="hint" data-spent></p>
     </div>
     <div class="booster__pile-area" data-booster-stage-target="pileArea" hidden>
       <ol class="booster__pile" aria-label="<%= t("booster.result") %>" data-booster-stage-target="pile"
@@ -31,5 +30,5 @@
     </div>
   </template>
   <div class="booster__flash" aria-hidden="true" data-booster-stage-target="flash"></div>
-  <%= render "boosters/card", repost: season.present? %>
+  <%= render "boosters/card", repost: season.present?, market: market_open %>
 </div>

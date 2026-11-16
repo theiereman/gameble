@@ -166,13 +166,13 @@ describe("controls", () => {
     expect(controls(openingStarted(revealedAll(dealt())))).toMatchObject({ open: "next" })
   })
 
-  it("holds the next one until every card is shown, and counts what is left", () => {
+  it("holds the next one until every card is shown, with no hint off the phone", () => {
     const hand = revealMarked(dealt(), 0, 0)
     expect(controls(hand)).toMatchObject({
       open: "next",
       openDisabled: true,
       revealAllDisabled: false,
-      hint: { kind: "remaining", count: 4 },
+      hint: null,
     })
     expect(controls(revealedAll(hand))).toMatchObject({
       openDisabled: false,
