@@ -122,14 +122,11 @@ export type Activation = "reveal" | "store" | "zoom" | "none"
 
 export type OpenVariant = "open" | "next" | "empty" | "skip"
 
-export type Hint = { kind: "tap" | "swipe" }
-
 export type Controls = Readonly<{
   open: OpenVariant
   openDisabled: boolean
   busy: boolean
   revealAllDisabled: boolean
-  hint: Hint | null
   storedCount: number
   top: number | null
   plate: number | null

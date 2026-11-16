@@ -7,7 +7,6 @@ import {
   nextCapsuleWaiting,
   onTable,
   originKind,
-  shownCelebration,
   type BoosterState,
   type Controls,
 } from "./booster"
@@ -52,7 +51,7 @@ export class BoosterRenderer {
     this.renderCanister(state)
     this.renderStage(state)
     this.renderBanner(state)
-    this.renderPlate(state, view)
+    this.renderPlate(state)
     this.renderTray(state, view)
     this.renderZoom(state, view)
     renderCelebrations(this.host, state, view)
@@ -267,12 +266,8 @@ export class BoosterRenderer {
     this.host.timers().later(duration, () => this.host.apply((s) => bannerEnded(s, key)))
   }
 
-  private renderPlate(state: BoosterState, view: Controls): void {
-    this.host.outlets().plate?.render({
-      shown: onTable(state),
-      hint: view.hint,
-      celebrating: Boolean(shownCelebration(state)) && view.plate === null,
-    })
+  private renderPlate(state: BoosterState): void {
+    this.host.outlets().plate?.render({ shown: onTable(state) })
   }
 
   private renderTray(state: BoosterState, view: Controls): void {

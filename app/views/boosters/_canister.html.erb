@@ -16,7 +16,7 @@
   </template>
   <p class="booster__origin" data-booster-canister-target="origin"<%= " hidden" unless origin %>><%= origin %></p>
   <div class="booster__canister-notes">
-    <p class="booster__canister-hint" aria-hidden="true" data-booster-canister-target="hint"><span class="booster__canister-hint-click"><%= t("booster.canister_hint") %></span><span class="booster__canister-hint-touch"><%= t("booster.canister_hint_touch") %></span></p>
+    <p class="booster__canister-hint" aria-hidden="true" data-booster-canister-target="hint"><span class="booster__canister-hint-click"><%= t("booster.canister_hint") %></span></p>
     <p class="booster__canister-facts" aria-hidden="true" data-booster-canister-target="facts"><%= booster_canister_facts(next_size) %></p>
   </div>
 </div>

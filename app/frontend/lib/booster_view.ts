@@ -7,7 +7,6 @@ import {
   type Activation,
   type BoosterState,
   type Controls,
-  type Hint,
   type Layout,
   type OpenVariant,
 } from "./booster_types"
@@ -83,11 +82,6 @@ export function activation(state: BoosterState, index: number, now: number, last
   return at !== undefined && now - at >= REVEAL_GUARD ? "zoom" : "none"
 }
 
-function hintOf(state: BoosterState, top: number | null): Hint | null {
-  if (state.layout !== "phone" || top === null) return null
-  return { kind: state.revealed[top] ? "swipe" : "tap" }
-}
-
 function openVariant(state: BoosterState, reserveEmpty: boolean): OpenVariant {
   if (state.phase === "opening") return "skip"
   if (reserveEmpty) return "empty"
@@ -108,7 +102,6 @@ export function controls(state: BoosterState): Controls {
     openDisabled: reserveEmpty || (state.phase === "dealt" && !everyRevealed),
     busy: state.phase === "opening" || state.revealingAll || isLocked || state.storing,
     revealAllDisabled: !handOnTable || everyRevealed || state.revealingAll || state.storing || state.legendary !== null,
-    hint: handOnTable ? hintOf(state, top) : null,
     storedCount: state.stored.filter(Boolean).length,
     top,
     plate: state.layout === "phone" && top !== null && state.revealed[top] ? top : null,

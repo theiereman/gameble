@@ -133,7 +133,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
     assert_selector ".booster__pip[data-lit]", count: 1
     assert_equal commons, Integer(rarity_count("common"))
-    assert_no_selector ".booster__hint"
     assert_button "Open the next one", disabled: true
 
     page.send_keys(:enter)
@@ -523,7 +522,6 @@ class BoosterTest < ApplicationSystemTestCase
       assert_selector ".booster__pip[data-lit]", count: 2
     end
     assert_selector "#booster[data-status=sealed]"
-    assert_selector ".booster__canister-hint", text: "TAP TO OPEN"
     assert_selector ".booster__canister-facts", text: "5 cards"
     assert_no_selector ".booster__info"
     assert_no_selector ".booster__counter"
@@ -539,7 +537,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-tray__slot", count: 5
     assert_selector ".booster-tray__slot[data-next]", count: 1
     assert_selector ".booster-tray__count", text: %r{CARD\s+0 / 5}
-    assert_selector ".booster-plate-band__hint", text: "Tap the card to reveal it"
 
     # One activation reveals the top card; a tap on it stores it, once its guard is over.
     page.send_keys(:enter)

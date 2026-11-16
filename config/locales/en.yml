@@ -1115,7 +1115,6 @@ en:
   booster:
     canister_hint: Click to open
     canister_name_fallback: grand catalogue
-    canister_hint_touch: Tap to open
     canister_season: Season %{number}
     canister_kind:
       standard: STANDARD
@@ -1128,8 +1127,6 @@ en:
       collect: Collect
       ready: Ready
       title: Daily capsule
-    hint_swipe: Swipe the card to store it · or tap it
-    hint_tap: Tap the card to reveal it
     kicker: Capsule · Season %{number}
     kicker_cards_html:
       one: "%{size} card"

@@ -70,8 +70,7 @@
     .booster-plate-band,
     .booster-tray,
     .booster__phone-actions,
-    .booster__canister-facts,
-    .booster__canister-hint-touch
+    .booster__canister-facts
   ),
 .booster[data-layout="phone"] :is(.booster__info, .booster__deal-area, .booster__canister-hint-click) {
   display: none;
@@ -239,34 +238,12 @@
   opacity: 0.18;
 }
 
-/* The plate band: the hint line over the pile. Above the stage's dim (a Légendaire's banner plays there),
+/* The plate band: the set result over the pile. Above the stage's dim (a Légendaire's banner plays there),
    under the cards (a stored card flies over it to the tray). */
 .booster-plate-band {
   position: relative;
   z-index: 6;
   grid-area: 1 / 1;
-}
-
-.booster-plate-band__hint {
-  padding-top: var(--space-3);
-  font: var(--font-body-small);
-  font-weight: var(--font-weight-regular);
-  letter-spacing: 0;
-  text-wrap: balance;
-}
-
-/* Its line keeps its room while no hint shows, so the pile does not shrink when one appears. */
-.booster-plate-band__hint[data-idle] {
-  visibility: hidden;
-}
-
-.booster-plate-band__hint > [data-hint] {
-  display: none;
-}
-
-.booster-plate-band__hint[data-shows="tap"] > [data-hint="tap"],
-.booster-plate-band__hint[data-shows="swipe"] > [data-hint="swipe"] {
-  display: inline;
 }
 
 /* The set celebration in the band once the hand is complete: one result
