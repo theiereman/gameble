@@ -150,6 +150,13 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{card(4)} .booster-card__front .card.card--m.card--booster.card--rarity-epic"
   end
 
+  def enlarge(position)
+    eventually("card #{position} opens the card zoom once its reveal guard has passed") do
+      find("#{card(position)} .booster-card__front .card").click unless page.has_css?("dialog.booster-zoom[open]", wait: 0)
+      page.has_css?("dialog.booster-zoom[open]", wait: 0.2)
+    end
+  end
+
   test "a revealed card opens the card zoom on the screen with its facts; it steps through the revealed cards and See the card leads to its page" do
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
     open_canister
@@ -157,13 +164,12 @@ class BoosterTest < ApplicationSystemTestCase
     find(hit(3)).click
     find(hit(4)).click
     assert_selector "#{card(4)}[data-revealed]"
-    sleep 0.45
 
-    find(hit(3)).click
+    enlarge(3)
     zoom = "dialog.booster-zoom[open]"
     assert_selector "#{zoom} h2", text: "BLUE DEPTHS"
     assert_selector "#{zoom} .booster-zoom__line", text: "RARE · 2014"
-    assert_selector "#{zoom} .booster-zoom__facts .card-detail__fact dt", text: /publisher/i
+    assert_selector "#{zoom} .booster-zoom__facts .card-detail__fact dt", text: /rarity/i
     assert_selector "#{zoom} .booster-zoom__nav--previous[disabled]"
     find("#{zoom} .booster-zoom__nav--next").click
     assert_selector "#{zoom} h2", text: "PORTAL"
@@ -174,7 +180,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_no_selector "dialog.booster-zoom"
     assert_focus hit(4)
 
-    find(hit(3)).click
+    enlarge(3)
     within(zoom) { click_on "See the card" }
     assert_current_path "/en/cards/blue-depths?pack=#{opened_token}&slot=3"
   end
