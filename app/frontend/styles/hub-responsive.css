@@ -3,6 +3,13 @@
 @media (max-width: 1179px) {
   .hub {
     grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-areas:
+      "kicker centre"
+      "menu centre"
+      "aside centre"
+      "goals centre"
+      ". centre";
     column-gap: var(--space-column-gap-medium);
   }
 }
@@ -17,7 +24,8 @@
     gap: var(--space-7);
   }
 
-  .hub__aside {
+  .hub__aside,
+  .hub__centre {
     display: contents;
   }
 

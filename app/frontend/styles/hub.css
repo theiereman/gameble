@@ -1,21 +1,24 @@
 /*
- * The hub, "Pont de commandement". From 720px two columns: the kicker, menu
- * and set progress on the left (340px, 260 to 300px under 1180px), the
- * community goal, the daily booster panel and the other panels on the
- * right, stacked in a column of their own so neither side waits on the
- * other's rows. Under 720px one column, without the menu: kicker,
- * community goal, daily booster panel, set progress.
+ * The hub, "Pont de commandement". From 1180px three columns: kicker, menu
+ * and set progress on the left (340px), the market and the Flukeometer in
+ * the centre, the community goal and the daily booster panel on the right
+ * (340px), each column stacked on its own so none waits on another's rows.
+ * From 720px two: the left column (260 to 300px) holds the kicker, menu,
+ * community goal, daily booster panel and set progress; the market and the
+ * Flukeometer stand in the centre. Under 720px one column, without the
+ * menu: kicker, community goal, daily booster panel, market, Flukeometer,
+ * live feed, set progress.
  */
 
 .hub {
   display: grid;
-  grid-template-columns: 340px minmax(0, 1fr);
+  grid-template-columns: 340px minmax(0, 1fr) 340px;
   grid-template-rows: auto auto auto 1fr;
   grid-template-areas:
-    "kicker aside"
-    "menu aside"
-    "goals aside"
-    ". aside";
+    "kicker centre aside"
+    "menu centre aside"
+    "goals centre aside"
+    ". centre aside";
   gap: var(--space-6) var(--space-column-gap-wide);
   align-items: start;
 }
@@ -36,11 +39,20 @@
   display: none;
 }
 
-.hub__aside {
-  grid-area: aside;
+.hub__aside,
+.hub__centre {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+  min-width: 0;
+}
+
+.hub__aside {
+  grid-area: aside;
+}
+
+.hub__centre {
+  grid-area: centre;
 }
 
 .welcome-dialog__body {

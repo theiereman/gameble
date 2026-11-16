@@ -27,7 +27,7 @@ class HubFortunePanelTest < ActionDispatch::IntegrationTest
     travel_to(THURSDAY) { get home_path(locale: :fr) }
 
     assert_response :success
-    assert_select ".hub__aside section.fortune-panel" do
+    assert_select ".hub__centre section.fortune-panel" do
       assert_select ".panel.hub-linked h2 a.hub-linked__link[href=?]", fortune_register_path(locale: :fr), "Le Chattomètre"
       assert_select "a", 1
       assert_select "button, [role=group], turbo-frame", false
@@ -40,7 +40,7 @@ class HubFortunePanelTest < ActionDispatch::IntegrationTest
       assert_select ".fortune-gauge__zone-label", "PRIVILÉGIÉS"
       assert_select ".fortune-gauge .visually-hidden", /5 joueurs classés.*Vous êtes à -\d+, rang 5 sur 5\./
     end
-    assert_select ".hub__aside .hub__phone-feed .live-strip"
+    assert_select ".hub__phone-feed .live-strip"
   end
 
   test "on Monday the panel shows only this week's board, never last week's winner" do

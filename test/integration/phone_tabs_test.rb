@@ -73,12 +73,12 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
 
   test "the bridge previews the activity feed and opens it, Friends no longer does; the Me page links the achievements" do
     get home_path(locale: :fr)
-    assert_select ".hub__aside .live-strip.live-strip--stacked[aria-labelledby=hub-live]" do
+    assert_select ".hub__phone-feed .live-strip.live-strip--stacked[aria-labelledby=hub-live]" do
       assert_select "#hub-live", /Fil d'activité/
       assert_select "#live-strip"
       assert_select ".live-strip__open a.button--link[href='/fr/feed']", "Ouvrir le fil"
     end
-    assert_select ".hub__aside turbo-cable-stream-source", 0
+    assert_select ".hub__phone-feed turbo-cable-stream-source", 0
 
     get friends_path(locale: :fr)
     assert_select "main a[href='/fr/feed']", 0
