@@ -301,3 +301,11 @@
   border-color: var(--color-accent);
   outline: 2px solid var(--color-accent);
 }
+
+.settings__version {
+  margin: var(--space-7) 0 0;
+  color: var(--color-dim);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  user-select: none;
+}

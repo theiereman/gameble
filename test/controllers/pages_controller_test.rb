@@ -926,18 +926,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a signed-in player finds the legal page beside the version, in their locale" do
-    sign_in(@player)
-
-    get home_path(locale: :en)
-
-    assert_select "body > .app-version a.app-version__legal[href=?]", "/en/legal", "Legal notice"
-
-    get home_path(locale: :fr)
-
-    assert_select "body > .app-version a.app-version__legal[href=?]", "/fr/legal", "Mentions légales"
-  end
-
   test "the privacy section opens by naming the controller of the data, with the contact when there is one" do
     configure_legal(contact_email: "contact@example.test")
 

@@ -65,6 +65,19 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar a.button[href='/fr']", /Pont/
   end
 
+  test "the deployed version shows at the foot of the settings and on no other screen" do
+    sign_in(@player)
+
+    get settings_path(locale: :en)
+
+    assert_select ".settings__version", /#{Regexp.escape(ShellHelper.app_version)}/
+
+    get home_path(locale: :en)
+
+    assert_select ".settings__version", false
+    assert_select ".app-version", false
+  end
+
   test "the MES DONNÉES row posts the export, a full page load without JavaScript, with the strings its script shows" do
     sign_in(@player)
 

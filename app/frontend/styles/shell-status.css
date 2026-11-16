@@ -36,10 +36,6 @@ html:has(body > .ticker) {
   scroll-padding-bottom: var(--space-ticker-height);
 }
 
-body:has(> .ticker) .app-version {
-  bottom: calc(var(--space-ticker-height) + var(--space-3));
-}
-
 @media (min-width: 720px) {
   body:has(> .ticker) .toasts {
     bottom: calc(var(--space-ticker-height) + var(--space-7));
@@ -264,39 +260,6 @@ body:has(> .ticker) .app-version {
 .tab-bar__tab:focus-visible {
   outline-offset: calc(-1 * (var(--focus-ring-width) + var(--focus-ring-offset)));
   box-shadow: inset 0 0 0 calc(var(--focus-ring-width) + var(--focus-ring-offset)) var(--color-outline);
-}
-
-/* ---- Version ---- */
-
-.app-version {
-  position: fixed;
-  left: var(--space-gutter-desktop);
-  bottom: var(--space-3);
-  z-index: 2;
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  margin: 0;
-  color: var(--color-dim);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  pointer-events: none;
-}
-
-.app-version__tag {
-  margin: 0;
-  user-select: none;
-}
-
-.app-version__legal {
-  color: var(--color-dim);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  pointer-events: auto;
-}
-
-.app-version__legal:hover {
-  color: var(--color-text-bright);
 }
 
 /* ---- Toasts ---- */

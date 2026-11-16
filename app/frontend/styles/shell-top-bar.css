@@ -237,12 +237,6 @@ a.top-bar__home {
   text-overflow: ellipsis;
 }
 
-.player-chip__dot {
-  width: 8px;
-  height: 8px;
-  background: var(--color-lime);
-}
-
 .player-chip__button {
   position: relative;
 }

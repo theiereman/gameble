@@ -164,7 +164,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".player-chip button.player-chip__button[popovertarget=player-menu]" do
       assert_select "svg.pixel-icon.player-chip__avatar"
       assert_select ".player-chip__name", "Player"
-      assert_select ".player-chip__dot[aria-hidden=true]"
+      assert_select ".player-chip__dot", false
     end
     assert_select "nav#player-menu[popover][aria-label=?]", "Player menu" do
       assert_select "a.player-menu__item[href=?]", "/en/me", text: "My profile"
@@ -324,20 +324,5 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".rarity-counter, .packs-chip", false
     assert_select ".player-chip"
     assert_select "link[rel=stylesheet][href*='/application-']"
-  end
-
-  test "the back-office keeps the legal page beside the version" do
-    sign_in(accounts_players(:administrator))
-
-    get back_office_path(locale: :fr)
-
-    assert_select "body > .app-version a.app-version__legal[href=?]", "/fr/legal", "Mentions légales"
-  end
-
-  test "the public card page keeps the legal page beside the version" do
-    get card_path(locale: :en, slug: "portal")
-
-    assert_select "body.is-public-page"
-    assert_select "body > .app-version a.app-version__legal[href=?]", "/en/legal", "Legal notice"
   end
 end

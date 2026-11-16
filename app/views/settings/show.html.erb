@@ -187,6 +187,7 @@
       <% end %>
     </div>
   </div>
+  <p class="settings__version"><span class="visually-hidden"><%= t("shell.version.label") %> </span><%= shell_version %></p>
 </section>
 <%= render "accounts/dialog", deletion_note: @deletion_note %>
 <% if @visibility != "private" && @open_trades.positive? %>

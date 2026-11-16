@@ -4311,7 +4311,6 @@ en:
       previous: 'Back:'
     version:
       label: Deployed version
-      legal: Legal notice
   showcase_editors:
     show:
       count: "%{chosen}/%{total}"

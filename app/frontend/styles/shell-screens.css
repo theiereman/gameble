@@ -100,6 +100,11 @@ html[data-sub-view-step] .main {
     clip-path: inset(50%);
     white-space: nowrap;
   }
+
+  /* Only the avatar is left of the chip: the frame hugs it, as the bell's does its icon. */
+  .player-chip__button {
+    padding-right: var(--space-unit);
+  }
 }
 
 /* The phone: one portrait column of at most 480px, the tab bar fixed at

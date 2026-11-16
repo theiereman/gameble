@@ -23,10 +23,6 @@
   filter: brightness(0.82);
 }
 
-:root[data-native-app] .app-version {
-  display: none;
-}
-
 /* In the app the gold G alone heads every screen: the tab root's mark, a sub-screen's way back. */
 :root[data-native-app] .top-bar__home-g {
   display: block;

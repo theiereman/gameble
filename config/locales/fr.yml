@@ -250,7 +250,6 @@ fr:
       privacy: "politique de confidentialité"
     version:
       label: "Version déployée"
-      legal: "Mentions légales"
   pages:
     home:
       live:
@@ -2648,8 +2647,8 @@ fr:
     time_left:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
-      ended: "terminée"
       under: "moins d'une minute"
+      ended: "terminée"
   filters:
     price:
       title: "Prix"

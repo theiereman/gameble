@@ -134,34 +134,19 @@
     display: none;
   }
 
-  .app-version {
-    position: static;
-    padding: 0 var(--space-gutter-phone);
-    pointer-events: auto;
-  }
-
   body:has(.tab-bar) .main {
     padding-bottom: var(--space-7);
   }
 
-  body:has(.tab-bar) .app-version {
-    margin-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  /* The fixed tab bar covers the page's foot; the ticker, when there is one, already keeps its room. */
+  body:has(.tab-bar):not(:has(> .ticker)) .main {
+    padding-bottom: calc(var(--space-7) + var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
   }
 
   body:has(.tab-bar) > .ticker {
     order: 1;
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
     margin-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
-  }
-
-  body:has(.tab-bar):has(> .ticker) .app-version {
-    margin-bottom: 0;
-  }
-
-  .app-version__legal {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--space-touch-min);
   }
 }
 
