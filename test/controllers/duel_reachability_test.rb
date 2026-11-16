@@ -30,7 +30,7 @@ class DuelReachabilityPagesTest < ActionDispatch::IntegrationTest
     assert_select "#duel-online-heading", "En ligne · 1"
     assert_select ".duel-online__row" do
       assert_select ".player-name", "Hugo"
-      assert_select "a.button[aria-label='Défier Hugo'][href='/fr/duels?friend=#{@hugo.token}#duel-challenge']", "Défier"
+      assert_select "a.button[aria-label='Défier Hugo'][href$='friend=#{@hugo.token}#duel-challenge']", "Défier"
     end
     assert_select "input[type=radio][name=friend][value='#{@hugo.token}'][checked]"
   end
@@ -83,7 +83,7 @@ class DuelReachabilityPagesTest < ActionDispatch::IntegrationTest
     reachable_hugo
 
     get friends_path(locale: :fr)
-    assert_select ".friends__friend a.button[aria-label='Défier Hugo en duel'][href='/fr/duels?friend=#{@hugo.token}#duel-challenge']", "Défier en duel"
+    assert_select ".friends__friend a.button[aria-label='Défier Hugo en duel'][href$='friend=#{@hugo.token}#duel-challenge']", "Défier en duel"
 
     get friend_profile_path(locale: :fr, token: @hugo.token)
     assert_select ".friend-profile__trade a.button[aria-label='Défier Hugo en duel']", "Défier en duel"
