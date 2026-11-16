@@ -4,7 +4,7 @@
 <%= tag.section id: "booster", class: "booster page page--wide", aria: { labelledby: "booster-panel-title" }, data: booster_root_data(bank:, season:, next_pack_sizes:, reserve:, held:) do %>
   <%= render("boosters/strip", season:, bank:) %>
   <%= render("boosters/reserves", bank:, reserve:) %>
-  <div class="tabs__panel booster__body">
+  <div class="tabs__panel booster__body" data-controller="fit-viewport">
     <%= render("boosters/info", season:, bank:, size:, reserve:) %>
     <%= render("boosters/daily", bank:) if bank[:bonus_collectable] && !hotwire_native_app? %>
     <%= render("boosters/stage", season:, available: booster_reserve_size(bank, reserve), reserve:, origin: booster_origin(bank, reserve), next_size:) %>

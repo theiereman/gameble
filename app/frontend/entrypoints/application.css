@@ -125,6 +125,7 @@
 @import "../styles/booster-layouts.css";
 @import "../styles/booster-layouts-tray.css";
 @import "../styles/booster-stage.css";
+@import "../styles/booster-phone-fit.css";
 @import "../styles/booster-daily.css";
 
 /* Read by screen readers, not shown. */
