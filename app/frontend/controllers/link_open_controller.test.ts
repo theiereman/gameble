@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { Application } from "@hotwired/stimulus"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { serverTemplate } from "../lib/server_html"
 import LinkOpenController from "./link_open_controller"
 
 describe("link-open controller", () => {
@@ -10,9 +11,12 @@ describe("link-open controller", () => {
   beforeEach(async () => {
     fetchMock.mockReset().mockResolvedValue({ ok: true })
     vi.stubGlobal("fetch", fetchMock)
-    document.head.innerHTML = '<meta name="csrf-token" content="abc">'
-    document.body.innerHTML =
-      '<a href="#" data-controller="link-open" data-link-open-url-value="/en/links/support/opened" data-action="click->link-open#record auxclick->link-open#record">x</a>'
+    document.head.replaceChildren(serverTemplate('<meta name="csrf-token" content="abc">').content)
+    document.body.replaceChildren(
+      serverTemplate(
+        '<a href="#" data-controller="link-open" data-link-open-url-value="/en/links/support/opened" data-action="click->link-open#record auxclick->link-open#record">x</a>',
+      ).content,
+    )
     application = Application.start()
     application.register("link-open", LinkOpenController)
     await Promise.resolve()
