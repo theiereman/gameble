@@ -123,15 +123,28 @@ export function legendaryJumpKeyframes(to: Point, swell: Swell): Keyframe[] {
   return jump
 }
 
+export const SPIN_LOCK_AT = 0.5
+
 export function legendarySpinKeyframes(): Keyframe[] {
-  return [{ transform: "rotateY(0deg)" }, { transform: "rotateY(540deg)" }]
+  return [
+    { transform: "rotateY(0deg)", easing: "ease-out" },
+    { transform: "rotateY(-16deg)", offset: 0.07, easing: "cubic-bezier(.45,0,.35,1)" },
+    { transform: "rotateY(562deg)", offset: 0.42, easing: "cubic-bezier(.5,0,1,1)" },
+    { transform: "rotateY(540deg)", offset: SPIN_LOCK_AT, easing: "ease-out" },
+    { transform: "rotateY(531deg)", offset: 0.6, easing: "ease-in-out" },
+    { transform: "rotateY(545deg)", offset: 0.73, easing: "ease-in-out" },
+    { transform: "rotateY(537.5deg)", offset: 0.86, easing: "ease-in-out" },
+    { transform: "rotateY(540deg)" },
+  ]
 }
 
 export function legendaryImpactKeyframes(to: Point, swell: Swell): Keyframe[] {
   return [
     { transform: pose(to.x, to.y, 0, swell(1.15)) },
-    { transform: pose(to.x, to.y + 4, 0, swell(1.28), swell(1.02)), offset: 0.22 },
-    { transform: pose(to.x, to.y - 2, 0, swell(1.08), swell(1.22)), offset: 0.5 },
+    { transform: pose(to.x, to.y + 5, 0, swell(1.3), swell(1)), offset: 0.12 },
+    { transform: pose(to.x, to.y - 3, 0, swell(1.07), swell(1.24)), offset: 0.3 },
+    { transform: pose(to.x, to.y + 2, 0, swell(1.2), swell(1.11)), offset: 0.5 },
+    { transform: pose(to.x, to.y - 1, 0, swell(1.13), swell(1.17)), offset: 0.72 },
     { transform: pose(to.x, to.y, 0, swell(1.15)) },
   ]
 }

@@ -17,6 +17,7 @@ import {
   legendaryImpactKeyframes,
   legendaryJumpKeyframes,
   legendarySpinKeyframes,
+  SPIN_LOCK_AT,
   liftKeyframes,
   settleKeyframes,
   trembleKeyframes,
@@ -35,6 +36,7 @@ import {
   LEGENDARY_JUMP,
   LEGENDARY_JUMP_PX,
   LEGENDARY_SHAKE_MS,
+  LOCK_IN_MS,
   LIFT_PX,
   MARK_AT,
   MARK_IN_SPIN,
@@ -199,19 +201,16 @@ export class RevealSequence {
 
     const slot = host.slot(index)
     slot?.toggleAttribute("data-veiled", true)
-    animate(flip, legendarySpinKeyframes(), { duration: SPIN, easing: "cubic-bezier(.45,0,.85,.55)", fill: "none" })
-    this.turn(index, SPIN)
+    const lockIn = Math.round(SPIN * SPIN_LOCK_AT)
+    animate(flip, legendarySpinKeyframes(), { duration: SPIN, fill: "none" })
+    this.turn(index, lockIn)
     later(MARK_IN_SPIN, () => this.mark(index, quiet))
-    await wait(SPIN)
+    await wait(lockIn)
 
     slot?.removeAttribute("data-veiled")
     flashbang(host.flash(), FLASHBANG_MS)
     settle(lift)
-    animate(lift, legendaryImpactKeyframes(to, swell), {
-      duration: scaled(360),
-      easing: "ease-out",
-      fill: "forwards",
-    })
+    animate(lift, legendaryImpactKeyframes(to, swell), { duration: LOCK_IN_MS, easing: "ease-out", fill: "forwards" })
     const fx = host.part(index, "fx")
     burst(fx, "legendary")
     if (fx && !motionReduced()) {
