@@ -57,6 +57,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
   KEPT = {
     "game_trades" => { fr: [ "vos échanges passés" ], en: [ "your past trades" ] },
+    "game_duel_seats" => { fr: [ "vos duels passés" ], en: [ "your past duels" ] },
     "game_first_discoveries" => { fr: [ "vos premières découvertes" ], en: [ "your first discoveries" ] },
     "game_weekly_contributions" => { fr: [ "vos contributions à la mission hebdo" ], en: [ "your contributions to the weekly mission" ] },
     "accounts_reports" => { fr: [ "les signalements" ], en: [ "reports" ] },
