@@ -134,8 +134,10 @@
 }
 
 /* A face-down Légendaire cannot hold its energy: before any pointer comes
-   near, its aura crackles in sharp bursts and the card trembles by a pixel. */
-.booster-card[data-tier="legendary"][data-dealt]:not([data-revealed]) .booster-card__aura {
+   near, its aura crackles in sharp bursts and the card trembles by a pixel.
+   It stays lit while the card is shown in the stage's middle. */
+.booster-card[data-tier="legendary"][data-dealt]:not([data-revealed]) .booster-card__aura,
+.booster-card[data-legendary] .booster-card__aura {
   --aura-play: running;
 
   opacity: 1;
@@ -148,6 +150,11 @@
 
 .booster-card[data-tier="legendary"][data-dealt]:not([data-revealed]) .booster-card__float {
   animation: booster-legendary-tremble 0.9s steps(1) infinite;
+}
+
+/* The aura does not turn with the card: it waits while the card turns. */
+.booster-card[data-turning] .booster-card__aura {
+  visibility: hidden;
 }
 
 @keyframes booster-legendary-crackle {

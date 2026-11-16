@@ -188,8 +188,6 @@ export class BoosterRenderer {
     switch (hint.kind) {
       case "remaining":
         return t(this.strings.hintRemaining, { count: hint.count, n: this.host.number(hint.count) })
-      case "done":
-        return t(this.strings.hintDone, { count: hint.count, n: this.host.number(hint.count) })
       default:
         return ""
     }
@@ -291,7 +289,7 @@ export class BoosterRenderer {
     plateOutlet.render(
       {
         shown: onTable(state),
-        hint: hint && { kind: hint.kind === "remaining" ? "done" : hint.kind, done: this.hintText(hint) },
+        hint: hint && hint.kind !== "remaining" ? { kind: hint.kind } : null,
         plate:
           view.plate !== null && top
             ? {

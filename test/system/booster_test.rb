@@ -235,7 +235,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_announced "4 cards revealed: Legendary × 1, Rare × 1, Uncommon × 1, Common × 1.", wait: 10
     assert_includes announcements, "Legendary signal"
     assert_selector "#booster[data-status=complete]"
-    assert_selector ".booster__hint", text: "Capsule inventoried · +5 cards in the collection"
+    assert_no_selector ".booster__hint"
     assert_selector "#{card(2)} .booster-card__label", text: "LEGENDARY!"
     assert_focus ".booster__open"
     assert_button "Open the next one"

@@ -1110,9 +1110,6 @@ en:
       face_up_store_goals: "%{card}, %{rarity}, %{goals}. Store the card."
       failed: No connection. Your capsule is safe. Try again.
       goal_reached: Goal reached
-      hint_done:
-        one: Capsule inventoried · +%{n} card in the collection
-        other: Capsule inventoried · +%{n} cards in the collection
       hint_remaining:
         one: Click a card to reveal it · %{n} left
         other: Click a card to reveal it · %{n} left

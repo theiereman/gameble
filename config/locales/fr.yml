@@ -1942,10 +1942,6 @@ fr:
         zero: "Cliquez une carte pour la révéler · %{n} restante"
         one: "Cliquez une carte pour la révéler · %{n} restante"
         other: "Cliquez une carte pour la révéler · %{n} restantes"
-      hint_done:
-        zero: "Capsule inventoriée · +%{n} carte dans la collection"
-        one: "Capsule inventoriée · +%{n} carte dans la collection"
-        other: "Capsule inventoriée · +%{n} cartes dans la collection"
       face_down: "Carte %{position} sur %{total}, face cachée. Révéler."
       face_up: "%{card}, %{rarity}. Agrandir."
       face_up_goals: "%{card}, %{rarity}, %{goals}. Agrandir."

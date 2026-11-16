@@ -8,7 +8,7 @@ import {
   revealStarted,
   unlock,
 } from "./booster"
-import { animate, burst, ring, settle, stageFlash, stageShake } from "./booster_effects"
+import { animate, burst, flashbang, ring, settle, stageShake } from "./booster_effects"
 import type { BoosterStageHost } from "./booster_host"
 import {
   fadeKeyframes,
@@ -29,10 +29,10 @@ import {
   COMMON_LIFT_PX,
   DROP,
   EPIC_SHAKE_MS,
+  FLASHBANG_MS,
   FLIP_MS,
   IMPACT,
   IMPACT_AT,
-  LEGENDARY_FLASH_MS,
   LEGENDARY_JUMP,
   LEGENDARY_JUMP_PX,
   LEGENDARY_SHAKE_MS,
@@ -105,6 +105,12 @@ export class RevealSequence {
       )
   }
 
+  private turn(index: number, duration: number): void {
+    const slot = this.host.slot(index)
+    slot?.toggleAttribute("data-turning", true)
+    this.host.timers().later(duration, () => slot?.removeAttribute("data-turning"))
+  }
+
   private showcase(index: number): Point {
     const { host } = this
     if (host.phoneLayout()) return { x: 0, y: -this.riseLimit(index) }
@@ -150,6 +156,7 @@ export class RevealSequence {
     }
 
     animate(flip, flipKeyframes(), { duration: FLIP_MS[level], easing: "cubic-bezier(.3,.1,.3,1)", fill: "none" })
+    this.turn(index, FLIP_MS[level])
     await wait(FLIP_MS[level] * MARK_AT)
     this.mark(index, quiet)
     if (level >= 3) stageShake(host.shake(), 5, EPIC_SHAKE_MS)
@@ -192,6 +199,8 @@ export class RevealSequence {
     await wait(LEGENDARY_JUMP)
 
     animate(flip, legendarySpinKeyframes(), { duration: SPIN, easing: "cubic-bezier(.2,.6,.3,1)", fill: "none" })
+    this.turn(index, SPIN)
+    flashbang(host.flash(), FLASHBANG_MS)
     later(MARK_IN_SPIN, () => this.mark(index, quiet))
     await wait(IMPACT_AT)
 
@@ -216,7 +225,6 @@ export class RevealSequence {
         ),
       )
     }
-    stageFlash(host.flash(), "gold", 0.5, LEGENDARY_FLASH_MS)
     stageShake(host.shake(), 8, LEGENDARY_SHAKE_MS)
     this.showBanner("legendary", true, null)
     await wait(IMPACT)

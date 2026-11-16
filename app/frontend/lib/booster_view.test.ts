@@ -177,7 +177,7 @@ describe("controls", () => {
     expect(controls(revealedAll(hand))).toMatchObject({
       openDisabled: false,
       revealAllDisabled: true,
-      hint: { kind: "done", count: 5 },
+      hint: null,
     })
   })
 
@@ -187,13 +187,13 @@ describe("controls", () => {
     expect(controls(legendarySignalled(dealt(), 0))).toMatchObject({ revealAllDisabled: true })
   })
 
-  it("tells the phone's pile: tap, swipe, the plate under a revealed top card, done", () => {
+  it("tells the phone's pile: tap, swipe, the plate under a revealed top card, then nothing", () => {
     const pile = dealt(["common", "rare"], { layout: "phone" })
     expect(controls(pile)).toMatchObject({ top: 0, plate: null, hint: { kind: "tap" } })
     const shown = revealMarked(pile, 0, 0)
     expect(controls(shown)).toMatchObject({ top: 0, plate: 0, hint: { kind: "swipe" } })
     const away = cardStored(cardStored(revealMarked(shown, 1, 0), 0), 1)
-    expect(controls(away)).toMatchObject({ top: null, plate: null, storedCount: 2, hint: { kind: "done", count: 2 } })
+    expect(controls(away)).toMatchObject({ top: null, plate: null, storedCount: 2, hint: null })
   })
 
   it("counts the cards of the capsule ahead in the reserve chosen", () => {

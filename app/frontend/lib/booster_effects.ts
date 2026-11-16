@@ -16,7 +16,7 @@ export const stageShake = (stage: HTMLElement | null, amplitude: number, duratio
   animate(stage, shakeKeyframes(amplitude), { duration, fill: "none" })
 }
 
-export const stageFlash = (flash: HTMLElement | null, tone: "warm" | "gold", peak: number, duration: number) => {
+export const stageFlash = (flash: HTMLElement | null, tone: "warm", peak: number, duration: number) => {
   if (motionReduced() || !flash) return
   flash.dataset.tone = tone
   animate(flash, [{ opacity: 0 }, { opacity: peak, offset: 0.12 }, { opacity: 0 }], {
@@ -24,6 +24,21 @@ export const stageFlash = (flash: HTMLElement | null, tone: "warm" | "gold", pea
     easing: "ease-out",
     fill: "none",
   })
+}
+
+export const flashbang = (flash: HTMLElement | null, duration: number) => {
+  if (motionReduced() || !flash) return
+  flash.dataset.tone = "white"
+  animate(
+    flash,
+    [
+      { opacity: 0 },
+      { opacity: 1, offset: 0.02 },
+      { opacity: 1, offset: 0.14, easing: "cubic-bezier(.3,0,.2,1)" },
+      { opacity: 0 },
+    ],
+    { duration, fill: "none" },
+  )
 }
 
 export const spark = (

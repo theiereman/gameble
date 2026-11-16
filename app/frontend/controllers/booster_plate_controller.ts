@@ -8,7 +8,7 @@ import { cloneTemplate } from "../lib/templates"
 import type { Rarity } from "../lib/card_types"
 import { motionReduced } from "../lib/motion"
 
-export type PlateHint = Readonly<{ kind: "tap" | "swipe" | "done"; done: string }>
+export type PlateHint = Readonly<{ kind: "tap" | "swipe" }>
 
 export type PlateCard = Readonly<{ key: string; tier: Rarity; tierText: string; line: string }>
 
@@ -21,10 +21,9 @@ export type PlateView = Readonly<{
 }>
 
 export default class BoosterPlateController extends Controller<HTMLElement> {
-  static targets = ["hint", "done", "plate"]
+  static targets = ["hint", "plate"]
 
   declare readonly hintTarget: HTMLElement
-  declare readonly doneTarget: HTMLElement
   declare readonly plateTarget: HTMLTemplateElement
 
   private plateKey: string | null = null
@@ -35,10 +34,7 @@ export default class BoosterPlateController extends Controller<HTMLElement> {
     this.busy = busy
     this.element.hidden = !shown
     this.hintTarget.hidden = hint === null || celebrating
-    if (hint) {
-      this.hintTarget.dataset.shows = hint.kind
-      writeText(this.doneTarget, hint.done)
-    }
+    if (hint) this.hintTarget.dataset.shows = hint.kind
     writeFlag(this.hintTarget, "aria-hidden", Boolean(plate))
 
     if ((plate?.key ?? null) !== this.plateKey) this.showPlate(plate, icon)
@@ -61,7 +57,6 @@ export default class BoosterPlateController extends Controller<HTMLElement> {
     const banner = BANNER_TIERS.includes(plate.tier)
     const tier = element.querySelector<HTMLElement>(".booster-plate__tier")
     tier?.toggleAttribute("data-banner", banner)
-    if (!banner) element.querySelectorAll(".booster-plate__tick").forEach((tick) => tick.remove())
     element.querySelector(".booster-plate__icon")?.replaceChildren(icon(plate.tier) ?? "")
     element.querySelector(".booster-plate__tier-name")!.textContent = plate.tierText
     element.querySelector(".booster-plate__line")!.textContent = plate.line

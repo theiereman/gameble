@@ -83,13 +83,13 @@ export function activation(state: BoosterState, index: number, now: number, last
   return at !== undefined && now - at >= REVEAL_GUARD ? "zoom" : "none"
 }
 
-function hintOf(state: BoosterState, total: number, revealedCount: number, top: number | null): Hint {
+function hintOf(state: BoosterState, total: number, revealedCount: number, top: number | null): Hint | null {
   if (state.layout === "phone") {
-    if (top === null) return { kind: "done", count: total }
+    if (top === null) return null
     return { kind: state.revealed[top] ? "swipe" : "tap" }
   }
   const remaining = total - revealedCount
-  return remaining > 0 ? { kind: "remaining", count: remaining } : { kind: "done", count: total }
+  return remaining > 0 ? { kind: "remaining", count: remaining } : null
 }
 
 function openVariant(state: BoosterState, reserveEmpty: boolean): OpenVariant {
