@@ -10,8 +10,8 @@
 <% rarity = ->(tier) { t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}") } %>
 <% common = rarity.(Catalog::RarityThresholds::COMMON) %>
 <% reward_min = rarity.(Game::RewardDraw::MIN_TIER) %>
-<article class="how-it-works" aria-labelledby="how-it-works-heading">
-  <h1 id="how-it-works-heading" class="how-it-works__title"><%= t(".title") %></h1>
+<article class="how-it-works page page--reading" aria-labelledby="how-it-works-heading">
+  <h1 id="how-it-works-heading" class="visually-hidden"><%= t(".title") %></h1>
   <p class="how-it-works__intro"><%= t(".intro") %></p>
 
   <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-selection" }) do %>

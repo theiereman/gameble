@@ -1,10 +1,3 @@
-.legal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-7);
-  max-width: 760px;
-}
-
 .legal__title {
   margin: 0;
   color: var(--color-accent);
@@ -125,13 +118,6 @@
 .legal__source {
   align-self: flex-start;
   margin: 0;
-}
-
-.how-it-works {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-7);
-  max-width: 760px;
 }
 
 .how-it-works__title {

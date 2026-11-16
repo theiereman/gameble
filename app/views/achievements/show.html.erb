@@ -5,8 +5,8 @@
   <%= phone_back_link t("shell.tabs.me"), me_path %>
 <% end %>
 <% earned, to_earn = @tiles.partition(&:earned) %>
-<section class="achievements" aria-labelledby="achievements-heading">
-  <h1 id="achievements-heading" class="achievements__title"><%= t(".title") %></h1>
+<section class="achievements page page--regular" aria-labelledby="achievements-heading">
+  <h1 id="achievements-heading" class="visually-hidden"><%= t(".title") %></h1>
   <%= render "achievements/header", earned: earned.size, total: @tiles.size %>
   <% [ [ :to_earn, to_earn ], [ :earned, earned ] ].each do |group, tiles| %>
     <% next if tiles.empty? %>

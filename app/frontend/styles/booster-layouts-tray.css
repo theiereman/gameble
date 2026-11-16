@@ -297,7 +297,6 @@
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion="full"]) .booster-canister__idle,
   html:not([data-motion="full"]) .booster-canister__rays,
-  html:not([data-motion="full"]) .booster-canister__sweep-band,
   html:not([data-motion="full"]) .booster-card[data-revealed] .booster-card__rays,
   html:not([data-motion="full"]) .booster-card__back::after,
   html:not([data-motion="full"]) .booster-zoom__rays,
@@ -305,7 +304,6 @@
     animation: none;
   }
 
-  html:not([data-motion="full"]) .booster-canister__sweep,
   html:not([data-motion="full"]) .booster-card__rays,
   html:not([data-motion="full"]) .booster-card__back::after,
   html:not([data-motion="full"]) .booster-zoom__rays {
@@ -341,7 +339,6 @@
 
 html[data-motion="reduced"] .booster-canister__idle,
 html[data-motion="reduced"] .booster-canister__rays,
-html[data-motion="reduced"] .booster-canister__sweep-band,
 html[data-motion="reduced"] .booster-card[data-revealed] .booster-card__rays,
 html[data-motion="reduced"] .booster-card__back::after,
 html[data-motion="reduced"] .booster-zoom__rays,
@@ -349,7 +346,6 @@ html[data-motion="reduced"] .booster-zoom[open]::backdrop {
   animation: none;
 }
 
-html[data-motion="reduced"] .booster-canister__sweep,
 html[data-motion="reduced"] .booster-card__rays,
 html[data-motion="reduced"] .booster-card__back::after,
 html[data-motion="reduced"] .booster-zoom__rays {

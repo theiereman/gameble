@@ -21,9 +21,12 @@
       <div class="booster-card__fx" aria-hidden="true"></div>
       <button type="button" class="booster-card__hit"></button>
     </div>
-    <p class="booster-card__label" aria-hidden="true"><span class="booster-card__label-unknown">? ? ?</span><span class="booster-card__label-icon-box"></span><span class="booster-card__label-name"></span></p>
-    <% if repost %>
-      <button type="button" class="button button--secondary button--small booster-card__repost"><%= t("booster.repost") %></button>
-    <% end %>
+    <div class="booster-card__badges">
+      <p class="booster-card__label" aria-hidden="true"><span class="booster-card__label-unknown">? ? ?</span><span class="booster-card__rarity"><span class="booster-card__label-icon-box"></span><span class="booster-card__label-name"></span></span></p>
+      <% if repost %>
+        <button type="button" class="booster-card__action booster-card__repost" data-tip="<%= t("booster.repost_tip") %>"><%= pixel_icon("repost", class: "booster-card__action-icon") %></button>
+      <% end %>
+      <button type="button" class="booster-card__action booster-card__share" data-tip="<%= t("booster.share_tip") %>"><%= pixel_icon("share", class: "booster-card__action-icon") %></button>
+    </div>
   </li>
 </template>

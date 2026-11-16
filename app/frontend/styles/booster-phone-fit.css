@@ -1,0 +1,142 @@
+/* On a phone the tab's panel fills the room down to the tab bar, from where
+   it starts (fit-viewport): the stage takes what the daily row and actions leave,
+   the capsule shrinks with the stage and the pile with the room the band and
+   tray leave it, so every action stays in view on a phone as short as 640px. */
+.booster[data-layout="phone"] .booster__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: calc(
+    100dvh - var(--fit-top, 320px) - var(--tabbar-height) - env(safe-area-inset-bottom, 0px) - var(--space-4)
+  );
+}
+
+.booster[data-layout="phone"] .booster__stage {
+  container: booster-stage / size;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.booster[data-layout="phone"] .booster__shake {
+  height: 100%;
+  min-height: 0;
+}
+
+.booster[data-layout="phone"] .booster__phone-actions {
+  flex: none;
+  padding-top: 0;
+}
+
+.booster[data-layout="phone"] .booster-daily {
+  flex: none;
+  padding-block: var(--space-2);
+}
+
+.booster[data-layout="phone"] .booster__pile-area {
+  container: booster-pile / size;
+  align-self: stretch;
+  align-items: flex-end;
+  min-height: 0;
+}
+
+@container booster-stage (max-height: 420px) {
+  .booster__zone {
+    zoom: 0.9;
+  }
+}
+
+@container booster-stage (max-height: 380px) {
+  .booster__zone {
+    zoom: 0.8;
+  }
+}
+
+@container booster-stage (max-height: 340px) {
+  .booster__zone {
+    zoom: 0.72;
+  }
+}
+
+@container booster-stage (max-height: 300px) {
+  .booster__zone {
+    zoom: 0.62;
+  }
+}
+
+@container booster-stage (max-height: 260px) {
+  .booster__zone {
+    zoom: 0.54;
+  }
+}
+
+@container booster-stage (max-height: 220px) {
+  .booster__zone {
+    zoom: 0.46;
+  }
+}
+
+@container booster-stage (max-height: 190px) {
+  .booster__zone {
+    zoom: 0.4;
+  }
+}
+
+@container booster-stage (max-height: 160px) {
+  .booster__zone {
+    zoom: 0.34;
+  }
+}
+
+@container booster-pile (max-height: 360px) {
+  .booster__pile {
+    zoom: 0.9;
+  }
+}
+
+@container booster-pile (max-height: 320px) {
+  .booster__pile {
+    zoom: 0.8;
+  }
+}
+
+@container booster-pile (max-height: 280px) {
+  .booster__pile {
+    zoom: 0.7;
+  }
+}
+
+@container booster-pile (max-height: 240px) {
+  .booster__pile {
+    zoom: 0.6;
+  }
+}
+
+@container booster-pile (max-height: 200px) {
+  .booster__pile {
+    zoom: 0.5;
+  }
+}
+
+@container booster-pile (max-height: 160px) {
+  .booster__pile {
+    zoom: 0.4;
+  }
+}
+
+@container booster-pile (max-height: 120px) {
+  .booster__pile {
+    zoom: 0.3;
+  }
+}
+
+@container booster-pile (max-height: 90px) {
+  .booster__pile {
+    zoom: 0.22;
+  }
+}
+
+@container booster-pile (max-height: 75px) {
+  .booster__pile {
+    zoom: 0.18;
+  }
+}

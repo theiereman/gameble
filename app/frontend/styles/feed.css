@@ -10,9 +10,6 @@
 
 .feed {
   container: feed / inline-size;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
 }
 
 .feed__title {

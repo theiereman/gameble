@@ -1,0 +1,89 @@
+/* Tabs sit on the panel that holds the current tab's content; the current tab merges into it. */
+.tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+}
+
+.tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--space-touch-min);
+  margin: 0;
+  padding: 0 var(--space-6);
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow:
+    inset 0 var(--space-unit) 0 var(--color-line-soft),
+    inset var(--space-unit) 0 0 var(--color-line-soft),
+    inset calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+  color: var(--color-muted);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tabs__tab:hover {
+  color: var(--color-text-max);
+}
+
+.tabs__tab:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
+.tabs__tab--current,
+.tabs__tab[aria-selected="true"] {
+  position: relative;
+  z-index: 1;
+  min-height: 48px;
+  margin-bottom: calc(-1 * var(--space-unit));
+  background: var(--color-panel);
+  box-shadow:
+    inset 0 3px 0 var(--color-accent),
+    inset var(--space-unit) 0 0 var(--color-line),
+    inset calc(-1 * var(--space-unit)) 0 0 var(--color-line);
+  color: var(--color-text-max);
+}
+
+.tabs__tab--disabled {
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+.tabs__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+  padding: var(--space-6);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+}
+
+.page > .tabs + .tabs__panel {
+  margin-top: calc(-1 * var(--space-stack-page));
+}
+
+@media (max-width: 719px) {
+  .tabs {
+    width: 100%;
+  }
+
+  .tabs__tab {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 var(--space-2);
+  }
+
+  .tabs__panel {
+    gap: var(--space-5);
+    padding: var(--space-4);
+  }
+}

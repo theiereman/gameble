@@ -42,6 +42,14 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     page.document.synchronize { raise Capybara::ExpectationNotMet, message unless condition.call }
   end
 
+  def choose_sort(label)
+    eventually("the sort menu opens") do
+      find(".sort summary").click unless page.has_css?(".sort[open]", wait: 0)
+      page.has_css?(".sort[open] .sort__menu", wait: 0.5)
+    end
+    click_on label
+  end
+
   # Each test starts without cookies. Capybara's reset clears them, then
   # waits for the requests still running, and every answer re-sends the
   # session cookie: a request the last page left in flight (the collection's

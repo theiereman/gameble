@@ -35,12 +35,12 @@ class MarketExchangeTest < ApplicationSystemTestCase
   test "staff read the Reactor's figures and charts, and its table matches the snapshots" do
     sign_in_as(accounts_players(:moderator))
     visit market_path(locale: :en)
-    assert_selector "h1", text: "Market"
+    assert_selector "h1", text: "Market", visible: :all
     assert_no_match CHART_CHUNK, loaded_scripts.join(" ")
 
     visit market_exchange_path(locale: :en)
 
-    assert_selector "h1", text: "The Brotherhood's Exchange"
+    assert_selector "h1", text: "The Brotherhood's Exchange", visible: :all
     within("[data-exchange-panel=reactor]") do
       assert_selector ".chart-figures__item", count: 4
       assert_selector ".chart-figures__item", text: /\AIN CIRCULATION\s+412\.6M/

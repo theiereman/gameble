@@ -122,8 +122,6 @@ export type Activation = "reveal" | "store" | "zoom" | "none"
 
 export type OpenVariant = "open" | "next" | "empty" | "skip"
 
-export type StatusTone = "alert" | "gold" | "done" | "rest"
-
 export type Hint = { kind: "remaining" | "done"; count: number } | { kind: "tap" | "swipe" }
 
 export type Controls = Readonly<{
@@ -131,7 +129,6 @@ export type Controls = Readonly<{
   openDisabled: boolean
   busy: boolean
   revealAllDisabled: boolean
-  tone: StatusTone
   hint: Hint | null
   storedCount: number
   top: number | null

@@ -1,0 +1,27 @@
+/* A screen's root: one of three widths, always centred. .main already pads the page. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-page);
+  width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+}
+
+.page--wide {
+  max-width: var(--page-width-wide);
+}
+
+.page--regular {
+  max-width: var(--page-width-regular);
+}
+
+.page--reading {
+  max-width: var(--page-width-reading);
+}
+
+@media (max-width: 719px) {
+  .page {
+    --space-stack-page: var(--space-6);
+  }
+}

@@ -1,7 +1,7 @@
 <% name = friend_name(@owner) %>
 <% content_for :title, t(".title", name:) %>
 <% content_for :screen_title, t(".heading") %>
-<section class="friends invite-link" aria-labelledby="invite-link-heading">
+<section class="friends invite-link page page--regular" aria-labelledby="invite-link-heading">
   <h1 id="invite-link-heading" class="friends__title"><%= t(".heading") %></h1>
   <%= render PanelComponent.new(brackets: true, class: "friends__panel") do %>
     <p class="invite-link__line"><%= t(".invites_you", name:) %></p>

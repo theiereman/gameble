@@ -34,8 +34,8 @@ class MarketBidStandsTest < ActionDispatch::IntegrationTest
     get market_path(locale: :fr)
 
     assert_response :success
-    assert_select ".listing-tile__link--leading .listing-tile__stand--leading", /EN TÊTE\s*max\s*#{compact(30_000)}/
-    assert_select ".listing-tile__link--outbid .listing-tile__stand--outbid", /DÉPASSÉ\s*mini\s*#{compact(to_beat)}/
+    assert_select ".listing-tile__stand--leading", /EN TÊTE\s*max\s*#{compact(30_000)}/
+    assert_select ".listing-tile__stand--outbid", /DÉPASSÉ\s*mini\s*#{compact(to_beat)}/
     assert_select ".listing-tile__stand", 2
     assert_select ".listing-tile__link[aria-label*='vous êtes en tête avec un maximum de']", 1
     assert_select ".listing-tile__link[aria-label*='votre offre est dépassée']", 1

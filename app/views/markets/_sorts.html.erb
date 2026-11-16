@@ -1,7 +1,3 @@
 <%# locals: (sort:, filters:) %>
-<nav class="market-screen__sorts" aria-label="<%= t("markets.screen.sorts_label") %>">
-  <% sort_options.each do |option| %>
-    <%= link_to t("markets.sorts.#{option}"), market_filtered_path(filters, sort: option), class: "market-screen__sort",
-      aria: { current: (option == sort ? "true" : nil) }, data: { turbo_action: "replace" } %>
-  <% end %>
-</nav>
+<%= render SortComponent.new(prefix: t("markets.screen.sort_prefix"), label: t("markets.screen.sorts_label"), link_data: { turbo_action: "replace" },
+      options: sort_options.map { { label: t("markets.sorts.#{it}"), href: market_filtered_path(filters, sort: it), current: it == sort } }) %>

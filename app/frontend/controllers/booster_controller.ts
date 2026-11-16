@@ -237,6 +237,10 @@ export class BoosterController extends Controller<HTMLElement> {
     void this.gameplay?.cardExit.repost(index)
   }
 
+  shareCard({ detail: { index } }: Intent<CardIntent>): void {
+    void this.gameplay?.cardExit.share(index)
+  }
+
   pressCard(event: Intent<CardIntent>): void {
     if (this.state && canStore(this.state, event.detail.index, false, performance.now())) event.preventDefault()
   }

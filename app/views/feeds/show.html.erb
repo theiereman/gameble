@@ -6,9 +6,9 @@
     <%= phone_back_link t("shell.tabs.hub"), home_path %>
   <% end %>
 <% end %>
-<%= tag.section class: "feed", aria: { labelledby: "feed-heading" },
+<%= tag.section class: "feed page page--wide", aria: { labelledby: "feed-heading" },
       data: ({ controller: "feed-announcer", feed_announcer_templates_value: t(".announcement").to_json } if @live) do %>
-  <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
+  <h1 id="feed-heading" class="visually-hidden"><%= t(".title") %></h1>
   <div class="feed__controls">
     <nav class="feed__tabs" aria-label="<%= t(".tabs_label") %>">
       <%= feed_chip_link t(".tabs.all"), feed_path(filter: @filter), current: @tab.nil?, classes: "feed__tab" %>

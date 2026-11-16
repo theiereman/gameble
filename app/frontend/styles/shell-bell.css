@@ -157,15 +157,7 @@
 }
 
 @media (max-width: 719px) {
-  .bell {
-    display: none;
-  }
-
-  .top-bar--top-level .bell {
-    display: flex;
-  }
-
-  .top-bar--top-level .bell__button {
+  .bell__button {
     min-width: var(--space-touch-min);
     min-height: var(--space-chip-height-touch);
     justify-content: center;

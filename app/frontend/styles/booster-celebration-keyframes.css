@@ -191,17 +191,6 @@
   }
 }
 
-@keyframes booster-sweep {
-  0% {
-    transform: translateX(-150%) skewX(-20deg);
-  }
-
-  55%,
-  100% {
-    transform: translateX(700%) skewX(-20deg);
-  }
-}
-
 @keyframes booster-back-sheen {
   0%,
   55% {

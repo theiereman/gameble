@@ -63,8 +63,8 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-row__chip", text: "NO BID"
     assert_select ".market-row__title[href=?]", market_listing_path(locale: :en, token: open.token)
     assert_select ".market-row__note", /No bid, the card is returned. The stamp is not refunded./
-    assert_select ".market-screen__chip--current[aria-current=page]", "MY SALES"
-    assert_select "a.market-screen__chip[href=?]", market_path(locale: :en), "LISTINGS"
+    assert_select ".tabs__tab--current[aria-current=page]", "MY SALES"
+    assert_select "a.tabs__tab[href=?]", market_path(locale: :en), "LISTINGS"
     assert_select "[data-row-token=?]", unsold.token
   end
 
@@ -117,23 +117,23 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
 
   test "the market screen draws the chips: links for a player, greyed for a visitor" do
     get market_path(locale: :en)
-    assert_select "span.market-screen__chip--disabled[aria-disabled=true]", "MY SALES"
+    assert_select "span.tabs__tab--disabled[aria-disabled=true]", "MY SALES"
     assert_select "a[href=?]", market_my_sales_path(locale: :en), false
 
     sign_in(@seller)
     get market_path(locale: :en)
-    assert_select "a.market-screen__chip[href=?]", market_my_sales_path(locale: :en), "MY SALES"
-    assert_select ".market-screen__chip--current[aria-current=page]", "LISTINGS"
+    assert_select "a.tabs__tab[href=?]", market_my_sales_path(locale: :en), "MY SALES"
+    assert_select ".tabs__tab--current[aria-current=page]", "LISTINGS"
   end
 
   test "the tabs swap in place inside the market frame, under the same desk and with the market tab lit" do
     sign_in(@seller)
 
     get market_path(locale: :en)
-    assert_select "turbo-frame#market-tab a.market-screen__chip[data-turbo-frame=market-tab][href=?]", market_my_sales_path(locale: :en)
+    assert_select "turbo-frame#market-tab a.tabs__tab[data-turbo-frame=market-tab][href=?]", market_my_sales_path(locale: :en)
 
     sales
-    assert_select "turbo-frame#market-tab a.market-screen__chip[data-turbo-frame=market-tab][href=?]", market_path(locale: :en), "LISTINGS"
+    assert_select "turbo-frame#market-tab a.tabs__tab[data-turbo-frame=market-tab][href=?]", market_path(locale: :en), "LISTINGS"
     assert_select "turbo-frame#market-tab .market-desk"
     assert_select ".tab-bar__tab[aria-current=page][href=?]", market_path(locale: :en)
     assert_select ".top-bar__phone-back", false

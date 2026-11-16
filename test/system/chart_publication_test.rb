@@ -45,7 +45,7 @@ class ChartPublicationTest < ApplicationSystemTestCase
     assert_signed_out
     visit market_path(locale: :en)
     click_on "THE BROTHERHOOD'S EXCHANGE"
-    assert_selector "h1", text: "The Brotherhood's Exchange"
+    assert_selector "h1", text: "The Brotherhood's Exchange", visible: :all
     assert_selector "#reactor-flows"
     assert_no_text "VISIBLE TO STAFF"
 

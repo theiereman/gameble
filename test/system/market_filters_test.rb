@@ -45,8 +45,8 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
     assert_selector ".listing-tile", count: 1
     assert_field "max_price", with: "10,000"
 
-    click_on "Price, low to high"
-    assert_selector ".market-screen__sort[aria-current=true]", text: "Price, low to high"
+    choose_sort "Price, low to high"
+    assert_selector ".sort__current", text: /\APrice, low to high\z/i
     assert_selector ".listing-tile", count: 1
     assert_field "max_price", with: "10,000"
 
@@ -67,8 +67,8 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
     assert_selector ".listing-tile", count: 1
     assert_checked_field "hide_mine", visible: :all
 
-    click_on "Price, low to high"
-    assert_selector ".market-screen__sort[aria-current=true]", text: "Price, low to high"
+    choose_sort "Price, low to high"
+    assert_selector ".sort__current", text: /\APrice, low to high\z/i
     assert_selector ".listing-tile", count: 1
 
     find(".market-filters__mine", text: /hide my sales/i).click

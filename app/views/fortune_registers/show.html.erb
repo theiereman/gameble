@@ -10,9 +10,8 @@
 <% end %>
 <% period_param = (FortunePeriod::ALL_TIME if @period == :all_time) %>
 <% sort_param = ("capsules" if @sort == :capsules) %>
-<section class="register" aria-labelledby="register-heading">
-  <h1 id="register-heading" class="register__title"><%= t(".title") %></h1>
-  <p class="register__intro"><%= t(".intro") %></p>
+<section class="register page page--reading" aria-labelledby="register-heading">
+  <h1 id="register-heading" class="visually-hidden"><%= t(".title") %></h1>
   <%= render PanelComponent.new(brackets: true, class: "register__overview") do %>
     <% if @mine&.opened? && @mine.rank %>
       <div class="register__mine">

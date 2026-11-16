@@ -96,10 +96,6 @@
   text-wrap: balance;
 }
 
-:root[data-native-app] .booster[data-layout="phone"] .booster-strip__state {
-  display: none;
-}
-
 :root[data-native-app] .booster[data-layout="phone"] .booster-plate-band__hint[data-shows="done"] {
   display: none;
 }
