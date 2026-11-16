@@ -3174,6 +3174,7 @@ en:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
       under: under a minute
+      ended: ended
   number:
     format:
       delimiter: ","

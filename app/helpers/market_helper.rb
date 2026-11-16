@@ -4,7 +4,9 @@ module MarketHelper
   def listing_seconds_left(ends_at) = [ (ends_at - Time.current).floor, 0 ].max
 
   def listing_time_left(seconds)
-    if seconds >= SOON_SECONDS
+    if seconds.zero?
+      t("markets.time_left.ended")
+    elsif seconds >= SOON_SECONDS
       t("markets.time_left.hours", hours: seconds / SOON_SECONDS, minutes: format("%02d", seconds % SOON_SECONDS / 60))
     elsif seconds >= 60
       t("markets.time_left.minutes", minutes: seconds / 60)
@@ -68,6 +70,7 @@ module MarketHelper
     { controller: "listing-clock", listing_clock_seconds_value: seconds,
       listing_clock_hours_template_value: t("markets.time_left.hours", hours: "%{hours}", minutes: "%{minutes}"),
       listing_clock_minutes_template_value: t("markets.time_left.minutes", minutes: "%{minutes}"),
-      listing_clock_under_template_value: t("markets.time_left.under") }
+      listing_clock_under_template_value: t("markets.time_left.under"),
+      listing_clock_ended_template_value: t("markets.time_left.ended") }
   end
 end

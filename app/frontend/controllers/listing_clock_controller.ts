@@ -3,13 +3,20 @@ import { t } from "../lib/i18n"
 import { msToNextChange, timeLeft } from "../lib/time_left"
 
 export default class extends Controller<HTMLElement> {
-  static values = { seconds: Number, hoursTemplate: String, minutesTemplate: String, underTemplate: String }
+  static values = {
+    seconds: Number,
+    hoursTemplate: String,
+    minutesTemplate: String,
+    underTemplate: String,
+    endedTemplate: String,
+  }
   static targets = ["label"]
 
   declare readonly secondsValue: number
   declare readonly hoursTemplateValue: string
   declare readonly minutesTemplateValue: string
   declare readonly underTemplateValue: string
+  declare readonly endedTemplateValue: string
   declare readonly labelTarget: HTMLElement
 
   private deadline = 0
@@ -39,7 +46,7 @@ export default class extends Controller<HTMLElement> {
     this.clear()
     const seconds = (this.deadline - performance.now()) / 1000
     const left = timeLeft(seconds)
-    const text = this.words(left)
+    const text = seconds <= 0 && this.endedTemplateValue ? this.endedTemplateValue : this.words(left)
     if (this.labelTarget.textContent !== text) this.labelTarget.textContent = text
     const wait = msToNextChange(seconds)
     if (wait !== null) this.timer = window.setTimeout(() => this.render(), wait)

@@ -9,7 +9,11 @@ class MarketHelperTest < ActionView::TestCase
   test "under a minute reads in the last minute" do
     assert_equal "under a minute", wording(59, :en)
     assert_equal "moins d'une minute", wording(59, :fr)
-    assert_equal "under a minute", wording(0, :en)
+  end
+
+  test "a finished listing reads ended" do
+    assert_equal "ended", wording(0, :en)
+    assert_equal "terminée", wording(0, :fr)
   end
 
   test "from sixty seconds it reads whole minutes" do

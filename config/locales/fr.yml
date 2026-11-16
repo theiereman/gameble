@@ -2648,6 +2648,7 @@ fr:
     time_left:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
+      ended: "terminée"
       under: "moins d'une minute"
   filters:
     price:
