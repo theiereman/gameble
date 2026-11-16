@@ -745,10 +745,10 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-stage .card", held.size
     assert_response :success
 
-    # The owner's remove crosses cost nothing more.
+    # The owner's edit link and drag hooks cost nothing more.
     sign_in(@owner)
     assert_request_queries(30) { get brother_path(locale: :en, token: @owner.token) }
-    assert_select ".profile-showcase__remove", held.size
+    assert_select "[data-stage-order-target=slot]", held.size
   end
 
   test "the summary counts every edition: a game gone from the season, and a set completed through an earlier edition of a member" do
@@ -832,7 +832,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-stage__slot--5 .card.card--rarity-common"
     assert_select ".profile-stage__name", title
     assert_select ".profile-stage .card-rays.card-rays--legendary"
-    assert_select ".profile-stage__aside, #profile-showcase-heading, .profile-showcase", false
+    assert_select ".profile-stage a.button, #profile-showcase-heading, .profile-showcase", false
 
     get brother_path(locale: :en, token: accounts_players(:moderator).token)
     assert_select ".profile-stage", false
@@ -847,99 +847,65 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     cards.map { views.fetch(it) }
   end
 
-  def showcase_slugs = css_select(".profile-showcase__slot > a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }
+  def showcase_slugs = css_select(".profile-stage__slot > a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }.first(3)
 
-  test "on their own profile each card has a cross that opens a dialog confirming its removal, and the GET writes nothing" do
+  test "on their own profile the owner can drag the chosen cards: each slot names its card and where to send its place, a hidden tag waits to name the place it would take, and a link edits the showcase" do
     a, b, c = choose_three
     sign_in(@owner)
 
     written = written_statements { get brother_path(locale: :en, token: @owner.token) }
 
-    assert_response :success
     assert_empty written
-    crosses = css_select(".profile-showcase__slot > button.profile-showcase__remove[type=button][aria-haspopup=dialog]")
-    assert_equal [ a, b, c ].map { "Remove #{it.title} from the showcase" }, crosses.map { it["aria-label"] }
-    crosses.zip([ a, b, c ]).each do |cross, card|
-      dialog_id = "showcase-remove-#{card.id}-#{card.season_number}"
-      assert_equal dialog_id, cross["data-dialog-opener-dialog-value"]
-      assert_select "dialog##{dialog_id}.modal" do
-        assert_select ".modal__title", "Remove from showcase?"
-        assert_select ".showcase-removal__text", "#{card.title} leaves your showcase. You keep the card."
-        assert_select "form[action=?][method=post] input[name=_method][value=delete]", "/en/cards/#{card.id}/seasons/#{card.season_number}/showcase"
-        assert_select "button[type=submit]", "Remove"
-        assert_select "button[type=button][data-action='dialog#close']", "Keep it"
-      end
-    end
-    assert_select ".profile-showcase__moves, .profile-showcase__move-button", false
-    assert_select ".profile-showcase [autofocus]", false
-    assert_select "[style]", false
-  end
-
-  test "on their own profile the owner can drag the cards: each slot names its card and where to send its place, an info mark says so, and a polite region announces the move" do
-    a, b, c = choose_three
-    sign_in(@owner)
-
-    get brother_path(locale: :en, token: @owner.token)
-
-    section = css_select("section[data-controller=showcase-order]").sole
-    assert_equal "%{title} is now in place %{position} of %{count}.", section["data-showcase-order-announcement-value"]
-    assert_equal "The new order could not be saved.", section["data-showcase-order-failed-value"]
-    assert_select section, "ul.profile-showcase--sortable[data-showcase-order-target=list]"
-    slots = css_select(".profile-showcase__slot[data-showcase-order-target=slot]")
+    floor = css_select(".profile-stage__floor[data-controller=stage-order]").sole
+    assert_equal "%{title} is now in place %{position} of %{count}.", floor["data-stage-order-announcement-value"]
+    assert_equal "The new order could not be saved.", floor["data-stage-order-failed-value"]
+    assert_select floor, "ol.profile-stage__fan[data-stage-order-target=list]"
+    slots = css_select(".profile-stage__slot[data-stage-order-target=slot]")
     assert_equal [ a, b, c ].map(&:title), slots.map { it["data-title"] }
     assert_equal [ a, b, c ].map { "/en/cards/#{it.id}/seasons/#{it.season_number}/showcase" }, slots.map { it["data-url"] }
-    assert slots.all? { it["data-action"].include?("pointerdown->showcase-order#press") }
-    assert_select ".profile-showcase__head h2#profile-showcase-heading + details.profile-showcase__info summary" do
-      assert_select "svg.pixel-icon"
-      assert_select ".visually-hidden", "How the showcase works"
-    end
-    assert_select ".profile-showcase__info-text", "Up to five cards, shown first in your showcase. Drag them to change their order, and add one from its page with “Add to showcase”."
-    assert_select "p.visually-hidden[role=status][data-showcase-order-target=status]", ""
+    assert slots.all? { it["data-action"].include?("pointerdown->stage-order#press") }
+    assert_select floor, "p.profile-stage__placing[data-stage-order-target=placing][hidden]", ""
+    assert_select floor, "p#profile-stage-status.visually-hidden[role=status][data-stage-order-target=status]", ""
+    assert_select ".profile-stage a.button--secondary[href='/en/me/showcase']", "Edit the showcase"
+    assert_select ".profile-showcase, .showcase-removal__form", false
     assert_select "[style]", false
   end
 
-  test "the info mark and the crosses speak French in French" do
+  test "the edit link and the move announcement speak French in French" do
     choose_three
     sign_in(@owner)
 
     get brother_path(locale: :fr, token: @owner.token)
 
-    assert_select ".profile-showcase__info summary .visually-hidden", "Comment marche la vitrine"
-    assert_select ".profile-showcase__info-text", /\AJusqu'à cinq cartes/
-    assert_equal "%{title} est maintenant à la place %{position} sur %{count}.", css_select("[data-controller=showcase-order]").sole["data-showcase-order-announcement-value"]
-    ids = Game::ChosenShowcase.call(@owner)
-    views = Catalog::CardViews.call(ids, locale: :fr)
-    assert_select "button.profile-showcase__remove[aria-label=?]", "Retirer #{views.fetch(ids.first).title} de la vitrine"
-    assert_select ".modal__title", "Retirer de la vitrine\u202f?"
-    assert_equal [ "Retirer", "La garder" ], css_select(".showcase-removal__actions button").map(&:text).uniq
+    assert_select ".profile-stage a.button--secondary[href='/fr/me/showcase']", "Modifier la vitrine"
+    assert_equal "%{title} est maintenant à la place %{position} sur %{count}.", css_select("[data-controller=stage-order]").sole["data-stage-order-announcement-value"]
   end
 
-  test "a single chosen card cannot be dragged but can still be removed" do
+  test "a single chosen card cannot be dragged, the edit link stays" do
     choose_three
     Game::ChosenShowcase.call(@owner).drop(1).each { Game::RemoveFromShowcase.new.call(player: @owner, card_season_id: it).value! }
     sign_in(@owner)
 
     get brother_path(locale: :en, token: @owner.token)
 
-    assert_select ".profile-showcase .card", 1
-    assert_select "[data-controller=showcase-order], [data-showcase-order-target]", false
-    assert_select ".profile-showcase__remove", 1
-    assert_select ".profile-showcase__info", 1
+    assert_select "[data-controller=stage-order], [data-stage-order-target]", false
+    assert_select ".profile-stage a.button--secondary[href='/en/me/showcase']", 1
   end
 
-  test "no one but the owner sees a cross: not another player, not staff, not a visitor" do
+  test "no one but the owner can drag or edit the showcase: not another player, not staff, not a visitor" do
     choose_three
     stranger = Accounts::Player.create!(steam_id: "76561197960390188")
+    owner_only = ".profile-stage a[href$='/me/showcase'], [data-controller=stage-order], [data-stage-order-target]"
 
     get brother_path(locale: :en, token: @owner.token)
     assert_select ".profile-stage .card", 3
-    assert_select ".profile-showcase, .profile-showcase__remove, .showcase-removal__form, .profile-showcase__info, [data-controller=showcase-order], [data-showcase-order-target]", false
+    assert_select owner_only, false
 
     [ stranger, accounts_players(:moderator), accounts_players(:administrator) ].each do |viewer|
       sign_in(viewer)
       get brother_path(locale: :en, token: @owner.token)
       assert_select ".profile-stage .card", 3
-      assert_select ".profile-showcase, .profile-showcase__remove, .showcase-removal__form, .profile-showcase__info, [data-controller=showcase-order], [data-showcase-order-target]", false
+      assert_select owner_only, false
     end
   end
 

@@ -15,29 +15,12 @@
   text-align: center;
 }
 
-.profile-stage__kicker {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  color: var(--color-gold);
-  font: var(--font-kicker);
-  letter-spacing: var(--tracking-kicker);
-  text-transform: uppercase;
-}
-
-.profile-stage__light {
-  width: 8px;
-  height: 8px;
-  background: var(--color-gold);
-}
-
 .profile-stage__floor {
   position: relative;
   display: flex;
   justify-content: center;
   width: 100%;
-  max-width: 640px;
+  max-width: 480px;
   padding: var(--space-6) 0 var(--space-5);
   container-type: inline-size;
   background: radial-gradient(closest-side, color-mix(in srgb, var(--color-gold) 12%, transparent), transparent);
@@ -75,7 +58,10 @@
   transform-origin: 50% 100%;
   rotate: var(--fan-rotate);
   translate: 0 var(--fan-drop);
-  transition: translate 160ms ease-out;
+  transition:
+    translate 200ms ease-out,
+    rotate 200ms ease-out,
+    opacity 200ms ease-out;
   animation: profile-stage-deal 520ms cubic-bezier(0.2, 0.8, 0.3, 1.15) var(--fan-delay) backwards;
 }
 
@@ -84,12 +70,78 @@
   display: block;
   width: 100cqi;
   height: calc(1.5 * 100cqi);
+  transition:
+    scale 160ms ease-out,
+    filter 160ms ease-out;
 }
 
+/* Hovered, a card rises in place and stays behind its neighbours; keyboard
+   focus brings it forward so its whole focus ring shows. */
 .profile-stage__slot:hover,
 .profile-stage__slot:focus-within {
-  z-index: 4;
   translate: 0 calc(var(--fan-drop) - 12px);
+}
+
+.profile-stage__slot:has(:focus-visible) {
+  z-index: 4;
+}
+
+/* The owner lifts a chosen card and carries it along the hand: the other
+   chosen cards slide aside to make its room, the cards that only fill in
+   fade back, and a tag names the place it would take. */
+.profile-stage__slot[data-stage-order-target="slot"] > .card-link {
+  cursor: grab;
+  -webkit-touch-callout: none;
+}
+
+.profile-stage__fan[data-sorting],
+.profile-stage__fan[data-sorting] .card-link {
+  cursor: grabbing;
+}
+
+.profile-stage__fan[aria-busy="true"] .card-link {
+  cursor: progress;
+}
+
+.profile-stage__fan[data-sorting] .profile-stage__slot:not([data-dragging]) {
+  translate: 0 var(--fan-drop);
+}
+
+.profile-stage__fan[data-sorting] .profile-stage__slot:not([data-stage-order-target]) {
+  opacity: 0.35;
+}
+
+.profile-stage__slot[data-dragging] {
+  z-index: 5;
+  rotate: 0deg;
+  transition: rotate 160ms ease-out;
+}
+
+.profile-stage__slot[data-dragging] > .card-link {
+  scale: 1.08;
+  filter: drop-shadow(0 14px 12px var(--color-backdrop));
+}
+
+.profile-stage__slot[data-dragging] .card[data-tilt] {
+  transform: none;
+}
+
+.profile-stage__placing {
+  position: absolute;
+  top: var(--space-2);
+  left: 50%;
+  z-index: 6;
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-accent);
+  background: var(--color-panel);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  translate: -50% 0;
+  pointer-events: none;
 }
 
 .profile-stage__slot--1 {
@@ -198,16 +250,10 @@
   color: var(--color-rarity-legendaire);
 }
 
-.profile-stage__aside {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-  letter-spacing: var(--tracking-body-small);
-}
 
 @media (min-width: 720px) {
   .profile-stage__floor {
-    max-width: 860px;
+    max-width: 600px;
   }
 
   .profile-stage__slot {
@@ -233,6 +279,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion="full"]) .profile-stage__slot,
+  html:not([data-motion="full"]) .profile-stage__slot > .card-link,
   html:not([data-motion="full"]) .profile-stage__slot--1 > .card-link {
     transition: none;
     animation: none;
@@ -240,6 +287,7 @@
 }
 
 html[data-motion="reduced"] .profile-stage__slot,
+html[data-motion="reduced"] .profile-stage__slot > .card-link,
 html[data-motion="reduced"] .profile-stage__slot--1 > .card-link {
   transition: none;
   animation: none;

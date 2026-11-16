@@ -1760,7 +1760,6 @@ fr:
       card_back: "Dos de carte · vous seul"
       customize: "Personnalisation"
       title_label: "Titre"
-      card_list: "Voir la liste des cartes"
       all_achievements: "Tout voir"
       change_avatar: "Changer d'avatar"
   average_price:
@@ -1824,22 +1823,11 @@ fr:
         achievements: "Succès"
       showcase:
         title: "Vitrine"
-        arrange: "Composer votre vitrine"
-        no_picks: "Aucun choix pour l'instant : vos cartes les plus rares remplissent votre vitrine. Choisissez-en une depuis la fiche d'une carte."
-        info_label: "Comment marche la vitrine"
-        info: "Jusqu'à cinq cartes, montrées en tête de votre vitrine. Faites-les glisser pour changer leur ordre, et ajoutez-en une depuis sa fiche avec « %{add} »."
-        return: "Retour à la carte"
-        removal:
-          title: "Retirer de la vitrine ?"
-          text: "%{title} quitte votre vitrine. Vous gardez la carte."
-          confirm: "Retirer"
-          cancel: "La garder"
-          close: "Fermer"
+      stage:
+        edit: "Modifier la vitrine"
         moved: "%{title} est maintenant à la place %{position} sur %{count}."
         move_failed: "Le nouvel ordre n'a pas pu être enregistré."
-        remove: Retirer %{title} de la vitrine
-      stage:
-        owner_note: "Vos choix d'abord, puis vos cartes les plus rares."
+        placing: "Place %{position} sur %{count}"
       stats:
         title: "Statistiques"
         rarities: "Raretés"
@@ -3277,14 +3265,20 @@ fr:
     create:
       sent: "Merci. L'équipe de modération examinera ce profil. Le joueur ne verra pas qui l'a signalé."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  showcase_editors:
+    show:
+      title: "Modifier la vitrine"
+      grid: "Vos cartes"
+      dock: "Votre vitrine"
+      count: "%{chosen}/%{total}"
+      remove: "Retirer %{title} de la vitrine"
+      hint: "Touchez une carte pour l'ajouter ou la retirer. Vos cartes les plus rares occupent les places libres."
+      done: "Terminé"
   showcases:
     add: "Mettre en vitrine"
     add_edition: "Mettre la S%{season} en vitrine"
     remove: "Retirer de la vitrine"
     remove_edition: "Retirer la S%{season} de la vitrine"
-    removed:
-      title: "Retiré de la vitrine"
-      text: "%{title} n'est plus dans votre vitrine."
     full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
     not_found: "Cette carte n'existe pas."
     open: "Ouvrir ma vitrine"

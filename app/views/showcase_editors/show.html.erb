@@ -1,0 +1,29 @@
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t("public_profiles.show.showcase.title") %>
+<% content_for :back_button, true %>
+<% turbo_refreshes_with method: :morph, scroll: :preserve %>
+<% chosen = @chosen.to_set { [ it.id, it.season_number ] } %>
+<% full = Game::ChosenShowcase.full?(@chosen) %>
+<section class="showcase-editor page page--regular" aria-labelledby="showcase-editor-heading" data-layout="wide">
+  <h1 id="showcase-editor-heading" class="visually-hidden"><%= t(".title") %></h1>
+  <% if @season.nil? %>
+    <%= render PanelComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
+  <% else %>
+    <%= render "library/filters", filters: @grid, state_choices: [], states: @states, states_asked: false, query: @query,
+      clear_path: edit_showcase_path, results_count: @grid_pagy.count %>
+    <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace" } do %>
+      <p id="collection-results-status" class="visually-hidden" role="status"><%= t("library.grid.result", count: @grid_pagy.count) %></p>
+      <% if @slots.empty? %>
+        <p class="collection-grid__empty"><%= @grid_pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>
+      <% else %>
+        <ol class="collection-grid collection-grid--fill" aria-label="<%= t(".grid") %>">
+          <% @slots.each do |card, _held| %>
+            <%= render "showcase_editors/pick", card:, chosen: chosen.include?([ card.id, card.season_number ]), full: %>
+          <% end %>
+        </ol>
+      <% end %>
+      <%= render "library/pages", pagy: @grid_pagy, empty: @slots.empty? %>
+    <% end %>
+  <% end %>
+  <%= render "showcase_editors/dock", cards: @chosen %>
+</section>

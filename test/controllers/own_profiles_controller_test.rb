@@ -33,8 +33,6 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     statements
   end
 
-  def showcase_slugs = css_select(".profile-showcase__slot > a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }
-
   def stage_slugs = css_select(".profile-stage__slot > a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }
 
   test "with no season published Me still links to the achievements and says there is no season" do
@@ -80,8 +78,9 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select ".profile-band .button, .profile-band .me-opener", false
     assert_select "header.profile-band + section.profile-stage h2#profile-stage-heading", "Showcase"
-    assert_select ".profile-stage__aside", "Your picks first, then your rarest cards."
-    assert_select ".me-customize + section#showcase h2#profile-showcase-heading", "Arrange your showcase"
+    assert_select ".profile-stage__rarity + a.button.button--secondary.button--small[href='/en/me/showcase']", "Edit the showcase"
+    assert_select ".profile-stage a.button svg.pixel-icon.button__icon"
+    assert_select "#showcase, .profile-showcase", false
     assert_select ".me-showcase-opener, #me-showcase-sheet", false
     assert_select "#profile-achievements-heading + a.me-achievements__all[href='/en/achievements'] #plus-achievements-badge.stream-slot"
     assert_select "main a[href='/en/how-it-works'], main a[href='/en/settings']", false
@@ -169,79 +168,53 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[autofocus]", 1
   end
 
-  test "the showcase offers a cross on each card, says how to add one, and no showcase sheet" do
+  test "the owner drags their chosen cards on the stage: each names its card and where to send its place, the cards filling in do not move" do
     choose(:portal_one, :common_card_one)
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
     sign_in(@player)
 
     get me_path(locale: :en)
 
-    assert_equal 2, css_select(".profile-showcase__slot").size
-    assert_select ".profile-showcase__slot button.profile-showcase__remove[aria-label^='Remove '][aria-label$=' from the showcase']", 2
-    assert_equal [ "/en/cards/portal/seasons/1/showcase", "/en/cards/tin-soldier/seasons/1/showcase" ],
-      css_select("dialog .showcase-removal__form").map { it["action"] }
-    assert_select ".profile-showcase__info-text", "Up to five cards, shown first in your showcase. Drag them to change their order, and add one from its page with “Add to showcase”."
-    assert_select "#me-showcase-sheet", false
-    assert_select "[autofocus]", false
+    floor = css_select(".profile-stage__floor[data-controller=stage-order]").sole
+    assert_equal [ "%{title} is now in place %{position} of %{count}.", "The new order could not be saved." ],
+      [ floor["data-stage-order-announcement-value"], floor["data-stage-order-failed-value"] ]
+    assert_select floor, "ol.profile-stage__fan[data-stage-order-target=list]"
+    slots = css_select(".profile-stage__slot[data-stage-order-target=slot]")
+    assert_equal [ "/en/cards/portal/seasons/1/showcase", "/en/cards/tin-soldier/seasons/1/showcase" ], slots.map { it["data-url"] }
+    assert slots.all? { it["data-action"].include?("pointerdown->stage-order#press") }
+    assert_equal 3, css_select(".profile-stage__slot").size
+    assert_equal "Place %{position} of %{count}", floor["data-stage-order-placing-value"]
+    assert_select floor, "p.profile-stage__placing[data-stage-order-target=placing][aria-hidden=true][hidden]", ""
+    assert_select floor, "p#profile-stage-status.visually-hidden[role=status][data-stage-order-target=status][data-turbo-permanent]", ""
+    assert_select "#me-showcase-sheet, .showcase-removal__form", false
   end
 
-  test "a card removed from the showcase comes back to Me with the focus on the next card's cross" do
-    choose(:portal_one, :common_card_one, :uncommon_card_one)
-    sign_in(@player)
-
-    delete card_showcase_path(locale: :en, slug: "portal", number: 1), headers: { "HTTP_REFERER" => me_path(locale: :en) }
-
-    assert_redirected_to me_path(locale: :en)
-    follow_redirect!
-    assert_select "#toasts .toast__title", "Removed from showcase"
-    assert_equal %w[tin-soldier green-hills], showcase_slugs
-    assert_select ".profile-showcase__slot:first-child button.profile-showcase__remove[autofocus][aria-label^=Remove]"
-    assert_select "[autofocus]", 1
-  end
-
-  test "the last card removed leaves an empty showcase section on Me with the focus on the card list link" do
+  test "a single chosen card is not dragged, but the edit link stays" do
     choose(:portal_one)
     sign_in(@player)
 
-    delete card_showcase_path(locale: :en, slug: "portal", number: 1), headers: { "HTTP_REFERER" => me_path(locale: :en) }
-    follow_redirect!
+    get me_path(locale: :en)
 
-    assert_select ".profile-showcase", false
-    assert_select "section h2#profile-showcase-heading", "Arrange your showcase"
-    assert_select "section[aria-labelledby=profile-showcase-heading] > .profile-section__aside", /\ANo picks yet, so your rarest cards fill your showcase/
-    assert_select "section#showcase a.profile-showcase__browse[href='/en/library/cards'][autofocus]", "See the card list"
-    assert_select "[autofocus]", 1
+    assert_select "[data-controller=stage-order], [data-stage-order-target]", false
+    assert_select ".profile-stage a.button[href='/en/me/showcase']", "Edit the showcase"
   end
 
-  test "an owner with no chosen card sees the empty showcase section with the card list link, a visitor sees no showcase" do
+  test "an owner with no chosen card gets the stage of their rarest cards and the edit link; a visitor neither the link nor the drag" do
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
     sign_in(@player)
 
     get me_path(locale: :en)
 
-    assert_select "#profile-showcase-heading", "Arrange your showcase"
-    assert_select "section#showcase a.profile-showcase__browse[href='/en/library/cards']"
-    assert_select ".profile-section__aside", /\ANo picks yet/
+    assert_equal 2, css_select(".profile-stage__slot").size
+    assert_select ".profile-stage a.button[href='/en/me/showcase']", "Edit the showcase"
+    assert_select "[data-controller=stage-order]", false
 
     delete session_path(locale: :en)
     get brother_path(locale: :en, token: @player.token)
 
-    assert_select "#profile-showcase-heading, .profile-showcase", false
-  end
-
-  test "Me opened from a card offers a way back to that card; an unknown card offers none" do
-    choose(:portal_one)
-    sign_in(@player)
-
-    get me_path(locale: :en, card: "portal", edition: 1)
-    assert_select ".profile-showcase__head a.profile-showcase__return[href=?]", "/en/cards/portal/seasons/1", "Back to the card"
-
-    get me_path(locale: :fr, card: "portal", edition: 1)
-    assert_select "a.profile-showcase__return", "Retour à la carte"
-
-    [ { card: "nowhere", edition: 1 }, { card: "portal", edition: 99 }, { card: "portal", edition: "one" }, { card: "portal" } ].each do |params|
-      get me_path(locale: :en, **params)
-      assert_response :success
-      assert_select "a.profile-showcase__return", false
-    end
+    assert_equal 2, css_select(".profile-stage__slot").size
+    assert_select ".profile-stage a[href$='/me/showcase'], [data-controller=stage-order]", false
   end
 
   test "a visitor of the owner's profile sees the same name, title and showcase order, with no opener, back or sheet" do
@@ -251,7 +224,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     Game::MoveShowcaseCard.new.call(player: @player, card_season_id: catalog_card_seasons(:common_card_one).id, direction: "earlier").value!
     sign_in(@player)
     get me_path(locale: :en)
-    mine = [ css_select("h1#profile-heading").text, css_select(".profile-band__title").text, showcase_slugs ]
+    mine = [ css_select("h1#profile-heading").text, css_select(".profile-band__title").text, stage_slugs.first(2) ]
 
     sign_in(accounts_players(:moderator))
     get brother_path(locale: :en, token: @player.token)
@@ -267,7 +240,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get me_path(locale: :en)
-    href = css_select(".profile-showcase__slot > a.card-link").sole["href"]
+    href = css_select(".profile-stage__slot > a.card-link").sole["href"]
     assert_equal card_season_path(locale: :en, slug: "portal", number: 1, from: "me"), href
 
     get href
@@ -287,7 +260,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "in French: the openers, the sheets and the links" do
-    choose(:portal_one)
+    choose(:portal_one, :common_card_one)
     sign_in(@player)
 
     get me_path(locale: :fr)
@@ -301,7 +274,8 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".me-achievements__all", /Tout voir/
     assert_select "#me-title-sheet-title", "Titre de profil"
     assert_select "#me-back-sheet-title", "Dos de carte"
-    assert_select "button.profile-showcase__remove[aria-label^=Retirer]", 1
+    assert_select ".profile-stage a.button[href='/fr/me/showcase']", "Modifier la vitrine"
+    assert_equal "%{title} est maintenant à la place %{position} sur %{count}.", css_select("[data-controller=stage-order]").sole["data-stage-order-announcement-value"]
   end
 
   test "no database id in the openers, the sheets' forms or the templates" do
@@ -312,8 +286,8 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     get me_path(locale: :en)
 
     ids = [ @player.id, catalog_card_seasons(:portal_one).id, catalog_card_seasons(:rare_card_one).id ]
-    markup = css_select(".me-opener, dialog.bottom-sheet, dialog.modal, template[data-me-target]").map(&:to_html).join
-      .gsub(/name="authenticity_token" value="[^"]*"/, "").gsub(%r{/seasons/\d+|-(xs|s|m)-[^"]*\.png|\b(19|20)\d\d\b|showcase-remove-[a-z0-9-]+}, "")
+    markup = css_select(".me-opener, dialog.bottom-sheet, template[data-me-target], .profile-stage__floor").map(&:to_html).join
+      .gsub(/name="authenticity_token" value="[^"]*"/, "").gsub(%r{/seasons/\d+|-(xs|s|m|grid)-[^"]*\.png|\b(19|20)\d\d\b}, "")
     ids.each { assert_no_match(/\b#{it}\b/, markup) }
   end
 end

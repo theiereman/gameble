@@ -3661,7 +3661,6 @@ en:
       all_achievements: See all
       change_avatar: Change avatar
       card_back: Card back · only you
-      card_list: See the card list
       change: Change
       choose_title: Choose a title
       customize: Customize
@@ -3789,24 +3788,12 @@ en:
           other: "%{count} sets started"
         title: Sets
       showcase:
-        arrange: Arrange your showcase
-        no_picks: No picks yet, so your rarest cards fill your showcase. Choose one from a card’s page.
-        info: Up to five cards, shown first in your showcase. Drag them to change
-          their order, and add one from its page with “%{add}”.
-        info_label: How the showcase works
-        move_failed: The new order could not be saved.
-        moved: "%{title} is now in place %{position} of %{count}."
-        removal:
-          cancel: Keep it
-          close: Close
-          confirm: Remove
-          text: "%{title} leaves your showcase. You keep the card."
-          title: Remove from showcase?
-        remove: Remove %{title} from the showcase
-        return: Back to the card
         title: Showcase
       stage:
-        owner_note: Your picks first, then your rarest cards.
+        edit: Edit the showcase
+        move_failed: The new order could not be saved.
+        moved: "%{title} is now in place %{position} of %{count}."
+        placing: "Place %{position} of %{count}"
       stats:
         activity: Activity
         first_discoveries: First discoveries
@@ -4213,6 +4200,15 @@ en:
     version:
       label: Deployed version
       legal: Legal notice
+  showcase_editors:
+    show:
+      count: "%{chosen}/%{total}"
+      dock: Your showcase
+      done: Done
+      grid: Your cards
+      hint: Tap a card to add it or take it out. Your rarest cards fill the free places.
+      remove: Remove %{title} from the showcase
+      title: Edit the showcase
   showcases:
     add: Add to showcase
     add_edition: Add S%{season} to showcase
@@ -4221,9 +4217,6 @@ en:
     open: Open my showcase
     remove: Remove from showcase
     remove_edition: Remove S%{season} from showcase
-    removed:
-      text: "%{title} is no longer in your showcase."
-      title: Removed from showcase
   time:
     formats:
       local_date_time_year: "%b %-d, %Y, %H:%M"

@@ -1,27 +1,36 @@
-<%# locals: (cards:, context:, owned: false) %>
+<%# locals: (cards:, context:, chosen: 0, owned: false) %>
 <% strings = CardStrings.new %>
 <% top = cards.first %>
 <% tier = Catalog::Rarity::TIERS.key(top.rarity.to_sym) %>
+<% sortable = owned && chosen > 1 %>
+<% order = { controller: "stage-order", stage_order_announcement_value: t("public_profiles.show.stage.moved"),
+              stage_order_failed_value: t("public_profiles.show.stage.move_failed"), stage_order_placing_value: t("public_profiles.show.stage.placing") } if sortable %>
 <%= tag.section class: [ "profile-stage", "profile-stage--#{cards.size}" ], aria: { labelledby: "profile-stage-heading" } do %>
-  <h2 id="profile-stage-heading" class="profile-stage__kicker"><span class="profile-stage__light" aria-hidden="true"></span><%= t("public_profiles.show.showcase.title") %></h2>
-  <div class="profile-stage__floor">
+  <h2 id="profile-stage-heading" class="visually-hidden"><%= t("public_profiles.show.showcase.title") %></h2>
+  <%= tag.div class: "profile-stage__floor", data: order do %>
     <span class="profile-stage__rays" aria-hidden="true"><%= card_rays(top.rarity) %></span>
-    <ol class="profile-stage__fan">
+    <%= tag.ol class: "profile-stage__fan", data: ({ stage_order_target: "list" } if sortable) do %>
       <% cards.each_with_index do |card, index| %>
-        <%= tag.li class: [ "profile-stage__slot", "profile-stage__slot--#{index + 1}", ("profile-stage__slot--top" if index.zero?) ] do %>
+        <% slot = { stage_order_target: "slot", url: card_showcase_path(slug: card.id, number: card.season_number), title: card.title,
+                    action: "pointerdown->stage-order#press dragstart->stage-order#stopNativeDrag contextmenu->stage-order#stopMenu" } if sortable && index < chosen %>
+        <%= tag.li class: [ "profile-stage__slot", "profile-stage__slot--#{index + 1}", ("profile-stage__slot--top" if index.zero?) ], data: slot do %>
           <%= link_to_card_detail(card, strings:, context:) do %>
             <%= render CardComponent.new(card:, size: :grid) %>
           <% end %>
         <% end %>
       <% end %>
-    </ol>
-  </div>
+    <% end %>
+    <% if sortable %>
+      <p class="profile-stage__placing" data-stage-order-target="placing" aria-hidden="true" hidden></p>
+      <p id="profile-stage-status" class="visually-hidden" role="status" data-stage-order-target="status" data-turbo-permanent></p>
+    <% end %>
+  <% end %>
   <p class="profile-stage__name"><%= top.title %></p>
   <p class="profile-stage__rarity profile-stage__rarity--<%= tier %>">
     <%= pixel_icon("rarity-#{tier}", class: "profile-stage__rarity-icon") %>
     <span><%= [ t("catalog.rarity.#{top.rarity}"), top.number_label ].join(" · ") %></span>
   </p>
   <% if owned %>
-    <p class="profile-stage__aside"><%= t("public_profiles.show.stage.owner_note") %></p>
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, icon: "pencil", href: edit_showcase_path) do %><%= t("public_profiles.show.stage.edit") %><% end %>
   <% end %>
 <% end %>

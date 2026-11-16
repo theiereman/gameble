@@ -2,6 +2,7 @@ module CollectionGridLoading
   extend ActiveSupport::Concern
 
   include GoalMarksLoading
+  include Pagy::Method
 
   GRID_SIZE = 60
   NOTHING_SEEN = Time.utc(1970)
@@ -85,11 +86,11 @@ module CollectionGridLoading
       grid_goals.any? ? filters : filters - %i[goals]
     end
 
-    def load_grid(grid)
+    def load_grid(grid, states: nil)
       @query = grid_query(params)
       asked = grid_states_asked(params)
       @states_asked = asked.any?
-      @states = @states_asked ? asked : [ Game::CollectionStates::DEFAULT ]
+      @states = states || (@states_asked ? asked : [ Game::CollectionStates::DEFAULT ])
       @grid_goals = grid_goals
       @goals_chosen = grid_goals_chosen(params)
       @grid_price = grid_price(params)
