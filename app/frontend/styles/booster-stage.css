@@ -84,7 +84,7 @@
 }
 
 .booster:not([data-layout="phone"]) .booster__shake {
-  --booster-hand-row: calc(var(--booster-hand-card) + var(--space-2) + var(--booster-badge-size));
+  --booster-hand-row: calc(var(--booster-hand-card) + var(--booster-badge-size));
   --booster-hand-margin: calc(var(--space-8) + var(--space-6));
 
   grid-template-rows: minmax(calc(2 * var(--booster-hand-row) + var(--space-8) + 2 * var(--booster-hand-margin)), auto);
@@ -94,7 +94,7 @@
   justify-content: center;
 }
 
-/* ---- A revealed card's actions: repost, entrust, sell, each in its own colour ---- */
+/* ---- A revealed card's actions: repost, entrust, sell, one colour that lights up on hover ---- */
 
 .booster {
   --booster-badge-size: 28px;
@@ -108,7 +108,7 @@
   justify-content: center;
   gap: var(--space-3);
   min-height: var(--booster-badge-size);
-  margin-top: var(--space-2);
+  margin-top: 0;
 }
 
 .booster-card__action {
@@ -121,29 +121,21 @@
   border: 0;
   background: color-mix(in srgb, currentcolor 10%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, currentcolor 45%, transparent);
-  color: var(--booster-action-color);
+  color: color-mix(in srgb, var(--color-text-bright) 60%, transparent);
   cursor: pointer;
-}
-
-.booster-card__repost {
-  --booster-action-color: var(--color-accent);
-  --booster-action-hover: var(--color-accent-hi);
-}
-
-.booster-card__entrust {
-  --booster-action-color: var(--color-gold);
-  --booster-action-hover: var(--color-rarity-legendaire-hi);
-}
-
-.booster-card__sell {
-  --booster-action-color: var(--color-lime);
-  --booster-action-hover: var(--color-primary-hover);
+  transition:
+    background 120ms,
+    box-shadow 120ms,
+    color 120ms;
 }
 
 .booster-card__action:hover,
 .booster-card__action:focus-visible {
   background: color-mix(in srgb, currentcolor 22%, transparent);
-  color: var(--booster-action-hover);
+  box-shadow:
+    inset 0 0 0 1px currentcolor,
+    0 0 10px color-mix(in srgb, var(--color-text-max) 55%, transparent);
+  color: var(--color-text-max);
 }
 
 .booster-card__action:focus-visible {

@@ -1,9 +1,11 @@
 import { canRevealAll, revealAllEnded, revealAllPlan, revealAllStarted } from "./booster"
+import { lock, unlock } from "./booster_state"
 import type { BoosterStageHost } from "./booster_host"
 import { ART_POLL, ART_WAIT_ALL_MAX, REVEAL_ALL_GAP, phoneAllHold, revealSummary } from "./booster_motion"
 import type { Rarity } from "./card_types"
 import type { Template } from "./i18n"
 import type { OpeningAnswer } from "./opening"
+import type { BoosterState } from "./booster_types"
 
 export type RevealAllHost = BoosterStageHost &
   Readonly<{
@@ -24,6 +26,16 @@ export class RevealAll {
     const before = host.current()
     const answer = before.answer
     if (!answer || !canRevealAll(before)) return
+    host.apply(lock)
+    try {
+      await this.play(before, answer)
+    } finally {
+      host.apply(unlock)
+    }
+  }
+
+  private async play(before: BoosterState, answer: OpeningAnswer): Promise<void> {
+    const { host } = this
     if (before.layout === "phone") {
       await this.revealAndStore(answer)
       return

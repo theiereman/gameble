@@ -288,6 +288,7 @@ export class OpeningSequence {
         turn: flightTurn(index, count),
         height: rect.height,
         rest: phone ? pilePose(pileDepth(index, host.current().stored)) : ROW_REST,
+        phone,
       })
       animate(travel, keyframes, options)
     })

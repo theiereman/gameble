@@ -104,7 +104,11 @@ const flashFrames = (): Keyframe[] => [
   ...at([36, 100], { opacity: 0, transform: "scaleX(1.7) scaleY(4)" }),
 ]
 
+// The rays around the capsule fade out right after the touch.
+const raysFrames = (): Keyframe[] => [...at([0, 13], { opacity: 1 }), ...at([20, 100], { opacity: 0 })]
+
 const FUSE: ReadonlyArray<readonly [string, () => Keyframe[]]> = [
+  ["rays", raysFrames],
   ["shake", shakeFrames],
   ["spark--top", () => sparkFrames(0, 272)],
   ["spark--bottom", () => sparkFrames(272, 0)],

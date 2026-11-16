@@ -10,10 +10,10 @@ export function flashBlast(flash: HTMLElement | null): void {
   animate(
     flash,
     stepped([
-      { opacity: 0.95 },
-      { opacity: 0.7, offset: 0.2 },
-      { opacity: 0.42, offset: 0.45 },
-      { opacity: 0.16, offset: 0.7 },
+      { opacity: 0.6 },
+      { opacity: 0.45, offset: 0.2 },
+      { opacity: 0.28, offset: 0.45 },
+      { opacity: 0.1, offset: 0.7 },
       { opacity: 0 },
     ]),
     { duration: 300, fill: "none" },
@@ -53,21 +53,15 @@ export function shakeScreen(shake: HTMLElement | null, phone: boolean): void {
   animate(shake, screenShakeKeyframes(phone ? 10 : 14), { duration: 460, composite: "add", fill: "none" })
 }
 
-const RED = "rgba(255,0,60"
-const CYAN = "rgba(0,220,255"
-const split = (red: number, cyan: number, alpha: number) =>
-  `drop-shadow(${red}px 0 0 ${RED},${alpha})) drop-shadow(${cyan}px 0 0 ${CYAN},${alpha}))`
-
-// The console takes a surge: its colours split, its scan lines flare and two bands tear sideways.
+// The console takes a surge: it flashes, its scan lines flare and two bands tear sideways.
 export function glitchScreen(shake: HTMLElement | null, scanlines: HTMLElement | null): void {
   animate(
     shake,
     stepped([
-      { filter: `${split(5, -5, 0.75)} brightness(1.5)` },
-      { filter: `${split(-3, 4, 0.75)} brightness(1.2)`, offset: 0.2 },
-      { filter: `${split(6, -2, 0.6)} contrast(1.4)`, offset: 0.4 },
-      { filter: split(-2, 2, 0.5), offset: 0.65 },
-      { filter: "none", offset: 0.85 },
+      { filter: "brightness(1.5)" },
+      { filter: "brightness(1.2)", offset: 0.2 },
+      { filter: "contrast(1.4)", offset: 0.4 },
+      { filter: "none", offset: 0.65 },
       { filter: "none" },
     ]),
     { duration: 420, fill: "none" },

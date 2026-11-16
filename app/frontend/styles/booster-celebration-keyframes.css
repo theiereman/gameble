@@ -174,12 +174,6 @@
 
 /* ---- Loops: transform only ---- */
 
-@keyframes booster-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @keyframes booster-back-sheen {
   0%,
   55% {

@@ -17,6 +17,7 @@ export type Flight = Readonly<{
   turn: number
   height: number
   rest: PilePose
+  phone?: boolean
 }>
 
 // A card squashes onto its place this long after it leaves the capsule.
@@ -35,23 +36,29 @@ const round = (value: number, digits: number) => Number(value.toFixed(digits))
 const place = (x: number, y: number, scaleX: number, scaleY: number, turn: number) =>
   `translate(${round(x, 1)}px, ${round(y, 1)}px) scale(${round(scaleX, 3)}, ${round(scaleY, 3)}) rotate(${round(turn, 2)}deg)`
 
-export function cardFlight({ dx, dy, rank, turn, height, rest }: Flight): {
+export function cardFlight({ dx, dy, rank, turn, height, rest, phone = false }: Flight): {
   keyframes: Keyframe[]
   options: KeyframeAnimationOptions
 } {
   const k = height / REFERENCE_CARD_HEIGHT
   const { y, scale, rotate: tilt } = rest
   const resting = place(0, y, scale, scale, tilt)
+  const lift = phone ? 24 : 74
+  const swell = phone ? 0.85 : 1.14
+  const launch = phone ? 0.55 : 0.35
+  const spawn = phone ? 0.45 : 0.2
+  const rise = phone ? "cubic-bezier(.3,.7,.4,1)" : "cubic-bezier(.2,.9,.4,1)"
+  const fall = phone ? "cubic-bezier(.45,0,.7,.6)" : "cubic-bezier(.6,0,.9,.5)"
   const start = FIRST_OUT + rank * RANK_STAGGER
   const steps: Array<[number, Keyframe]> = [
-    [-6, { opacity: 0, transform: place(dx, dy, 0.2, 0.2, 0) }],
-    [0, { opacity: 1, transform: place(dx, dy, 0.35, 0.35, 0), easing: "cubic-bezier(.2,.9,.4,1)" }],
+    [-6, { opacity: 0, transform: place(dx, dy, spawn, spawn, 0) }],
+    [0, { opacity: 1, transform: place(dx, dy, launch, launch, 0), easing: rise }],
     [
       210,
       {
         opacity: 1,
-        transform: place(dx * 0.45, dy * 0.45 - 74 * k, 1.14, 1.14, turn),
-        easing: "cubic-bezier(.6,0,.9,.5)",
+        transform: place(dx * 0.45, dy * 0.45 - lift * k, swell, swell, turn),
+        easing: fall,
       },
     ],
     [

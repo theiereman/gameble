@@ -15,7 +15,8 @@ export default class BoosterPlateController extends Controller<HTMLElement> {
 
   render({ shown, hint, celebrating }: PlateView): void {
     this.element.hidden = !shown
-    this.hintTarget.hidden = hint === null || celebrating
-    if (hint) this.hintTarget.dataset.shows = hint.kind
+    this.hintTarget.hidden = celebrating
+    this.hintTarget.toggleAttribute("data-idle", hint === null)
+    this.hintTarget.dataset.shows = hint?.kind ?? "tap"
   }
 }

@@ -134,20 +134,20 @@
 }
 
 /* The stage: the plate band's hint, the pile under it, then the tray; the canister
-   (or the empty reserve) across the whole stage. A short screen scrolls. */
+   (or the empty reserve) across the rows above the tray, whose 60px row is kept before it shows so the capsule never moves. A short screen scrolls. */
 .booster[data-layout="phone"] .booster__stage {
   min-height: 474px;
 }
 
 .booster[data-layout="phone"] .booster__shake {
-  grid-template: auto minmax(0, 1fr) auto / minmax(0, 1fr);
+  grid-template: auto minmax(0, 1fr) 60px / minmax(0, 1fr);
   row-gap: var(--space-3);
   min-height: 510px;
   padding-bottom: 6px;
 }
 
 .booster[data-layout="phone"] .booster__shake > .booster__zone {
-  grid-area: 1 / 1 / -1 / -1;
+  grid-area: 1 / 1 / 3 / -1;
   gap: var(--space-4);
   padding: 0;
 }
@@ -253,6 +253,11 @@
   font-weight: var(--font-weight-regular);
   letter-spacing: 0;
   text-wrap: balance;
+}
+
+/* Its line keeps its room while no hint shows, so the pile does not shrink when one appears. */
+.booster-plate-band__hint[data-idle] {
+  visibility: hidden;
 }
 
 .booster-plate-band__hint > [data-hint] {
