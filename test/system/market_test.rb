@@ -35,8 +35,7 @@ class MarketTest < ApplicationSystemTestCase
     assert_selector ".listing-tile", count: 2
     assert_equal "Tin Soldier", first(".listing-tile a")["aria-label"].split(",").first
 
-    find(".sort summary").click
-    click_on "Price, high to low"
+    choose_sort "Price, high to low"
     assert_selector ".sort__current", text: /\APrice, high to low\z/i
     assert_equal "Blue Depths", first(".listing-tile a")["aria-label"].split(",").first
 
