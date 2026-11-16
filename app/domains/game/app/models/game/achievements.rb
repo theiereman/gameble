@@ -82,7 +82,8 @@ module Game
       Achievement.new(:profiles_viewed_20, :profiles_viewed, 20),
       Achievement.new(:profile_visits_10, :profile_visits, 10),
       Achievement.new(:profile_visits_50, :profile_visits, 50),
-      Achievement.new(:profile_visits_100, :profile_visits, 100)
+      Achievement.new(:profile_visits_100, :profile_visits, 100),
+      Achievement.new(:discord_member, :discord_member, 1)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze

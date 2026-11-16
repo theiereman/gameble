@@ -86,6 +86,12 @@ refresh_alt_signals: &refresh_alt_signals
   queue: default
   schedule: every day at 12:40am
 
+# A linked Discord account that joined the server earns its achievement.
+check_discord_memberships: &check_discord_memberships
+  class: Game::CheckDiscordMembershipsJob
+  queue: default
+  schedule: every hour
+
 development:
   recover_stalled_imports: *recover_stalled_imports
   sum_weekly_goal: *sum_weekly_goal
@@ -100,6 +106,7 @@ development:
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
+  check_discord_memberships: *check_discord_memberships
 
 production:
   recover_stalled_imports: *recover_stalled_imports
@@ -115,6 +122,7 @@ production:
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
+  check_discord_memberships: *check_discord_memberships
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

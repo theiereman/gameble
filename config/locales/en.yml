@@ -159,6 +159,7 @@ en:
       profile_visits_10: Get 10 visits on your profile
       profile_visits_50: Get 50 visits on your profile
       profile_visits_100: Get 100 visits on your profile
+      discord_member: Link your Discord account in the settings and join the gameble Discord server
     names:
       boosters_10: Probation Period Completed
       boosters_100: Outstanding Consumption Record
@@ -236,6 +237,7 @@ en:
       profile_visits_10: Public Reception
       profile_visits_50: Notable Footfall
       profile_visits_100: Place of Interest
+      discord_member: Team Meeting
     show:
       earned_label: Achievements earned
       groups:
@@ -3648,6 +3650,10 @@ en:
             in the United States among other places. This transfer relies on the European
             Commission''s adequacy decision of 10 July 2023 (Data Privacy Framework),
             to which Cloudflare adheres;'
+          discord: 'Discord, Inc. is asked, once an hour and with the game''s bot, whether
+            the Discord account you linked is a member of the gameble server, until
+            it is; it receives that account''s identifier and answers yes or no. Gameble
+            keeps only the date of the answer and, for a member, that it is one;'
           host: The site runs on servers operated by %{name}, in %{address};
           images: card images load from Steam's content delivery network, which your
             browser contacts directly.
@@ -3662,7 +3668,7 @@ en:
           steam: Steam (Valve) handles sign-in and provides your profile name and, once
             a day while the sync is on, the games of your Steam library;
         stored:
-          activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals and the number you reached, whether you opened the source code and support links, whether the author granted you the code contribution achievement, the profile visits you made and received (who and when, at most one an hour per profile), achievements,
+          activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals and the number you reached, whether you opened the source code and support links, whether the author granted you the code contribution achievement, whether and when your linked Discord account was found in the gameble server, the profile visits you made and received (who and when, at most one an hour per profile), achievements,
             card back unlocks and active card back, capsules, daily bonuses, weekly
             mission rewards, trades, friendships, invitations, friend code, activity feed
             entries, your reactions to feed entries and latest activity;'

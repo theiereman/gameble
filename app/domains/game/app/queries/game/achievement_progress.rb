@@ -224,6 +224,8 @@ module Game
     PROFILE_VISITS_SQL = "SELECT COUNT(*) FROM game_profile_visits WHERE visited_id = :player_id".freeze
     CODE_CONTRIBUTIONS_SQL = "SELECT COUNT(code_contribution_at) FROM game_player_states WHERE player_id = :player_id".freeze
 
+    DISCORD_MEMBER_SQL = "SELECT COUNT(discord_member_at) FROM game_player_states WHERE player_id = :player_id".freeze
+
     METRIC_SQL = {
       packs_opened: PACKS_OPENED_SQL,
       epics_obtained: format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic)),
@@ -268,7 +270,8 @@ module Game
       support_opened: SUPPORT_OPENED_SQL,
       code_contributions: CODE_CONTRIBUTIONS_SQL,
       profiles_viewed: PROFILES_VIEWED_SQL,
-      profile_visits: PROFILE_VISITS_SQL
+      profile_visits: PROFILE_VISITS_SQL,
+      discord_member: DISCORD_MEMBER_SQL
     }.freeze
 
     RUBY_METRICS = %i[most_games_of_a_studio last_places].freeze

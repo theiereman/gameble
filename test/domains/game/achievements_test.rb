@@ -756,7 +756,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     data = { player_id: @player.id, proposer_id: @player.id, recipient_id: @other.id, seller_id: @player.id, winner_id: @other.id,
       author_id: @other.id, partner_id: nil, kind: "thumb", sender_id: @player.id, viewer_id: @player.id, visited_id: @other.id }
 
-    assert_enqueued_jobs 25, only: Game::GrantAchievementsJob do
+    assert_enqueued_jobs 26, only: Game::GrantAchievementsJob do
       Game::Handlers::Achievements::EVENTS.each_key { Game::Handlers::Achievements.call(it.new(data:)) }
     end
   end

@@ -431,7 +431,7 @@ fr:
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
           steam_library: "si vous vous connectez avec Steam et laissez « Synchroniser mes jeux Steam » activé dans les paramètres : la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set « Ma bibliothèque Steam », avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand ;"
           identities: "vos modes de connexion : Steam, Apple, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
-          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, sets perso, objectifs et leur nombre atteint, ouverture ou non des liens du code source et du soutien, octroi ou non par l'auteur du succès de contribution au code, visites de profils faites et reçues (qui et quand, au plus une par heure et par profil), succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité, vos réactions aux entrées du fil et dernière activité ;"
+          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, sets perso, objectifs et leur nombre atteint, ouverture ou non des liens du code source et du soutien, octroi ou non par l'auteur du succès de contribution au code, présence ou non (et date) de votre compte Discord lié sur le serveur gameble, visites de profils faites et reçues (qui et quand, au plus une par heure et par profil), succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité, vos réactions aux entrées du fil et dernière activité ;"
           market: "votre activité sur le marché : votre portefeuille de PiCoins (solde disponible et solde engagé), chaque mouvement de PiCoins, vos annonces, vos enchères avec les maximums que vous avez fixés, et vos notifications du marché ;"
           signals: "des signaux de comptes multiples, calculés chaque jour à partir de votre activité de capsules, d'échanges, de ventes et d'enchères, que seul le personnel de modération consulte, et dont aucune décision n'est tirée automatiquement ;"
           moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
@@ -451,6 +451,7 @@ fr:
         nothing_else: "Pas de mesure d'audience, pas de publicité, pas d'argent réel. Vos données ne sont ni vendues ni cédées."
         services:
           intro: "Quelques services extérieurs interviennent :"
+          discord: "Discord, Inc. est interrogé, toutes les heures et par le bot du jeu, pour savoir si le compte Discord que vous avez lié est membre du serveur gameble, jusqu'à ce qu'il le soit : il reçoit l'identifiant de ce compte et répond oui ou non. Gameble ne garde que la date de la réponse et, pour un membre, le fait qu'il l'est ;"
           host: "Le site tourne sur des serveurs exploités par %{name}, en %{address} ;"
           steam: "Steam (Valve) gère la connexion et fournit votre nom de profil et, une fois par jour tant que la synchronisation est activée, les jeux de votre bibliothèque Steam ;"
           clerk: "Clerk, Inc. gère la connexion par Apple, Discord, Google ou code par e-mail, en tant que sous-traitant : il conserve l'utilisateur Clerk créé pour vous (votre adresse e-mail, l'identifiant que Discord ou Google donne pour vous, et vos sessions de connexion) et peut le traiter notamment aux États-Unis. Votre navigateur le contacte directement sur l'écran de connexion et dans les paramètres. Gameble ne garde que l'identifiant de cet utilisateur Clerk et une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
@@ -3013,6 +3014,7 @@ fr:
       profile_visits_10: "Accueil du public"
       profile_visits_50: "Fréquentation notable"
       profile_visits_100: "Pôle d'attraction"
+      discord_member: "Réunion d'équipe"
     show:
       title: "Succès"
       summary:
@@ -3101,6 +3103,7 @@ fr:
       profile_visits_10: "Recevoir 10 visites sur votre profil"
       profile_visits_50: "Recevoir 50 visites sur votre profil"
       profile_visits_100: "Recevoir 100 visites sur votre profil"
+      discord_member: "Lier votre compte Discord dans les paramètres et rejoindre le serveur Discord de gameble"
   invite_links:
     show:
       title: "%{name} vous invite"

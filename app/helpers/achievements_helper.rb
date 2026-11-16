@@ -27,7 +27,8 @@ module AchievementsHelper
     avatar_changed: "portrait", avatar_rebrand: "portrait", source_audit: "lens", funding_review: "coin",
     code_contribution: "clasp",
     profiles_viewed_1: "lens", profiles_viewed_5: "lens", profiles_viewed_20: "lens",
-    profile_visits_10: "showcase", profile_visits_50: "showcase", profile_visits_100: "showcase"
+    profile_visits_10: "showcase", profile_visits_50: "showcase", profile_visits_100: "showcase",
+    discord_member: "friends"
   }.freeze
 
   def achievement_icon(tile)
