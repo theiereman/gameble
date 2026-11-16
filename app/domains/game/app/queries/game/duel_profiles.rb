@@ -1,7 +1,13 @@
 module Game
   module DuelProfiles
+    MOVE_AT = 5
+
     Stat = Data.define(:name, :value, :percentile, :median_distance, :weekly_percentile) do
       def value? = !value.nil?
+
+      def weekly_move = (percentile - weekly_percentile unless percentile.nil? || weekly_percentile.nil?)
+
+      def moved? = !weekly_move.nil? && weekly_move.abs >= MOVE_AT
     end
 
     Profile = Data.define(:card_season_id, :stats, :trump_stat, :trump_direction, :computed_at) do

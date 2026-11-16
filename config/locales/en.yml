@@ -1655,6 +1655,27 @@ en:
     throttled: Too many changes in a minute. Try again in a moment.
     editor:
       collection: Your collection
+      coverage:
+        fill: Fill the gaps
+        gap: Gap
+        gap_label: "%{call}, gap, sort the collection"
+        heading: Coverage
+        short:
+          circulation:
+            high: Widespread
+            low: Hard to find
+          discovery:
+            high: Found first
+            low: Found last
+          popularity:
+            high: Popular
+            low: Obscure
+          rating:
+            high: Best rated
+            low: Worst rated
+          release:
+            high: Newest
+            low: Oldest
       delete: Delete the deck
       delete_dialog:
         cancel: Cancel
@@ -1663,16 +1684,31 @@ en:
         text: The cards stay in your collection.
       empty_collection: No card in your collection yet.
       empty_slot: Empty slot
+      moves:
+        down: "%{stat} down: %{to}, against %{from} last Monday"
+        up: "%{stat} up: %{to}, against %{from} last Monday"
       name_label: Deck name
       no_stats: Stats on Monday
       slots: Slots
+      sort:
+        by_title: By title
+        label: Sort
+        prefix: 'Sort:'
       title: Deck
       trump: "%{trump} · %{stat}"
+      trump_filter:
+        all: All
+        label: Trump
       strings:
         add: Add
         added: "%{card} added, %{count} of 12"
         count_hidden: "%{count} of 12"
+        coverage_covered: "%{call}, %{best}"
         delete_title: Delete the deck "%{deck}"?
+        filled:
+          one: "%{count} card added, %{total} of 12"
+          other: "%{count} cards added, %{total} of 12"
+          zero: No card to add, %{total} of 12
         full: The deck is full.
         in_deck: In the deck
         in_deck_suffix: ", in the deck"
@@ -1680,6 +1716,7 @@ en:
         removed: "%{card} removed, %{count} of 12"
         same_game: This game is already in the deck.
         save_failed: Could not save, try again.
+        sorted: "Collection sorted: %{call}"
     holding:
       names: 'In: %{decks}'
       remove: Remove from decks
@@ -1699,6 +1736,22 @@ en:
         zero: Remove %{card} from its decks?
   duel_stats:
     dated: Values of %{date}
+    directions:
+      circulation:
+        high: Most widespread
+        low: Hardest to find
+      discovery:
+        high: First discovered
+        low: Last discovered
+      popularity:
+        high: Most popular
+        low: Most obscure
+      rating:
+        high: Best rated
+        low: Worst rated
+      release:
+        high: Newest
+        low: Oldest
     heading: Duel
     names:
       circulation: Circulation
@@ -1713,6 +1766,12 @@ en:
       legendary: Legendary
       rare: Rare
       uncommon: Uncommon
+    short:
+      circulation: Circ.
+      discovery: Disc.
+      popularity: Pop.
+      rating: Rating
+      release: Release
     trump: Trump
     values:
       circulation:

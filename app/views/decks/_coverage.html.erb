@@ -1,0 +1,22 @@
+<%# locals: (coverage:) %>
+<section class="deck-coverage" aria-labelledby="deck-coverage-heading" data-controller="deck-coverage">
+  <h2 id="deck-coverage-heading" class="deck-coverage__heading"><%= t("decks.editor.coverage.heading") %></h2>
+  <ul class="deck-coverage__cells">
+    <% coverage.calls.each do |call| %>
+      <% label = deck_call_label(call) %>
+      <li class="deck-coverage__cell" data-deck-coverage-target="cell" data-call="<%= call.key %>" data-label="<%= label %>">
+        <span class="deck-coverage__name" aria-hidden="true"><%= deck_call_short(call) %></span>
+        <%= tag.span class: "deck-coverage__value", hidden: call.gap? do %>
+          <span class="deck-coverage__number" aria-hidden="true"><%= call.shown %></span>
+          <span class="deck-coverage__words visually-hidden"><%= t("decks.editor.strings.coverage_covered", call: label, best: call.shown) %></span>
+        <% end %>
+        <%= tag.span class: "deck-coverage__gap", hidden: !call.gap?, data: { action: "click->deck-coverage#choose" } do %>
+          <%= render ButtonComponent.new(variant: :secondary, aria_label: t("decks.editor.coverage.gap_label", call: label)) do %><%= t("decks.editor.coverage.gap") %><% end %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <div class="deck-coverage__fill" data-action="click->deck-coverage#fill">
+    <%= render ButtonComponent.new(variant: :secondary) do %><%= t("decks.editor.coverage.fill") %><% end %>
+  </div>
+</section>

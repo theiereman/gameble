@@ -3895,6 +3895,37 @@ fr:
       empty_collection: "Aucune carte dans votre collection pour l'instant."
       no_stats: "Stats lundi"
       trump: "%{trump} · %{stat}"
+      coverage:
+        heading: "Couverture"
+        gap: "Manque"
+        gap_label: "%{call}, manque, trier la collection"
+        fill: "Compléter les manques"
+        short:
+          popularity:
+            high: "Populaire"
+            low: "Confid."
+          rating:
+            high: "Mieux notée"
+            low: "Moins notée"
+          release:
+            high: "Récente"
+            low: "Ancienne"
+          discovery:
+            high: "Découv. tôt"
+            low: "Découv. tard"
+          circulation:
+            high: "Répandue"
+            low: "Introuvable"
+      sort:
+        label: "Trier"
+        by_title: "Par titre"
+        prefix: "Tri :"
+      trump_filter:
+        label: "Atout"
+        all: "Toutes"
+      moves:
+        up: "%{stat} en hausse : %{to}, contre %{from} lundi dernier"
+        down: "%{stat} en baisse : %{to}, contre %{from} lundi dernier"
       delete: "Supprimer le deck"
       delete_dialog:
         text: "Les cartes restent dans votre collection."
@@ -3913,6 +3944,12 @@ fr:
         full: "Le deck est complet."
         same_game: "Ce jeu est déjà dans le deck."
         save_failed: "Enregistrement impossible, réessayez."
+        coverage_covered: "%{call}, %{best}"
+        sorted: "Collection triée : %{call}"
+        filled:
+          zero: "Aucune carte à ajouter, %{total} sur 12"
+          one: "%{count} carte ajoutée, %{total} sur 12"
+          other: "%{count} cartes ajoutées, %{total} sur 12"
     holding:
       tag: "Dans un deck"
       names: "Dans : %{decks}"
@@ -3941,6 +3978,28 @@ fr:
       release: "Sortie"
       discovery: "Découverte"
       circulation: "Circulation"
+    short:
+      popularity: "Pop."
+      rating: "Note"
+      release: "Sortie"
+      discovery: "Déc."
+      circulation: "Circ."
+    directions:
+      popularity:
+        high: "La plus populaire"
+        low: "La plus confidentielle"
+      rating:
+        high: "La mieux notée"
+        low: "La moins bien notée"
+      release:
+        high: "La plus récente"
+        low: "La plus ancienne"
+      discovery:
+        high: "Découverte en premier"
+        low: "Découverte en dernier"
+      circulation:
+        high: "La plus répandue"
+        low: "La plus introuvable"
     words:
       popularity:
         high: "Plus populaire que %{percent} des cartes"

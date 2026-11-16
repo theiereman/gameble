@@ -95,6 +95,7 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "duels/decks/:token/cards" => "deck_cards#create", as: :deck_cards, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     delete "duels/decks/:token/cards" => "deck_cards#destroy", constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "duels/decks/:token/fill" => "deck_fills#create", as: :deck_fill, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # A player's goals, each named by its set: a kind and key, or a custom
     # set's token, never a position.
     post "library/goals" => "goals#create", as: :library_goals

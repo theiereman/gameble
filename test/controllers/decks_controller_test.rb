@@ -54,6 +54,7 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".deck-slots__slot .deck-slot--empty", 12
     assert_select ".deck-editor__delete[hidden]"
     assert_select "[data-deck-editor-target=entry][data-ref]", 4
+    assert_select "meta[name=turbo-cache-control][content=no-cache]"
     assert_no_match(/data-[a-z-]*id="\d+"/, response.body)
   end
 
@@ -87,6 +88,55 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert_select "form.delete-deck__form[action=?]", deck_path(locale: :en, token: deck.token)
   end
 
+  test "the editor draws the deck's coverage, the sort and trump choices, and under each deck card the stats that moved since Monday" do
+    _season, (unranked,) = published_cards(1)
+    hold(@player, unranked)
+    moved, steady = ranked_cards(@player, 2, titles: [ "Quake", "Myst" ])
+    set_percentiles(moved, popularity: 62, release: 30, weekly: { popularity: 55, release: 40 })
+    set_percentiles(steady, popularity: 95, weekly: { popularity: 99.1 })
+    deck = create_deck
+    [ moved, steady ].each { Game::AddCardToDeck.new.call(player: @player, token: deck.token, card_season_id: it).value! }
+    sign_in(@player)
+
+    get deck_path(locale: :fr, token: deck.token)
+
+    assert_select "meta[name=turbo-cache-control][content=no-cache]"
+    assert_select ".deck-coverage__cell", 10
+    assert_select ".deck-coverage__cell[data-call=popularity-high]" do
+      assert_select ".deck-coverage__name", "Populaire"
+      assert_select ".deck-coverage__value:not([hidden]) .deck-coverage__number", "95"
+      assert_select ".deck-coverage__gap[hidden]"
+    end
+    assert_select ".deck-coverage__cell[data-call=release-low]" do
+      assert_select ".deck-coverage__value[hidden]"
+      assert_select ".deck-coverage__gap:not([hidden]) .button--secondary[aria-label=?]", "La plus ancienne, manque, trier la collection", text: "Manque"
+    end
+    assert_select ".deck-coverage__fill .button--secondary", "Compléter les manques"
+    assert_select "select", 0
+    assert_select ".deck-collection .sort__button", /\ATri : Par titre\z/
+    assert_select ".deck-collection .sort__current", "Par titre"
+    assert_select ".deck-collection .sort__option", 11
+    assert_select ".deck-collection .sort__option[aria-current=true]", "Par titre"
+    assert_select ".deck-collection .sort__option[href=?]", "#{deck_path(locale: :fr, token: deck.token)}?sort=release-low", text: "La plus ancienne"
+    assert_select "fieldset.deck-collection__trumps legend.visually-hidden", "Atout"
+    assert_equal %w[Toutes Popularité Note Sortie Découverte Circulation], css_select(".deck-collection__trumps .filter-chip__text").map(&:text)
+    assert_select "input.filter-chip__box[type=radio][name=trump][value=all][checked]"
+    assert_select ".deck-slots__slot:first-child" do
+      assert_select ".deck-slot__moves[aria-hidden=true]", "▲ Pop. ▼ Sortie"
+      assert_select "button.deck-slot[aria-label=?]",
+        "Retirer Quake du deck. Popularité en hausse\u202F: 62, contre 55 lundi dernier. Sortie en baisse\u202F: 30, contre 40 lundi dernier"
+    end
+    assert_select ".deck-slots__slot:nth-child(2) .deck-slot__moves", ""
+    assert_select ".deck-slots__slot:nth-child(2) button.deck-slot[aria-label=?]", "Retirer Myst du deck"
+    entry = css_select(".deck-entry__toggle[data-ref='#{ref_of(moved)}']").sole
+    assert_equal({ "popularity" => 62.0, "rating" => 50.0, "release" => 30.0, "discovery" => 50.0, "circulation" => 50.0 }, JSON.parse(entry["data-percentiles"]))
+    assert_equal [ "release", "▲ Pop. ▼ Sortie" ], [ entry["data-trump"], entry["data-moves-text"] ]
+    assert Game::DuelStat.where(card_season_id: unranked).where.not(trump_stat: nil).exists?
+    unranked_entry = css_select(".deck-entry__toggle[data-ref='#{ref_of(unranked)}']").sole
+    assert_equal [ Game::DuelStat::STATS.to_h { [ it.to_s, nil ] }, "" ], [ JSON.parse(unranked_entry["data-percentiles"]), unranked_entry["data-trump"] ]
+    assert_select "[style]", 0
+  end
+
   test "with five decks the new editor says so and shows no editor" do
     5.times { create_deck }
     sign_in(@player)
@@ -97,8 +147,9 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert_select "#deck-editor", 0
   end
 
-  test "each change saves in JSON: a deck created with its address, renamed, a card added then taken out" do
+  test "each change saves in JSON: a deck created with its address, renamed, a card added then taken out, with the deck's coverage" do
     card = ranked_cards(@player, 1).sole
+    set_percentiles(card, popularity: 95)
     sign_in(@player)
 
     post decks_path(locale: :en), params: { name: nil }, **json
@@ -109,10 +160,15 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "name" => "Vieux" }, response.parsed_body)
 
     post deck_cards_path(locale: :en, token: deck.token), params: { ref: ref_of(card) }, **json
-    assert_equal({ "slot" => 1, "count" => 1 }, response.parsed_body)
+    assert_equal({ "slot" => 1, "count" => 1 }, response.parsed_body.except("coverage"))
+    coverage = response.parsed_body["coverage"]
+    assert_equal 10, coverage.size
+    assert_equal [ { "call" => "popularity-high", "best" => 95, "gap" => false }, { "call" => "popularity-low", "best" => 5, "gap" => true },
+      { "call" => "rating-high", "best" => 50, "gap" => true } ], coverage.first(3)
 
     delete deck_cards_path(locale: :en, token: deck.token), params: { ref: ref_of(card) }, **json
-    assert_equal({ "slot" => 1, "count" => 0 }, response.parsed_body)
+    assert_equal({ "slot" => 1, "count" => 0 }, response.parsed_body.except("coverage"))
+    assert response.parsed_body["coverage"].all? { it["best"].nil? && it["gap"] }
     assert_equal 0, reserved_of(@player, card)
   end
 

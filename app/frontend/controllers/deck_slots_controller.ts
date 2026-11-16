@@ -31,13 +31,15 @@ export default class DeckSlotsController extends Controller<HTMLElement> {
     if (index !== -1) this.dispatch("remove", { detail: { slot: index + 1 } })
   }
 
-  private filled({ title, image, label }: NonNullable<SlotView>): HTMLElement | null {
-    const button = cloneFirstElement<HTMLElement>(this.filledTemplateTarget)
-    if (!button) return null
+  private filled({ title, image, label, moves }: NonNullable<SlotView>): HTMLElement | null {
+    const filled = cloneFirstElement<HTMLElement>(this.filledTemplateTarget)
+    const button = filled?.querySelector(".deck-slot")
+    if (!filled || !button) return null
     writeAttribute(button, "aria-label", label)
     const art = button.querySelector<HTMLImageElement>("img")
     if (art) writeAttribute(art, "src", image)
     writeText(button.querySelector(".deck-slot__name"), title)
-    return button
+    writeText(filled.querySelector(".deck-slot__moves"), moves)
+    return filled
   }
 }

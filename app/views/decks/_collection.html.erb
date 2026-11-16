@@ -4,7 +4,21 @@
   <% if editor.entries.empty? %>
     <p class="deck-collection__empty"><%= t("decks.editor.empty_collection") %></p>
   <% else %>
-    <ul class="deck-collection__list" data-action="keydown->deck-collection#keydown">
+    <div class="deck-collection__tools">
+      <fieldset class="deck-collection__trumps">
+        <legend class="visually-hidden"><%= t("decks.editor.trump_filter.label") %></legend>
+        <% deck_trump_options.each do |label, value| %>
+          <label class="filter-chip">
+            <%= radio_button_tag "trump", value, value == "all", id: nil, class: "filter-chip__box",
+                  data: { deck_collection_target: "trump", action: "change->deck-collection#filter" } %>
+            <span class="filter-chip__text"><%= label %></span>
+          </label>
+        <% end %>
+      </fieldset>
+      <%= render SortComponent.new(prefix: t("decks.editor.sort.prefix"), label: t("decks.editor.sort.label"), options: deck_sort_links,
+            link_data: { deck_collection_target: "sortOption", action: "deck-collection#sort" }) %>
+    </div>
+    <ul class="deck-collection__list" data-deck-collection-target="list" data-action="keydown->deck-collection#keydown">
       <%= render partial: "decks/entry", collection: editor.entries, as: :entry, locals: { editor: editor } %>
     </ul>
   <% end %>

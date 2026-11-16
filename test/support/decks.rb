@@ -7,6 +7,9 @@ module Decks
   include GameSets
   include Holdings
 
+  # A value for each stat a test gives a percentile and the computation left without one.
+  STAT_VALUES = { popularity: 1, rating: 50, release: Date.new(2000, 1, 1), discovery: Time.utc(2026, 1, 1), circulation: 1 }.freeze
+
   # `count` editions of a new published season, held by `player` and ranked; their card-season ids.
   def ranked_cards(player, count, quantity: 1, titles: nil)
     _season, ids = published_cards(count)
@@ -32,6 +35,21 @@ module Decks
       Game::FirstDiscovery.create!(card_season_id:, player_id: player.id, discovered_at: 1.day.ago) unless Game::FirstDiscovery.exists?(card_season_id:)
     end
     Game::ComputeDuelStats.new.call(reason: "first").value!
+  end
+
+  # Sets a ranked card-season's five percentiles, 50 unless given and none for a stat given nil, its trump the most
+  # extreme of them; `weekly` sets last Monday's. Call it after the last `rank`, which computes them all again.
+  def set_percentiles(card_season_id, weekly: {}, **given)
+    percentiles = Game::DuelStat::STATS.index_with { given.fetch(it, 50) }
+    trump, extreme = percentiles.compact.max_by { |_, percentile| (percentile - 50).abs }
+    row = Game::DuelStat.find_by!(card_season_id:)
+    columns = percentiles.to_h do |stat, percentile|
+      value = row[:"#{stat}_value"] || STAT_VALUES.fetch(stat) unless percentile.nil?
+      [ stat, { value:, percentile:, median_distance: percentile && (percentile - 50).abs.to_f, weekly_percentile: weekly[stat] } ]
+    end
+    Game::DuelStat.where(card_season_id:).update_all(
+      columns.flat_map { |stat, fields| fields.map { |field, value| [ :"#{stat}_#{field}", value ] } }.to_h
+        .merge(trump_stat: trump.to_s, trump_direction: extreme >= 50 ? "high" : "low"))
   end
 
   def card_of(card_season_id) = Catalog::CardSeason.where(id: card_season_id).pick(:card_id)

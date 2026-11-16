@@ -14,6 +14,7 @@
           data: { deck_name_target: "input", action: "change->deck-name#commit keydown.enter->deck-name#commit" } %>
     <p id="deck-name-refusal" class="deck-editor__refusal" data-deck-name-target="refusal"></p>
   </div>
+  <%= render "decks/coverage", coverage: editor.coverage %>
   <%= render "decks/slots", editor: editor %>
   <p class="deck-editor__status" role="status" data-deck-editor-target="status"></p>
   <%= render "decks/collection", editor: editor %>

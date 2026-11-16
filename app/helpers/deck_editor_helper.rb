@@ -1,8 +1,9 @@
 module DeckEditorHelper
   DECK_EDITOR_ACTIONS = {
     "deck-name" => { rename: :rename },
+    "deck-coverage" => { gap: :chooseGap, fill: :fill },
     "deck-slots" => { remove: :removeSlot },
-    "deck-collection" => { choose: :choose, move: :move }
+    "deck-collection" => { choose: :choose, move: :move, sort: :sortBy, filter: :filterBy }
   }.freeze
 
   def deck_editor_root_data(editor)
@@ -16,7 +17,8 @@ module DeckEditorHelper
 
   def deck_entry_data(editor, entry)
     { ref: entry.ref, game: entry.game, title: entry.title, image: entry.image_url, availability: entry.availability,
-      label: deck_entry_label(entry) }
+      label: deck_entry_label(entry), percentiles: entry.percentiles, trump: entry.trump_stat.to_s,
+      moves_text: deck_moves_text(entry), moves_sentence: deck_moves_sentence(entry) }
   end
 
   def deck_entry_label(entry)
@@ -37,10 +39,46 @@ module DeckEditorHelper
     t("decks.editor.trump", trump: t("duel_stats.trump"), stat: t("duel_stats.names.#{entry.trump_stat}"))
   end
 
+  def deck_slot_label(entry)
+    [ t("decks.editor.strings.remove_slot", card: entry&.title), deck_moves_sentence(entry).presence ].compact.join(". ")
+  end
+
+  def deck_moves_text(entry)
+    Array(entry&.moves).map { "#{it.up? ? "▲" : "▼"} #{t("duel_stats.short.#{it.stat}")}" }.join(" ")
+  end
+
+  def deck_moves_sentence(entry)
+    Array(entry&.moves).map do |move|
+      t("decks.editor.moves.#{move.up? ? "up" : "down"}", stat: t("duel_stats.names.#{move.stat}"), to: move.to, from: move.from)
+    end.join(". ")
+  end
+
+  def deck_coverage_json(coverage)
+    coverage.calls.map { { call: it.key, best: it.shown, gap: it.gap? } }
+  end
+
+  def deck_call_label(call) = t("duel_stats.directions.#{call.stat}.#{call.direction}")
+
+  def deck_call_short(call) = t("decks.editor.coverage.short.#{call.stat}.#{call.direction}")
+
+  def deck_sort_options
+    calls = Game::DeckCoverage::CALLS.map { |stat, direction| [ t("duel_stats.directions.#{stat}.#{direction}"), Game::DeckCoverage.key(stat, direction) ] }
+    [ [ t("decks.editor.sort.by_title"), "title" ], *calls ]
+  end
+
+  def deck_sort_links
+    deck_sort_options.map { |label, key| { label:, href: "#{request.path}?sort=#{key}", current: key == "title" } }
+  end
+
+  def deck_trump_options
+    [ [ t("decks.editor.trump_filter.all"), "all" ], *Game::DuelStat::STATS.map { [ t("duel_stats.names.#{it}"), it.to_s ] } ]
+  end
+
   private
     def deck_editor_strings
       screen_strings("decks.editor.strings").merge(
         notYetRanked: Game::AddCardToDeck.failure_message(:not_yet_ranked),
-        noFreeCopy: Game::AddCardToDeck.failure_message(:no_free_copy))
+        noFreeCopy: Game::AddCardToDeck.failure_message(:no_free_copy),
+        calls: deck_sort_options.drop(1).to_h(&:reverse))
     end
 end

@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest"
 import {
   activateFirst,
   choose,
+  chooseGap,
   collectionView,
   countOf,
   failed,
+  fill,
+  filterBy,
   focusAfterRemoval,
   move,
   nextToSend,
@@ -15,6 +18,7 @@ import {
   requestFor,
   saved,
   slotsView,
+  sortBy,
   start,
   type DeckState,
   type DeckStrings,
@@ -35,6 +39,14 @@ const STRINGS: DeckStrings = {
   saveFailed: "Could not save, try again.",
   notYetRanked: "This card gets its stats on Monday.",
   noFreeCopy: "All your copies of this card are reserved.",
+  coverageCovered: "%{call}, %{best}",
+  filled: {
+    zero: "No card to add, %{total} of 12",
+    one: "%{count} card added, %{total} of 12",
+    other: "%{count} cards added, %{total} of 12",
+  },
+  sorted: "Collection sorted: %{call}",
+  calls: { "release-low": "Oldest", "popularity-high": "Most popular" },
 }
 
 const entry = (ref: string, overrides: Partial<Entry> = {}): Entry => ({
@@ -43,6 +55,10 @@ const entry = (ref: string, overrides: Partial<Entry> = {}): Entry => ({
   title: ref.split(":")[0] ?? ref,
   image: `https://images.test/${ref}.jpg`,
   availability: "available",
+  percentiles: { popularity: 50, rating: 50, release: 50, discovery: 50, circulation: 50 },
+  trump: "popularity",
+  movesText: "",
+  movesSentence: "",
   ...overrides,
 })
 
@@ -107,8 +123,8 @@ describe("choose", () => {
   it("makes the chosen card the collection's tab stop", () => {
     const state = choose(saved_deck(), "game-3:1")
 
-    expect(collectionView(state).get("game-3:1")).toEqual({ inDeck: true, tabbable: true })
-    expect(collectionView(state).get("game-0:1")).toEqual({ inDeck: false, tabbable: false })
+    expect(collectionView(state).entries.get("game-3:1")).toEqual({ inDeck: true, tabbable: true, hidden: false })
+    expect(collectionView(state).entries.get("game-0:1")).toEqual({ inDeck: false, tabbable: false, hidden: false })
   })
 })
 
@@ -248,8 +264,147 @@ describe("views", () => {
       title: "game-0",
       image: "https://images.test/game-0:1.jpg",
       label: "Remove game-0 from the deck",
+      moves: "",
     })
     expect(view.slice(1).every((slot) => slot === null)).toBe(true)
     expect(view).toHaveLength(12)
+  })
+})
+
+describe("sort and trump filter", () => {
+  const ranked = [
+    entry("old:1", { percentiles: { release: 5 }, trump: "release" }),
+    entry("pop:1", { percentiles: { popularity: 99 }, trump: "popularity" }),
+    entry("new:1", { percentiles: { release: 95 }, trump: "release" }),
+    entry("unranked:1", { percentiles: {}, trump: "" }),
+    entry("older:1", { percentiles: { release: 2 }, trump: "release" }),
+  ]
+  const deck = () =>
+    start({ token: "T".repeat(24), url: "/en/duels/decks/T", name: "Vieux", slots: [], entries: ranked })
+  const shown = (state: DeckState) =>
+    [...collectionView(state).entries].filter(([, view]) => !view.hidden).map(([ref]) => ref)
+
+  it("orders the collection by a call, the cards with no value in it last, and back by title", () => {
+    const state = sortBy(deck(), "release-low")
+
+    expect([...collectionView(state).entries.keys()]).toEqual(["older:1", "old:1", "new:1", "pop:1", "unranked:1"])
+    expect(collectionView(state).sort).toBe("release-low")
+    expect([...collectionView(sortBy(state, "title")).entries.keys()]).toEqual(ranked.map((each) => each.ref))
+    expect(sortBy(state, "release-low")).toBe(state)
+  })
+
+  it("on a gap, sorts by its call and says so", () => {
+    const state = chooseGap(deck(), "release-low")
+
+    expect(state.sort).toBe("release-low")
+    expect(noticeText(state, STRINGS)).toBe("Collection sorted: Oldest")
+  })
+
+  it("hides the cards of another trump and moves the tab stop to the first one shown when its card is hidden", () => {
+    const state = filterBy(deck(), "release")
+
+    expect(shown(state)).toEqual(["old:1", "new:1", "older:1"])
+    expect(collectionView(state).entries.get("pop:1")).toEqual({ inDeck: false, tabbable: false, hidden: true })
+    expect(state.active).toBe("old:1")
+    expect(filterBy(move(state, "End", 1), "rating").active).toBeNull()
+    expect(filterBy({ ...deck(), active: "pop:1" }, "release").active).toBe("old:1")
+    expect(filterBy(state, "release")).toBe(state)
+  })
+
+  it("moves the arrow keys over the cards shown only, in their sorted order, the collection one tab stop", () => {
+    let state = filterBy(sortBy(deck(), "release-low"), "release")
+    state = activateFirst(state)
+    expect(state.active).toBe("older:1")
+
+    state = move(state, "ArrowDown", 1)
+    expect(state.active).toBe("old:1")
+    state = move(state, "ArrowDown", 1)
+    expect(state.active).toBe("new:1")
+    expect(move(state, "ArrowDown", 1)).toBe(state)
+    expect(move(state, "Home", 1).active).toBe("older:1")
+    expect([...collectionView(state).entries.values()].filter((view) => view.tabbable)).toHaveLength(1)
+  })
+})
+
+describe("filling the gaps", () => {
+  it("queues the fill, creating a new deck first, and sends it to the deck's fill address", () => {
+    let state = fill(fresh())
+    expect(state.pending).toEqual([{ kind: "create", name: null }, { kind: "fill" }])
+
+    state = saved(state, { token: "T".repeat(24), url: "/en/duels/decks/T", name: "Deck 1" })
+    expect(requestFor(state, nextToSend(state)!, "/en/duels/decks")).toEqual({
+      url: "/en/duels/decks/T/fill",
+      method: "POST",
+      body: {},
+    })
+  })
+
+  it("puts the returned cards in their slots, keeps the coverage answered and says how many were added", () => {
+    const coverage = [{ call: "popularity-high", best: 95, gap: false }]
+    let state = fill(saved_deck(["game-0:1"]))
+    state = saved(state, {
+      slots: [
+        { slot: 2, ref: "game-4:1" },
+        { slot: 3, ref: "game-5:1" },
+      ],
+      count: 3,
+      coverage,
+    })
+
+    expect(state.slots.slice(0, 4)).toEqual(["game-0:1", "game-4:1", "game-5:1", null])
+    expect(state.coverage).toEqual(coverage)
+    expect(state.pending).toEqual([])
+    expect(noticeText(state, STRINGS)).toBe("2 cards added, 3 of 12")
+  })
+
+  it("says when there was nothing to add, and keeps the coverage when an answer has none", () => {
+    const coverage = [{ call: "popularity-high", best: null, gap: true }]
+    let state = saved(choose(saved_deck(), "game-0:1"), { slot: 1, count: 1, coverage })
+    state = saved(fill(state), { slots: [], count: 1 })
+
+    expect(state.coverage).toEqual(coverage)
+    expect(noticeText(state, STRINGS)).toBe("No card to add, 1 of 12")
+  })
+
+  it("moves a card chosen while the fill was on its way out of a slot the fill took", () => {
+    let state = choose(fill(saved_deck()), "game-7:1")
+    expect(state.slots[0]).toBe("game-7:1")
+
+    state = saved(state, { slots: [{ slot: 1, ref: "game-4:1" }], count: 1 })
+
+    expect(state.slots.slice(0, 2)).toEqual(["game-4:1", "game-7:1"])
+  })
+
+  it("takes back a refused card from the slot the fill moved it to", () => {
+    let state = saved(choose(fill(saved_deck()), "game-7:1"), { slots: [{ slot: 1, ref: "game-4:1" }], count: 1 })
+
+    state = refused(state, "no_free_copy", "All your copies of this card are reserved.")
+
+    expect(state.slots.slice(0, 2)).toEqual(["game-4:1", null])
+    expect(state.pending).toEqual([])
+  })
+
+  it("on a refused fill, changes no slot and posts the refusal", () => {
+    const before = fill(saved_deck(["game-0:1"]))
+    const state = refused(before, "no_free_copy", "All your copies of this card are reserved.")
+
+    expect(state.slots).toEqual(before.slots)
+    expect(state.pending).toEqual([])
+    expect(noticeText(state, STRINGS)).toBe("All your copies of this card are reserved.")
+  })
+})
+
+describe("moves", () => {
+  it("draws a deck card's moved stats under it and ends its button's name with each move", () => {
+    const moved = entry("game-0:1", {
+      movesText: "▲ Pop.",
+      movesSentence: "Popularity up: 62, against 55 last Monday",
+    })
+    const state = start({ token: null, url: null, name: "", slots: ["game-0:1"], entries: [moved] })
+
+    expect(slotsView(state, STRINGS)[0]).toMatchObject({
+      moves: "▲ Pop.",
+      label: "Remove game-0 from the deck. Popularity up: 62, against 55 last Monday",
+    })
   })
 })

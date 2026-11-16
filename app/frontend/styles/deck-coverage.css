@@ -1,0 +1,87 @@
+/* ---- The coverage strip above the slots: the ten calls, each the deck's
+   best percentile in it or a gap that sorts the collection by its call;
+   two rows of five on desktop, one stat per row on the phone. ---- */
+
+.deck-coverage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.deck-coverage__heading {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.deck-coverage__cells {
+  display: grid;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.deck-coverage__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.deck-coverage__name {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.deck-coverage__number {
+  color: var(--color-text);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+.deck-coverage__gap {
+  display: inline-flex;
+  padding: var(--space-1);
+  outline: 1px dashed var(--color-dim);
+  outline-offset: -1px;
+}
+
+.deck-coverage__gap[hidden] {
+  display: none;
+}
+
+.deck-coverage__gap .button {
+  margin: 0;
+  background: transparent;
+  color: var(--color-alert);
+}
+
+.deck-coverage__gap .button:hover {
+  color: var(--color-on-accent);
+}
+
+.deck-coverage__fill {
+  display: flex;
+}
+
+.deck-coverage__fill .button {
+  margin: 0;
+}
+
+@media (max-width: 719px) {
+  .deck-coverage__cells {
+    grid-template-rows: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+  }
+}

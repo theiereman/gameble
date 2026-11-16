@@ -3,7 +3,8 @@ require_relative "../support/steam_sign_in"
 require_relative "../support/decks"
 
 # The deck editor: a new deck is created by its first change, every change saves at once, a second edition of a game
-# and a thirteenth card are refused, a slot's button takes its card out, and a deleted deck frees its copies and lands on Duels.
+# and a thirteenth card are refused, a slot's button takes its card out, a deleted deck frees its copies and lands on Duels,
+# a coverage gap sorts the collection and the fill completes the deck.
 class DeckEditorTest < ApplicationSystemTestCase
   include SteamSignIn
   include Decks
@@ -101,5 +102,33 @@ class DeckEditorTest < ApplicationSystemTestCase
     page.send_keys(:enter)
     assert_status "Game 02 removed, 0 of 12"
     assert_focused(ref_of(@cards.second))
+  end
+
+  test "a gap in the coverage sorts the collection by its call, the fill completes the deck, and a card that moved shows its arrow" do
+    [ *@cards, @second_edition ].each { set_percentiles(it) }
+    set_percentiles(@cards.first, popularity: 62, weekly: { popularity: 55 })
+    oldest = @cards[5]
+    set_percentiles(oldest, release: 3)
+    deck = Game::CreateDeck.new.call(player: @player).value!
+    @cards.first(3).each { Game::AddCardToDeck.new.call(player: @player, token: deck.token, card_season_id: it).value! }
+    sign_in(@player)
+    visit deck_path(locale: :en, token: deck.token)
+
+    assert_selector ".deck-slots__slot:first-child .deck-slot__moves", text: "▲ Pop."
+    find(".deck-coverage__cell[data-call='release-low'] .deck-coverage__gap .button").click
+    assert_status "Collection sorted: Oldest"
+    assert_selector ".deck-collection__list > li:first-child .deck-entry__toggle[data-ref='#{ref_of(oldest)}']"
+    assert_selector ".deck-collection .sort__current", text: /\AOldest\z/i
+    assert_selector ".deck-collection .sort__option[aria-current='true']", text: "Oldest", visible: :all
+    eventually("the gap should keep the focus") { page.evaluate_script("document.activeElement.closest('[data-call]')?.dataset.call") == "release-low" }
+
+    click_on "Fill the gaps"
+    assert_status "9 cards added, 12 of 12"
+    assert_selector ".deck-editor__count", text: "12 / 12"
+    assert_no_selector ".deck-slots .deck-slot--empty"
+    assert_selector ".deck-coverage__cell[data-call='release-low'] .deck-coverage__number", text: "97"
+    assert_no_selector ".deck-coverage__cell[data-call='release-low'] .deck-coverage__gap"
+    eventually("the filled cards should be saved") { Game::DeckCard.count == 12 }
+    assert_includes Game::DeckSlots.call(deck).values, oldest
   end
 end

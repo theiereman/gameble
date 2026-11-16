@@ -19,4 +19,19 @@ class Game::DuelProfilesTest < ActiveSupport::TestCase
     assert_equal profile.trump_stat, profile.trump.name
     assert_includes %w[high low], profile.trump_direction
   end
+
+  test "a stat moved since last Monday by 5 points or more, either way; with no weekly or current percentile it did not move" do
+    risen = stat(BigDecimal("62.0"), BigDecimal("55.0"))
+
+    assert_equal [ 7, true ], [ risen.weekly_move, risen.moved? ]
+    assert stat(BigDecimal("50.0"), BigDecimal("55.0")).moved?
+    assert_not stat(BigDecimal("59.9"), BigDecimal("55.0")).moved?
+    assert_equal [ nil, false ], [ stat(BigDecimal("62.0"), nil).weekly_move, stat(BigDecimal("62.0"), nil).moved? ]
+    assert_not stat(nil, BigDecimal("55.0")).moved?
+  end
+
+  private
+    def stat(percentile, weekly_percentile)
+      Game::DuelProfiles::Stat.new(name: :popularity, value: 1, percentile:, median_distance: 0.0, weekly_percentile:)
+    end
 end

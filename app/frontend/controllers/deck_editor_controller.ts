@@ -1,12 +1,16 @@
 import { Controller } from "@hotwired/stimulus"
 import { csrfToken } from "../lib/booster_page"
 import type { Intent } from "../lib/screen"
+import type { Percentiles } from "../lib/deck_collection_order"
 import {
   activateFirst,
   choose,
+  chooseGap,
   collectionView,
   countOf,
   failed,
+  fill,
+  filterBy,
   focusAfterRemoval,
   move,
   nextToSend,
@@ -17,6 +21,7 @@ import {
   requestFor,
   saved,
   slotsView,
+  sortBy,
   start,
   SLOT_COUNT,
   type Availability,
@@ -29,8 +34,18 @@ import { writeAttribute, writeHidden, writeText } from "../lib/dom_writes"
 import { t } from "../lib/i18n"
 import type DeckCollectionController from "./deck_collection_controller"
 import type { MoveIntent } from "./deck_collection_controller"
+import type DeckCoverageController from "./deck_coverage_controller"
 import type DeckNameController from "./deck_name_controller"
 import type DeckSlotsController from "./deck_slots_controller"
+
+function percentilesFrom(json: string | undefined): Percentiles {
+  try {
+    const parsed: unknown = JSON.parse(json ?? "{}")
+    return typeof parsed === "object" && parsed !== null ? (parsed as Percentiles) : {}
+  } catch {
+    return {}
+  }
+}
 
 function entryFrom(element: HTMLElement): Entry {
   const data = element.dataset
@@ -40,6 +55,10 @@ function entryFrom(element: HTMLElement): Entry {
     title: data.title ?? "",
     image: data.image ?? "",
     availability: (data.availability ?? "available") as Availability,
+    percentiles: percentilesFrom(data.percentiles),
+    trump: data.trump ?? "",
+    movesText: data.movesText ?? "",
+    movesSentence: data.movesSentence ?? "",
   }
 }
 
@@ -56,7 +75,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
     "deleteTitle",
   ]
   static values = { token: String, name: String, createUrl: String, deckUrl: String, strings: Object }
-  static outlets = ["deck-name", "deck-slots", "deck-collection"]
+  static outlets = ["deck-name", "deck-coverage", "deck-slots", "deck-collection"]
 
   declare readonly entryTargets: HTMLElement[]
   declare readonly slotTargets: HTMLElement[]
@@ -74,6 +93,8 @@ export default class DeckEditorController extends Controller<HTMLElement> {
   declare readonly stringsValue: DeckStrings
   declare readonly hasDeckNameOutlet: boolean
   declare readonly deckNameOutlet: DeckNameController
+  declare readonly hasDeckCoverageOutlet: boolean
+  declare readonly deckCoverageOutlet: DeckCoverageController
   declare readonly hasDeckSlotsOutlet: boolean
   declare readonly deckSlotsOutlet: DeckSlotsController
   declare readonly hasDeckCollectionOutlet: boolean
@@ -100,6 +121,10 @@ export default class DeckEditorController extends Controller<HTMLElement> {
   }
 
   deckNameOutletConnected(): void {
+    this.render()
+  }
+
+  deckCoverageOutletConnected(): void {
     this.render()
   }
 
@@ -132,6 +157,27 @@ export default class DeckEditorController extends Controller<HTMLElement> {
     if (!this.state) return
     this.apply(rename(this.state, name))
     this.flush()
+  }
+
+  chooseGap({ detail: { call } }: Intent<{ call: string }>): void {
+    if (!this.state) return
+    this.apply(chooseGap(this.state, call))
+  }
+
+  fill(): void {
+    if (!this.state) return
+    this.apply(fill(this.state))
+    this.flush()
+  }
+
+  sortBy({ detail: { sort } }: Intent<{ sort: string }>): void {
+    if (!this.state) return
+    this.apply(sortBy(this.state, sort))
+  }
+
+  filterBy({ detail: { trump } }: Intent<{ trump: string }>): void {
+    if (!this.state) return
+    this.apply(filterBy(this.state, trump))
   }
 
   move(event: Intent<MoveIntent>): void {
@@ -179,6 +225,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
     const strings = this.stringsValue
     const count = countOf(state)
     this.deckName()?.render({ name: state.name, refusal: state.nameRefusal })
+    if (state.coverage) this.coverage()?.render(state.coverage, strings.coverageCovered)
     this.slots()?.render(slotsView(state, strings))
     this.collection()?.render(collectionView(state), strings)
     writeText(this.summaryNameTarget, state.name)
@@ -200,6 +247,10 @@ export default class DeckEditorController extends Controller<HTMLElement> {
 
   private deckName(): DeckNameController | null {
     return this.hasDeckNameOutlet ? this.deckNameOutlet : null
+  }
+
+  private coverage(): DeckCoverageController | null {
+    return this.hasDeckCoverageOutlet ? this.deckCoverageOutlet : null
   }
 
   private slots(): DeckSlotsController | null {

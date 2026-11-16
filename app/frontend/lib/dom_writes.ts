@@ -25,6 +25,10 @@ export function writeDisabled(element: HTMLButtonElement | HTMLInputElement | nu
   if (element && element.disabled !== disabled) element.disabled = disabled
 }
 
+export function writeChecked(input: HTMLInputElement, checked: boolean): void {
+  if (input.checked !== checked) input.checked = checked
+}
+
 export function writeValue(input: HTMLInputElement, value: string): void {
   if (input.value !== value) input.value = value
 }

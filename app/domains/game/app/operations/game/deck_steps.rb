@@ -35,6 +35,26 @@ module Game
         .order(:id).lock.pluck(:card_season_id).to_set
     end
 
+    def owned(holding)
+      holding && holding.quantity.positive? ? Success() : Failure(:card_not_owned)
+    end
+
+    def ranked(card_season_id)
+      DuelProfiles.call([ card_season_id ])[card_season_id]&.ranked? ? Success() : Failure(:not_yet_ranked)
+    end
+
+    def game_not_in(cards, card_id)
+      cards.any? { it.card_id == card_id } ? Failure(:game_already_in_deck) : Success()
+    end
+
+    def room_in(cards)
+      cards.size < Deck::SLOTS.size ? Success() : Failure(:deck_full)
+    end
+
+    def free_copy(holding, elsewhere)
+      elsewhere || holding.quantity - holding.reserved >= 1 ? Success() : Failure(:no_free_copy)
+    end
+
     def lock_holdings(player, card_season_ids)
       TradeLocks.holdings(player.id, card_season_ids)
     end
