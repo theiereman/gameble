@@ -11,6 +11,7 @@ module Game
         FeedReaction.where(player_id: player.id).delete_all
         ReactionNotice.where(reactor_id: player.id).delete_all
         TradeView.where(player_id: player.id).delete_all
+        BellRead.where(player_id: player.id).delete_all
         FeedEntry.where(player_id: player.id).or(FeedEntry.where(partner_id: player.id)).delete_all
         DailyBonusClaim.where(player_id: player.id).delete_all
         GoalReward.where(player_id: player.id).delete_all

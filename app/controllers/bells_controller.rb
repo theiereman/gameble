@@ -4,5 +4,6 @@ class BellsController < ApplicationController
     return redirect_to(home_path, status: :see_other) unless turbo_frame_request?
 
     @items = Game::BellItems.call(current_player)
+    @read_keys = Game::BellReadKeys.call(current_player)
   end
 end

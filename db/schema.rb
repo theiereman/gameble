@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_15_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_16_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -382,6 +382,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_120000) do
     t.datetime "updated_at", null: false
     t.datetime "claimed_at"
     t.index ["player_id", "achievement"], name: "index_game_achievement_unlocks_on_player_id_and_achievement", unique: true
+  end
+
+  create_table "game_bell_reads", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "key", null: false
+    t.datetime "read_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "key"], name: "index_game_bell_reads_on_player_id_and_key", unique: true
+    t.index ["player_id", "read_at"], name: "index_game_bell_reads_on_player_id_and_read_at"
   end
 
   create_table "game_card_back_unlocks", force: :cascade do |t|
@@ -1035,6 +1045,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_120000) do
   add_foreign_key "catalog_tag_classifications", "catalog_themes", column: "theme_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "game_achievement_unlocks", "accounts_players", column: "player_id"
+  add_foreign_key "game_bell_reads", "accounts_players", column: "player_id"
   add_foreign_key "game_custom_set_games", "catalog_cards", column: "card_id"
   add_foreign_key "game_custom_set_games", "game_custom_sets", column: "custom_set_id", on_delete: :cascade
   add_foreign_key "game_custom_sets", "accounts_players", column: "player_id"

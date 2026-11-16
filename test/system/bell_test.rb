@@ -4,7 +4,8 @@ require_relative "../support/steam_sign_in"
 
 # The header's bell: its count of lines not yet seen, raised live by a new
 # trade or friend request, and lowered for good once a line's target page is
-# opened, through the line or any other way; a line for an entry others
+# opened, through the line or any other way, on every device the player signs
+# in on; a line for an entry others
 # reacted to, raised live by a new reactor only; the same bell in the phone's
 # top-level header; the empty panel once everything is seen.
 class BellTest < ApplicationSystemTestCase
@@ -28,13 +29,6 @@ class BellTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
-    forget_seen_lines
-    visit home_path(locale: :en)
-  end
-
-  def forget_seen_lines
-    assert_selector "#bell-items .bell__line", visible: :all, minimum: 1
-    page.execute_script("window.localStorage.removeItem('gameble:bell-seen:#{@hugo.token}')")
   end
 
   def assert_count(count)
@@ -166,6 +160,24 @@ class BellTest < ApplicationSystemTestCase
       assert_link href: "/en/booster", text: /Your daily capsule is ready/
       assert_no_link href: "/en/friends"
       assert_no_button "Mark all as read"
+    end
+  end
+
+  test "lines read on one device stay read on another" do
+    sign_in
+    assert_count 3
+    open_bell
+    within("#bell-panel") { click_on "Mark all as read" }
+    assert_count 1
+
+    Capybara.using_session(:phone) do
+      sign_in
+      assert_count 1
+      open_bell
+      within("#bell-panel") do
+        assert_selector ".bell__line", count: 1
+        assert_no_link href: "/en/friends"
+      end
     end
   end
 

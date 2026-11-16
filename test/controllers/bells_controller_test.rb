@@ -114,6 +114,18 @@ class BellsControllerTest < ActionDispatch::IntegrationTest
       text: /This week's mission is accomplished: 1,500 capsules opened together\.\s+See/
   end
 
+  test "a line read on any device is marked read, a lasting line never is" do
+    invitation = Game::Invitation.create!(sender_id: @eve.id, recipient_id: @hugo.id, status: "pending")
+    today = Time.current.utc.to_date.iso8601
+    Game::MarkBellRead.new.call(player: @hugo, keys: [ "invitation:#{invitation.token}", "daily:#{today}" ])
+    sign_in(@hugo)
+
+    get_bell
+
+    assert_select "#{FRAME} li[data-bell-key='invitation:#{invitation.token}'][data-bell-read=true]"
+    assert_select "#{FRAME} li#bell-daily[data-bell-read=false]"
+  end
+
   test "a visit outside a frame is sent home" do
     sign_in(@hugo)
 
