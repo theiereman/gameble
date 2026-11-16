@@ -346,6 +346,11 @@
   text-align: center;
 }
 
+/* Once every card is turned, the hint keeps its line, so the row stays put. */
+.booster__hint[data-spent] {
+  visibility: hidden;
+}
+
 /* The flash: one short warm flash over the window at the opening; the
    instant a Légendaire lands face up, the stage alone goes white and slowly
    clears on it. */

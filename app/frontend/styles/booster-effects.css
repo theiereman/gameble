@@ -109,12 +109,6 @@
   gap: var(--space-5);
 }
 
-.booster__banner-stripe {
-  width: clamp(32px, 9cqi, 140px);
-  height: 12px;
-  background: repeating-linear-gradient(-45deg, var(--booster-tier) 0 8px, var(--color-panel-sunken) 8px 16px);
-}
-
 .booster__banner-icon {
   display: inline-flex;
 }

@@ -104,7 +104,7 @@ export default class BoosterStageController extends Controller<HTMLElement> {
 
     this.dealAreaTarget.hidden = hand === null
     this.pileAreaTarget.hidden = hand === null
-    this.hintTarget.hidden = hint === null
+    this.hintTarget.toggleAttribute("data-spent", hint === null)
     if (hint !== null) writeText(this.hintTarget, hint)
 
     if ((hand?.key ?? null) !== this.handKey) this.deal(hand, fragments)
