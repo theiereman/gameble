@@ -46,7 +46,7 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
       "web (#{STAGING}) Puma" => 17,
       "web (#{STAGING}) Solid Queue supervisor" => 5,
       "web (#{STAGING}) Solid Queue dispatcher" => 5,
-      "web (#{STAGING}) Solid Queue worker (default)" => 14,
+      "web (#{STAGING}) Solid Queue worker (duels, default)" => 14,
       "web (#{STAGING}) Solid Queue worker (share_images)" => 14,
       "web (#{STAGING}) Solid Queue scheduler" => 5,
       "import (#{STAGING}) Solid Queue supervisor" => 5,
@@ -63,7 +63,7 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
     host = "ssh.gameble.net"
 
     assert_equal [ "web (#{host}) Puma", "web (#{host}) Solid Queue supervisor", "web (#{host}) Solid Queue dispatcher",
-      "web (#{host}) Solid Queue worker (default)", "web (#{host}) Solid Queue worker (share_images)", "web (#{host}) Solid Queue scheduler",
+      "web (#{host}) Solid Queue worker (duels, default)", "web (#{host}) Solid Queue worker (share_images)", "web (#{host}) Solid Queue scheduler",
       "import (#{host}) Solid Queue supervisor", "import (#{host}) Solid Queue worker (import, steam_library)" ], production.processes.map(&:name)
     assert_equal 79, production.total
     assert_not production.over_limit?, "production opens #{production.total} connections, over the limit of #{ConnectionBudget::LIMIT}"
@@ -81,9 +81,9 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
     edit_yaml("deploy.yml") { it["env"]["clear"]["JOB_CONCURRENCY"] = 2 }
 
     staging = budget(root:)
-    workers = staging.processes.select { it.kind.start_with?("Solid Queue worker (default)") }
+    workers = staging.processes.select { it.kind.start_with?("Solid Queue worker (duels, default)") }
 
-    assert_equal [ "Solid Queue worker (default) 1/2", "Solid Queue worker (default) 2/2" ], workers.map(&:kind)
+    assert_equal [ "Solid Queue worker (duels, default) 1/2", "Solid Queue worker (duels, default) 2/2" ], workers.map(&:kind)
     assert_equal 93, staging.total
     assert staging.over_limit?
   end
@@ -174,8 +174,8 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
 
     undersized = budget(root:).undersized
 
-    assert_includes undersized, "web (#{STAGING}): the queue pool holds 5 connections, its Solid Queue worker (default) needs 6"
-    assert_includes undersized, "web (#{STAGING}): the primary pool holds 3 connections, its Solid Queue worker (default) needs 4"
+    assert_includes undersized, "web (#{STAGING}): the queue pool holds 5 connections, its Solid Queue worker (duels, default) needs 6"
+    assert_includes undersized, "web (#{STAGING}): the primary pool holds 3 connections, its Solid Queue worker (duels, default) needs 4"
   end
 
   test "a queue file without a dispatcher and a skipped recurring schedule count neither" do

@@ -37,7 +37,7 @@
       </section>
     <% end %>
     <%= render "duels/side", id: "duel-my-deck", heading: t("duels.board.my_deck"), screen:, side: screen.mine %>
-    <%= render "duels/hand", screen: %>
+    <%= render "duels/hand", screen: screen %>
   <% else %>
     <p class="duel-board__line"><%= duel_waiting(screen) %></p>
   <% end %>

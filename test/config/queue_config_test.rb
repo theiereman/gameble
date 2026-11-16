@@ -56,14 +56,14 @@ class QueueConfigTest < ActiveSupport::TestCase
     end
   end
 
-  test "the duel pushes run on their own worker, one process of three threads polling every tenth of a second" do
+  test "the duel pushes are served first by the default worker, polling every tenth of a second, with no worker of their own" do
     assert_equal "duels", DuelStreamJob.new.queue_name
 
     %w[development test production].each do |env|
       workers = load_config("queue.yml").fetch(env).fetch("workers")
 
-      assert_equal [ { "queues" => [ "duels" ], "threads" => 3, "processes" => 1, "polling_interval" => 0.1 } ],
-        workers.select { Array(it["queues"]).include?("duels") }, env
+      assert_equal [ [ "duels", "default" ] ], workers.map { Array(it["queues"]) }.select { it.include?("duels") }, env
+      assert_equal 0.1, workers.find { Array(it["queues"]).include?("duels") }.fetch("polling_interval"), env
     end
   end
 

@@ -1,12 +1,11 @@
 <%# locals: (screen:) %>
 <section id="duel-hand" class="duel-hand" aria-labelledby="duel-hand-heading">
   <h2 id="duel-hand-heading" class="duel-board__heading"><%= t("duels.board.hand") %></h2>
-  <% case screen.turn %>
-  <% when :call %>
+  <% if screen.turn == :call %>
     <%= form_with url: duel_calls_path(token: screen.token), method: :post, id: "duel-call", class: "duel-hand__form",
           authenticity_token: false do %>
       <%= hidden_field_tag :move_number, screen.move_number, id: nil %>
-      <%= render "duels/hand_cards", screen: %>
+      <%= render "duels/hand_cards", screen: screen %>
       <fieldset class="duel-hand__choice">
         <legend class="duel-hand__legend"><%= t("duels.board.stat") %></legend>
         <% screen.calls.each do |call| %>
@@ -19,11 +18,11 @@
       </fieldset>
       <%= render ButtonComponent.new(type: :submit) do %><%= t("duels.board.call") %><% end %>
     <% end %>
-  <% when :answer %>
+  <% elsif screen.turn == :answer %>
     <%= form_with url: duel_answers_path(token: screen.token), method: :post, id: "duel-answer", class: "duel-hand__form",
           authenticity_token: false do %>
       <%= hidden_field_tag :move_number, screen.move_number, id: nil %>
-      <%= render "duels/hand_cards", screen: %>
+      <%= render "duels/hand_cards", screen: screen %>
       <%= render ButtonComponent.new(type: :submit) do %><%= t("duels.board.answer") %><% end %>
     <% end %>
   <% else %>
