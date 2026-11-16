@@ -35,7 +35,7 @@
 .booster[data-layout="phone"] .booster__pile-area {
   container: booster-pile / size;
   align-self: stretch;
-  align-items: flex-end;
+  align-items: center;
   min-height: 0;
 }
 
