@@ -29,8 +29,8 @@ module MarketHelper
   end
 
   def listing_tile_stand_chip(stand)
-    tag.span(class: "listing-tile__stand listing-tile__stand--#{stand.status}") do
-      safe_join([ tag.span(t("market.rows.status.#{stand.status}"), class: "listing-tile__stand-status"),
+    tag.span(class: "listing-tile__line listing-tile__stand listing-tile__stand--#{stand.status}") do
+      safe_join([ tag.span(t("market.rows.status.#{stand.status}"), class: "listing-tile__stand-tag"),
         tag.span(t("markets.tile.stand.#{stand.status}_amount"), class: "listing-tile__stand-word"),
         render(PicoinAmountComponent.new(amount: stand.amount, compact: true, class: "listing-tile__stand-amount")) ])
     end
