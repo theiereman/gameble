@@ -3,24 +3,19 @@ import { animate, settle } from "./booster_effects"
 import type { PilePose } from "./booster_motion"
 
 // The cards leave the capsule's centre, the centre card first, arc, squash
-// down and bounce into their place, then float twice. The reference draws
+// down and bounce into their place. The reference draws
 // 104 × 146 cards: its pixel distances scale with the real card's height.
 const REFERENCE_CARD_HEIGHT = 146
 const FIRST_OUT = 1056
 const RANK_STAGGER = 48
-const FLOAT_TOP = 2220
-const FLOAT_STAGGER = 96
-const FLOAT_HALF = 420
 
 export type Flight = Readonly<{
   dx: number
   dy: number
-  index: number
   rank: number
   turn: number
   height: number
   rest: PilePose
-  floats: boolean
 }>
 
 export const ROW_REST: PilePose = { y: 0, scale: 1, rotate: 0 }
@@ -36,7 +31,7 @@ const round = (value: number, digits: number) => Number(value.toFixed(digits))
 const place = (x: number, y: number, scaleX: number, scaleY: number, turn: number) =>
   `translate(${round(x, 1)}px, ${round(y, 1)}px) scale(${round(scaleX, 3)}, ${round(scaleY, 3)}) rotate(${round(turn, 2)}deg)`
 
-export function cardFlight({ dx, dy, index, rank, turn, height, rest, floats }: Flight): {
+export function cardFlight({ dx, dy, rank, turn, height, rest }: Flight): {
   keyframes: Keyframe[]
   options: KeyframeAnimationOptions
 } {
@@ -69,13 +64,6 @@ export function cardFlight({ dx, dy, index, rank, turn, height, rest, floats }: 
     ],
     [600, { opacity: 1, transform: resting, easing: "ease-in-out" }],
   ]
-  if (floats) {
-    const top = FLOAT_TOP + index * FLOAT_STAGGER - start
-    const up: Keyframe = { opacity: 1, transform: place(0, y - 6 * k, scale, scale, tilt), easing: "ease-in-out" }
-    const down: Keyframe = { opacity: 1, transform: resting, easing: "ease-in-out" }
-    steps.push([top, up], [top + FLOAT_HALF, down], [top + 2 * FLOAT_HALF, up], [top + 3 * FLOAT_HALF, down])
-    steps.push([top + 4 * FLOAT_HALF, { opacity: 1, transform: resting }])
-  }
   const first = steps[0][0]
   const duration = steps[steps.length - 1][0] - first
   return {

@@ -15,19 +15,17 @@ describe("the cards' flight out of the capsule", () => {
     expect([0, 1, 2].map(leavesAfterBlast)).toEqual([156, 204, 252])
   })
 
-  it("keeps the reference's beats for the leftmost of five: out, arc, squash, bounce, rest, then two floats", () => {
+  it("keeps the reference's beats for the leftmost of five: out, arc, squash, bounce, then rest", () => {
     const flight = cardFlight({
       dx: 236,
       dy: 0,
-      index: 0,
       rank: 2,
       turn: -24,
       height: 146,
       rest: ROW_REST,
-      floats: true,
     })
 
-    expect(msFromTouch(flight)).toEqual([1146, 1152, 1362, 1530, 1644, 1752, 2220, 2640, 3060, 3480, 3900])
+    expect(msFromTouch(flight)).toEqual([1146, 1152, 1362, 1530, 1644, 1752])
     expect(flight.keyframes[0]).toMatchObject({
       opacity: 0,
       transform: "translate(236px, 0px) scale(0.2, 0.2) rotate(0deg)",
@@ -43,28 +41,24 @@ describe("the cards' flight out of the capsule", () => {
     const flight = cardFlight({
       dx: 0,
       dy: 100,
-      index: 2,
       rank: 0,
       turn: 0,
       height: 292,
       rest: ROW_REST,
-      floats: false,
     })
 
     expect(flight.keyframes[2].transform).toBe("translate(0px, -103px) scale(1.14, 1.14) rotate(0deg)")
     expect(flight.keyframes[3].transform).toBe("translate(0px, 10px) scale(1.1, 0.88) rotate(0deg)")
   })
 
-  it("lands a phone's card on its pile pose, with no float", () => {
+  it("lands a phone's card on its pile pose", () => {
     const flight = cardFlight({
       dx: 0,
       dy: -200,
-      index: 2,
       rank: 0,
       turn: 0,
       height: 146,
       rest: pilePose(2),
-      floats: false,
     })
 
     expect(msFromTouch(flight).at(-1)).toBe(1656)

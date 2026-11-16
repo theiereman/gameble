@@ -269,12 +269,10 @@ export class OpeningSequence {
       const { keyframes, options } = cardFlight({
         dx: origin.left + origin.width / 2 - (rect.left + rect.width / 2),
         dy: origin.top + origin.height / 2 - (rect.top + rect.height / 2),
-        index,
         rank,
         turn: flightTurn(index, count),
         height: rect.height,
         rest: phone ? pilePose(pileDepth(index, host.current().stored)) : ROW_REST,
-        floats: !phone,
       })
       animate(travel, keyframes, options)
     })
