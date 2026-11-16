@@ -4,6 +4,9 @@
   <% if (received = lobby.received) %>
     <div id="duel-received" class="duel-lobby__block">
       <p class="duel-lobby__line"><%= t("duels.lobby.received_html", name: duel_player_name(received.challenger)) %></p>
+      <% if received.deadline %>
+        <%= render "duels/clock", name: t("duels.clock.you"), deadline: received.deadline, server_time: Time.current %>
+      <% end %>
       <% if lobby.decks.any? %>
         <%= form_with url: duel_acceptance_path(token: received.token), method: :post, class: "duel-lobby__form" do %>
           <%= hidden_field_tag :move_number, received.move_number, id: nil %>
@@ -22,6 +25,9 @@
         <%= render ButtonComponent.new(href: duel_path(token: seated.token)) do %><%= t("duels.lobby.resume") %><% end %>
       <% else %>
         <p class="duel-lobby__line"><%= t("duels.lobby.waiting_html", name: duel_player_name(seated.opponent)) %></p>
+        <% if seated.deadline %>
+          <%= render "duels/clock", name: duel_player_name(seated.opponent), deadline: seated.deadline, server_time: Time.current %>
+        <% end %>
       <% end %>
     </div>
   <% elsif lobby.closed? %>

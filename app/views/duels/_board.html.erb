@@ -12,6 +12,9 @@
     <% if screen.turn %>
       <p class="duel-board__turn"><%= duel_turn(screen) %></p>
     <% end %>
+    <% if screen.clock? %>
+      <%= render "duels/clock", name: duel_clock_name(screen), deadline: screen.deadline, server_time: screen.server_time %>
+    <% end %>
   </header>
   <% if screen.finished? %>
     <p class="duel-board__result"><%= duel_result(screen) %></p>

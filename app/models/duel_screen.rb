@@ -4,7 +4,7 @@ class DuelScreen
 
   attr_reader :view
 
-  delegate :token, :move_number, :state, :round, :mine, :theirs, :hand, :current_call, to: :view
+  delegate :token, :move_number, :state, :round, :mine, :theirs, :hand, :current_call, :deadline, :server_time, to: :view
 
   def initialize(duel, seat, locale:)
     @duel = duel
@@ -38,6 +38,10 @@ class DuelScreen
 
     calling ? :their_answer : :answer
   end
+
+  def clock? = deadline.present? && (waiting? || turn.present?)
+
+  def clock_mine? = waiting? ? !challenger? : %i[call answer].include?(turn)
 
   def title(card) = titles[card.card_season_id].to_s
 

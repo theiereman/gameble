@@ -1,6 +1,6 @@
 class DuelLobby
-  Received = Data.define(:token, :move_number, :challenger)
-  Seated = Data.define(:token, :active, :opponent)
+  Received = Data.define(:token, :move_number, :challenger, :deadline)
+  Seated = Data.define(:token, :active, :opponent, :deadline)
 
   def initialize(player, decks:, friend_token: nil)
     @player = player
@@ -10,12 +10,14 @@ class DuelLobby
 
   def received
     seat = held.invited
-    seat && Received.new(token: seat.duel.token, move_number: seat.duel.move_number, challenger: other_player(seat))
+    seat && Received.new(token: seat.duel.token, move_number: seat.duel.move_number, challenger: other_player(seat),
+      deadline: seat.duel.move_deadline_at)
   end
 
   def seated
     seat = held.seated
-    seat && Seated.new(token: seat.duel.token, active: seat.duel.state == "active", opponent: other_player(seat))
+    seat && Seated.new(token: seat.duel.token, active: seat.duel.state == "active", opponent: other_player(seat),
+      deadline: seat.duel.move_deadline_at)
   end
 
   def decks = @decks.rows.select(&:complete?)

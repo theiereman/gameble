@@ -1,0 +1,8 @@
+<%# locals: (name:, deadline:, server_time:) %>
+<%= tag.p class: "duel-clock", data: { controller: "duel-clock", duel_clock_deadline_value: deadline.utc.iso8601(3),
+      duel_clock_server_time_value: server_time.utc.iso8601(3), duel_clock_template_value: t("duels.clock.seconds", seconds: "{seconds}"),
+      duel_clock_warning_value: t("duels.clock.warning") } do %>
+  <span class="duel-clock__name"><%= name %></span>
+  <span class="duel-clock__time" data-duel-clock-target="text"><%= t("duels.clock.seconds", seconds: [ (deadline - server_time).ceil, 0 ].max) %></span>
+  <span class="visually-hidden" role="status" aria-live="polite" data-duel-clock-target="status"></span>
+<% end %>

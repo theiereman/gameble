@@ -88,6 +88,23 @@ module Game
       seats.each_value { it.update!(status: "left") }
     end
 
+    def lapse(player, duel, seats)
+      duel.update!(state: "lapsed", ended_at: Time.current, move_number: next_move(duel))
+      leave(seats)
+      duel_published(DuelChallengeLapsed, player, duel, seats)
+    end
+
+    def schedule(duel, move_number, seconds)
+      at = seconds.from_now
+      DuelDeadlineJob.set(wait_until: at + DuelClock::JOB_DELAY).perform_later(duel.token, move_number)
+      at
+    end
+
+    def due(state, duel, seats, move_number, rules = nil)
+      current = duel.state == state && duel.move_number == move_number && DuelClock.new(duel, seats.values, rules).due?(Time.current)
+      current ? Success() : Failure(:not_due)
+    end
+
     def duel_published(event, player, duel, seats)
       data = { duel_id: duel.id, challenger_id: seats[:challenger].player_id, opponent_id: seats[:opponent].player_id }
       publish(event.new(data:), stream_name: stream_name(player.id))

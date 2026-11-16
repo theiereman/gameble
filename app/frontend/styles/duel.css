@@ -261,3 +261,16 @@
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
 }
+
+.duel-clock {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+}
+
+.duel-clock--alert {
+  color: var(--color-alert);
+}

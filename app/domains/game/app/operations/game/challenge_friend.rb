@@ -13,7 +13,8 @@ module Game
         step idle(player)
         step free(friend)
         step ready_deck(player.id, deck_token)
-        duel = Duel.create!
+        duel = Duel.new
+        duel.update!(move_deadline_at: schedule(duel, duel.move_number, DuelClock::ACCEPT))
         seats = {
           challenger: DuelSeat.create!(duel_id: duel.id, role: "challenger", player_id: player.id, deck_token:, status: "seated"),
           opponent: DuelSeat.create!(duel_id: duel.id, role: "opponent", player_id: friend.id, status: "invited")

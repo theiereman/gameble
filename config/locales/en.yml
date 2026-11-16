@@ -1834,6 +1834,10 @@ en:
       in_duel: "In a duel"
       label: "Challenge %{name}"
       label_in_duel: "Challenge %{name} to a duel"
+    clock:
+      seconds: "%{seconds} s"
+      warning: 10 seconds left
+      you: You
     decks:
       complete:
         one: ", %{count} card"
@@ -2027,6 +2031,7 @@ en:
       friend_unavailable: This friend is not online right now.
       deck_not_ready: "A draft cannot play: it needs 12 cards."
       not_your_move: This move is no longer yours to play.
+      not_due: This move still has time.
       stat_already_called: You have already called this stat.
       card_not_in_hand: This card is not in your hand.
       duel_in_progress: You already have a duel in progress.

@@ -34,6 +34,8 @@ module DuelsHelper
     end
   end
 
+  def duel_clock_name(screen) = screen.clock_mine? ? t("duels.clock.you") : duel_player_name(screen.opponent)
+
   def duel_waiting(screen)
     name = duel_player_name(screen.opponent)
     return t("duels.board.ended") unless screen.waiting?

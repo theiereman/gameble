@@ -164,4 +164,19 @@ class Game::DuelViewTest < ActiveSupport::TestCase
 
     assert_raises(ArgumentError) { Game::DuelView.for(duel, seat) }
   end
+
+  test "the view carries the move's deadline and the server's time while the duel is open, and no deadline once it is over" do
+    now = Time.zone.now.change(usec: 0)
+    duel = active_duel
+    duel.move_deadline_at = now + 45.seconds
+    seat = seats(duel).first
+
+    travel_to(now) do
+      seen = Game::DuelView.for(duel, seat)
+      assert_equal [ now + 45.seconds, now ], [ seen.deadline, seen.server_time ]
+
+      duel.assign_attributes(state: "lapsed")
+      assert_nil Game::DuelView.for(duel, seat).deadline
+    end
+  end
 end

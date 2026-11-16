@@ -4041,6 +4041,10 @@ fr:
       in_duel: "Duel en cours"
       label: "Défier %{name}"
       label_in_duel: "Défier %{name} en duel"
+    clock:
+      seconds: "%{seconds} s"
+      warning: "10 secondes"
+      you: "Vous"
     decks:
       heading: "Mes decks"
       count: "%{count} / 5"
@@ -4442,6 +4446,7 @@ fr:
       friend_unavailable: "Cet ami n'est pas en ligne pour l'instant."
       deck_not_ready: "Un brouillon ne peut pas jouer : il lui faut 12 cartes."
       not_your_move: "Ce coup ne vous revient plus."
+      not_due: "Ce coup a encore du temps."
       stat_already_called: "Vous avez déjà annoncé cette caractéristique."
       card_not_in_hand: "Cette carte n'est pas dans votre main."
       duel_in_progress: "Vous avez déjà un duel en cours."

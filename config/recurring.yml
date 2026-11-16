@@ -74,6 +74,12 @@ reconcile_wallets: &reconcile_wallets
   queue: default
   schedule: every day at 12:10am
 
+# A move whose deadline job was lost, or whose mover left the duel screen, is still played within seconds.
+sweep_duel_deadlines: &sweep_duel_deadlines
+  class: Game::SweepDuelDeadlinesJob
+  queue: duels
+  schedule: every 10 seconds
+
 # The Archives' stock of each edition is summed from the players' deposits.
 sum_archive_stocks: &sum_archive_stocks
   class: Game::ArchiveStocksJob
@@ -114,6 +120,7 @@ development:
   sync_steam_libraries: *sync_steam_libraries
   check_discord_memberships: *check_discord_memberships
   compute_duel_stats: *compute_duel_stats
+  sweep_duel_deadlines: *sweep_duel_deadlines
 
 production:
   recover_stalled_imports: *recover_stalled_imports
@@ -131,6 +138,7 @@ production:
   sync_steam_libraries: *sync_steam_libraries
   check_discord_memberships: *check_discord_memberships
   compute_duel_stats: *compute_duel_stats
+  sweep_duel_deadlines: *sweep_duel_deadlines
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

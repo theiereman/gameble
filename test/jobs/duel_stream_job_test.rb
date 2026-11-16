@@ -87,6 +87,29 @@ class DuelStreamJobTest < ActiveSupport::TestCase
     assert_no_match(/style=/, board("challenger", :en).to_html)
   end
 
+  test "each board carries the mover's clock: their name from the opponent's side, You from their own, in each locale" do
+    travel_to Time.zone.now.change(usec: 0)
+    duel = call_round(@duel)
+    mover = rules_of(Game::Duel.find(duel.id)).answerer.to_s
+
+    DuelStreamJob.perform_now([ duel.id ])
+
+    %w[challenger opponent].each do |role|
+      clock = board(role, :en).at_css("#duel-board .duel-clock")
+      assert_equal "duel-clock", clock["data-controller"]
+      assert_equal Time.current + 45.seconds, Time.iso8601(clock["data-duel-clock-deadline-value"])
+      assert_equal Time.current, Time.iso8601(clock["data-duel-clock-server-time-value"])
+      assert_equal "{seconds} s", clock["data-duel-clock-template-value"]
+      assert_equal (role == mover ? "You" : (role == "challenger" ? "Hugo" : "Léa")), clock.at_css(".duel-clock__name").text.strip
+      assert_equal "45 s", clock.at_css("[data-duel-clock-target=text]").text
+    end
+    assert_equal "Vous", board(mover, :fr).at_css(".duel-clock__name").text.strip
+    assert_equal "10 secondes", board(mover, :fr).at_css(".duel-clock")["data-duel-clock-warning-value"]
+    assert_equal "45\u202fs", board(mover, :fr).at_css("[data-duel-clock-target=text]").text
+  ensure
+    travel_back
+  end
+
   private
     def other_role(role) = role == "challenger" ? "opponent" : "challenger"
 end

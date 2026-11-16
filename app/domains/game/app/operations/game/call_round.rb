@@ -2,8 +2,8 @@ module Game
   class CallRound < Operation
     include DuelSteps
 
-    def call(player:, token:, move_number:, card:, stat:, direction:)
-      player = step require_player(player)
+    def call(player:, token:, move_number:, card:, stat:, direction:, automatic: false)
+      step require_player(player) unless automatic
       move_number = step whole_number(move_number)
       position = step whole_number(card)
       stat = step known_stat(stat)
@@ -18,8 +18,9 @@ module Game
         card = step card_in_hand(rules, role, position)
         step uncalled(rules, role, stat)
         round = DuelRound.create!(duel_id: duel.id, number: rules.round, caller: role.to_s, caller_card_season_id: card.card_season_id,
-          stat: stat.to_s, direction: direction.to_s, caller_value: snapshot_value(card, stat), called_at: Time.current)
-        duel.update!(move_number: next_move(duel))
+          stat: stat.to_s, direction: direction.to_s, caller_value: snapshot_value(card, stat), called_at: Time.current,
+          caller_automatic: automatic)
+        duel.update!(move_number: next_move(duel), move_deadline_at: schedule(duel, next_move(duel), DuelClock::ANSWER))
         step round_published(DuelRoundCalled, player, duel, round.number)
         duel
       end
