@@ -3266,10 +3266,7 @@ en:
         title: The weekly mission
         week: Every week, for seven days from %{time}, all players take on one mission
           together.
-      groups:
-        cards: Cards
-        capsules: Capsules
-        sets: Sets
+      intro: The rules of the game, as it applies them.
       local_time: ", local time"
       market:
         auction: An auction lasts %{short}, %{medium} or %{long}, as the seller chooses.
