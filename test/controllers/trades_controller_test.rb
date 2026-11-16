@@ -90,12 +90,12 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    assert_select "[data-controller=trade-seen][data-trade-seen-url-value=?]", trade_seen_path(token: trade.token, locale: :en)
+    assert_select "[data-controller=beacon][data-beacon-url-value=?]", trade_seen_path(token: trade.token, locale: :en)
 
     Game::MarkTradeSeen.new.call(player: @alice, trade_token: trade.token)
     get trade_path(token: trade.token, locale: :en)
 
-    assert_select "[data-controller=trade-seen]", 0
+    assert_select "[data-controller=beacon]", 0
   end
 
   test "no beacon on an open trade or on the board of the player who answered" do
@@ -103,11 +103,11 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     sign_in @alice
 
     get trade_path(token: waiting.token, locale: :en)
-    assert_select "[data-controller=trade-seen]", 0
+    assert_select "[data-controller=beacon]", 0
 
     Game::DeclineTrade.new.call(player: @alice, trade_id: waiting.id, revision: revision(waiting)[:revision])
     get trade_path(token: waiting.token, locale: :en)
-    assert_select "[data-controller=trade-seen]", 0
+    assert_select "[data-controller=beacon]", 0
   end
 
   test "the board of a trade waiting for the player: its line, expiry, reserved copies and three actions" do

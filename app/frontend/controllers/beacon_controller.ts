@@ -21,5 +21,5 @@ export default class extends Controller<HTMLElement> {
 }
 
 function ignoreFailedMark(): void {
-  // The answer stays in the bell until the next visit posts again.
+  // A missed beacon is posted again by the next visit.
 }

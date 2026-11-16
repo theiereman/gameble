@@ -43,7 +43,7 @@ en:
         the time of your last visit, your last data export, the announcements you closed, the release notes you saw and your latest activity,
         your collection, your showcase, your set tiers, your custom sets, your goals, your achievements, your
         card back unlocks and your active card back, your capsules, opened or not, your luck scores, your daily bonuses and your weekly mission rewards,
-        your friends, your invitations, your friend code, when you last opened each of your trades, the notifications you read, your reactions to feed entries and your activity feed
+        your friends, your invitations, your friend code, your profile visits, when you last opened each of your trades, the notifications you read, your reactions to feed entries and your activity feed
         entries: pulls, discoveries, reposts, purchases announced in the feed and every trade that names you. Your
         open trades will be cancelled.'
       submit: Delete for good
@@ -153,6 +153,12 @@ en:
       source_audit: Open the game's source code on GitHub
       funding_review: Open the support page
       code_contribution: Be granted by the author for contributing to the game's code
+      profiles_viewed_1: View another player's profile
+      profiles_viewed_5: View other players' profiles 5 times
+      profiles_viewed_20: View other players' profiles 20 times
+      profile_visits_10: Get 10 visits on your profile
+      profile_visits_50: Get 50 visits on your profile
+      profile_visits_100: Get 100 visits on your profile
     names:
       boosters_10: Probation Period Completed
       boosters_100: Outstanding Consumption Record
@@ -224,6 +230,12 @@ en:
       source_audit: Compliance Audit
       funding_review: Funding Review
       code_contribution: Contribution in Kind
+      profiles_viewed_1: Courtesy Call
+      profiles_viewed_5: Inspection Tour
+      profiles_viewed_20: Headcount Audit
+      profile_visits_10: Public Reception
+      profile_visits_50: Notable Footfall
+      profile_visits_100: Place of Interest
     show:
       earned_label: Achievements earned
       groups:
@@ -1720,6 +1732,8 @@ en:
       avatar_locked: This avatar is still locked.
       unknown_avatar: This avatar does not exist.
       unknown_link: This link does not exist.
+      profile_not_found: That profile could not be found.
+      recently_visited: This profile was visited a moment ago.
       code_contribution_already_granted: This player already has the code contribution achievement.
       player_not_found: That profile could not be found.
       card_already_showcased: This card is already in your showcase.
@@ -3525,7 +3539,7 @@ en:
           the time of your last visit, your last data export, the announcements you closed, the release notes you saw, your latest activity,
           your collection, your showcase, your set tiers, your custom sets, your Steam library list, your goals, your achievements, your
           card back unlocks and your choice of active card back, your capsules, your luck scores, your daily bonuses, your weekly mission rewards, your friendships,
-          your invitations, your friend code, when you last opened each trade, the notifications you read, your activity feed entries and your reactions are erased,
+          your invitations, your friend code, your profile visits, when you last opened each trade, the notifications you read, your activity feed entries and your reactions are erased,
           your open trades are cancelled and your profile disappears. What also concerns
           other players, the community or moderation (past trades, first discoveries,
           contributions to the weekly mission, reports, moderation history, the log
@@ -3648,7 +3662,7 @@ en:
           steam: Steam (Valve) handles sign-in and provides your profile name and, once
             a day while the sync is on, the games of your Steam library;
         stored:
-          activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals and the number you reached, whether you opened the source code and support links, whether the author granted you the code contribution achievement, achievements,
+          activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals and the number you reached, whether you opened the source code and support links, whether the author granted you the code contribution achievement, the profile visits you made and received (who and when, at most one an hour per profile), achievements,
             card back unlocks and active card back, capsules, daily bonuses, weekly
             mission rewards, trades, friendships, invitations, friend code, activity feed
             entries, your reactions to feed entries and latest activity;'

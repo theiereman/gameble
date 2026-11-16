@@ -76,7 +76,13 @@ module Game
       Achievement.new(:avatar_rebrand, :avatar_choices, 5),
       Achievement.new(:source_audit, :source_code_opened, 1),
       Achievement.new(:funding_review, :support_opened, 1),
-      Achievement.new(:code_contribution, :code_contributions, 1)
+      Achievement.new(:code_contribution, :code_contributions, 1),
+      Achievement.new(:profiles_viewed_1, :profiles_viewed, 1),
+      Achievement.new(:profiles_viewed_5, :profiles_viewed, 5),
+      Achievement.new(:profiles_viewed_20, :profiles_viewed, 20),
+      Achievement.new(:profile_visits_10, :profile_visits, 10),
+      Achievement.new(:profile_visits_50, :profile_visits, 50),
+      Achievement.new(:profile_visits_100, :profile_visits, 100)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze

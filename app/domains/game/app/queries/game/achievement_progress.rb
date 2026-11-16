@@ -220,6 +220,8 @@ module Game
     SOURCE_CODE_OPENED_SQL = "SELECT COUNT(source_code_opened_at) FROM game_player_states WHERE player_id = :player_id".freeze
     SUPPORT_OPENED_SQL = "SELECT COUNT(support_opened_at) FROM game_player_states WHERE player_id = :player_id".freeze
 
+    PROFILES_VIEWED_SQL = "SELECT COUNT(*) FROM game_profile_visits WHERE viewer_id = :player_id".freeze
+    PROFILE_VISITS_SQL = "SELECT COUNT(*) FROM game_profile_visits WHERE visited_id = :player_id".freeze
     CODE_CONTRIBUTIONS_SQL = "SELECT COUNT(code_contribution_at) FROM game_player_states WHERE player_id = :player_id".freeze
 
     METRIC_SQL = {
@@ -264,7 +266,9 @@ module Game
       avatar_choices: AVATAR_CHOICES_SQL,
       source_code_opened: SOURCE_CODE_OPENED_SQL,
       support_opened: SUPPORT_OPENED_SQL,
-      code_contributions: CODE_CONTRIBUTIONS_SQL
+      code_contributions: CODE_CONTRIBUTIONS_SQL,
+      profiles_viewed: PROFILES_VIEWED_SQL,
+      profile_visits: PROFILE_VISITS_SQL
     }.freeze
 
     RUBY_METRICS = %i[most_games_of_a_studio last_places].freeze

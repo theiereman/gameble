@@ -9,3 +9,6 @@
 <%= render "public_profiles/profile", owner: @owner, title:, season: @season, summary: @summary, card_total: @card_total,
   achievements: @achievements, rarities: @rarities, activity: @activity, started_sets: @started_sets, started_set_count: @started_set_count, goals: @goals,
   showcase: @showcase, stage: @stage, relation: @relation, owner_title: @owner_title, fortune: @fortune, context: { brother: @owner.token } %>
+<% if @relation && current_player && current_player != @owner %>
+  <div hidden data-controller="beacon" data-beacon-url-value="<%= profile_visit_path(token: @owner.token) %>"></div>
+<% end %>

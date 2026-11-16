@@ -45,6 +45,8 @@ class PlayerExport
         { position: it.position, setKind: it.set_kind, setKey: it.set_key, customSet: it.custom_set_token, createdAt: time(it.created_at) }.compact
       end,
       goalsCompleted: game.markers.goals_completed,
+      profilesViewed: game.markers.profiles_viewed,
+      profileVisitsReceived: game.markers.profile_visits,
       linksOpened: { sourceCode: time(game.markers.source_code_opened_at), support: time(game.markers.support_opened_at) }.compact,
       codeContributionGrantedAt: time(game.markers.code_contribution_at),
       wallet: { available: game.market.wallet.available, committed: game.market.wallet.committed },

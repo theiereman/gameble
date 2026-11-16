@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_16_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_16_210001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -861,6 +861,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_200000) do
     t.check_constraint "(active_title_kind IS NULL) = (active_title_key IS NULL) AND (active_title_key IS NULL) = (active_title_rank IS NULL)", name: "game_player_states_active_title_whole_check"
   end
 
+  create_table "game_profile_visits", force: :cascade do |t|
+    t.bigint "viewer_id", null: false
+    t.bigint "visited_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["viewer_id", "visited_id", "created_at"], name: "idx_on_viewer_id_visited_id_created_at_542adb1202"
+    t.index ["visited_id"], name: "index_game_profile_visits_on_visited_id"
+  end
+
   create_table "game_reaction_notices", force: :cascade do |t|
     t.bigint "feed_entry_id", null: false
     t.bigint "reactor_id", null: false
@@ -1101,6 +1109,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_200000) do
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
+  add_foreign_key "game_profile_visits", "accounts_players", column: "viewer_id"
+  add_foreign_key "game_profile_visits", "accounts_players", column: "visited_id"
   add_foreign_key "game_reaction_notices", "accounts_players", column: "reactor_id"
   add_foreign_key "game_reaction_notices", "game_feed_entries", column: "feed_entry_id", on_delete: :cascade
   add_foreign_key "game_set_tiers", "accounts_players", column: "player_id"

@@ -25,7 +25,9 @@ module AchievementsHelper
     insider_trading: "briefcase",
     goals_10: "ledger", goals_25: "ledger", goals_50: "ledger",
     avatar_changed: "portrait", avatar_rebrand: "portrait", source_audit: "lens", funding_review: "coin",
-    code_contribution: "clasp"
+    code_contribution: "clasp",
+    profiles_viewed_1: "lens", profiles_viewed_5: "lens", profiles_viewed_20: "lens",
+    profile_visits_10: "showcase", profile_visits_50: "showcase", profile_visits_100: "showcase"
   }.freeze
 
   def achievement_icon(tile)
