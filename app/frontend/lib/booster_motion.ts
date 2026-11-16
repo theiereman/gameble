@@ -229,6 +229,12 @@ export function phoneSwell(scale: number): number {
   return Number((1 + (scale - 1) * PHONE_SWELL).toFixed(4))
 }
 
+export const SHOWCASE_SWELL = 2.5
+
+export function showcaseSwell(scale: number): number {
+  return Number((1 + (scale - 1) * SHOWCASE_SWELL).toFixed(4))
+}
+
 export const PHONE_DEAL_STAGGER = Math.round(DEAL_STAGGER * 1.5)
 export const STORE_MS = 260
 export const SLOT_POP_MS = 260

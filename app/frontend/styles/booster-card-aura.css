@@ -133,14 +133,107 @@
   }
 }
 
+/* A face-down Légendaire cannot hold its energy: before any pointer comes
+   near, its aura crackles in sharp bursts and the card trembles by a pixel. */
+.booster-card[data-tier="legendary"][data-dealt]:not([data-revealed]) .booster-card__aura {
+  --aura-play: running;
+
+  opacity: 1;
+}
+
+.booster-card[data-tier="legendary"][data-dealt]:not([data-revealed]) .booster-card__aura::after {
+  animation-name: booster-legendary-crackle;
+  animation-duration: 0.7s;
+}
+
+.booster-card[data-tier="legendary"][data-dealt]:not([data-revealed]) .booster-card__float {
+  animation: booster-legendary-tremble 0.9s steps(1) infinite;
+}
+
+@keyframes booster-legendary-crackle {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  12% {
+    opacity: 0.3;
+  }
+
+  40% {
+    opacity: 0.6;
+  }
+
+  44% {
+    opacity: 0.1;
+  }
+
+  47% {
+    opacity: 1;
+  }
+
+  52% {
+    opacity: 0.35;
+  }
+
+  80% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes booster-legendary-tremble {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+
+  12% {
+    translate: 0.6px -0.4px;
+  }
+
+  25% {
+    translate: -0.5px 0.3px;
+    rotate: -0.2deg;
+  }
+
+  37% {
+    translate: 0.3px 0.6px;
+  }
+
+  50% {
+    translate: -0.6px -0.2px;
+    rotate: 0.2deg;
+  }
+
+  62% {
+    translate: 0.4px -0.5px;
+  }
+
+  75% {
+    translate: -0.3px 0.4px;
+    rotate: -0.1deg;
+  }
+
+  87% {
+    translate: 0.5px 0.2px;
+  }
+}
+
 html[data-motion="reduced"] .booster-card__aura::before,
-html[data-motion="reduced"] .booster-card__aura::after {
+html[data-motion="reduced"] .booster-card__aura::after,
+html[data-motion="reduced"] .booster-card__float {
   animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion="full"]) .booster-card__aura::before,
-  html:not([data-motion="full"]) .booster-card__aura::after {
+  html:not([data-motion="full"]) .booster-card__aura::after,
+  html:not([data-motion="full"]) .booster-card__float {
     animation: none;
   }
 }

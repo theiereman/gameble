@@ -346,7 +346,8 @@
   text-align: center;
 }
 
-/* The flash: one short warm flash at the opening, gold at a Légendaire's impact. */
+/* The flash: one short warm flash over the window at the opening, gold over
+   the stage alone at a Légendaire's impact. */
 .booster__flash {
   position: fixed;
   inset: 0;
@@ -357,6 +358,7 @@
 }
 
 .booster__flash[data-tone="gold"] {
+  position: absolute;
   background: color-mix(in srgb, var(--color-text-max) 65%, var(--color-gold));
 }
 

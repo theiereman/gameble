@@ -72,6 +72,30 @@
   max-width: calc(3 * var(--card-s-width) + 2 * var(--space-deal-gap-min));
 }
 
+/* The stage keeps one height from the sealed capsule to the revealed hand:
+   two rows of cards with their badges (the card's gap, the badges' margin,
+   the label), then the hint. A shorter hand sits in its middle. */
+.booster:not([data-layout="phone"]) {
+  --booster-hand-card: var(--card-m-height);
+}
+
+.booster[data-layout="narrow"] {
+  --booster-hand-card: var(--card-s-height);
+}
+
+.booster:not([data-layout="phone"]) .booster__shake {
+  --booster-hand-row: calc(var(--booster-hand-card) + var(--space-4) + var(--space-3) + 22px);
+
+  grid-template-rows: minmax(
+    calc(var(--space-8) + 2 * var(--booster-hand-row) + var(--space-7) + var(--space-5) + 1.3125rem + var(--space-7)),
+    auto
+  );
+}
+
+.booster:not([data-layout="phone"]) .booster__deal-area {
+  justify-content: center;
+}
+
 /* ---- A revealed card's badges: its rarity, then repost and share ---- */
 
 .booster-card__badges {

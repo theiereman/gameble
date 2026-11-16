@@ -44,3 +44,13 @@
 .booster-card[data-legendary][data-revealed] .booster-card__rays {
   opacity: 0;
 }
+
+/* Shown in the stage's middle, it passes over every other card's badges
+   too: they go under the dim while it plays. */
+.booster__stage[data-legendary] .booster-card__badges {
+  z-index: 1;
+}
+
+.booster-card[data-legendary] .booster-card__badges {
+  visibility: hidden;
+}

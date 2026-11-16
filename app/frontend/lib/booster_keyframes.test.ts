@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { phoneSwell, pose } from "./booster_motion"
+import { phoneSwell, pose, showcaseSwell } from "./booster_motion"
 import {
   bannerKeyframes,
   legendaryDropKeyframes,
@@ -19,14 +19,20 @@ describe("booster keyframes", () => {
     })
   })
 
-  it("jumps a Légendaire in 14 steps to its rise, then drops it back to rest", () => {
-    const jump = legendaryJumpKeyframes(50, asIs)
+  it("jumps a Légendaire in 14 steps to its showcase, then drops it back to rest", () => {
+    const jump = legendaryJumpKeyframes({ x: 0, y: -50 }, asIs)
     expect(jump).toHaveLength(16)
     expect(first(jump)).toEqual({ transform: pose() })
     expect(last(jump)).toEqual({ transform: "translate(0px, -50px) rotate(0deg) scale(1.15, 1.15)" })
-    const drop = legendaryDropKeyframes(50, asIs)
+    const drop = legendaryDropKeyframes({ x: 0, y: -50 }, asIs)
     expect(first(drop)).toEqual(last(jump))
     expect(last(drop)).toEqual({ transform: pose() })
+  })
+
+  it("off the phone, carries a Légendaire to the stage's centre, swollen", () => {
+    expect(last(legendaryJumpKeyframes({ x: 240, y: 120 }, showcaseSwell))).toEqual({
+      transform: "translate(240px, 120px) rotate(0deg) scale(1.375, 1.375)",
+    })
   })
 
   it("stores a card from where the swipe left it into its slot, shrunk to the slot's width", () => {

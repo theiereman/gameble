@@ -62,13 +62,15 @@
 
 /* ---- The result banner: Épique small, Légendaire large ---- */
 
-/* Over the whole stage, which clips it, its content in the middle; sized on
-   the stage's width. */
+/* Across the stage above the Légendaire shown in its middle (swollen to
+   1.375 times its height), its content centred there; sized on the stage's
+   width. */
 .booster__banner {
   --booster-tier: var(--color-rarity-epique);
 
   position: absolute;
-  inset: 0;
+  inset: 0 0 auto;
+  height: calc(50% - var(--booster-hand-card) * 0.69);
   z-index: 12;
   display: flex;
   flex-direction: column;

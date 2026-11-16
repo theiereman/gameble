@@ -4,6 +4,8 @@ export type Swell = (scale: number) => number
 
 export type Box = { left: number; top: number; width: number; height: number }
 
+export type Point = Readonly<{ x: number; y: number }>
+
 const easeOut = (progress: number) => 1 - (1 - progress) ** 3
 
 export function fadeKeyframes(from: number, to: number): Keyframe[] {
@@ -102,21 +104,22 @@ export function settleKeyframes(height: number, swell: Swell): Keyframe[] {
   ]
 }
 
-export function legendaryJumpKeyframes(rise: number, swell: Swell): Keyframe[] {
+export function legendaryJumpKeyframes(to: Point, swell: Swell): Keyframe[] {
   const jump: Keyframe[] = [{ transform: pose() }]
   for (let step = 1; step <= 14; step++) {
     const progress = step / 14
     const side = step % 2 === 1 ? 1 : -1
+    const travel = easeOut(Math.min(1, progress * 1.6))
     jump.push({
       transform: pose(
-        side * progress * 3,
-        -rise * easeOut(Math.min(1, progress * 1.6)),
+        to.x * travel + side * progress * 3,
+        to.y * travel,
         side * (1 + progress * 4),
         swell(1 + 0.15 * easeOut(progress)),
       ),
     })
   }
-  jump.push({ transform: pose(0, -rise, 0, swell(1.15)) })
+  jump.push({ transform: pose(to.x, to.y, 0, swell(1.15)) })
   return jump
 }
 
@@ -128,17 +131,17 @@ export function legendarySpinKeyframes(): Keyframe[] {
   ]
 }
 
-export function legendaryImpactKeyframes(rise: number, swell: Swell): Keyframe[] {
+export function legendaryImpactKeyframes(to: Point, swell: Swell): Keyframe[] {
   return [
-    { transform: pose(0, -rise, 0, swell(1.15)) },
-    { transform: pose(0, -rise + 4, 0, swell(1.28), swell(1.02)), offset: 0.22 },
-    { transform: pose(0, -rise - 2, 0, swell(1.08), swell(1.22)), offset: 0.5 },
-    { transform: pose(0, -rise, 0, swell(1.15)) },
+    { transform: pose(to.x, to.y, 0, swell(1.15)) },
+    { transform: pose(to.x, to.y + 4, 0, swell(1.28), swell(1.02)), offset: 0.22 },
+    { transform: pose(to.x, to.y - 2, 0, swell(1.08), swell(1.22)), offset: 0.5 },
+    { transform: pose(to.x, to.y, 0, swell(1.15)) },
   ]
 }
 
-export function legendaryDropKeyframes(rise: number, swell: Swell): Keyframe[] {
-  return [{ transform: pose(0, -rise, 0, swell(1.15)) }, { transform: pose() }]
+export function legendaryDropKeyframes(to: Point, swell: Swell): Keyframe[] {
+  return [{ transform: pose(to.x, to.y, 0, swell(1.15)) }, { transform: pose() }]
 }
 
 export function storeKeyframes(start: string, from: Box, to: Box): Keyframe[] {
