@@ -5,6 +5,7 @@
  */
 
 .booster__stage {
+  container-type: inline-size;
   isolation: isolate;
   overflow: hidden;
   min-height: 480px;

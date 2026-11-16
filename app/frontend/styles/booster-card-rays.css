@@ -1,16 +1,3 @@
-/* Rays, rings and glows run past the screen's sides to the window's edges
-   and are clipped there, so the page never scrolls sideways; clipped at the
-   screen, the rays ended in a straight line beside the stage. The native
-   app keeps the screen's clip: its WebView widens its layout to whatever
-   the window lets overflow. */
-:root:not([data-native-app]):has(.booster) {
-  overflow-x: clip;
-}
-
-:root:not([data-native-app]) .booster {
-  overflow-x: visible;
-}
-
 /* In the rows, every card's rays sit on one layer under every card: an
    Épique's or a Légendaire's rays never cross a neighbour, whatever its
    tier. The stage controller moves the rays out of the card's 3D stack

@@ -62,13 +62,12 @@
 
 /* ---- The result banner: Épique small, Légendaire large ---- */
 
-/* Fixed over the whole window, its content in the middle: the stage never
-   transforms (the shake moves a child), so the window is its box, and its
-   slam scales from the window's centre. */
+/* Over the whole stage, which clips it, its content in the middle; sized on
+   the stage's width. */
 .booster__banner {
   --booster-tier: var(--color-rarity-epique);
 
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 12;
   display: flex;
@@ -80,7 +79,7 @@
   pointer-events: none;
 }
 
-/* A dark band across the window behind it, so it reads over the cards. */
+/* A dark band across the stage behind it, so it reads over the cards. */
 .booster__banner::before {
   content: "";
   position: absolute;
@@ -109,7 +108,7 @@
 }
 
 .booster__banner-stripe {
-  width: clamp(48px, 9vw, 140px);
+  width: clamp(32px, 9cqi, 140px);
   height: 12px;
   background: repeating-linear-gradient(-45deg, var(--booster-tier) 0 8px, var(--color-panel-sunken) 8px 16px);
 }
@@ -125,7 +124,7 @@
 
 .booster__banner-name {
   font: var(--font-banner-small);
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-size: clamp(2.25rem, 8cqi, 6rem);
   line-height: 1;
   letter-spacing: var(--tracking-banner-small);
   text-transform: uppercase;
@@ -138,7 +137,7 @@
 
 .booster__banner--large .booster__banner-name {
   font: var(--font-banner);
-  font-size: clamp(4rem, 11vw, 9rem);
+  font-size: clamp(3rem, 11cqi, 9rem);
   line-height: 1;
   letter-spacing: var(--tracking-banner);
 }
@@ -152,7 +151,7 @@
   margin: var(--space-3) 0 0;
   color: var(--color-text-bright);
   font: var(--font-body-large);
-  font-size: clamp(1.125rem, 2vw, 1.625rem);
+  font-size: clamp(1.125rem, 2.5cqi, 1.625rem);
   letter-spacing: var(--tracking-body-large);
   text-shadow:
     0 2px 0 var(--color-outline),
