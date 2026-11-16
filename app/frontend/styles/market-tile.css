@@ -16,10 +16,6 @@
   background: var(--color-panel-raised);
 }
 
-.listing-tile__link--soon {
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
-}
-
 .listing-tile__facts {
   position: relative;
   display: flex;
@@ -80,12 +76,6 @@
   flex: none;
   width: auto;
   height: 9px;
-}
-
-@media (min-width: 720px) {
-  .listing-tile__link--wanted {
-    box-shadow: inset 0 0 0 var(--space-unit) var(--color-gold);
-  }
 }
 
 .listing-tile__stand {
