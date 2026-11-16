@@ -21,7 +21,7 @@ class BellReadsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :no_content
     assert_empty response.body
-    assert_equal Set[ "trade:abc:1", "mission:2026-11-16" ], Game::BellReadKeys.call(@hugo)
+    assert_equal Set.new([ "trade:abc:1", "mission:2026-11-16" ]), Game::BellReadKeys.call(@hugo)
   end
 
   test "malformed keys are refused and nothing is written" do

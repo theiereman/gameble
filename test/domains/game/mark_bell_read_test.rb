@@ -15,7 +15,7 @@ class Game::MarkBellReadTest < ActiveSupport::TestCase
   test "the keys read are remembered for that player only" do
     assert mark([ "trade:abc:1", "mission:2026-11-16" ]).success?
 
-    assert_equal Set[ "trade:abc:1", "mission:2026-11-16" ], Game::BellReadKeys.call(@hugo)
+    assert_equal Set.new([ "trade:abc:1", "mission:2026-11-16" ]), Game::BellReadKeys.call(@hugo)
     assert_empty Game::BellReadKeys.call(@max)
   end
 
