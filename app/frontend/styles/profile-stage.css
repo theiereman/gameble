@@ -250,6 +250,14 @@
   color: var(--color-rarity-legendaire);
 }
 
+/* On a phone the outer cards of the fan reach the screen's edges: draw the fan in a little. */
+@media (max-width: 719px) {
+  .profile-stage__fan {
+    scale: 0.88;
+    transform-origin: 50% 100%;
+  }
+}
+
 @media (min-width: 720px) {
   .profile-stage__floor {
     max-width: 600px;
