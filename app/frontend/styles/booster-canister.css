@@ -356,8 +356,8 @@
   background: linear-gradient(
     90deg,
     transparent 20%,
-    color-mix(in srgb, var(--color-accent-hi) 16%, transparent) 45%,
-    color-mix(in srgb, var(--color-accent-hi) 5%, transparent) 60%,
+    color-mix(in srgb, var(--color-accent-hi) 8%, transparent) 45%,
+    color-mix(in srgb, var(--color-accent-hi) 3%, transparent) 60%,
     transparent 80%
   );
   transform: translateX(-150%) skewX(-20deg);

@@ -199,7 +199,7 @@
   background-size: 300% 100%;
   mask-image: var(--band);
   mix-blend-mode: screen;
-  opacity: calc(0.5 * var(--reflection-fresnel));
+  opacity: calc(0.3 * var(--reflection-fresnel));
 }
 
 /* A Légendaire's glitter (lib/glitter.ts draws the flakes): each flake a

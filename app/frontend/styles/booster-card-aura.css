@@ -48,7 +48,9 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 240ms var(--ease-out);
+  transition:
+    opacity 240ms var(--ease-out),
+    filter 400ms var(--ease-out);
   pointer-events: none;
 }
 
@@ -152,9 +154,22 @@
   animation: booster-legendary-tremble 0.9s steps(1) infinite;
 }
 
-/* The aura does not turn with the card: it waits while the card turns. */
+/* The aura does not turn with the card: it fades while the card turns,
+   then comes back once the face is up. */
 .booster-card[data-turning] .booster-card__aura {
-  visibility: hidden;
+  filter: opacity(0);
+  transition:
+    opacity 240ms var(--ease-out),
+    filter 120ms linear;
+}
+
+/* While a Légendaire spins, a white-hot glare hides its face until the
+   flash. */
+.booster-card[data-veiled] .booster-card__front::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(118deg, var(--booster-tier-hi), var(--color-text-max) 30% 70%, var(--booster-tier-hi));
 }
 
 @keyframes booster-legendary-crackle {

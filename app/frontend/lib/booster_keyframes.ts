@@ -124,11 +124,7 @@ export function legendaryJumpKeyframes(to: Point, swell: Swell): Keyframe[] {
 }
 
 export function legendarySpinKeyframes(): Keyframe[] {
-  return [
-    { transform: "rotateY(0deg)" },
-    { transform: "rotateY(560deg)", offset: 0.8 },
-    { transform: "rotateY(540deg)" },
-  ]
+  return [{ transform: "rotateY(0deg)" }, { transform: "rotateY(540deg)" }]
 }
 
 export function legendaryImpactKeyframes(to: Point, swell: Swell): Keyframe[] {

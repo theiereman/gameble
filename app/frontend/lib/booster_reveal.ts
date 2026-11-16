@@ -32,7 +32,6 @@ import {
   FLASHBANG_MS,
   FLIP_MS,
   IMPACT,
-  IMPACT_AT,
   LEGENDARY_JUMP,
   LEGENDARY_JUMP_PX,
   LEGENDARY_SHAKE_MS,
@@ -198,12 +197,15 @@ export class RevealSequence {
     animate(lift, legendaryJumpKeyframes(to, swell), { duration: LEGENDARY_JUMP, fill: "forwards" })
     await wait(LEGENDARY_JUMP)
 
-    animate(flip, legendarySpinKeyframes(), { duration: SPIN, easing: "cubic-bezier(.2,.6,.3,1)", fill: "none" })
+    const slot = host.slot(index)
+    slot?.toggleAttribute("data-veiled", true)
+    animate(flip, legendarySpinKeyframes(), { duration: SPIN, easing: "cubic-bezier(.45,0,.85,.55)", fill: "none" })
     this.turn(index, SPIN)
-    flashbang(host.flash(), FLASHBANG_MS)
     later(MARK_IN_SPIN, () => this.mark(index, quiet))
-    await wait(IMPACT_AT)
+    await wait(SPIN)
 
+    slot?.removeAttribute("data-veiled")
+    flashbang(host.flash(), FLASHBANG_MS)
     settle(lift)
     animate(lift, legendaryImpactKeyframes(to, swell), {
       duration: scaled(360),
@@ -225,7 +227,7 @@ export class RevealSequence {
         ),
       )
     }
-    stageShake(host.shake(), 8, LEGENDARY_SHAKE_MS)
+    stageShake(host.shake(), 12, LEGENDARY_SHAKE_MS)
     this.showBanner("legendary", true, null)
     await wait(IMPACT)
 
