@@ -347,8 +347,8 @@
 }
 
 /* The flash: one short warm flash over the window at the opening; the
-   instant a Légendaire lands face up, the stage alone goes white and clears
-   on it. */
+   instant a Légendaire lands face up, the stage alone goes white and slowly
+   clears on it. */
 .booster__flash {
   position: fixed;
   inset: 0;

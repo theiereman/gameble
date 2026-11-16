@@ -34,7 +34,7 @@ export const flashbang = (flash: HTMLElement | null, duration: number) => {
     [
       { opacity: 0 },
       { opacity: 1, offset: 0.02 },
-      { opacity: 1, offset: 0.2, easing: "cubic-bezier(.2,.6,.3,1)" },
+      { opacity: 1, offset: 0.14, easing: "cubic-bezier(.3,0,.2,1)" },
       { opacity: 0 },
     ],
     { duration, fill: "none" },
