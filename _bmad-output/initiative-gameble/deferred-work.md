@@ -638,3 +638,16 @@
 - source_plan: `_bmad-output/initiative-gameble/plan-season-names.md`
   summary: A timer of `annonce_controller.ts` (line 106, `postLive`) fires after its test is torn down and throws "Cannot read properties of undefined (reading 'posted')" at `lib/annonce.ts:67`, failing `npm run test:js` at random.
   evidence: Seen in 3 of 7 full vitest runs on 2026-11-15, with all 1388 tests passing; the file alone passes, and later runs on both the baseline and the branch came out clean, so it is load- or order-dependent and predates this change.
+
+- source_plan: none
+  summary: Achievements for actions that leave no trace today — complete 10/25/50 goals (reached goals are deleted silently, so a counter from 0), change avatar 1/5 times, look at the GitHub repo and the support page (clicks on SOURCE_CODE_URL and DONATION_URL in ExternalLinksHelper, recorded by a POST since GETs never write).
+  evidence: Split on 2026-11-16 from the achievements-wave request; it needs new per-player counters and a click beacon, independent of the metrics built on existing data.
+- source_plan: none
+  summary: Profile-visit achievements — view another player's profile 1/5/20 times and receive 10/50/100 visits, one visit at most per visitor/profile per hour, recorded by a POST beacon from the public profile; deletion, export and the legal text must cover the new data.
+  evidence: Split on 2026-11-16 from the achievements-wave request; it adds a personal-data table and its privacy coverage.
+- source_plan: none
+  summary: A "join the gameble Discord" achievement verified by a Discord bot that checks guild membership of the player's linked Discord identity (Clerk oauth_discord); the author creates the bot and adds its token and the guild id to the credentials.
+  evidence: Split on 2026-11-16 from the achievements-wave request; it is an external integration that waits on the author's bot setup.
+- source_plan: none
+  summary: A "contribute to the code" achievement the author grants by hand from the back office.
+  evidence: Split on 2026-11-16 from the achievements-wave request; it needs a new back-office action, independent of the metric-based achievements.
