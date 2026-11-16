@@ -1,12 +1,11 @@
 module BoostersHelper
   RESERVE_PIPS = 10
-  BOOSTER_CHILDREN = %w[booster-info].freeze
+  BOOSTER_CHILDREN = %w[booster-info booster-plate].freeze
   BOOSTER_ACTIONS = {
     "booster-actions" => { open: :open, skip: :skip, reveal: :revealAll, back: :guardBack },
     "booster-reserves" => { select: :selectReserve },
     "booster-canister" => { open: :open },
     "booster-stage" => { activate: :activateCard, repost: :repostCard, share: :shareCard, press: :pressCard, release: :releaseCard },
-    "booster-plate" => { store: :storeTop },
     "booster-tray" => { zoom: :openZoom },
     "booster-zoom" => { step: :stepZoom, see: :seeZoomed, repost: :repostZoomed, close: :closeZoom },
     "booster-celebration" => { leave: :leaveForAlbum, step: :stepCelebration, dismiss: :dismissCelebration }

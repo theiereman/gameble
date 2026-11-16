@@ -32,12 +32,12 @@ export const EPIC_SHAKE_MS = scaled(280)
 export const EPIC_BANNER_MS = scaled(1100)
 
 export const LEGENDARY_JUMP = scaled(520)
-export const SPIN = scaled(560)
+export const SPIN = scaled(1250)
 export const MARK_IN_SPIN = scaled(90)
-export const IMPACT_AT = scaled(420)
-export const IMPACT = scaled(760)
+export const IMPACT = scaled(1600)
 export const DROP = scaled(380)
-export const LEGENDARY_FLASH_MS = scaled(300)
+export const FLASHBANG_MS = scaled(1300)
+export const LOCK_IN_MS = scaled(700)
 export const LEGENDARY_SHAKE_MS = scaled(460)
 export const LEGENDARY_BANNER_MS = scaled(1500)
 export const LEGENDARY_JUMP_PX = 50
@@ -229,11 +229,15 @@ export function phoneSwell(scale: number): number {
   return Number((1 + (scale - 1) * PHONE_SWELL).toFixed(4))
 }
 
+export const SHOWCASE_SWELL = 2.5
+
+export function showcaseSwell(scale: number): number {
+  return Number((1 + (scale - 1) * SHOWCASE_SWELL).toFixed(4))
+}
+
 export const PHONE_DEAL_STAGGER = Math.round(DEAL_STAGGER * 1.5)
 export const STORE_MS = 260
 export const SLOT_POP_MS = 260
-export const PLATE_POP_MS = 320
-export const PLATE_POP_LEGENDARY_MS = 380
 export const SPRING_BACK_MS = 260
 export const TRAY_SPARKS = 10
 

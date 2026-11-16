@@ -188,8 +188,6 @@ export class BoosterRenderer {
     switch (hint.kind) {
       case "remaining":
         return t(this.strings.hintRemaining, { count: hint.count, n: this.host.number(hint.count) })
-      case "done":
-        return t(this.strings.hintDone, { count: hint.count, n: this.host.number(hint.count) })
       default:
         return ""
     }
@@ -283,29 +281,12 @@ export class BoosterRenderer {
   }
 
   private renderPlate(state: BoosterState, view: Controls): void {
-    const plateOutlet = this.host.outlets().plate
-    if (!plateOutlet) return
-    const answer = state.answer
-    const top = view.plate === null ? null : answer?.cards[view.plate]
     const hint = state.layout === "phone" ? view.hint : null
-    plateOutlet.render(
-      {
-        shown: onTable(state),
-        hint: hint && { kind: hint.kind === "remaining" ? "done" : hint.kind, done: this.hintText(hint) },
-        plate:
-          view.plate !== null && top
-            ? {
-                key: `${answer?.pack.token}-${view.plate}`,
-                tier: top.tier,
-                tierText: this.host.tierLabel(top.tier),
-                line: t(this.strings.bannerLine, { title: top.title, year: top.year ?? "" }),
-              }
-            : null,
-        celebrating: Boolean(shownCelebration(state)) && view.plate === null,
-        busy: view.busy,
-      },
-      this.host.icon,
-    )
+    this.host.outlets().plate?.render({
+      shown: onTable(state),
+      hint: hint && hint.kind !== "remaining" ? { kind: hint.kind } : null,
+      celebrating: Boolean(shownCelebration(state)) && view.plate === null,
+    })
   }
 
   private renderTray(state: BoosterState, view: Controls): void {
@@ -341,7 +322,7 @@ export class BoosterRenderer {
     const zoomOutlet = this.host.outlets().zoom
     if (!zoomOutlet) return
     const { zoom, answer } = state
-    const card = zoom !== null && state.layout === "phone" ? answer?.cards[zoom] : null
+    const card = zoom !== null ? answer?.cards[zoom] : null
     zoomOutlet.render(
       card && zoom !== null && answer
         ? {
@@ -350,6 +331,7 @@ export class BoosterRenderer {
             title: card.title,
             line: t(this.strings.zoomLine, { rarity: this.host.rarityNames()[card.tier], year: card.year ?? "" }),
             href: cardHref(this.host.cardUrl, card.slug, answer.pack.token, zoom),
+            facts: state.layout === "phone" ? null : cardHref(this.host.cardUrl, card.slug, answer.pack.token, zoom),
             repostName: t(this.strings.repostCard, { card: card.title }),
             previous: view.zoomPrevious,
             next: view.zoomNext,

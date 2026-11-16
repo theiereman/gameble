@@ -133,14 +133,14 @@
   height: 8px;
 }
 
-/* The stage: the pile over the plate band and the tray; the canister
+/* The stage: the plate band's hint, the pile under it, then the tray; the canister
    (or the empty reserve) across the whole stage. A short screen scrolls. */
 .booster[data-layout="phone"] .booster__stage {
   min-height: 474px;
 }
 
 .booster[data-layout="phone"] .booster__shake {
-  grid-template: minmax(0, 1fr) minmax(52px, auto) auto / minmax(0, 1fr);
+  grid-template: auto minmax(0, 1fr) auto / minmax(0, 1fr);
   row-gap: var(--space-3);
   min-height: 510px;
   padding-bottom: 6px;
@@ -168,7 +168,7 @@
 }
 
 .booster__pile-area {
-  grid-area: 1 / 1;
+  grid-area: 2 / 1;
   align-self: end;
   display: flex;
   justify-content: center;
@@ -244,22 +244,20 @@
   opacity: 0.18;
 }
 
-/* The plate band: the hint line, covered by the caption plate once the top
-   card shows. Above the stage's dim (a Légendaire's banner plays there),
+/* The plate band: the hint line over the pile. Above the stage's dim (a Légendaire's banner plays there),
    under the cards (a stored card flies over it to the tray). */
 .booster-plate-band {
   position: relative;
   z-index: 6;
-  grid-area: 2 / 1;
+  grid-area: 1 / 1;
 }
 
 .booster-plate-band__hint {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--space-4);
+  padding-top: var(--space-3);
+  font: var(--font-body-small);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0;
+  text-wrap: balance;
 }
 
 .booster-plate-band__hint > [data-hint] {
@@ -267,75 +265,8 @@
 }
 
 .booster-plate-band__hint[data-shows="tap"] > [data-hint="tap"],
-.booster-plate-band__hint[data-shows="swipe"] > [data-hint="swipe"],
-.booster-plate-band__hint[data-shows="done"] > [data-hint="done"] {
+.booster-plate-band__hint[data-shows="swipe"] > [data-hint="swipe"] {
   display: inline;
-}
-
-.booster-plate {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: 0 var(--space-2) 0 var(--space-5);
-  background: var(--color-panel);
-  box-shadow:
-    inset 0 0 0 var(--space-unit) var(--color-line),
-    inset 6px 0 0 0 var(--booster-tier),
-    0 0 0 var(--space-unit) var(--color-outline);
-}
-
-.booster-plate[data-tier="legendary"] {
-  background: var(--color-plate-legendaire);
-}
-
-.booster-plate__text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-.booster-plate__tier {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  color: var(--booster-tier);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-/* Épique and Légendaire: the banner's name between hazard ticks. */
-.booster-plate__tier[data-banner] {
-  font: var(--font-weight-regular) 1.375rem / 1.5rem var(--font-family-vt323);
-  letter-spacing: 1px;
-}
-
-.booster-plate__tick {
-  flex: none;
-  width: 22px;
-  height: 8px;
-  background: repeating-linear-gradient(-45deg, var(--booster-tier) 0 8px, var(--color-panel-sunken) 8px 16px);
-}
-
-.booster-plate__icon {
-  display: inline-flex;
-}
-
-.booster-plate__line {
-  margin: 0;
-  overflow: hidden;
-  color: var(--color-text-max);
-  font: var(--font-card-title-l);
-  letter-spacing: var(--tracking-card-title-l);
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 /* The set celebration in the band once the hand is complete: one result
@@ -442,13 +373,4 @@
   min-height: var(--space-touch-min);
   margin: 0;
   padding: 0;
-}
-
-.booster .booster-plate__store {
-  flex: none;
-  min-height: var(--space-touch-min);
-  margin: 0;
-  padding: 0 var(--space-4);
-  font: var(--font-button-sm);
-  letter-spacing: var(--tracking-button-sm);
 }

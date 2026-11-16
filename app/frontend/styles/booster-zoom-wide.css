@@ -1,0 +1,74 @@
+/* Off the phone, the card zoom also lays out the card's facts, loaded from
+   its page: the card on the left, its name, facts and actions on the right.
+   Imported after booster-layouts-tray.css. */
+
+.booster:not([data-layout="phone"]) .booster-zoom__panel {
+  display: grid;
+  grid-template-areas:
+    "stage title"
+    "stage line"
+    "stage facts"
+    "stage actions"
+    "stage tip";
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 440px);
+  column-gap: var(--space-6);
+  align-items: start;
+  max-width: 100%;
+  padding: var(--space-panel-padding);
+  overflow: clip;
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+}
+
+.booster:not([data-layout="phone"]) .booster-zoom__stage {
+  grid-area: stage;
+  align-self: center;
+}
+
+/* Beside the facts, an Épique's or a Légendaire's rays fade out around the
+   card, short of the text and of the dialog's edges. */
+.booster:not([data-layout="phone"]) .booster-zoom__rays {
+  --card-rays-size: 380px;
+}
+
+.booster:not([data-layout="phone"]) .booster-zoom__title {
+  grid-area: title;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+}
+
+.booster:not([data-layout="phone"]) .booster-zoom__line {
+  grid-area: line;
+}
+
+.booster:not([data-layout="phone"]) .booster-zoom__facts {
+  display: flex;
+  flex-direction: column;
+  grid-area: facts;
+  gap: var(--space-4);
+  max-height: min(56vh, 520px);
+  margin-top: var(--space-4);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.booster:not([data-layout="phone"]) .booster-zoom__facts[hidden] {
+  display: none;
+}
+
+/* While the next card's facts load, the last ones fade rather than jump. */
+.booster:not([data-layout="phone"]) .booster-zoom__facts[busy] {
+  opacity: 0.4;
+  transition: opacity 120ms linear;
+}
+
+.booster:not([data-layout="phone"]) .booster-zoom__actions {
+  grid-area: actions;
+  justify-content: flex-start;
+}
+
+.booster:not([data-layout="phone"]) .booster-zoom__tip {
+  grid-area: tip;
+}

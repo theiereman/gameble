@@ -1053,10 +1053,8 @@ en:
     see_card: See the card
     share_tip: Share the card
     skip: Skip
-    store: Store
     strings:
       announce_card: 'Card %{position}: %{card}. %{rarity}.'
-      banner_line: "%{title} · %{year}"
       canister_facts:
         one: "%{n} card"
         other: "%{n} cards"
@@ -1104,15 +1102,12 @@ en:
           silver: SILVER
       empty_next: Next capsule in %{time}
       face_down: Card %{position} of %{total}, face down. Reveal.
-      face_up: "%{card}, %{rarity}. See the card."
-      face_up_goals: "%{card}, %{rarity}, %{goals}. See the card."
+      face_up: "%{card}, %{rarity}. Enlarge."
+      face_up_goals: "%{card}, %{rarity}, %{goals}. Enlarge."
       face_up_store: "%{card}, %{rarity}. Store the card."
       face_up_store_goals: "%{card}, %{rarity}, %{goals}. Store the card."
       failed: No connection. Your capsule is safe. Try again.
       goal_reached: Goal reached
-      hint_done:
-        one: Capsule inventoried · +%{n} card in the collection
-        other: Capsule inventoried · +%{n} cards in the collection
       hint_remaining:
         one: Click a card to reveal it · %{n} left
         other: Click a card to reveal it · %{n} left

@@ -29,7 +29,6 @@ import {
   owedBankTaken,
   reserveSelected,
   revealingOpening,
-  topOfPile,
   zoomClosed,
   zoomOpened,
   zoomStepped,
@@ -230,7 +229,7 @@ export class BoosterController extends Controller<HTMLElement> {
     )
     if (action === "reveal") void this.gameplay?.reveals.reveal(index, false)
     else if (action === "store") void this.gameplay?.cardStore.store(index, false)
-    else if (action === "leave") this.gameplay?.cardExit.leaveFor(index)
+    else if (action === "zoom") this.apply((s) => zoomOpened(s, index))
   }
 
   repostCard({ detail: { index } }: Intent<CardIntent>): void {
@@ -249,12 +248,6 @@ export class BoosterController extends Controller<HTMLElement> {
     if (this.state && !abandoned && swipeStores(dx, dy) && canStore(this.state, index, false, performance.now()))
       void this.gameplay?.cardStore.store(index, false)
     else this.gameplay?.cardStore.springBack(index)
-  }
-
-  storeTop(): void {
-    if (!this.state) return
-    const index = topOfPile(this.state.revealed, this.state.stored)
-    if (index !== null) void this.gameplay?.cardStore.store(index, false)
   }
 
   openZoom({ detail: { index } }: Intent<{ index: number }>): void {

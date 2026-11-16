@@ -72,32 +72,8 @@
   min-height: 0;
 }
 
-/* The scene speaks for itself: the revealed card needs no caption plate (a swipe or a tap stores it),
-   the capsule's state no chip over the reserve's clock, and only a short hint sits above the tray. */
-:root[data-native-app] .booster[data-layout="phone"] .booster__shake {
-  grid-template-rows: minmax(0, 1fr) auto auto;
-}
-
 :root[data-native-app] .booster[data-layout="phone"] .booster__pile-area {
   align-self: center;
-}
-
-:root[data-native-app] .booster[data-layout="phone"] .booster-plate {
-  display: none;
-}
-
-:root[data-native-app] .booster[data-layout="phone"] .booster-plate-band__hint {
-  position: static;
-  padding: 0;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-  font-weight: var(--font-weight-regular);
-  letter-spacing: 0;
-  text-wrap: balance;
-}
-
-:root[data-native-app] .booster[data-layout="phone"] .booster-plate-band__hint[data-shows="done"] {
-  display: none;
 }
 
 /* A stored card's zoom: the card alone over a near-opaque scrim, its name and rarity read by assistive

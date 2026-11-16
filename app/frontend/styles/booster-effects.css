@@ -62,20 +62,41 @@
 
 /* ---- The result banner: Épique small, Légendaire large ---- */
 
+/* Across the stage above the Légendaire shown in its middle (swollen to
+   1.375 times its height), its content centred there; sized on the stage's
+   width. */
 .booster__banner {
   --booster-tier: var(--color-rarity-epique);
 
   position: absolute;
-  top: var(--space-8);
-  left: 0;
-  right: 0;
+  inset: 0 0 auto;
+  height: calc(50% - var(--booster-hand-card) * 0.69);
   z-index: 12;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   color: var(--booster-tier);
   opacity: 0;
   pointer-events: none;
+}
+
+/* A dark band across the stage behind it, so it reads over the cards. */
+.booster__banner::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  z-index: -1;
+  height: 70%;
+  max-height: 360px;
+  background: linear-gradient(
+    transparent,
+    color-mix(in srgb, var(--color-outline) 70%, transparent) 30% 70%,
+    transparent
+  );
+  translate: 0 -50%;
 }
 
 .booster__banner[data-tier="legendary"] {
@@ -88,48 +109,51 @@
   gap: var(--space-5);
 }
 
-.booster__banner-stripe {
-  width: 70px;
-  height: var(--hazard-stripe-height);
-  background: repeating-linear-gradient(-45deg, var(--booster-tier) 0 8px, var(--color-panel-sunken) 8px 16px);
-}
-
 .booster__banner-icon {
   display: inline-flex;
 }
 
 .booster__banner-icon svg {
-  width: 26px;
-  height: 26px;
+  width: 40px;
+  height: 40px;
 }
 
 .booster__banner-name {
   font: var(--font-banner-small);
+  font-size: clamp(2.25rem, 8cqi, 6rem);
+  line-height: 1;
   letter-spacing: var(--tracking-banner-small);
   text-transform: uppercase;
   text-shadow:
-    3px 0 0 var(--color-outline),
-    -3px 0 0 var(--color-outline),
-    0 3px 0 var(--color-outline),
-    0 -3px 0 var(--color-outline);
+    4px 0 0 var(--color-outline),
+    -4px 0 0 var(--color-outline),
+    0 4px 0 var(--color-outline),
+    0 -4px 0 var(--color-outline);
 }
 
 .booster__banner--large .booster__banner-name {
   font: var(--font-banner);
+  font-size: clamp(3rem, 11cqi, 9rem);
+  line-height: 1;
   letter-spacing: var(--tracking-banner);
 }
 
 .booster__banner--large .booster__banner-icon svg {
-  width: 34px;
-  height: 34px;
+  width: 56px;
+  height: 56px;
 }
 
 .booster__banner-line {
-  margin: var(--space-1) 0 0;
+  margin: var(--space-3) 0 0;
   color: var(--color-text-bright);
   font: var(--font-body-large);
+  font-size: clamp(1.125rem, 2.5cqi, 1.625rem);
   letter-spacing: var(--tracking-body-large);
-  text-shadow: 0 2px 0 var(--color-outline);
+  text-shadow:
+    0 2px 0 var(--color-outline),
+    2px 0 0 var(--color-outline),
+    -2px 0 0 var(--color-outline),
+    0 -2px 0 var(--color-outline);
 }
 
 /* ---- The set celebration: each set's tier reached, after the hand ---- */

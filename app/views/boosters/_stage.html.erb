@@ -7,7 +7,7 @@
     <%= render("boosters/canister", season:, available:, reserve:, origin:, next_size:) %>
     <div class="booster__deal-area" data-booster-stage-target="dealArea" hidden>
       <ol class="booster__deal" aria-label="<%= t("booster.result") %>" data-booster-stage-target="deal" data-action="click->booster-stage#activate"></ol>
-      <p class="booster__hint" data-booster-stage-target="hint" hidden></p>
+      <p class="booster__hint" data-booster-stage-target="hint" data-spent></p>
     </div>
     <div class="booster__pile-area" data-booster-stage-target="pileArea" hidden>
       <ol class="booster__pile" aria-label="<%= t("booster.result") %>" data-booster-stage-target="pile"
@@ -19,11 +19,9 @@
   <template data-booster-stage-target="banner">
     <div class="booster__banner" aria-hidden="true">
       <div class="booster__banner-row">
-        <span class="booster__banner-stripe"></span>
         <span class="booster__banner-icon"></span>
         <span class="booster__banner-name"></span>
         <span class="booster__banner-icon"></span>
-        <span class="booster__banner-stripe"></span>
       </div>
       <p class="booster__banner-line"></p>
     </div>

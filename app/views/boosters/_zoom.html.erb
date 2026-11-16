@@ -12,6 +12,7 @@
       <span class="booster-zoom__icon" aria-hidden="true" data-booster-zoom-target="icon"></span>
       <span data-booster-zoom-target="line"></span>
     </p>
+    <%= turbo_frame_tag "card-facts", class: "booster-zoom__facts", target: "_top", hidden: true, data: { booster_zoom_target: "facts", action: "turbo:frame-missing->booster-zoom#factsMissing" } %>
     <div class="booster-zoom__actions">
       <a class="button button--primary booster-zoom__see" data-booster-zoom-target="see" data-action="booster-zoom#see"><%= t("booster.see_card") %></a>
       <% if season %>

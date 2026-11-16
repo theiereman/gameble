@@ -119,6 +119,8 @@
 @import "../styles/booster.css";
 @import "../styles/booster-canister.css";
 @import "../styles/booster-card-marks.css";
+@import "../styles/booster-card-aura.css";
+@import "../styles/booster-card-rays.css";
 @import "../styles/booster-effects.css";
 @import "../styles/booster-celebration.css";
 @import "../styles/booster-celebration-keyframes.css";
@@ -126,6 +128,7 @@
 @import "../styles/booster-layouts-tray.css";
 @import "../styles/booster-stage.css";
 @import "../styles/booster-phone-fit.css";
+@import "../styles/booster-zoom-wide.css";
 @import "../styles/booster-daily.css";
 
 /* Read by screen readers, not shown. */

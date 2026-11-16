@@ -39,7 +39,6 @@ export function gameplayFor({
     ...stage,
     legendarySignal: strings.legendarySignal,
     announceCardLine: strings.announceCard,
-    bannerLine: strings.bannerLine,
     rarityNames,
   })
   const cardStore = new CardStore({ ...stage, whenIdle })

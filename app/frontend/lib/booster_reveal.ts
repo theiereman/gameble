@@ -8,7 +8,7 @@ import {
   revealStarted,
   unlock,
 } from "./booster"
-import { animate, burst, ring, settle, stageFlash, stageShake } from "./booster_effects"
+import { animate, burst, flashbang, ring, settle, stageShake } from "./booster_effects"
 import type { BoosterStageHost } from "./booster_host"
 import {
   fadeKeyframes,
@@ -17,9 +17,11 @@ import {
   legendaryImpactKeyframes,
   legendaryJumpKeyframes,
   legendarySpinKeyframes,
+  SPIN_LOCK_AT,
   liftKeyframes,
   settleKeyframes,
   trembleKeyframes,
+  type Point,
 } from "./booster_keyframes"
 import {
   ART_POLL,
@@ -28,13 +30,13 @@ import {
   COMMON_LIFT_PX,
   DROP,
   EPIC_SHAKE_MS,
+  FLASHBANG_MS,
   FLIP_MS,
   IMPACT,
-  IMPACT_AT,
-  LEGENDARY_FLASH_MS,
   LEGENDARY_JUMP,
   LEGENDARY_JUMP_PX,
   LEGENDARY_SHAKE_MS,
+  LOCK_IN_MS,
   LIFT_PX,
   MARK_AT,
   MARK_IN_SPIN,
@@ -47,6 +49,7 @@ import {
   phoneJump,
   phoneSwell,
   scaled,
+  showcaseSwell,
   tierIndex,
 } from "./booster_motion"
 import type { Rarity } from "./card_types"
@@ -58,7 +61,6 @@ export type RevealHost = BoosterStageHost &
   Readonly<{
     legendarySignal: string
     announceCardLine: string
-    bannerLine: string
     rarityNames: () => Record<Rarity, string>
   }>
 
@@ -104,9 +106,20 @@ export class RevealSequence {
       )
   }
 
-  private bannerFor(index: number): string | null {
-    const card = this.host.current().answer?.cards[index]
-    return card ? t(this.host.bannerLine, { title: card.title, year: card.year ?? "" }) : null
+  private turn(index: number, duration: number): void {
+    const slot = this.host.slot(index)
+    slot?.toggleAttribute("data-turning", true)
+    this.host.timers().later(duration, () => slot?.removeAttribute("data-turning"))
+  }
+
+  private showcase(index: number): Point {
+    const { host } = this
+    if (host.phoneLayout()) return { x: 0, y: -this.riseLimit(index) }
+    const frame = host.slot(index)?.querySelector(".booster-card__frame")?.getBoundingClientRect()
+    const stage = host.shake()?.getBoundingClientRect()
+    if (!frame || !stage) return { x: 0, y: -LEGENDARY_JUMP_PX }
+    const centre = (box: DOMRect) => ({ x: box.left + box.width / 2, y: box.top + box.height / 2 })
+    return { x: centre(stage).x - centre(frame).x, y: centre(stage).y - centre(frame).y }
   }
 
   private riseLimit(index: number): number {
@@ -144,6 +157,7 @@ export class RevealSequence {
     }
 
     animate(flip, flipKeyframes(), { duration: FLIP_MS[level], easing: "cubic-bezier(.3,.1,.3,1)", fill: "none" })
+    this.turn(index, FLIP_MS[level])
     await wait(FLIP_MS[level] * MARK_AT)
     this.mark(index, quiet)
     if (level >= 3) stageShake(host.shake(), 5, EPIC_SHAKE_MS)
@@ -162,7 +176,6 @@ export class RevealSequence {
         )
       }
     }
-    if (level === 3) this.showBanner(tier, false, null)
     settle(lift)
     animate(lift, settleKeyframes(height, swell), {
       duration: SETTLE_MS[level],
@@ -177,25 +190,24 @@ export class RevealSequence {
     const { wait, later } = host.timers()
     const lift = host.part(index, "lift")
     const flip = host.part(index, "flip")
-    const rise = this.riseLimit(index)
-    const swell = this.swell()
+    const to = this.showcase(index)
+    const swell = host.phoneLayout() ? phoneSwell : showcaseSwell
     host.apply((s) => legendarySignalled(s, index))
     host.announce(host.legendarySignal)
 
     settle(lift)
-    animate(lift, legendaryJumpKeyframes(rise, swell), { duration: LEGENDARY_JUMP, fill: "forwards" })
+    animate(lift, legendaryJumpKeyframes(to, swell), { duration: LEGENDARY_JUMP, fill: "forwards" })
     await wait(LEGENDARY_JUMP)
 
-    animate(flip, legendarySpinKeyframes(), { duration: SPIN, easing: "cubic-bezier(.2,.6,.3,1)", fill: "none" })
+    const lockIn = Math.round(SPIN * SPIN_LOCK_AT)
+    animate(flip, legendarySpinKeyframes(), { duration: SPIN, fill: "none" })
+    this.turn(index, lockIn)
     later(MARK_IN_SPIN, () => this.mark(index, quiet))
-    await wait(IMPACT_AT)
+    await wait(lockIn)
 
+    flashbang(host.flash(), FLASHBANG_MS)
     settle(lift)
-    animate(lift, legendaryImpactKeyframes(rise, swell), {
-      duration: scaled(360),
-      easing: "ease-out",
-      fill: "forwards",
-    })
+    animate(lift, legendaryImpactKeyframes(to, swell), { duration: LOCK_IN_MS, easing: "ease-out", fill: "forwards" })
     const fx = host.part(index, "fx")
     burst(fx, "legendary")
     if (fx && !motionReduced()) {
@@ -204,21 +216,20 @@ export class RevealSequence {
         ring(
           fx,
           `booster-fx__ring booster-fx__ring--${count % 2 === 0 ? "tier" : "white"}`,
-          width / 2,
-          height / 2 - rise,
+          width / 2 + to.x,
+          height / 2 + to.y,
           200 + count * 60,
           scaled(delay),
         ),
       )
     }
-    stageFlash(host.flash(), "gold", 0.5, LEGENDARY_FLASH_MS)
-    stageShake(host.shake(), 8, LEGENDARY_SHAKE_MS)
-    this.showBanner("legendary", true, this.bannerFor(index))
+    stageShake(host.shake(), 12, LEGENDARY_SHAKE_MS)
+    this.showBanner("legendary", true, null)
     await wait(IMPACT)
 
     host.apply(legendaryEnded)
     settle(lift)
-    animate(lift, legendaryDropKeyframes(rise, swell), {
+    animate(lift, legendaryDropKeyframes(to, swell), {
       duration: DROP,
       easing: "cubic-bezier(.3,1.5,.5,1)",
       fill: "none",
@@ -237,7 +248,7 @@ export class RevealSequence {
     this.mark(index, quiet)
     animate(host.part(index, "lift"), fadeKeyframes(0.2, 1), { duration: RM_REVEAL_FADE, fill: "none" })
     if (legendary) {
-      this.showBanner("legendary", true, this.bannerFor(index))
+      this.showBanner("legendary", true, null)
       await host.timers().wait(RM_LEGENDARY_STILL)
       host.apply(legendaryEnded)
     } else {

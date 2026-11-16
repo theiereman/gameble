@@ -15,7 +15,6 @@ import type { ScreenTimers } from "./screen_timers"
 
 export type BoosterStrings = {
   announceCard: string
-  bannerLine: string
   canisterFacts: Template
   canisterLabel: string
   canisterLabelPlain: string
@@ -28,7 +27,6 @@ export type BoosterStrings = {
   faceUpStoreGoals: string
   failed: string
   goalReached: string
-  hintDone: Template
   hintRemaining: Template
   legendarySignal: string
   nextAt: string

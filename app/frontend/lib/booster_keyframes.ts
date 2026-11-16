@@ -4,6 +4,8 @@ export type Swell = (scale: number) => number
 
 export type Box = { left: number; top: number; width: number; height: number }
 
+export type Point = Readonly<{ x: number; y: number }>
+
 const easeOut = (progress: number) => 1 - (1 - progress) ** 3
 
 export function fadeKeyframes(from: number, to: number): Keyframe[] {
@@ -102,43 +104,53 @@ export function settleKeyframes(height: number, swell: Swell): Keyframe[] {
   ]
 }
 
-export function legendaryJumpKeyframes(rise: number, swell: Swell): Keyframe[] {
+export function legendaryJumpKeyframes(to: Point, swell: Swell): Keyframe[] {
   const jump: Keyframe[] = [{ transform: pose() }]
   for (let step = 1; step <= 14; step++) {
     const progress = step / 14
     const side = step % 2 === 1 ? 1 : -1
+    const travel = easeOut(Math.min(1, progress * 1.6))
     jump.push({
       transform: pose(
-        side * progress * 3,
-        -rise * easeOut(Math.min(1, progress * 1.6)),
+        to.x * travel + side * progress * 3,
+        to.y * travel,
         side * (1 + progress * 4),
         swell(1 + 0.15 * easeOut(progress)),
       ),
     })
   }
-  jump.push({ transform: pose(0, -rise, 0, swell(1.15)) })
+  jump.push({ transform: pose(to.x, to.y, 0, swell(1.15)) })
   return jump
 }
 
+export const SPIN_LOCK_AT = 0.5
+
 export function legendarySpinKeyframes(): Keyframe[] {
   return [
-    { transform: "rotateY(0deg)" },
-    { transform: "rotateY(560deg)", offset: 0.8 },
+    { transform: "rotateY(0deg)", easing: "ease-out" },
+    { transform: "rotateY(-16deg)", offset: 0.07, easing: "cubic-bezier(.45,0,.35,1)" },
+    { transform: "rotateY(562deg)", offset: 0.42, easing: "cubic-bezier(.5,0,1,1)" },
+    { transform: "rotateY(540deg)", offset: SPIN_LOCK_AT, easing: "ease-out" },
+    { transform: "rotateY(531deg)", offset: 0.6, easing: "ease-in-out" },
+    { transform: "rotateY(545deg)", offset: 0.73, easing: "ease-in-out" },
+    { transform: "rotateY(537.5deg)", offset: 0.86, easing: "ease-in-out" },
     { transform: "rotateY(540deg)" },
   ]
 }
 
-export function legendaryImpactKeyframes(rise: number, swell: Swell): Keyframe[] {
+export function legendaryImpactKeyframes(to: Point, swell: Swell): Keyframe[] {
   return [
-    { transform: pose(0, -rise, 0, swell(1.15)) },
-    { transform: pose(0, -rise + 4, 0, swell(1.28), swell(1.02)), offset: 0.22 },
-    { transform: pose(0, -rise - 2, 0, swell(1.08), swell(1.22)), offset: 0.5 },
-    { transform: pose(0, -rise, 0, swell(1.15)) },
+    { transform: pose(to.x, to.y, 0, swell(1.15)) },
+    { transform: pose(to.x, to.y + 5, 0, swell(1.3), swell(1)), offset: 0.12 },
+    { transform: pose(to.x, to.y - 3, 0, swell(1.07), swell(1.24)), offset: 0.3 },
+    { transform: pose(to.x, to.y + 2, 0, swell(1.2), swell(1.11)), offset: 0.5 },
+    { transform: pose(to.x, to.y - 1, 0, swell(1.13), swell(1.17)), offset: 0.72 },
+    { transform: pose(to.x, to.y, 0, swell(1.15)) },
   ]
 }
 
-export function legendaryDropKeyframes(rise: number, swell: Swell): Keyframe[] {
-  return [{ transform: pose(0, -rise, 0, swell(1.15)) }, { transform: pose() }]
+export function legendaryDropKeyframes(to: Point, swell: Swell): Keyframe[] {
+  return [{ transform: pose(to.x, to.y, 0, swell(1.15)) }, { transform: pose() }]
 }
 
 export function storeKeyframes(start: string, from: Box, to: Box): Keyframe[] {
@@ -171,13 +183,4 @@ export function bannerKeyframes(reduced: boolean): Keyframe[] {
         { opacity: 1, transform: "translateY(0px) scale(1, 1)", offset: 0.8 },
         { opacity: 0, transform: "translateY(-16px) scale(1, 1)" },
       ]
-}
-
-export function platePopKeyframes(): Keyframe[] {
-  return [
-    { transform: "scale(1.2, 0.2)", opacity: 0 },
-    { transform: "scale(0.96, 1.12)", opacity: 1, offset: 0.45 },
-    { transform: "scale(1.02, 0.98)", opacity: 1, offset: 0.75 },
-    { transform: "scale(1, 1)", opacity: 1 },
-  ]
 }

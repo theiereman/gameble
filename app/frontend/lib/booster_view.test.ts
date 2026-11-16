@@ -93,6 +93,17 @@ describe("zoomOpened, zoomClosed, zoomStepped", () => {
     expect(zoomStepped(closed, 1)).toBe(closed)
   })
 
+  it("on the rows, opens and steps through the revealed cards", () => {
+    const rows = revealMarked(revealMarked(dealt(FIVE), 1, 0), 3, 0)
+    expect(zoomOpened(rows, 0)).toBe(rows)
+    const zoomed = zoomOpened(rows, 1)
+    expect(zoomed.zoom).toBe(1)
+    expect(zoomStepped(zoomed, 1).zoom).toBe(3)
+    expect(zoomStepped(zoomed, -1)).toBe(zoomed)
+    expect(controls(zoomed)).toMatchObject({ zoomPrevious: false, zoomNext: true })
+    expect(zoomClosed(zoomStepped(zoomed, 1))).toMatchObject({ zoom: null, focus: { card: 3 } })
+  })
+
   it("closes, asking the focus back on its slot", () => {
     expect(zoomClosed(zoomOpened(tray(), 3))).toMatchObject({ zoom: null, focus: { slot: 3 } })
     expect(zoomClosed(tray()).focus).toBe("card")
@@ -100,15 +111,15 @@ describe("zoomOpened, zoomClosed, zoomStepped", () => {
 })
 
 describe("activation", () => {
-  it("reveals a face-down card and leaves for a revealed one past its guard", () => {
+  it("reveals a face-down card and zooms on a revealed one past its guard", () => {
     const state = revealMarked(dealt(), 0, 1000)
     expect(activation(state, 1, 1000)).toBe("reveal")
     expect(activation(state, 0, 1000 + REVEAL_GUARD - 1)).toBe("none")
-    expect(activation(state, 0, 1000 + REVEAL_GUARD)).toBe("leave")
+    expect(activation(state, 0, 1000 + REVEAL_GUARD)).toBe("zoom")
     expect(activation(state, 9, 1000)).toBe("none")
   })
 
-  it("never leaves while the navigation is locked, an opening or Reveal all runs", () => {
+  it("never zooms while the navigation is locked, an opening or Reveal all runs", () => {
     const state = revealMarked(dealt(), 0, 0)
     const now = 10_000
     expect(activation(lock(state), 0, now)).toBe("none")
@@ -166,7 +177,7 @@ describe("controls", () => {
     expect(controls(revealedAll(hand))).toMatchObject({
       openDisabled: false,
       revealAllDisabled: true,
-      hint: { kind: "done", count: 5 },
+      hint: null,
     })
   })
 
@@ -176,13 +187,13 @@ describe("controls", () => {
     expect(controls(legendarySignalled(dealt(), 0))).toMatchObject({ revealAllDisabled: true })
   })
 
-  it("tells the phone's pile: tap, swipe, the plate under a revealed top card, done", () => {
+  it("tells the phone's pile: tap, swipe, the plate under a revealed top card, then nothing", () => {
     const pile = dealt(["common", "rare"], { layout: "phone" })
     expect(controls(pile)).toMatchObject({ top: 0, plate: null, hint: { kind: "tap" } })
     const shown = revealMarked(pile, 0, 0)
     expect(controls(shown)).toMatchObject({ top: 0, plate: 0, hint: { kind: "swipe" } })
     const away = cardStored(cardStored(revealMarked(shown, 1, 0), 0), 1)
-    expect(controls(away)).toMatchObject({ top: null, plate: null, storedCount: 2, hint: { kind: "done", count: 2 } })
+    expect(controls(away)).toMatchObject({ top: null, plate: null, storedCount: 2, hint: null })
   })
 
   it("counts the cards of the capsule ahead in the reserve chosen", () => {

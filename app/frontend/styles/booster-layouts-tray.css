@@ -124,7 +124,7 @@
 /* A set result reached by the stored hand takes the stage on its own,
    until Continue lets the next capsule dock there. */
 .booster[data-layout="phone"] .booster-plate-band:has(.booster-celebration) {
-  grid-area: 1 / 1;
+  grid-area: 2 / 1;
   align-self: center;
 }
 
@@ -283,6 +283,13 @@
   color: var(--color-muted);
   font: var(--font-body-small);
   letter-spacing: var(--tracking-body-small);
+}
+
+/* A pointer tilts the card by hovering it: the hold is for touch only. */
+@media (hover: hover) {
+  .booster:not([data-layout="phone"]) .booster-zoom__tip {
+    display: none;
+  }
 }
 
 /* ---- Reduced motion: every loop stops; no hover lift, no rays ---- */

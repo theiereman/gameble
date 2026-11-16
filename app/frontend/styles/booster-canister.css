@@ -204,9 +204,8 @@
   margin: 0;
 }
 
-/* A tier's colours, on a card and on the phone's plate, tray slots, zoom
-   and tray sparks. */
-.booster-plate,
+/* A tier's colours, on a card and on the phone's tray slots, zoom and
+   tray sparks. */
 .booster-tray__slot,
 .booster-zoom {
   --booster-tier: var(--color-rarity-commune);
@@ -214,7 +213,6 @@
 }
 
 .booster-card[data-tier="uncommon"],
-.booster-plate[data-tier="uncommon"],
 .booster-tray__slot[data-tier="uncommon"],
 .booster-zoom[data-tier="uncommon"] {
   --booster-tier: var(--color-rarity-peu-commune);
@@ -222,7 +220,6 @@
 }
 
 .booster-card[data-tier="rare"],
-.booster-plate[data-tier="rare"],
 .booster-tray__slot[data-tier="rare"],
 .booster-zoom[data-tier="rare"] {
   --booster-tier: var(--color-rarity-rare);
@@ -230,7 +227,6 @@
 }
 
 .booster-card[data-tier="epic"],
-.booster-plate[data-tier="epic"],
 .booster-tray__slot[data-tier="epic"],
 .booster-zoom[data-tier="epic"],
 .booster-fx--epic {
@@ -239,7 +235,6 @@
 }
 
 .booster-card[data-tier="legendary"],
-.booster-plate[data-tier="legendary"],
 .booster-tray__slot[data-tier="legendary"],
 .booster-zoom[data-tier="legendary"],
 .booster-fx--legendary {
@@ -356,8 +351,8 @@
   background: linear-gradient(
     90deg,
     transparent 20%,
-    color-mix(in srgb, var(--color-accent-hi) 16%, transparent) 45%,
-    color-mix(in srgb, var(--color-accent-hi) 5%, transparent) 60%,
+    color-mix(in srgb, var(--color-accent-hi) 8%, transparent) 45%,
+    color-mix(in srgb, var(--color-accent-hi) 3%, transparent) 60%,
     transparent 80%
   );
   transform: translateX(-150%) skewX(-20deg);

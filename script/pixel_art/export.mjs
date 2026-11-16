@@ -604,19 +604,22 @@ const ICONS = {
       "..ooo..",
     ],
   },
-  // The merged counter's special capsule: a lime diamond (9 × 9).
+  // The merged counter's special capsule: the standard pill in lime, a
+  // pale spark on its top half (7 × 11).
   "capsule-special": {
-    legend: { o: OUTLINE, l: "#a4d007", d: "#5c7a0c" },
+    legend: { o: OUTLINE, l: "#a4d007", d: "#5c7a0c", s: "#f4ffd6" },
     grid: [
-      "....o....",
-      "...olo...",
-      "..olllo..",
-      ".olllllo.",
-      "olllllllo",
-      ".odllldo.",
-      "..oddlo..",
-      "...odo...",
-      "....o....",
+      "..ooo..",
+      ".olllo.",
+      "ollsllo",
+      "olssslo",
+      "ollsllo",
+      "odddddo",
+      "odddddo",
+      "odddddo",
+      "odddddo",
+      ".odddo.",
+      "..ooo..",
     ],
   },
   // The player's portrait until they choose an avatar (16 × 16).
@@ -1803,7 +1806,7 @@ const DESCRIPTIONS = {
   "avatar-owl.svg": "Avatar: the owl, brown with ear tufts and round yellow eyes, 16 × 16",
   "pencil.svg": "✎ pencil on the player's own portrait, choose an avatar, 8 × 8 (text colour)",
   "capsule-standard.svg": "The merged counter's standard capsule: a blue pill, 7 × 11",
-  "capsule-special.svg": "The merged counter's special capsule: a lime diamond, 9 × 9",
+  "capsule-special.svg": "The merged counter's special capsule: a lime pill with a spark, 7 × 11",
   "tab-hub.svg": "Phone tab bar icon: PONT (text colour)",
   "tab-collection.svg": "Phone tab bar icon: COLLECTION (text colour)",
   "tab-capsule.svg": "Phone tab bar icon: CAPSULE, a vertical pill (text colour)",

@@ -1,0 +1,252 @@
+/* A dealt card's rarity aura: a glow in its tier's colour around the card,
+   face down or up, that grows and quickens with the tier. It shows on the
+   card under the pointer or keyboard focus, and on the phone on the pile's
+   top card. Behind the flip, beside it rather than around it, so the turn
+   stays 3D. Imported after booster-canister.css. */
+
+.booster-card {
+  --aura-reach: 3px;
+  --aura-blur: 10px;
+  --aura-strength: 25%;
+  --aura-breath: 1.02;
+  --aura-pace: 3.2s;
+}
+
+.booster-card[data-tier="uncommon"] {
+  --aura-reach: 4px;
+  --aura-blur: 12px;
+  --aura-strength: 35%;
+  --aura-breath: 1.025;
+  --aura-pace: 2.6s;
+}
+
+.booster-card[data-tier="rare"] {
+  --aura-reach: 6px;
+  --aura-blur: 14px;
+  --aura-strength: 45%;
+  --aura-breath: 1.03;
+  --aura-pace: 2s;
+}
+
+.booster-card[data-tier="epic"] {
+  --aura-reach: 7px;
+  --aura-blur: 17px;
+  --aura-strength: 55%;
+  --aura-breath: 1.04;
+  --aura-pace: 1.5s;
+}
+
+.booster-card[data-tier="legendary"] {
+  --aura-reach: 9px;
+  --aura-blur: 20px;
+  --aura-strength: 65%;
+  --aura-breath: 1.05;
+  --aura-pace: 1.1s;
+}
+
+.booster-card__aura {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition:
+    opacity 240ms var(--ease-out),
+    filter 400ms var(--ease-out);
+  pointer-events: none;
+}
+
+/* A filled, blurred plate rather than a ring: whatever the face leaves
+   uncovered inside the frame is lit too, never a dark gap. */
+.booster-card__aura::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--aura-reach) * -1);
+  background: color-mix(in srgb, var(--booster-tier) var(--aura-strength), transparent);
+  filter: blur(var(--aura-blur));
+}
+
+/* An Épique's and a Légendaire's aura also flickers: a smaller plate in
+   the tier's light colour, brightening in uneven steps. */
+.booster-card[data-tier="epic"] .booster-card__aura::after,
+.booster-card[data-tier="legendary"] .booster-card__aura::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--aura-reach) * -0.5);
+  background: color-mix(in srgb, var(--booster-tier-hi) 30%, transparent);
+  filter: blur(calc(var(--aura-blur) / 2));
+  opacity: 0;
+}
+
+.booster-card[data-tier="legendary"] .booster-card__aura::after {
+  background: color-mix(in srgb, var(--booster-tier-hi) 45%, transparent);
+}
+
+/* Shown, it breathes and flickers; hidden, its loops wait. */
+.booster[data-layout="phone"] .booster-card[data-dealt][data-top] .booster-card__aura,
+.booster-card[data-dealt]:has(.booster-card__hit:focus-visible) .booster-card__aura {
+  --aura-play: running;
+
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .booster:not([data-layout="phone"]) .booster-card[data-dealt]:has(.booster-card__frame:hover) .booster-card__aura {
+    --aura-play: running;
+
+    opacity: 1;
+  }
+}
+
+.booster-card__aura::before {
+  animation: booster-aura-breath var(--aura-pace) ease-in-out infinite;
+  animation-play-state: var(--aura-play, paused);
+}
+
+.booster-card__aura::after {
+  animation: booster-aura-flicker calc(var(--aura-pace) * 2) steps(1) infinite;
+  animation-play-state: var(--aura-play, paused);
+}
+
+@keyframes booster-aura-breath {
+  50% {
+    transform: scale(var(--aura-breath));
+  }
+}
+
+@keyframes booster-aura-flicker {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  20% {
+    opacity: 0.8;
+  }
+
+  35% {
+    opacity: 0.5;
+  }
+
+  55% {
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 0.4;
+  }
+}
+
+/* A face-down Légendaire cannot hold its energy: before any pointer comes
+   near, its aura crackles in sharp bursts and the card trembles by a pixel.
+   It stays lit while the card is shown in the stage's middle. */
+.booster-card[data-tier="legendary"][data-dealt]:not([data-revealed]) .booster-card__aura,
+.booster-card[data-legendary] .booster-card__aura {
+  --aura-play: running;
+
+  opacity: 1;
+}
+
+.booster-card[data-tier="legendary"][data-dealt]:not([data-revealed]) .booster-card__aura::after {
+  animation-name: booster-legendary-crackle;
+  animation-duration: 0.7s;
+}
+
+.booster-card[data-tier="legendary"][data-dealt]:not([data-revealed]) .booster-card__float {
+  animation: booster-legendary-tremble 0.9s steps(1) infinite;
+}
+
+/* The aura does not turn with the card: it fades while the card turns,
+   then comes back once the face is up. */
+.booster-card[data-turning] .booster-card__aura {
+  filter: opacity(0);
+  transition:
+    opacity 240ms var(--ease-out),
+    filter 120ms linear;
+}
+
+@keyframes booster-legendary-crackle {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  12% {
+    opacity: 0.3;
+  }
+
+  40% {
+    opacity: 0.6;
+  }
+
+  44% {
+    opacity: 0.1;
+  }
+
+  47% {
+    opacity: 1;
+  }
+
+  52% {
+    opacity: 0.35;
+  }
+
+  80% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes booster-legendary-tremble {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+
+  12% {
+    translate: 0.6px -0.4px;
+  }
+
+  25% {
+    translate: -0.5px 0.3px;
+    rotate: -0.2deg;
+  }
+
+  37% {
+    translate: 0.3px 0.6px;
+  }
+
+  50% {
+    translate: -0.6px -0.2px;
+    rotate: 0.2deg;
+  }
+
+  62% {
+    translate: 0.4px -0.5px;
+  }
+
+  75% {
+    translate: -0.3px 0.4px;
+    rotate: -0.1deg;
+  }
+
+  87% {
+    translate: 0.5px 0.2px;
+  }
+}
+
+html[data-motion="reduced"] .booster-card__aura::before,
+html[data-motion="reduced"] .booster-card__aura::after,
+html[data-motion="reduced"] .booster-card__float {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .booster-card__aura::before,
+  html:not([data-motion="full"]) .booster-card__aura::after,
+  html:not([data-motion="full"]) .booster-card__float {
+    animation: none;
+  }
+}

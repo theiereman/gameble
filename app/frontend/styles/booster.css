@@ -346,7 +346,14 @@
   text-align: center;
 }
 
-/* The flash: one short warm flash at the opening, gold at a Légendaire's impact. */
+/* Once every card is turned, the hint keeps its line, so the row stays put. */
+.booster__hint[data-spent] {
+  visibility: hidden;
+}
+
+/* The flash: one short warm flash over the window at the opening; the
+   instant a Légendaire lands face up, the stage alone goes white and slowly
+   clears on it. */
 .booster__flash {
   position: fixed;
   inset: 0;
@@ -356,8 +363,9 @@
   pointer-events: none;
 }
 
-.booster__flash[data-tone="gold"] {
-  background: color-mix(in srgb, var(--color-text-max) 65%, var(--color-gold));
+.booster__flash[data-tone="white"] {
+  position: absolute;
+  background: var(--color-text-max);
 }
 
 /* ---- Reserve tabs: standard and special capsules ---- */
