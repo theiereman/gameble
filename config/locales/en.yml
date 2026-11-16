@@ -1053,10 +1053,8 @@ en:
     see_card: See the card
     share_tip: Share the card
     skip: Skip
-    store: Store
     strings:
       announce_card: 'Card %{position}: %{card}. %{rarity}.'
-      banner_line: "%{title} · %{year}"
       canister_facts:
         one: "%{n} card"
         other: "%{n} cards"

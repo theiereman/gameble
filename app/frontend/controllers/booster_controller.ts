@@ -29,7 +29,6 @@ import {
   owedBankTaken,
   reserveSelected,
   revealingOpening,
-  topOfPile,
   zoomClosed,
   zoomOpened,
   zoomStepped,
@@ -249,12 +248,6 @@ export class BoosterController extends Controller<HTMLElement> {
     if (this.state && !abandoned && swipeStores(dx, dy) && canStore(this.state, index, false, performance.now()))
       void this.gameplay?.cardStore.store(index, false)
     else this.gameplay?.cardStore.springBack(index)
-  }
-
-  storeTop(): void {
-    if (!this.state) return
-    const index = topOfPile(this.state.revealed, this.state.stored)
-    if (index !== null) void this.gameplay?.cardStore.store(index, false)
   }
 
   openZoom({ detail: { index } }: Intent<{ index: number }>): void {

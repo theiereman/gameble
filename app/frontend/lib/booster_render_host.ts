@@ -15,7 +15,6 @@ import type { ScreenTimers } from "./screen_timers"
 
 export type BoosterStrings = {
   announceCard: string
-  bannerLine: string
   canisterFacts: Template
   canisterLabel: string
   canisterLabelPlain: string

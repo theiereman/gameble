@@ -281,29 +281,12 @@ export class BoosterRenderer {
   }
 
   private renderPlate(state: BoosterState, view: Controls): void {
-    const plateOutlet = this.host.outlets().plate
-    if (!plateOutlet) return
-    const answer = state.answer
-    const top = view.plate === null ? null : answer?.cards[view.plate]
     const hint = state.layout === "phone" ? view.hint : null
-    plateOutlet.render(
-      {
-        shown: onTable(state),
-        hint: hint && hint.kind !== "remaining" ? { kind: hint.kind } : null,
-        plate:
-          view.plate !== null && top
-            ? {
-                key: `${answer?.pack.token}-${view.plate}`,
-                tier: top.tier,
-                tierText: this.host.tierLabel(top.tier),
-                line: t(this.strings.bannerLine, { title: top.title, year: top.year ?? "" }),
-              }
-            : null,
-        celebrating: Boolean(shownCelebration(state)) && view.plate === null,
-        busy: view.busy,
-      },
-      this.host.icon,
-    )
+    this.host.outlets().plate?.render({
+      shown: onTable(state),
+      hint: hint && hint.kind !== "remaining" ? { kind: hint.kind } : null,
+      celebrating: Boolean(shownCelebration(state)) && view.plate === null,
+    })
   }
 
   private renderTray(state: BoosterState, view: Controls): void {

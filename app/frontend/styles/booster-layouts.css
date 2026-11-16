@@ -140,7 +140,7 @@
 }
 
 .booster[data-layout="phone"] .booster__shake {
-  grid-template: minmax(0, 1fr) minmax(52px, auto) auto / minmax(0, 1fr);
+  grid-template: minmax(0, 1fr) auto auto / minmax(0, 1fr);
   row-gap: var(--space-3);
   min-height: 510px;
   padding-bottom: 6px;
@@ -244,8 +244,7 @@
   opacity: 0.18;
 }
 
-/* The plate band: the hint line, covered by the caption plate once the top
-   card shows. Above the stage's dim (a Légendaire's banner plays there),
+/* The plate band: the hint line under the pile. Above the stage's dim (a Légendaire's banner plays there),
    under the cards (a stored card flies over it to the tray). */
 .booster-plate-band {
   position: relative;
@@ -254,12 +253,10 @@
 }
 
 .booster-plate-band__hint {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--space-4);
+  font: var(--font-body-small);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0;
+  text-wrap: balance;
 }
 
 .booster-plate-band__hint > [data-hint] {
@@ -269,65 +266,6 @@
 .booster-plate-band__hint[data-shows="tap"] > [data-hint="tap"],
 .booster-plate-band__hint[data-shows="swipe"] > [data-hint="swipe"] {
   display: inline;
-}
-
-.booster-plate {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: 0 var(--space-2) 0 var(--space-5);
-  background: var(--color-panel);
-  box-shadow:
-    inset 0 0 0 var(--space-unit) var(--color-line),
-    inset 6px 0 0 0 var(--booster-tier),
-    0 0 0 var(--space-unit) var(--color-outline);
-}
-
-.booster-plate[data-tier="legendary"] {
-  background: var(--color-plate-legendaire);
-}
-
-.booster-plate__text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-.booster-plate__tier {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  color: var(--booster-tier);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-/* Épique and Légendaire: the banner's name. */
-.booster-plate__tier[data-banner] {
-  font: var(--font-weight-regular) 1.375rem / 1.5rem var(--font-family-vt323);
-  letter-spacing: 1px;
-}
-
-.booster-plate__icon {
-  display: inline-flex;
-}
-
-.booster-plate__line {
-  margin: 0;
-  overflow: hidden;
-  color: var(--color-text-max);
-  font: var(--font-card-title-l);
-  letter-spacing: var(--tracking-card-title-l);
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 /* The set celebration in the band once the hand is complete: one result
@@ -434,13 +372,4 @@
   min-height: var(--space-touch-min);
   margin: 0;
   padding: 0;
-}
-
-.booster .booster-plate__store {
-  flex: none;
-  min-height: var(--space-touch-min);
-  margin: 0;
-  padding: 0 var(--space-4);
-  font: var(--font-button-sm);
-  letter-spacing: var(--tracking-button-sm);
 }

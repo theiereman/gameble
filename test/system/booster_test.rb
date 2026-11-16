@@ -456,6 +456,10 @@ class BoosterTest < ApplicationSystemTestCase
     ".booster-card[data-position='#{position}']"
   end
 
+  def store_on_phone(position)
+    find("#{phone_card(position)} .booster-card__front .card").click
+  end
+
   def phone_hit(position)
     "#{phone_card(position)} .booster-card__hit"
   end
@@ -504,17 +508,15 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-tray__slot[data-next]", count: 1
     assert_selector ".booster-tray__count", text: %r{CARD\s+0 / 5}
     assert_selector ".booster-plate-band__hint", text: "Tap the card to reveal it"
-    assert_no_selector ".booster-plate"
 
-    # One activation reveals the top card; the plate tells it, under the card.
+    # One activation reveals the top card; a tap on it stores it, once its guard is over.
     page.send_keys(:enter)
     assert_selector "#{phone_card(1)}[data-revealed]"
-    assert_selector ".booster-plate[data-tier=common]", text: /COMMON.*TIN SOLDIER · 2024/m
     assert_announced "Card 1: Tin Soldier — 2024. Common."
     assert_equal "Tin Soldier — 2024, Common. Store the card.", find(phone_hit(1))["aria-label"]
     assert_focus phone_hit(1)
     sleep 0.45
-    click_on "Store"
+    store_on_phone(1)
     assert_no_selector phone_card(1)
     assert_selector ".booster-tray__slot--filled[data-tier=common]", count: 1
     assert_selector ".booster-tray__count", text: %r{CARD\s+1 / 5}
@@ -532,20 +534,20 @@ class BoosterTest < ApplicationSystemTestCase
     page.send_keys(:enter)
     assert_selector "#{phone_card(3)}[data-revealed]"
     sleep 0.45
-    click_on "Store"
+    store_on_phone(3)
     assert_no_selector phone_card(3)
     assert_selector ".booster-tray__count", text: %r{CARD\s+3 / 5}
     assert_focus phone_hit(4)
 
     page.send_keys(:enter)
-    assert_selector ".booster-plate[data-tier=epic]", text: /EPIC.*PORTAL · 2007/m
+    assert_selector "#{phone_card(4)}[data-revealed]"
     sleep 0.45
-    click_on "Store"
+    store_on_phone(4)
     assert_focus phone_hit(5)
     page.send_keys(:enter)
     assert_selector "#{phone_card(5)}[data-revealed]"
     sleep 0.45
-    click_on "Store"
+    store_on_phone(5)
 
     assert_equal 5, filled_slots
     assert_no_selector ".booster__pile .booster-card"
@@ -570,7 +572,7 @@ class BoosterTest < ApplicationSystemTestCase
     page.send_keys(:enter)
     assert_selector "#{phone_card(1)}[data-revealed]"
     sleep 0.45
-    click_on "Store"
+    store_on_phone(1)
     slot = ".booster-tray__slot--filled"
     assert_equal "Blue Depths — 2014, Rare. Enlarge.", find(slot)["aria-label"]
 
@@ -610,7 +612,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{phone_card(1)}[data-revealed]"
     assert_no_selector ".booster-card__repost"
     sleep 0.45
-    click_on "Store"
+    store_on_phone(1)
 
     find(".booster-tray__slot--filled").click
     assert_selector "dialog.booster-zoom[open]"

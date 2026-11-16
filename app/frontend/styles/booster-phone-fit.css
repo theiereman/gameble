@@ -1,7 +1,7 @@
 /* On a phone the tab's panel fills the room down to the tab bar, from where
    it starts (fit-viewport): the stage takes what the daily row and actions leave,
    the capsule shrinks with the stage and the pile with the room the band and
-   tray leave it, so every action stays in view on a phone as short as 640px. */
+   tray leave it (each step small enough for the shortest room it covers), so every action stays in view on a phone as short as 640px. */
 .booster[data-layout="phone"] .booster__body {
   display: flex;
   flex-direction: column;
@@ -89,49 +89,49 @@
 
 @container booster-pile (max-height: 360px) {
   .booster__pile {
-    zoom: 0.9;
+    zoom: 0.88;
   }
 }
 
 @container booster-pile (max-height: 320px) {
   .booster__pile {
-    zoom: 0.8;
+    zoom: 0.77;
   }
 }
 
 @container booster-pile (max-height: 280px) {
   .booster__pile {
-    zoom: 0.7;
+    zoom: 0.66;
   }
 }
 
 @container booster-pile (max-height: 240px) {
   .booster__pile {
-    zoom: 0.6;
+    zoom: 0.55;
   }
 }
 
 @container booster-pile (max-height: 200px) {
   .booster__pile {
-    zoom: 0.5;
+    zoom: 0.44;
   }
 }
 
 @container booster-pile (max-height: 160px) {
   .booster__pile {
-    zoom: 0.4;
+    zoom: 0.33;
   }
 }
 
 @container booster-pile (max-height: 120px) {
   .booster__pile {
-    zoom: 0.3;
+    zoom: 0.25;
   }
 }
 
 @container booster-pile (max-height: 90px) {
   .booster__pile {
-    zoom: 0.22;
+    zoom: 0.2;
   }
 }
 

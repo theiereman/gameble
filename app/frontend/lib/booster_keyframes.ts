@@ -184,12 +184,3 @@ export function bannerKeyframes(reduced: boolean): Keyframe[] {
         { opacity: 0, transform: "translateY(-16px) scale(1, 1)" },
       ]
 }
-
-export function platePopKeyframes(): Keyframe[] {
-  return [
-    { transform: "scale(1.2, 0.2)", opacity: 0 },
-    { transform: "scale(0.96, 1.12)", opacity: 1, offset: 0.45 },
-    { transform: "scale(1.02, 0.98)", opacity: 1, offset: 0.75 },
-    { transform: "scale(1, 1)", opacity: 1 },
-  ]
-}

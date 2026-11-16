@@ -238,8 +238,6 @@ export function showcaseSwell(scale: number): number {
 export const PHONE_DEAL_STAGGER = Math.round(DEAL_STAGGER * 1.5)
 export const STORE_MS = 260
 export const SLOT_POP_MS = 260
-export const PLATE_POP_MS = 320
-export const PLATE_POP_LEGENDARY_MS = 380
 export const SPRING_BACK_MS = 260
 export const TRAY_SPARKS = 10
 
