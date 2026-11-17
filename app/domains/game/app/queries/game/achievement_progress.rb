@@ -272,7 +272,7 @@ module Game
       profiles_viewed: PROFILES_VIEWED_SQL,
       profile_visits: PROFILE_VISITS_SQL,
       discord_member: DISCORD_MEMBER_SQL
-    }.freeze
+    }.merge(DuelAchievementMetrics::SQL).freeze
 
     RUBY_METRICS = %i[most_games_of_a_studio last_places].freeze
 

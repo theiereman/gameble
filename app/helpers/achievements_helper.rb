@@ -28,7 +28,11 @@ module AchievementsHelper
     code_contribution: "clasp",
     profiles_viewed_1: "lens", profiles_viewed_5: "lens", profiles_viewed_20: "lens",
     profile_visits_10: "showcase", profile_visits_50: "showcase", profile_visits_100: "showcase",
-    discord_member: "friends"
+    discord_member: "friends",
+    first_dispute_settled_amicably: "blades", competitive_advantage_observed: "flag", dominant_position: "tower",
+    abuse_of_dominant_position: "crown", de_facto_monopoly: "briefcase", valuation_error: "outlier",
+    merger_by_absorption: "takeover", settled_at_the_margin: "gavel", client_base_diversification: "fan",
+    certified_versatility: "set"
   }.freeze
 
   def achievement_icon(tile)

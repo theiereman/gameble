@@ -83,7 +83,17 @@ module Game
       Achievement.new(:profile_visits_10, :profile_visits, 10),
       Achievement.new(:profile_visits_50, :profile_visits, 50),
       Achievement.new(:profile_visits_100, :profile_visits, 100),
-      Achievement.new(:discord_member, :discord_member, 1)
+      Achievement.new(:discord_member, :discord_member, 1),
+      Achievement.new(:first_dispute_settled_amicably, :duels_finished, 1),
+      Achievement.new(:competitive_advantage_observed, :duels_won, 1),
+      Achievement.new(:dominant_position, :duels_won, 10),
+      Achievement.new(:abuse_of_dominant_position, :duels_won, 50),
+      Achievement.new(:de_facto_monopoly, :duels_won, 100),
+      Achievement.new(:valuation_error, :common_beats_legendary_rounds, 1),
+      Achievement.new(:merger_by_absorption, :shutout_duels, 1),
+      Achievement.new(:settled_at_the_margin, :margin_wins, 1),
+      Achievement.new(:client_base_diversification, :distinct_duel_opponents, 5),
+      Achievement.new(:certified_versatility, :distinct_stats_won, DuelStat::STATS.size)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze

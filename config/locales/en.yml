@@ -101,19 +101,26 @@ en:
       button: Claim
       label: Claim the reward of %{name}
     conditions:
+      abuse_of_dominant_position: Win 50 duels
       boosters_10: Open 10 capsules
       boosters_100: Open 100 capsules
       boosters_500: Open 500 capsules
       a_discovery_of_ours: Repost a card you pioneered
       capital_gain: Resell an edition for at least twice what you paid for it at auction
+      certified_versatility: Win a round with each of the five stats
+      client_base_diversification: Duel 5 different friends
+      competitive_advantage_observed: Win a first duel
       competitive_tender: Sell a card that drew bids from 3 different players
       a_strictly_professional_relationship: Complete three trades with the same player
+      de_facto_monopoly: Win 100 duels
       diligence_beyond_the_call_of_duty: 10 capsules in a row with every card revealed one by one
       diversified_portfolio: Hold five copies of the same game at once
+      dominant_position: Win 10 duels
       excellence_in_mediocrity: Five Common cards in one standard capsule
       first_booster: Open a capsule
       first_claim_all_rights_reserved: Be the pioneer of a card in a season
       first_complete_set: Complete a set
+      first_dispute_settled_amicably: Finish a first duel
       first_epic: Get an Epic card
       first_legendary: Get a Legendary card
       first_repost: Repost a card
@@ -124,10 +131,12 @@ en:
       leave_request_denied: Collect the daily bonus 7 days in a row (UTC days)
       luck_is_a_marketing_concept: 10 standard capsules in a row with no Rare or better card
       market_concentration: Hold 10 different games of the same studio at once
+      merger_by_absorption: Win a duel 10 – 0
       night_owl: Open a capsule between 1 and 4 AM, your local time
       no_time_to_waste: Open 10 capsules in under 30 seconds
       packaging_irregularity: Two copies of the same game in one capsule
       quarterly_targets_met: Sell 25 cards at auction
+      settled_at_the_margin: Win a duel decided on margin
       statistical_non_compliance: Two Rare or better cards in one standard capsule
       streamlined_opening_procedure: 10 capsules in a row opened with "Reveal all"
       three_complete_sets: Complete 3 sets
@@ -178,20 +187,28 @@ en:
       profile_visits_50: Get 50 visits on your profile
       profile_visits_100: Get 100 visits on your profile
       discord_member: Link your Discord account in the settings and join the gameble Discord server
+      valuation_error: Win a round with a Common card against a Legendary card
     names:
+      abuse_of_dominant_position: Abuse of Dominant Position
       boosters_10: Probation Period Completed
       boosters_100: Outstanding Consumption Record
       boosters_500: Loyalty Beyond Reasonable Limits
       a_discovery_of_ours: A Discovery of Ours
       a_strictly_professional_relationship: A Strictly Professional Relationship
       capital_gain: Capital Gain
+      certified_versatility: Certified Versatility
+      client_base_diversification: Client Base Diversification
+      competitive_advantage_observed: Competitive Advantage Observed
       competitive_tender: Competitive Tender
+      de_facto_monopoly: De Facto Monopoly
       diligence_beyond_the_call_of_duty: Diligence Beyond the Call of Duty
       diversified_portfolio: Diversified Portfolio
+      dominant_position: Dominant Position
       excellence_in_mediocrity: Excellence in Mediocrity
       first_booster: Your First Authorized Acquisition
       first_claim_all_rights_reserved: First Claim, All Rights Reserved
       first_complete_set: File Closed in Full
+      first_dispute_settled_amicably: First Dispute Settled Amicably
       first_epic: Noted Above Expectations
       first_legendary: An Exceptional Administrative Incident
       first_repost: Unpaid Promotion
@@ -202,10 +219,12 @@ en:
       leave_request_denied: Leave Request Denied
       luck_is_a_marketing_concept: Luck Is a Marketing Concept
       market_concentration: Market Concentration
+      merger_by_absorption: Merger by Absorption
       night_owl: Night Owl
       no_time_to_waste: No Time to Waste
       packaging_irregularity: Packaging Irregularity
       quarterly_targets_met: Quarterly Targets Met
+      settled_at_the_margin: Settled at the Margin
       statistical_non_compliance: Statistical Non-Compliance
       streamlined_opening_procedure: Streamlined Opening Procedure
       three_complete_sets: Archival Excellence
@@ -256,6 +275,7 @@ en:
       profile_visits_50: Notable Footfall
       profile_visits_100: Place of Interest
       discord_member: Team Meeting
+      valuation_error: Valuation Error
     show:
       earned_label: Achievements earned
       groups:
@@ -1287,6 +1307,7 @@ en:
       aurore: Dawn
       centurion: Centurion
       contrat: Contract
+      duelliste: Duelist
       emeraude: Emerald
       etoile-dor: Golden star
       rubis: Ruby

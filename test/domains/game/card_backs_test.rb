@@ -29,7 +29,7 @@ class Game::CardBacksTest < ActiveSupport::TestCase
     assert_equal "back-hall_of_fame-mal-aimes", back.asset
     assert_equal :set_tier, back.unlock.kind
     assert_equal [ "hall_of_fame", "mal-aimes" ], back.unlock.target
-    assert_equal 5 + 43 + 4 + 7, Game::CardBacks::KEYS.size
+    assert_equal 5 + 43 + 4 + 8, Game::CardBacks::KEYS.size
   end
 
   test "every back has its image in the five card sizes" do

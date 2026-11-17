@@ -42,7 +42,8 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
   {
     "boosters_100" => "centurion", "first_legendary" => "etoile-dor", "three_complete_sets" => "aurore",
     "luck_is_a_marketing_concept" => "trefle-fane", "leave_request_denied" => "assidu",
-    "market_concentration" => "siege-social", "a_strictly_professional_relationship" => "contrat"
+    "market_concentration" => "siege-social", "a_strictly_professional_relationship" => "contrat",
+    "abuse_of_dominant_position" => "duelliste"
   }.each do |achievement, back|
     test "the achievement #{achievement} grants #{back} once" do
       record_achievement(achievement)
@@ -58,7 +59,8 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
 
   {
     "luck_is_a_marketing_concept" => "trefle-fane", "leave_request_denied" => "assidu",
-    "market_concentration" => "siege-social", "a_strictly_professional_relationship" => "contrat"
+    "market_concentration" => "siege-social", "a_strictly_professional_relationship" => "contrat",
+    "abuse_of_dominant_position" => "duelliste"
   }.each do |achievement, back|
     test "the achievement #{achievement} names #{back} in the catalogue and tells its player in play, not from the backfill" do
       assert_equal [ :achievement, achievement ], Game::CardBacks.find(back).unlock.to_h.values_at(:kind, :target)

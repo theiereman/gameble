@@ -31,7 +31,8 @@ module Game
       "luck_is_a_marketing_concept" => "trefle-fane",
       "leave_request_denied" => "assidu",
       "market_concentration" => "siege-social",
-      "a_strictly_professional_relationship" => "contrat"
+      "a_strictly_professional_relationship" => "contrat",
+      "abuse_of_dominant_position" => "duelliste"
     }.freeze
 
     MILESTONE_BACKS = ACHIEVEMENT_BACKS.map do |achievement, key|

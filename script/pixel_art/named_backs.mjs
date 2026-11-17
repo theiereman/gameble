@@ -3,7 +3,7 @@
 // the base ones shares one look. A design
 // follows the set designs' format (see set_back_designs.mjs) and adds the file
 // name and the title the review sheet shows. Its lettering is the GAMEBLE of
-// the standard back, not a word of its own.
+// the standard back unless it names a word of its own.
 const LETTERING = "GAMEBLE"
 
 export const NAMED_BACK_DESIGNS = [
@@ -168,4 +168,27 @@ export const NAMED_BACK_DESIGNS = [
       "...........MMM...",
     ],
   },
-].map((design) => ({ ...design, word: LETTERING }))
+  {
+    kind: "named", name: "duelliste", title: "Duelliste", word: "DUEL", primary: "#9ec3e6", secondary: "#e8f1f8",
+    look: "crossed blades over two cards facing each other",
+    motif: [
+      "....wg.....gw....",
+      ".....wg...gw.....",
+      "......wg.gw......",
+      ".......wgw.......",
+      ".......gwg.......",
+      "......gw.wg......",
+      ".....gw...wg.....",
+      "...YYYw...wYYY...",
+      "...nn.......nn...",
+      ".................",
+      "..UUUUUU.RRRRRR..",
+      "..UuuuuU.RrrrrR..",
+      "..UuwwuU.RrwwrR..",
+      "..UuwwuU.RrwwrR..",
+      "..UuuuuU.RrrrrR..",
+      "..UuuuuU.RrrrrR..",
+      "..UUUUUU.RRRRRR..",
+    ],
+  },
+].map((design) => ({ ...design, word: design.word ?? LETTERING }))

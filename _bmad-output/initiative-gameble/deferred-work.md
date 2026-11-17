@@ -727,3 +727,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-a-dropped-connection-or-a-reload-never-breaks-a-duel-plan.md`
   summary: Every board push also renders the connection slot and the absence sweep re-pushes an unchanged slot every 10 s while a seat is away; the load is unmeasured.
   evidence: `app/jobs/duel_stream_job.rb`, `app/jobs/duel_absence_job.rb`; epic Unknown: live duel load.
+
+## Deferred from: build of story-ten-duel-achievements-and-the-duelliste-card-back-plan (2026-11-17)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-ten-duel-achievements-and-the-duelliste-card-back-plan.md`
+  summary: Built before the duel capsule ticket, on purpose; nothing of this ticket needs the duel pack kind, `duel_day` or the Fortune columns, but the capsule ticket's emblem grid and its `origin_canisters.mjs` entry are still to come, and the Duelliste back draws its own crossed blades.
+  evidence: `script/pixel_art/named_backs.mjs` (the `duelliste` design) and `script/pixel_art/origin_canisters.mjs` (no duel origin yet); the capsule ticket may reuse the DESIGN.md emblem grid for both.
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-ten-duel-achievements-and-the-duelliste-card-back-plan.md`
+  summary: The ticket names a flavour per achievement, but the achievement locale structure has only a name and a condition per key, so no flavour was added.
+  evidence: `config/locales/en.yml` and `config/locales/fr.yml` (`achievements.names`, `achievements.conditions`); no flavour key exists for any of the 30 earlier achievements.
