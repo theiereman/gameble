@@ -168,51 +168,29 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_button "Entrust", disabled: true
   end
 
-  test "nothing ticked prompts to choose and validation is disabled" do
+  test "nothing ticked prompts to choose, filters with no match offer to clear them, a hidden tick stays in the recap, and the sentence and note describe the button" do
     open_market!
     hold(@player, @common.id, 2)
+    hold(@player, @rare.id, 2)
     sign_in_through_the_site
 
     visit new_market_entrustment_path(locale: :en)
-
     assert_selector ".entrust-recap__prompt", text: "Tick the cards to entrust."
     assert_button "Entrust", disabled: true
-  end
-
-  test "the filters with no match say so and offer to clear them" do
-    open_market!
-    hold(@player, @common.id, 2)
-    sign_in_through_the_site
 
     visit new_market_entrustment_path(locale: :en)
     fill_in "entrust-search", with: "zzzz"
     assert_selector ".entrust-grid__empty", text: "No edition matches these filters."
     within(".entrust-grid__empty") { click_on "Clear filters" }
-
-    assert_selector ".entrust-cell:not([hidden])", count: 1
+    assert_selector ".entrust-cell:not([hidden])", count: 2
     assert_no_selector ".entrust-grid__empty"
-  end
-
-  test "a ticked cell that a filter hides stays ticked and in the recap" do
-    open_market!
-    hold(@player, @common.id, 2)
-    hold(@player, @rare.id, 2)
-    sign_in_through_the_site
 
     visit new_market_entrustment_path(locale: :en)
     tick(@common)
     fill_in "entrust-search", with: "blue"
-
     assert_selector ".entrust-cell:not([hidden])", count: 1
     assert_selector ".entrust-recap__line", text: "Tin Soldier"
     assert_selector "input[name=selection][value='#{@common.card.slug}:#{@common.season.number}=1']", visible: :all
-  end
-
-  test "the sentence and the note describe the button, the status speaks after the selection rests, and Esc changes nothing" do
-    open_market!
-    hold(@player, @common.id, 2)
-    hold(@player, @rare.id, 2)
-    sign_in_through_the_site
 
     visit new_market_entrustment_path(locale: :en)
     assert_selector "#entrust-not-returned", text: "Entrusted cards are not given back."
@@ -235,7 +213,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_current_path new_market_entrustment_path(locale: :en), ignore_query: true
   end
 
-  test "settings changed behind the open form are refused inline, the new amounts are drawn and the ticks are kept" do
+  test "settings changed behind the open form are refused inline, the new amounts are drawn and the ticks are kept, and on a phone the refusal shows above the grid with the sheet closed" do
     open_market!
     hold(@player, @common.id, 2)
     sign_in_through_the_site
@@ -251,6 +229,19 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_total "15"
     assert_equal 0, Game::Market::LedgerEntry.where(player_id: @player.id).count
     assert_equal 2, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
+
+    open_market!
+    resize_to 390, 844
+    visit new_market_entrustment_path(locale: :en)
+    tick(@common)
+    open_market!(entrustment_common: 15)
+    click_on "Entrust ▸"
+    within("dialog[open]") { click_on "Entrust 1 copy" }
+
+    assert_no_selector "dialog[open]"
+    assert_selector "form#entrust > .market-entrust__refusal[role=alert]", text: /amounts changed/i
+    assert_no_selector "dialog .market-entrust__refusal", visible: :all
+    assert_selector ".entrust-cell--picked", count: 1
   end
 
   test "with no free copy the screen offers to open a capsule" do
@@ -310,24 +301,6 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector ".entrust-result__minted .picoin-amount__figure", text: "70"
     assert_selector ".market-entrust__notice", text: "No card to entrust."
     assert_equal 0, Game::Holding.where(player_id: @player.id).sum(:quantity)
-  end
-
-  test "on a phone a refusal shows above the grid with the sheet closed" do
-    open_market!
-    hold(@player, @common.id, 2)
-    sign_in_through_the_site
-    resize_to 390, 844
-
-    visit new_market_entrustment_path(locale: :en)
-    tick(@common)
-    open_market!(entrustment_common: 15)
-    click_on "Entrust ▸"
-    within("dialog[open]") { click_on "Entrust 1 copy" }
-
-    assert_no_selector "dialog[open]"
-    assert_selector "form#entrust > .market-entrust__refusal[role=alert]", text: /amounts changed/i
-    assert_no_selector "dialog .market-entrust__refusal", visible: :all
-    assert_selector ".entrust-cell--picked", count: 1
   end
 
   def second_edition_of(card_season)
@@ -396,7 +369,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     Catalog::CardSeason.insert_all!(rows, returning: :id).rows.flatten.each { hold(@player, it, 2) }
   end
 
-  test "the grid loads sixty cards, appends the next page near its end, and a ticked card keeps its tick across pages" do
+  test "the grid loads sixty cards, appends the next page near its end, and a ticked card keeps its tick across pages; select all ticks every edition the filters keep, loaded or not, and the recap names the first ones" do
     open_market!
     hold(@player, @rare.id, 2)
     editions_of(@common, 60)
@@ -411,13 +384,6 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector ".entrust-cell", count: 61
     assert_selector ".entrust-cell--picked", count: 1
     assert_total "50"
-  end
-
-  test "select all ticks every edition the filters keep, loaded or not, and the recap names the first ones" do
-    open_market!
-    hold(@player, @rare.id, 2)
-    editions_of(@common, 60)
-    sign_in_through_the_site
 
     visit new_market_entrustment_path(locale: :en)
     tick(@rare)

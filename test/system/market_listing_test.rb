@@ -24,8 +24,17 @@ class MarketListingSystemTest < ApplicationSystemTestCase
     assert_signed_in
   end
 
-  test "a player lists a copy from the card detail at 24 H, lands on the Annonce and finds it on the market" do
+  test "a start under the minimum is refused inline and the amount stays, then the player lists a copy from the card detail at 24 H, lands on the Annonce and finds it on the market" do
     sign_in_through_the_site
+
+    visit new_market_card_sale_path(locale: :en, slug: @common.card.slug)
+    fill_in "sale-start", with: "10"
+    click_on "PUT UP FOR SALE"
+
+    assert_selector "#sale-start-error", text: "At least 13 for a common."
+    assert_selector "#sale-start[aria-invalid=true]"
+    assert_field "sale-start", with: "10"
+    assert_equal 0, Game::Market::Listing.count
 
     visit card_path(locale: :en, slug: @common.card.slug)
     click_on "Put up for sale"
@@ -45,19 +54,6 @@ class MarketListingSystemTest < ApplicationSystemTestCase
     assert_equal 1, Game::Market::Listing.count
     visit market_path(locale: :en)
     assert_selector ".listing-tile", count: 1
-  end
-
-  test "a start under the minimum is refused inline and the amount stays" do
-    sign_in_through_the_site
-
-    visit new_market_card_sale_path(locale: :en, slug: @common.card.slug)
-    fill_in "sale-start", with: "10"
-    click_on "PUT UP FOR SALE"
-
-    assert_selector "#sale-start-error", text: "At least 13 for a common."
-    assert_selector "#sale-start[aria-invalid=true]"
-    assert_field "sale-start", with: "10"
-    assert_equal 0, Game::Market::Listing.count
   end
 
   test "the grid filters on the server and the chosen edition stays chosen once a filter hides it" do

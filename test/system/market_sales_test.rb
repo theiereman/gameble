@@ -34,7 +34,7 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
 
   def reserved(card) = Game::Holding.find_by!(player_id: @seller.id, card_season_id: card.id).reserved
 
-  test "the market tabs swap in place: no visit, the desk stays, the address and title follow" do
+  test "the market tabs swap in place: no visit, the desk stays, the address and title follow; on a phone a counter line opens its tab and brings it into view, even when that tab is already open" do
     listing!(seller: @seller, card_season: @common, hours: 5)
     sign_in_through_the_site(@seller)
     visit market_path(locale: :en)
@@ -58,11 +58,7 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
     assert_current_path market_path(locale: :en)
     assert_title "Market"
     assert_equal 0, page.evaluate_script("window.marketVisits")
-  end
 
-  test "a counter line opens its tab and brings it into view, even when that tab is already open" do
-    listing!(seller: @seller, card_season: @common, hours: 5)
-    sign_in_through_the_site(@seller)
     resize_to(390, 844)
     visit market_path(locale: :en)
     assert_selector ".listing-tile", count: 1

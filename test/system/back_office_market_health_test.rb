@@ -27,10 +27,10 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     visit back_office_market_health_path(locale: :en)
   end
 
-  test "with a week of snapshots staff read the four indicators with their three lines and the day's figures" do
+  test "with a week of snapshots staff read the four indicators with their three lines and the day's figures, see them drawn over 90 days with their thresholds, and switch the days of income between rarities" do
     7.times do |ago|
       snapshot!(@yesterday - ago, created: 100, destroyed_total: 56, circulation: 4_000, picoins_per_active_player: 12_300,
-        median_daily_earnings: 8_000, average_price_epic: 12_000, top_share_basis_points: 2_500)
+        median_daily_earnings: 8_000, average_price_epic: 12_000, average_price_rare: 6_000, top_share_basis_points: 2_500)
     end
     listing!(seller: accounts_players(:player), card_season: catalog_card_seasons(:common_card_one), ends_at: 15.minutes.ago)
 
@@ -46,14 +46,6 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     within("[data-health-snapshot]") { assert_text "In circulation" }
     assert_selector "[data-health-reconciliation]", text: "balanced"
     assert_selector "[data-health-oldest-due]", text: "15 minutes"
-  end
-
-  test "staff read the four indicators drawn over 90 days with their thresholds, and switch the days of income between rarities" do
-    7.times do |ago|
-      snapshot!(@yesterday - ago, created: 100, destroyed_total: 56, circulation: 4_000, picoins_per_active_player: 12_300,
-        median_daily_earnings: 8_000, average_price_epic: 12_000, average_price_rare: 6_000, top_share_basis_points: 2_500)
-    end
-    visit_health_as(accounts_players(:moderator))
 
     within("#health-series") do
       assert_selector "figure.chart canvas[style*=height]", count: 4
@@ -77,7 +69,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
 
   def alerting_snapshot(destroyed: 34) = snapshot!(@yesterday, created: 100, destroyed_total: destroyed)
 
-  test "an administrator prepares the change, finds it prefilled with focus on the first field, and leaves without saving" do
+  test "an administrator prepares the change, finds it prefilled with focus on the first field, and leaves without saving; ignoring the alert hides it until the indicator's value changes" do
     alerting_snapshot
     version = Game::Market::CurrentSettings.call
     visit_health_as(accounts_players(:administrator))
@@ -94,11 +86,6 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
 
     assert_selector "[data-health-alert=destroyed_share]"
     assert_equal version, Game::Market::CurrentSettings.call
-  end
-
-  test "ignoring an alert hides it until the indicator's value changes" do
-    alerting_snapshot
-    visit_health_as(accounts_players(:administrator))
 
     within("[data-health-alert=destroyed_share]") { click_on "Ignore" }
 

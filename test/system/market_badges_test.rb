@@ -36,7 +36,7 @@ class MarketBadgesSystemTest < ApplicationSystemTestCase
     assert_signed_in
   end
 
-  test "the badge and the balance follow an outbid on the hub and the badge goes when the player raises" do
+  test "the badge, the balance and the polite region follow an outbid on the hub and the badge goes when the player raises" do
     sign_in_through_the_site(@outbid)
     assert_selector "turbo-cable-stream-source[connected]", visible: :all
     assert_no_selector "#menu-market-badge .menu-item__badge"
@@ -44,6 +44,7 @@ class MarketBadgesSystemTest < ApplicationSystemTestCase
     bid(@rival, 40_000)
     perform_enqueued_jobs(only: PlayerStreamJob)
 
+    assert_selector "#market-status [role=status]", text: "Rival went past your maximum on Tin Soldier.", visible: :all
     assert_selector "#menu-market-badge .menu-item__badge", text: "1"
     assert_selector "#tab-market-badge .tab-bar__badge", text: "1", visible: :all
     assert_selector ".balance-chip .balance-chip__available[aria-label='100,000 PiCoins']", match: :first
@@ -53,15 +54,5 @@ class MarketBadgesSystemTest < ApplicationSystemTestCase
 
     assert_no_selector "#menu-market-badge .menu-item__badge"
     assert_no_selector "#tab-market-badge .tab-bar__badge", visible: :all
-  end
-
-  test "an outbid posts its line to the polite region present on the page" do
-    sign_in_through_the_site(@outbid)
-    assert_selector "turbo-cable-stream-source[connected]", visible: :all
-
-    bid(@rival, 40_000)
-    perform_enqueued_jobs(only: PlayerStreamJob)
-
-    assert_selector "#market-status [role=status]", text: "Rival went past your maximum on Tin Soldier.", visible: :all
   end
 end

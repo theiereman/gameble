@@ -75,22 +75,6 @@ class MarketBiddingSystemTest < ApplicationSystemTestCase
     assert_equal 315, @listing.reload.current_price
   end
 
-  test "a refusal stays under the field with the amount kept and clears on the next edit" do
-    sign_in_through_the_site(@bidder)
-    visit market_listing_path(locale: :en, token: @listing.token)
-
-    fill_in "annonce-maximum", with: "150"
-    submit_button.click
-
-    assert_selector "#annonce-error", text: "At least 210 is needed."
-    assert_selector "#annonce-maximum[aria-invalid=true]:focus"
-    assert_field "annonce-maximum", with: "150"
-
-    fill_in "annonce-maximum", with: "1500"
-    assert_no_selector "#annonce-error", visible: :visible
-    assert_no_selector "#annonce-maximum[aria-invalid]"
-  end
-
   test "a French maximum groups its thousands with a no-break space as it is typed and is placed at that amount" do
     card = catalog_card_seasons(:uncommon_card_one)
     hold(@seller, card.id, 1, reserved: 1)
@@ -106,10 +90,22 @@ class MarketBiddingSystemTest < ApplicationSystemTestCase
     assert_equal 1_000, Game::Market::Wallet.find_by!(player_id: @bidder.id).committed
   end
 
-  test "an unusual maximum asks confirmation, Escape returns to the field with the amount kept, then confirming places it" do
+  test "a refusal stays under the field with the amount kept and clears on the next edit; an unusual maximum asks confirmation, Escape returns to the field with the amount kept, then confirming places it" do
     sign_in_through_the_site(@bidder)
     visit market_listing_path(locale: :en, token: @listing.token)
 
+    fill_in "annonce-maximum", with: "150"
+    submit_button.click
+
+    assert_selector "#annonce-error", text: "At least 210 is needed."
+    assert_selector "#annonce-maximum[aria-invalid=true]:focus"
+    assert_field "annonce-maximum", with: "150"
+
+    fill_in "annonce-maximum", with: "1500"
+    assert_no_selector "#annonce-error", visible: :visible
+    assert_no_selector "#annonce-maximum[aria-invalid]"
+
+    visit market_listing_path(locale: :en, token: @listing.token)
     fill_in "annonce-maximum", with: "600"
     submit_button.click
 
