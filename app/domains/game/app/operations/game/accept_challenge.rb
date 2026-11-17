@@ -11,6 +11,7 @@ module Game
         duel, seats = lock_duel(duel)
         step invited(duel, seats, player, move_number)
         step not_seated(player)
+        step own_deck(player, deck_token)
         step friends_to_duel(player, seats[:challenger].player_id)
         decks = [ ready_deck(seats[:challenger].player_id, seats[:challenger].deck_token), ready_deck(player.id, deck_token) ]
         step(decks.all?(&:success?) ? start(player, duel, seats, decks.map(&:value!), deck_token) : lapse(player, duel, seats))
@@ -24,6 +25,10 @@ module Game
       seat = seats[:opponent]
       turn = duel.state == "challenged" && duel.move_number == move_number && seat.player_id == player.id && seat.status == "invited"
       turn ? Success() : Failure(:not_your_move)
+    end
+
+    def own_deck(player, deck_token)
+      deck_token.is_a?(String) && Deck.exists?(player_id: player.id, token: deck_token) ? Success() : Failure(:deck_not_found)
     end
 
     def start(player, duel, seats, decks, deck_token)

@@ -152,10 +152,22 @@ class Game::DuelChallengeOperationsTest < ActiveSupport::TestCase
 
   test "an acceptance with a deck of the acceptor not ready lapses the challenge too" do
     duel = challenge.value!
+    Game::DeckCard.where(deck_id: @hugo_deck.id).order(:slot).first.destroy!
 
-    assert_equal :deck_not_ready, accept(duel, deck_token: @lea_deck.token).failure
+    assert_equal :deck_not_ready, accept(duel).failure
 
     assert_equal "lapsed", duel.reload.state
+  end
+
+  test "an acceptance with an unknown, stale or foreign deck token is refused and leaves the challenge standing" do
+    duel = challenge.value!
+
+    [ "Zz" * 12, @lea_deck.token, nil, 42 ].each do |token|
+      assert_refused(:deck_not_found, duel) { accept(duel, deck_token: token) }
+    end
+
+    assert_equal [ "challenged", 0 ], [ duel.reload.state, duel.move_number ]
+    assert_empty game_events(@hugo, Game::DuelChallengeLapsed)
   end
 
   test "an acceptance is refused out of turn, stale or no longer due, and writes nothing" do
