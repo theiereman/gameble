@@ -11,6 +11,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
 
   STREAM = { "Accept" => "text/vnd.turbo-stream.html, text/html, application/xhtml+xml" }.freeze
+  JSON_ANSWER = { "Accept" => "application/json" }.freeze
 
   setup do
     @player = accounts_players(:player)
@@ -196,6 +197,42 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".entrust-result__copies", "3 copies entrusted"
     assert_equal 0, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
     assert_equal 70, Game::Market::Wallet.find_by!(player_id: @player.id).available
+  end
+
+  test "a quick entrust asked in JSON entrusts the copy and answers created" do
+    settings = open_market!
+    hold(@player, @common.id, 2)
+    sign_in(@player)
+
+    post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: selection({ ref(@common) => "1" }) }, headers: JSON_ANSWER
+
+    assert_response :created
+    assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
+  end
+
+  test "a quick entrust refused in JSON answers the refusal's message and moves nothing" do
+    drawn = open_market!
+    open_market!(entrustment_common: 15)
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    post market_entrustments_path(locale: :en), params: { settings: drawn.token, selection: selection({ ref(@common) => "1" }) }, headers: JSON_ANSWER
+
+    assert_response :unprocessable_content
+    assert_match(/amounts changed/, response.parsed_body.dig("error", "message"))
+    assert_equal 0, Game::Market::LedgerEntry.count
+  end
+
+  test "a throttled quick entrust answers its message in JSON" do
+    settings = open_market!
+    sign_in(@player)
+
+    with_counting_rate_limit(Market::EntrustmentsController) do
+      11.times { post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: "" }, headers: JSON_ANSWER }
+    end
+
+    assert_response :too_many_requests
+    assert_predicate response.parsed_body.dig("error", "message"), :present?
   end
 
   test "a closed market answers market_closed and the page keeps the ticks" do

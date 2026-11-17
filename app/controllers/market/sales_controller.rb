@@ -19,7 +19,11 @@ module Market
       authorize %i[market sale], :create?
       card_season_id = Game::Market::EntrustableCopies.resolve([ posted_ref ])[posted_ref]
       result = card_season_id && list(card_season_id)
-      return redirect_to market_listing_path(token: result.value!.token), status: :see_other if result&.success?
+      if result&.success?
+        return head(:created) if request.format.json?
+
+        return redirect_to market_listing_path(token: result.value!.token), status: :see_other
+      end
 
       refuse_sale(result ? result.failure : :copy_not_free)
     end
@@ -105,7 +109,10 @@ module Market
         @refusal_slot = helpers.sale_refusal_slot(code, invalid_price_at: invalid_price_field)
         @refusal = Game::Market::ListCard.failure_message(code, **refusal_values(code))
         @signed_out = code == :player_required
-        render :new, status: @signed_out ? :unauthorized : :unprocessable_content
+        status = @signed_out ? :unauthorized : :unprocessable_content
+        return render(json: { error: { message: @refusal } }, status:) if request.format.json?
+
+        render :new, status:
       end
 
       def keep_posted_values

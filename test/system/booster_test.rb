@@ -208,7 +208,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal card_ids(:portal_one), reposts
   end
 
-  test "with the market open, a revealed card is entrusted or sold from under it, and coming back shows the hand again" do
+  test "with the market open, a revealed card is entrusted or sold at once from under it, with an undo while it waits" do
     open_market!(first_opened_at: 1.day.ago)
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
     open_canister
@@ -221,12 +221,19 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal "Sell Portal on the market", find("#{card(4)} .booster-card__sell")["aria-label"]
 
     find("#{card(4)} .booster-card__sell").click
-    assert_current_path "/en/market/sell/cards/portal"
-    go_back
-    assert_selector "#{card(4)}[data-revealed]"
+    assert_selector "#{card(4)} .booster-card__move", text: "On sale from 223 PiCoins"
+    find("#{card(4)} .booster-card__move button", text: /undo/i).click
+    assert_no_selector "#{card(4)} .booster-card__move"
+    assert_selector "#{card(4)} .booster-card__sell"
 
     find("#{card(4)} .booster-card__entrust").click
-    assert_current_path "/en/market/entrust/cards/portal"
+    assert_selector "#{card(4)} .booster-card__move", text: "Entrusted for 150 PiCoins"
+    assert_selector "#{card(4)} .booster-card__move button", text: /undo/i
+    assert_equal 0, Game::Market::Balance.call(@player).available
+
+    visit market_path(locale: :en)
+    eventually("the entrust is minted once the hand is left") { Game::Market::Balance.call(@player).available == 150 }
+    assert_equal 0, Game::Market::Listing.count
   end
 
   test "with the market closed, a revealed card offers only the repost" do

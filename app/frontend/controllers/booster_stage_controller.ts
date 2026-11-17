@@ -7,6 +7,7 @@ import { BANNER_TIERS, type Fragments } from "../lib/screen"
 import { cloneTemplate } from "../lib/templates"
 import type { Rarity } from "../lib/card_types"
 import type { CardBackView } from "../lib/opening"
+import type { MarketPlace } from "../lib/booster_types"
 
 export type CardView = Readonly<{
   index: number
@@ -19,6 +20,8 @@ export type CardView = Readonly<{
   repostName: string
   entrustName: string
   sellName: string
+  move: string | null
+  undoable: boolean
   depth: number | null
 }>
 
@@ -47,8 +50,6 @@ export type BannerView = Readonly<{
 export type CardIntent = { index: number }
 
 export type MarketIntent = CardIntent & { place: MarketPlace }
-
-export type MarketPlace = "entrust" | "sell"
 
 export default class BoosterStageController extends Controller<HTMLElement> {
   static targets = [
@@ -167,6 +168,11 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     const slot = target?.closest<HTMLLIElement>(".booster-card")
     if (!target || !slot) return
     const index = this.indexOf(slot)
+    if (target.closest(".booster-card__move button")) {
+      event.stopPropagation()
+      this.dispatch("undo", { detail: { index } satisfies CardIntent })
+      return
+    }
     const action = target.closest<HTMLElement>(".booster-card__action")
     if (action) {
       event.stopPropagation()
@@ -323,5 +329,17 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     slot.querySelector(".booster-card__flip")?.classList.toggle("is-up", card.revealed)
     const hit = slot.querySelector(".booster-card__hit")
     if (hit && hit.getAttribute("aria-label") !== card.name) hit.setAttribute("aria-label", card.name)
+    this.updateMove(slot, card)
+  }
+
+  private updateMove(slot: HTMLLIElement, { move, undoable }: CardView): void {
+    slot.toggleAttribute("data-moved", move !== null)
+    const overlay = slot.querySelector<HTMLElement>(".booster-card__move")
+    if (!overlay) return
+    overlay.hidden = move === null
+    const label = overlay.querySelector(".booster-card__move-label")
+    if (label && label.textContent !== (move ?? "")) label.textContent = move ?? ""
+    const undo = overlay.querySelector<HTMLButtonElement>("button")
+    if (undo) undo.hidden = !undoable
   }
 }

@@ -14,6 +14,10 @@ export type HeldCapsules = Readonly<Record<Reserve, HeldCapsule | null>>
 
 export const NO_HELD: HeldCapsules = { standard: null, special: null }
 
+export type MarketPlace = "entrust" | "sell"
+
+export type MarketMove = Readonly<{ place: MarketPlace; amount: number; sent: boolean }>
+
 export type BoosterBank = {
   available: number
   special: number
@@ -101,6 +105,7 @@ export type BoosterState = Readonly<{
   goalsReached: readonly string[]
   lockDepth: number
   focus: Focus | null
+  marketMoves: Readonly<Record<string, MarketMove>>
 }>
 
 export type BoosterStart = {

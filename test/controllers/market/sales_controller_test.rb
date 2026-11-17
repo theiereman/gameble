@@ -25,9 +25,9 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
   def ref(card_season) = "#{card_season.card.slug}:#{card_season.season.number}"
 
-  def post_sale(card_season = @common, **overrides)
+  def post_sale(card_season = @common, headers: {}, **overrides)
     post market_sales_path(locale: :en), params: { settings: @settings.token, ref: ref(card_season), starting_price: "13",
-      duration_hours: "24", **overrides }
+      duration_hours: "24", **overrides }, headers:
   end
 
   def nothing_moves(&)
@@ -213,6 +213,28 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ 15, 72 ], [ listing.starting_price, listing.duration_hours ]
     assert_equal 1, Game::Holding.find_by!(player_id: @player.id, card_season_id: @common.id).reserved
     assert_equal 499, Game::Market::Balance.call(@player).available
+  end
+
+  test "a quick sale asked in JSON lists the card and answers created" do
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    assert_difference -> { Game::Market::Listing.count }, 1 do
+      post_sale(headers: { "Accept" => "application/json" })
+    end
+
+    assert_response :created
+  end
+
+  test "a quick sale refused in JSON answers the refusal's message, its amount filled in" do
+    Game::Market::Wallet.where(player_id: @player.id).update_all(available: 1)
+    hold(@player, @rare.id, 1)
+    sign_in(@player)
+
+    nothing_moves { post_sale(@rare, starting_price: "78", headers: { "Accept" => "application/json" }) }
+
+    assert_response :unprocessable_content
+    assert_equal "You are short of 19 PiCoins for the stamp.", response.parsed_body.dig("error", "message")
   end
 
   test "a start under the minimum is refused under the field with the minimum, the typed amounts kept and nothing charged" do

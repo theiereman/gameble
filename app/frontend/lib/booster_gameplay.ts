@@ -1,5 +1,6 @@
 import type { BoosterState } from "./booster"
 import { CardExit } from "./booster_exit"
+import { CardMarket, type BoosterMarket } from "./booster_market"
 import type { BoosterStageHost } from "./booster_host"
 import type { BoosterStrings } from "./booster_render_host"
 import { RevealSequence } from "./booster_reveal"
@@ -13,6 +14,7 @@ export type GameplayConfig = Readonly<{
   delimiter: string
   cardUrl: string
   repostUrl: string
+  market: BoosterMarket
   state: () => BoosterState | undefined
   rarityNames: () => Record<Rarity, string>
   whenIdle: () => void
@@ -23,6 +25,7 @@ export type Gameplay = Readonly<{
   everyReveal: RevealAll
   cardStore: CardStore
   cardExit: CardExit
+  cardMarket: CardMarket
 }>
 
 export function gameplayFor({
@@ -31,6 +34,7 @@ export function gameplayFor({
   delimiter,
   cardUrl,
   repostUrl,
+  market,
   state,
   rarityNames,
   whenIdle,
@@ -59,5 +63,6 @@ export function gameplayFor({
     store: (index, fromAll) => cardStore.store(index, fromAll),
     whenIdle,
   })
-  return { reveals, everyReveal, cardStore, cardExit }
+  const cardMarket = new CardMarket({ market, state, apply: stage.apply, failed: strings.marketFailed })
+  return { reveals, everyReveal, cardStore, cardExit, cardMarket }
 }

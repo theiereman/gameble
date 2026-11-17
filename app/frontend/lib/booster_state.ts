@@ -74,6 +74,7 @@ export function start({
     goalsReached: [],
     lockDepth: 0,
     focus: preview ? null : sealed ? "open" : "home",
+    marketMoves: {},
   }
   if (!opened) return fresh
   const revealed = opened.cards.map(() => true)

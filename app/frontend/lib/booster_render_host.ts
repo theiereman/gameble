@@ -21,6 +21,7 @@ export type BoosterStrings = {
   celebration: CelebrationStrings
   emptyNext: string
   entrustCard: string
+  entrusted: Template
   faceDown: string
   faceUp: string
   faceUpGoals: string
@@ -29,6 +30,8 @@ export type BoosterStrings = {
   failed: string
   goalReached: string
   legendarySignal: string
+  listed: Template
+  marketFailed: string
   nextAt: string
   refusedTitle: string
   repostCard: string

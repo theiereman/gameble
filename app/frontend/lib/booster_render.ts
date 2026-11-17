@@ -9,12 +9,14 @@ import {
   originKind,
   type BoosterState,
   type Controls,
+  type MarketMove,
 } from "./booster"
 import { reserveCount } from "./booster_bank"
 import { animate } from "./booster_effects"
 import { bannerKeyframes, dockKeyframes } from "./booster_keyframes"
 import { DOCK, STORE_MS, bannerDuration, pileDepth } from "./booster_motion"
 import { formatClock } from "./booster_clock"
+import { marketMoveKey } from "./booster_market"
 import { cardHref } from "./booster_page"
 import type { BoosterRenderHost } from "./booster_render_host"
 import { renderCelebrations } from "./booster_render_celebration"
@@ -211,6 +213,7 @@ export class BoosterRenderer {
         repostName: t(this.strings.repostCard, { card: card.title }),
         entrustName: t(this.strings.entrustCard, { card: card.title }),
         sellName: t(this.strings.sellCard, { card: card.title }),
+        ...this.marketMove(state.marketMoves[marketMoveKey(answer.pack.token, index)]),
         depth: phone ? pileDepth(index, state.stored) : null,
       })
     })
@@ -221,6 +224,12 @@ export class BoosterRenderer {
       dealt: state.dealt,
       cards: shown,
     }
+  }
+
+  private marketMove(move: MarketMove | undefined): Pick<CardView, "move" | "undoable"> {
+    if (!move) return { move: null, undoable: false }
+    const template = move.place === "entrust" ? this.strings.entrusted : this.strings.listed
+    return { move: t(template, { count: move.amount, amount: this.host.number(move.amount) }), undoable: !move.sent }
   }
 
   private faceUpString(phone: boolean, card: OpeningCard): string {

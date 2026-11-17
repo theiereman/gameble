@@ -1148,6 +1148,7 @@ en:
     repost_tip: Repost to the feed
     entrust_tip: Entrust to the Brotherhood
     sell_tip: Sell on the market
+    undo: Undo
     first_copy: New
     reserve_empty: Reserve empty
     reserve_full: Reserve full
@@ -1216,6 +1217,13 @@ en:
       repost_card: Repost %{card}
       entrust_card: Entrust %{card} to the Brotherhood
       sell_card: Sell %{card} on the market
+      entrusted:
+        one: Entrusted for %{amount} PiCoin
+        other: Entrusted for %{amount} PiCoins
+      listed:
+        one: On sale from %{amount} PiCoin
+        other: On sale from %{amount} PiCoins
+      market_failed: The card stayed in your collection. Check your connection, then try again.
       repost_failed: The repost did not go through. Check your connection, then try
         again.
       reposted: Card reposted to the feed.

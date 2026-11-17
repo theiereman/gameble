@@ -31,10 +31,18 @@ module Market
       ids = Game::Market::EntrustableCopies.resolve(ticked.keys)
       lines = most_valuable_first(ticked.filter_map { |ref, copies| [ ref, ids[ref], copies ] if ids.key?(ref) })
       result = Game::Market::EntrustCards.new.call(player: current_player, lines:, settings_token: params[:settings].to_s)
+      return answer_quick_entrustment(result) if request.format.json?
+
       result.success? ? show_entrusted(result.value!) : show_refusal(result.failure)
     end
 
     private
+      def answer_quick_entrustment(result)
+        return head(:created) if result.success?
+
+        render json: { error: { message: Game::Market::EntrustCards.failure_message(result.failure) } }, status: :unprocessable_content
+      end
+
       def show_entrusted(entrusted)
         @entrusted = entrusted
         @stayed_names = Game::Market::CardNames.call(entrusted.stayed.first(MarketEntrustmentsHelper::RESULT_LINES).map(&:card_season_id))

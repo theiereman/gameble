@@ -1924,6 +1924,7 @@ fr:
     repost_tip: "Reposter dans le fil"
     entrust_tip: "Confier à la Confrérie"
     sell_tip: "Mettre en vente sur le marché"
+    undo: "Annuler"
     first_copy: "Nouveau"
     strings:
       origin_bonus: "CAPSULE QUOTIDIENNE"
@@ -1966,6 +1967,15 @@ fr:
       repost_card: "Reposter %{card}"
       entrust_card: "Confier %{card} à la Confrérie"
       sell_card: "Mettre %{card} en vente sur le marché"
+      entrusted:
+        zero: "Confiée pour %{amount} PiCoin"
+        one: "Confiée pour %{amount} PiCoin"
+        other: "Confiée pour %{amount} PiCoins"
+      listed:
+        zero: "En vente dès %{amount} PiCoin"
+        one: "En vente dès %{amount} PiCoin"
+        other: "En vente dès %{amount} PiCoins"
+      market_failed: "La carte est restée dans votre collection. Vérifiez votre connexion, puis réessayez."
       reposted: "Carte repostée dans le fil."
       repost_failed: "Le repost n'a pas abouti. Vérifiez votre connexion, puis réessayez."
       celebration:

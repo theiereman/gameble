@@ -26,7 +26,11 @@ class ApplicationController < ActionController::Base
   def self.throttle_player(to:, only:, path:, alert:, within: 1.minute)
     rate_limit to:, within:, only:,
       by: -> { current_player&.id || request.remote_ip },
-      with: -> { redirect_to instance_exec(&path), alert: t(alert), status: :see_other }
+      with: -> {
+        next render(json: { error: { message: t(alert) } }, status: :too_many_requests) if request.format.json?
+
+        redirect_to instance_exec(&path), alert: t(alert), status: :see_other
+      }
   end
 
   private

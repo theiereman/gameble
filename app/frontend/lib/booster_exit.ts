@@ -32,12 +32,4 @@ export class CardExit {
     dispatchGameble("gameble:toast", { message, tone: result.kind === "reposted" ? "notice" : "alert" })
     return message
   }
-
-  leaveForMarket(index: number, marketUrl: string | undefined): void {
-    const answer = this.host.state()?.answer
-    const card = answer?.cards[index]
-    if (!answer || !card || !marketUrl) return
-    rememberPack(answer.pack.token)
-    visit(marketUrl.replace("SLUG", encodeURIComponent(card.slug)))
-  }
 }
