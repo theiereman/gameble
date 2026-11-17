@@ -1,4 +1,4 @@
 <%# locals: (outcome:) %>
 <% landing = (duel_path(token: outcome.token) if outcome.kind == "accepted") %>
-<%= tag.p t("duels.sheet.outcome.#{outcome.kind}", name: friend_name(outcome.other)), class: "duel-sheet__line", tabindex: -1,
+<%= tag.p t("duels.sheet.outcome.#{outcome.kind}", name: duel_plain_name(outcome.other)), class: "duel-sheet__line", tabindex: -1,
       data: { duel_sheet_target: "outcome", duel_sheet_landing: landing } %>

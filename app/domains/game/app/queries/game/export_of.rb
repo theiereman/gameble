@@ -21,14 +21,19 @@ module Game
     LibraryRow = Data.define(:token, :created_at, :synced_at, :library_private_since, :card_ids)
     GoalRow = Data.define(:position, :set_kind, :set_key, :custom_set_token, :created_at)
     DeckRow = Data.define(:name, :card_season_ids)
+    DuelRoundRow = Data.define(:number, :called, :card_season_id, :opponent_card_season_id, :stat, :direction, :value, :opponent_value,
+      :outcome, :automatic, :opponent_automatic)
+    DuelRow = Data.define(:ended_at, :score, :opponent_score, :result, :rounds) do
+      def card_season_ids = rounds.flat_map { [ it.card_season_id, it.opponent_card_season_id ] }
+    end
 
     Markers = Data.define(:profiles_viewed, :profile_visits, :goals_completed, :source_code_opened_at, :support_opened_at, :code_contribution_at, :discord_member_at)
 
     Result = Data.define(:friend_code, :held_cards, :showcase, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
-      :set_tiers, :discoveries, :feed_entries, :reactions, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets, :steam_library, :goals, :markers, :decks, :market) do
+      :set_tiers, :discoveries, :feed_entries, :reactions, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets, :steam_library, :goals, :markers, :decks, :duels, :market) do
       def card_season_ids
         (held_cards.map(&:card_season_id) + showcase.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
-          feed_entries.filter_map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) } + decks.flat_map(&:card_season_ids) +
+          feed_entries.filter_map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) } + decks.flat_map(&:card_season_ids) + duels.flat_map(&:card_season_ids) +
           market.card_season_ids).uniq
       end
     end
@@ -60,6 +65,7 @@ module Game
         goals: goals(player),
         markers: markers(player),
         decks: decks(player),
+        duels: duels(player),
         market: Market::ExportOf.call(player)
       )
     end
@@ -174,6 +180,29 @@ module Game
       rows.map { |id, name| DeckRow.new(name:, card_season_ids: cards.fetch(id, []).map(&:last)) }
     end
 
-    private_class_method :markers, :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :reactions, :set_refs, :trades, :custom_sets, :steam_library, :goals, :decks
+    def self.duels(player)
+      seats = DuelSeat.where(player_id: player.id).joins(:duel).where(game_duels: { state: "finished" }).includes(duel: :rounds)
+        .order("game_duels.ended_at", :id)
+      seats.map { |seat| duel_row(seat.duel, seat.role) }
+    end
+
+    def self.duel_row(duel, role)
+      other = role == "challenger" ? "opponent" : "challenger"
+      result = duel.result == "draw" ? "draw" : (duel.result == role ? "win" : "loss")
+      rounds = duel.rounds.map { duel_round(it, role) }
+      DuelRow.new(ended_at: duel.ended_at, score: duel[:"#{role}_score"], opponent_score: duel[:"#{other}_score"], result:, rounds:)
+    end
+
+    def self.duel_round(round, role)
+      called = round.caller == role
+      mine, theirs = called ? %w[caller answer] : %w[answer caller]
+      outcome = round.winner.nil? ? "drawn" : (round.winner == role ? "won" : "lost")
+      DuelRoundRow.new(number: round.number, called:, card_season_id: round[:"#{mine}_card_season_id"],
+        opponent_card_season_id: round[:"#{theirs}_card_season_id"], stat: round.stat, direction: round.direction,
+        value: round[:"#{mine}_value"], opponent_value: round[:"#{theirs}_value"], outcome:, automatic: round[:"#{mine}_automatic"],
+        opponent_automatic: round[:"#{theirs}_automatic"])
+    end
+
+    private_class_method :markers, :duel_row, :duel_round, :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :reactions, :set_refs, :trades, :custom_sets, :steam_library, :goals, :decks, :duels
   end
 end

@@ -11,10 +11,10 @@ class PlayerExportTest < ActiveSupport::TestCase
   include FeedReactions
 
   SECTIONS = %i[exportedAt profile identities collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
-    firstDiscoveries feedEntries feedReactions achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals goalsCompleted profilesViewed profileVisitsReceived linksOpened codeContributionGrantedAt discordMemberAt decks wallet picoinEntries listings bids reportsFiled reportsReceived
+    firstDiscoveries feedEntries feedReactions achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals goalsCompleted profilesViewed profileVisitsReceived linksOpened codeContributionGrantedAt discordMemberAt decks duels wallet picoinEntries listings bids reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent available committed goalsCompleted profilesViewed profileVisitsReceived availableDelta committedDelta startingPrice
-    currentPrice finalPrice durationHours maximum priceAfter].freeze
+    currentPrice finalPrice durationHours maximum priceAfter number score opponentScore value opponentValue].freeze
 
   setup do
     @player = accounts_players(:player)
@@ -134,7 +134,7 @@ class PlayerExportTest < ActiveSupport::TestCase
 
     assert_equal SECTIONS, hash.keys
     %i[collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers firstDiscoveries feedEntries
-       feedReactions achievements trades customSets goals decks picoinEntries listings bids reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
+       feedReactions achievements trades customSets goals decks duels picoinEntries listings bids reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal 0, hash[:goalsCompleted]
     assert_equal [ 0, 0 ], hash.values_at(:profilesViewed, :profileVisitsReceived)
     assert_nil hash[:codeContributionGrantedAt]

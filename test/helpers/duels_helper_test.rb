@@ -29,6 +29,25 @@ class DuelsHelperTest < ActionView::TestCase
     end
   end
 
+  test "a banned or deleted opponent, or none, reads anonymous in the result, the bell line and the closing notices" do
+    removed = [ nil, Accounts::Player.new(persona_name: "Hugo", banned_at: Time.current), Accounts::Player.new(deleted_at: Time.current) ]
+    anonymous = I18n.t("player_name.anonymous")
+
+    removed.each do |opponent|
+      assert_equal "Win against #{anonymous}, 6 to 4", duel_result_spoken(Screen.new(:win, 6, 4, 8, opponent))
+      assert_not_includes duel_plain_name(opponent), "Hugo"
+      assert_includes render(partial: "duels/sheet_outcome", locals: { outcome: DuelUpdate::Outcome.new(kind: "lapsed", other: opponent, token: "t") }), anonymous
+      assert_includes ApplicationController.render(partial: "player_streams/update", formats: [ :turbo_stream ], locals: update_locals(opponent)), anonymous
+    end
+  end
+
+  def update_locals(opponent)
+    closing = DuelUpdate::Closing.new(kind: "cancelled", other: opponent)
+    { waiting: nil, invitations: nil, friends: [], unclaimed: nil, balance: nil, outbid: nil, duels_active: nil, pending: nil, achievements: [],
+      card_backs: [], duel: Struct.new(:closings, :outcome) { def received? = false }.new([ closing ], nil), signals: [], outbid_lines: [],
+      player: accounts_players(:player) }
+  end
+
   test "a direction in a sentence keeps its capital in English and takes a small letter in French" do
     assert_equal "Oldest", duel_direction_inline(:release, :low)
     I18n.with_locale(:fr) { assert_equal "la plus ancienne", duel_direction_inline(:release, :low) }

@@ -51,6 +51,7 @@ class PlayerExport
       codeContributionGrantedAt: time(game.markers.code_contribution_at),
       discordMemberAt: time(game.markers.discord_member_at),
       decks: game.decks.map { { name: it.name, cards: it.card_season_ids.filter_map { card(it) } } },
+      duels:,
       wallet: { available: game.market.wallet.available, committed: game.market.wallet.committed },
       picoinEntries: game.market.entries.map { picoin_entry(it) },
       listings: game.market.listings.map { listing(it) },
@@ -104,6 +105,19 @@ class PlayerExport
           availableAt: time(pack.available_at), openedAt: time(pack.opened_at), revealMode: pack.reveal_mode,
           cards: pack.card_season_ids.filter_map { card(it) } }
       end
+    end
+
+    def duels
+      game.duels.map do |duel|
+        { endedAt: time(duel.ended_at), score: duel.score, opponentScore: duel.opponent_score, result: duel.result,
+          rounds: duel.rounds.map { duel_round(it) } }
+      end
+    end
+
+    def duel_round(round)
+      { number: round.number, calledByYou: round.called, card: card(round.card_season_id), opponentCard: card(round.opponent_card_season_id),
+        stat: round.stat, direction: round.direction, value: round.value, opponentValue: round.opponent_value, outcome: round.outcome,
+        playedAutomatically: round.automatic, opponentPlayedAutomatically: round.opponent_automatic }
     end
 
     def card_backs

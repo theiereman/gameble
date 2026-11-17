@@ -8,7 +8,7 @@ module Game
       seat = DuelSeat.find_by(stream_key:) if stream_key.is_a?(String)
       return unless seat
 
-      held = seat.status == "seated"
+      held = seat.status == "seated" && Accounts::Player.in_good_standing.exists?(id: seat.player_id)
       lapsed = held && (seat.present_until.nil? || seat.present_until <= at)
       DuelSeat.where(id: seat.id).update_all(present_until: at + LEASE) if held
       Presence.new(duel_id: seat.duel_id, lapsed:)

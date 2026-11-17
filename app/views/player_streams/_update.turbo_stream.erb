@@ -42,7 +42,7 @@
   <%= turbo_stream.update "duel-received", partial: "shell/duel_dialog", locals: { player: } %>
 <% end %>
 <% duel.closings.each do |closing| %>
-  <%= turbo_stream.append "toasts", ToastComponent.new(message: t("duels.received.#{closing.kind}", name: friend_name(closing.other))) %>
+  <%= turbo_stream.append "toasts", ToastComponent.new(message: t("duels.received.#{closing.kind}", name: duel_plain_name(closing.other))) %>
 <% end %>
 <% if (outcome = duel.outcome) %>
   <%= turbo_stream.update "duel-sheet-outcome", partial: "duels/sheet_outcome", locals: { outcome: } %>

@@ -88,12 +88,19 @@ module Game
       seats.each_value { it.update!(status: "left") }
     end
 
+    def release_deleted(seats)
+      deleted = Accounts::Player.where(id: seats.values.filter_map(&:player_id)).where.not(deleted_at: nil).ids
+      seats.each_value { it.update!(player_id: nil) if deleted.include?(it.player_id) }
+    end
+
     def end_challenge(state, event, player, duel, seats)
       return Failure(:not_your_move) unless duel.state == "challenged"
 
       duel.update!(state:, ended_at: Time.current, move_number: next_move(duel))
       leave(seats)
-      duel_published(event, player, duel, seats)
+      published = duel_published(event, player, duel, seats)
+      release_deleted(seats)
+      published
     end
 
     def lapse(player, duel, seats) = end_challenge("lapsed", DuelChallengeLapsed, player, duel, seats)

@@ -88,7 +88,7 @@ module PlayerStream
       when *BALANCE_EVENTS
         [ balance_notice(data[:player_id]) ]
       when *CUT_OFF_EVENTS
-        counterparts_notices(data[:player_id])
+        counterparts_notices(data[:player_id]) + (Accounts::PlayerDeleted === event ? lapsed_challenge_notices(data[:player_id]) : [])
       when Accounts::VisibilityChanged
         data[:visibility] == "private" ? [ trades_notice(data[:player_id]) ] + trade_partners_notices(data[:player_id]) : []
       else
@@ -134,6 +134,13 @@ module PlayerStream
     def counterparts_notices(player_id)
       counterparts = counterparts_of(player_id)
       counterparts[:trades].uniq.map { trades_notice(it) } + counterparts[:friends].map { friends_notice(it) }
+    end
+
+    # A deleted player's received challenge lapses within the deletion; its challenger hears of it as of any lapse.
+    def lapsed_challenge_notices(player_id)
+      Game::ChallengesReceived.call(player_id).map do
+        { player_id: it.challenger_id, topic: "duels", duel_id: it.duel_id, kind: "lapsed", role: "challenger" }
+      end
     end
 
     def trade_partners_notices(player_id)
