@@ -139,7 +139,29 @@
 
 @media (min-width: 1180px) {
   .duels {
+    display: grid;
+    grid-template-columns: 400px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    align-items: start;
     max-width: var(--space-landing-content-max);
+  }
+
+  .duels__title {
+    grid-column: 1 / -1;
+  }
+
+  .duel-lobby,
+  .duel-online {
+    grid-column: 1;
+  }
+
+  .duel-decks {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+  }
+
+  .duel-sheet-host {
+    display: contents;
   }
 
   .duel-decks__list {

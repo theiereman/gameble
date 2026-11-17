@@ -9,6 +9,7 @@
         <% if (image = screen.card_view(card).image_url) %>
           <%= tag.img src: image, alt: "", loading: "lazy", width: 92, height: 43, class: "duel-deck__art", aria: { hidden: true } %>
         <% end %>
+        <span class="duel-deck__name" aria-hidden="true"><%= screen.title(card) %></span>
         <% if played %><span class="duel-deck__played"><%= t("duels.board.played") %></span><% end %>
       </li>
     <% end %>
