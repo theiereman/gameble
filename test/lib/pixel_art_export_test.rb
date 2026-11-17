@@ -19,7 +19,8 @@ class PixelArtExportTest < ActiveSupport::TestCase
     assert_predicate status, :success?, output
   end
 
-  test "a second export changes no file, not even its modification time" do
+  # One export folder serves every run that needs one: each export of the art takes seconds.
+  test "a second export changes no file; the review sheet holds every file and makes no request; the check names a stray file, then a missing one" do
     Dir.mktmpdir do |dir|
       export("--out", dir)
       before = snapshot(dir)
@@ -28,44 +29,28 @@ class PixelArtExportTest < ActiveSupport::TestCase
 
       assert_predicate status, :success?, output
       assert_equal before, snapshot(dir)
-    end
-  end
 
-  test "the check fails and names a missing file" do
-    Dir.mktmpdir do |dir|
-      export("--out", dir)
-      File.delete(File.join(dir, "back-aurore-m.png"))
-
-      output, status = export("--check", "--out", dir)
-
-      assert_not_predicate status, :success?
-      assert_match(/differs: .*back-aurore-m\.png/, output)
-    end
-  end
-
-  test "the check fails and names a stray file" do
-    Dir.mktmpdir do |dir|
-      export("--out", dir)
-      File.write(File.join(dir, "stray.png"), "")
-
-      output, status = export("--check", "--out", dir)
-
-      assert_not_predicate status, :success?
-      assert_match(/not exported: .*stray\.png/, output)
-    end
-  end
-
-  test "the review sheet holds every exported file and makes no request" do
-    Dir.mktmpdir do |dir|
-      export("--out", dir)
       sheet = File.join(dir, "sheet.html")
-
       output, status = export("--sheet", sheet, "--out", dir)
 
       assert_predicate status, :success?, output
       html = File.read(sheet)
       Dir.children(dir).without("sheet.html").each { |file| assert_includes html, file }
       assert_no_match(/http/, html)
+
+      File.delete(sheet)
+      File.write(File.join(dir, "stray.png"), "")
+      output, status = export("--check", "--out", dir)
+
+      assert_not_predicate status, :success?
+      assert_match(/not exported: .*stray\.png/, output)
+
+      File.delete(File.join(dir, "stray.png"))
+      File.delete(File.join(dir, "back-aurore-m.png"))
+      output, status = export("--check", "--out", dir)
+
+      assert_not_predicate status, :success?
+      assert_match(/differs: .*back-aurore-m\.png/, output)
     end
   end
 
