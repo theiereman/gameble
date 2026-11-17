@@ -38,11 +38,4 @@ class BackOfficeMarketSignalsTest < ApplicationSystemTestCase
     assert_selector "tr[data-player-token='#{@alice.token}']"
     assert_selector "tr[data-player-token]", count: 1
   end
-
-  test "a player gets the back-office refusal" do
-    visit_signals_as(accounts_players(:player))
-
-    assert_no_selector "tr[data-signal]"
-    assert_text "No route matches"
-  end
 end

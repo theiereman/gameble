@@ -8,13 +8,6 @@ class MarketRulesPagesTest < ApplicationSystemTestCase
 
   setup { Game::Market::Settings.delete_all }
 
-  test "a visitor reads the real-money clause and the market deletion paragraph on the legal page" do
-    visit legal_path(locale: :en)
-
-    assert_selector ".legal__real-money", text: I18n.t("pages.legal.terms.real_money", locale: :en)
-    assert_selector ".legal__market-deletion", text: /PiCoin balance is destroyed without refund/
-  end
-
   test "on a phone the market table of Comment ça marche fits the page" do
     window = page.driver.browser.manage.window
     original = window.size

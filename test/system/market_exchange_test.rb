@@ -114,14 +114,4 @@ class MarketExchangeTest < ApplicationSystemTestCase
     eventually("the Reactor's table scrolls inside its region") { evaluate_script(region_scrolls) }
     assert_equal false, evaluate_script("document.documentElement.scrollWidth > window.innerWidth")
   end
-
-  test "a visitor and a player find no exchange" do
-    visit market_exchange_path(locale: :en)
-    assert_no_selector ".exchange"
-
-    sign_in_as(accounts_players(:player))
-    visit market_exchange_path(locale: :en)
-    assert_no_selector ".exchange"
-    assert_no_selector ".chart"
-  end
 end

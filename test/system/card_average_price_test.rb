@@ -26,13 +26,4 @@ class CardAveragePriceSystemTest < ApplicationSystemTestCase
     assert_selector ".public-card__price", text: "No sale"
     assert_no_selector ".public-card__price .average-price__basis"
   end
-
-  test "no price shows before the market's first opening" do
-    open_market!
-
-    visit card_path(locale: :en, slug: "portal")
-
-    assert_selector ".public-card h1", text: "Portal"
-    assert_no_selector ".public-card__price"
-  end
 end

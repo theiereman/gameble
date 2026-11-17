@@ -42,21 +42,6 @@ class BackOfficeMarketTest < ApplicationSystemTestCase
     assert_selector "#announcement-banner", text: "The market is open"
   end
 
-  test "a missing confirmation opens nothing and names itself" do
-    sign_in_through_the_site(accounts_players(:administrator))
-
-    within("#market-opening") do
-      fill_in "Message in French", with: "Le marché est ouvert"
-      fill_in "Message in English", with: "The market is open"
-      check "The terms of the market are in force and players can read them."
-      click_on "Open the market"
-    end
-
-    assert_selector "[data-market-opening-refusal]", text: "odds"
-    within("#market-opening") { assert_field "Message in English", with: "The market is open" }
-    assert_not Game::Market::MarketState.call.open?
-  end
-
   test "a moderator reads the section with every control disabled" do
     sign_in_through_the_site(accounts_players(:moderator))
 

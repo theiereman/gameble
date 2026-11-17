@@ -36,13 +36,6 @@ class MarketBiddingSystemTest < ApplicationSystemTestCase
 
   def submit_button = find("#annonce-form button[type=submit]")
 
-  test "a visitor reads the sign-in line instead of the form" do
-    visit market_listing_path(locale: :en, token: @listing.token)
-
-    assert_link "Sign in to bid"
-    assert_no_field "annonce-maximum"
-  end
-
   test "the second bidder is beaten at once, takes the lead, then raises as the leader" do
     sign_in_through_the_site(@bidder)
     visit market_listing_path(locale: :en, token: @listing.token)

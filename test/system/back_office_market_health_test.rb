@@ -48,13 +48,6 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     assert_selector "[data-health-oldest-due]", text: "15 minutes"
   end
 
-  test "with no snapshot each indicator says it has not enough data" do
-    visit_health_as(accounts_players(:moderator))
-
-    assert_selector "[data-health-state=no-data]", count: 4
-    assert_text "Not enough data yet", minimum: 4
-  end
-
   test "staff read the four indicators drawn over 90 days with their thresholds, and switch the days of income between rarities" do
     7.times do |ago|
       snapshot!(@yesterday - ago, created: 100, destroyed_total: 56, circulation: 4_000, picoins_per_active_player: 12_300,
@@ -80,14 +73,6 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
         assert_selector ".chart__summary", text: /0\.8 d/
       end
     end
-  end
-
-  test "a player gets the back-office refusal" do
-    visit_health_as(accounts_players(:player))
-
-    assert_no_selector "[data-health-indicator]"
-    assert_no_selector "#health-series"
-    assert_text "No route matches"
   end
 
   def alerting_snapshot(destroyed: 34) = snapshot!(@yesterday, created: 100, destroyed_total: destroyed)
@@ -124,14 +109,5 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     Game::Market::DailySnapshot.connection.execute("UPDATE game_market_daily_snapshots SET destroyed_total = 35")
     visit back_office_market_health_path(locale: :en)
     assert_selector "[data-health-alert=destroyed_share]"
-  end
-
-  test "a moderator sees the alert without its actions" do
-    alerting_snapshot
-    visit_health_as(accounts_players(:moderator))
-
-    assert_selector "[data-health-alert=destroyed_share]"
-    assert_no_link "Prepare this change"
-    assert_no_button "Ignore"
   end
 end

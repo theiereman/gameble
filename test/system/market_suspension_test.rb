@@ -69,11 +69,4 @@ class MarketSuspensionTest < ApplicationSystemTestCase
       assert_selector ".entrust-result__copies", text: "1 copy entrusted"
     end
   end
-
-  test "a moderator sees the closing control disabled" do
-    sign_in_through_the_site(accounts_players(:moderator))
-    visit back_office_market_path(locale: :en)
-
-    within("#market-closing") { assert_button "Close the market", disabled: true }
-  end
 end

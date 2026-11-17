@@ -93,6 +93,11 @@ module BackOffice
       assert_select "[data-health-indicator] .market-health__no-data", text: "Pas encore assez de données", count: 4
       assert_select "[data-health-reconciliation]", /Pas encore assez de données/
       assert_select "[data-health-oldest-due]", /Aucune annonce/
+
+      get back_office_market_health_path(locale: :en)
+
+      assert_select "[data-health-state=no-data]", 4
+      assert_select "[data-health-indicator] .market-health__no-data", text: "Not enough data yet", count: 4
     end
 
     test "a reconciliation that found a difference says so" do

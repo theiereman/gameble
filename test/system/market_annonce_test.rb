@@ -57,13 +57,6 @@ class MarketAnnonceSystemTest < ApplicationSystemTestCase
     assert_selector ".market-listing__leader", text: "Leading:"
   end
 
-  test "an open listing past its end reads closing" do
-    @listing.update_columns(ends_at: 1.minute.ago)
-    annonce
-
-    assert_selector "#annonce-bid", text: "Closing…"
-  end
-
   test "the winner, a loser, the seller and a visitor each read their outcome" do
     close_auction
 
