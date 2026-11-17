@@ -46,17 +46,6 @@ class ShellTest < ApplicationSystemTestCase
     assert_selector "html[data-test-loaded]", visible: :all
   end
 
-  test "a toast stays through a morph refresh of the hub" do
-    sign_in(accounts_players(:player))
-    page.execute_script(<<~JS)
-      window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message: "Still here after the refresh of the page, as long as its time is not up yet, which takes a while." } }))
-    JS
-    assert_selector ".toasts .toast", text: "Still here"
-
-    refresh_with_turbo
-    assert_selector ".toasts .toast", text: "Still here"
-  end
-
   test "several toasts stay through a morph refresh of the hub, in their order" do
     sign_in(accounts_players(:player))
     page.execute_script(<<~JS)
