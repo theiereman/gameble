@@ -138,3 +138,10 @@ Evidence: every ticket is built and none is unfinished, so the machine rule for 
 - The machine verdict was rendered from the evidence alone with no human decision; the proposed verdict is the author's to accept or override.
 - Epic 44's tickets were not retro'd; F4 appears because it sits on the seat-nulling boundary of 43.8.
 - `git_evidence.py` was not run (invocation refused by the worktree git guard); sizes come from `git show --shortstat`.
+
+## Author decisions (2026-11-17)
+
+- F8: a player who goes private mid-duel keeps playing; nothing is changed, the case is not expected to happen.
+- F9: accepted. A ban or deletion pushes no board to the other seat.
+- F10: accepted. A refusal reads "no complete deck" at render time.
+- F14: accepted for release 1.4 volumes.

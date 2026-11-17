@@ -141,3 +141,8 @@ Accepted-with-open-items, criteria declared (the epic's Done when 1 to 5). Basis
 - Session logs and a staging deployment were unavailable; no process lesson that needs them is claimed.
 - The machine verdict is proposed as accepted-with-open-items because no ticket is unfinished and no blocking finding stands; the human verdict is pending.
 - No ticket was created, no plan frontmatter, frozen block or `pending-approvals.md` was edited.
+
+## Author decisions (2026-11-17)
+
+- F1: accepted as is for release 1.4. A mid-week season publication still makes the next Monday's feed entry and the deck editor's arrows compare with the season run; no second percentile set is built.
+- F11: accepted. The Monday line stays in the feed previews.

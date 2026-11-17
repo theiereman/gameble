@@ -122,3 +122,10 @@ Proposed human decision, for the author to take or reject: **accepted-with-open-
 - The brief attributes the eleven French strings to 44.3; the commit history shows `7250f668` (44.2) introduced them, and the document follows the commits.
 - The `bmad-review` lenses were not invoked: the whole-duel-diff review had already run, and reading the code was limited to the boundaries named in the brief. Scope narrowed, not "checked and clean" outside the files cited above.
 - Every action item is a proposal; no ticket, plan, `pending-approvals.md` or frozen block was touched.
+
+## Author decisions (2026-11-17)
+
+- Capsule economy: one duel capsule per player per day stays as built; a pair of friends may each take one.
+- Flavours: dropped. R6 of the epic no longer names them; EXPERIENCE.md already says no flavor text on achievements.
+- Distinct opponents: opponents who deleted their account count as one opponent together.
+- Top-bar chips after a duel win: accepted, they update on the next page load.
