@@ -778,7 +778,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
     counts = lambda do |&block|
       queries = []
-      subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") { |*, payload| queries << payload[:sql] if payload[:sql].include?("game_feed_reactions") }
+      subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") { |*, payload| queries << payload[:sql] if payload[:name] != "SCHEMA" && payload[:sql].include?("game_feed_reactions") }
       block.call
       queries.size
     ensure

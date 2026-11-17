@@ -147,7 +147,7 @@ class TradePricesTest < ActionDispatch::IntegrationTest
     trade = from_lea
     sign_in @hugo
     reads = 0
-    counter = ->(*, payload) { reads += 1 if payload[:sql].include?("game_market_edition_prices") }
+    counter = ->(*, payload) { reads += 1 if payload[:name] != "SCHEMA" && payload[:sql].include?("game_market_edition_prices") }
 
     ActiveSupport::Notifications.subscribed(counter, "sql.active_record") do
       get counter_trade_path(token: trade.token, locale: :en)
