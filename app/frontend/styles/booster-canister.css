@@ -126,6 +126,13 @@
   perspective: 1000px;
 }
 
+/* Firefox drops a turn under perspective from the compositor near 90°, replaying stale frames. */
+@supports (-moz-appearance: none) {
+  .booster-card__lift {
+    perspective: none;
+  }
+}
+
 .booster-card__flip {
   transform-style: preserve-3d;
 }
