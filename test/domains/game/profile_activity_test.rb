@@ -1,8 +1,16 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/duels"
 
 class Game::ProfileActivityTest < ActiveSupport::TestCase
   include GamePacks
+  include Duels
+
+  def finished_duel(result, challenger: @player, opponent: @other)
+    duel = active_duel
+    duel.update!(state: "finished", result:, ended_at: Time.current)
+    { "challenger" => challenger, "opponent" => opponent }.each { |role, player| Game::DuelSeat.create!(duel:, role:, player_id: player.id, status: "left") }
+  end
 
   setup do
     @player = accounts_players(:player)
@@ -19,7 +27,7 @@ class Game::ProfileActivityTest < ActiveSupport::TestCase
     Game::FirstDiscovery.find_by!(card_season_id: catalog_card_seasons(card_name).id).update!(player_id: player.id)
   end
 
-  test "the capsules opened, the cards first discovered and the trades concluded, either side, in one query" do
+  test "the capsules opened, the cards first discovered, the trades concluded and the duels won, lost and drawn, in one query" do
     2.times { create_pack(@player, opened_at: 1.hour.ago) }
     create_pack(@player)
     create_pack(@other, opened_at: 1.hour.ago)
@@ -29,11 +37,15 @@ class Game::ProfileActivityTest < ActiveSupport::TestCase
     trade("accepted")
     trade("accepted", proposer: @other, recipient: @player)
     trade("declined")
+    finished_duel("challenger")
+    finished_duel("opponent")
+    finished_duel("draw")
+    finished_duel("challenger", challenger: @other, opponent: @player)
 
     activity = nil
     assert_queries_count(1) { activity = Game::ProfileActivity.call(@player) }
 
-    assert_equal Game::ProfileActivity::Activity.new(packs_opened: 2, first_discoveries: 2, trades_concluded: 2), activity
+    assert_equal Game::ProfileActivity::Activity.new(packs_opened: 2, first_discoveries: 2, trades_concluded: 2, duel_wins: 1, duel_losses: 2, duel_draws: 1), activity
   end
 
   test "zeros for a player with no history, and for nil without a query" do

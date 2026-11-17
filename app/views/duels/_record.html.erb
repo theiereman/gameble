@@ -1,0 +1,8 @@
+<%# locals: (record:) %>
+<%= render PanelComponent.new(tag: :section, class: "duel-record", aria: { label: t("duels.record.label") }) do %>
+  <p class="duel-record__line">
+    <%= t("duels.record.line_html", wins: duel_record_figure(:wins, record.wins), losses: duel_record_figure(:losses, record.losses),
+          draws: duel_record_figure(:draws, record.draws)) %>
+  </p>
+  <%= render ButtonComponent.new(variant: :link, size: :small, href: how_it_works_path(anchor: "how-it-works-duels")) do %><%= t("duels.record.rules") %><% end %>
+<% end %>

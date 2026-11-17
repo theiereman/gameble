@@ -7,6 +7,10 @@
   <% unless @lobby.closed? %>
     <%= render "duels/online", lobby: @lobby %>
   <% end %>
-  <%= render "duels/decks", decks: @decks, landing: @landing %>
+  <div class="duels__main">
+    <%= render "duels/decks", decks: @decks, landing: @landing %>
+    <%= render "duels/record", record: @history.record %>
+  </div>
+  <%= render "duels/history", rows: @history.rows %>
   <%= render "duels/sheet", sheet: @sheet, lobby: @lobby %>
 </section>

@@ -1,0 +1,16 @@
+<%# locals: (rows:) %>
+<% if rows.any? %>
+  <%= render PanelComponent.new(tag: :section, class: "duel-history", aria: { labelledby: "duel-history-heading" }) do %>
+    <h2 id="duel-history-heading" class="duel-lobby__heading"><%= t("duels.history.heading") %></h2>
+    <ul class="duel-history__list">
+      <% rows.each do |row| %>
+        <li class="duel-history__item">
+          <%= link_to duel_path(token: row.token), class: "duel-history__row" do %>
+            <span aria-hidden="true"><%= duel_result_line(row) %></span>
+            <span class="visually-hidden"><%= duel_result_line_spoken(row) %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>

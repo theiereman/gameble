@@ -103,6 +103,18 @@ module DuelsHelper
     screen.decided_on_margin? ? spoken + t("duels.board.result_margin", margin: duel_points(screen.margin_gap)) : spoken
   end
 
+  def duel_record_figure(kind, count)
+    t("duels.record.#{kind}_html", count:, figure: tag.span(count, class: "duel-record__figure"))
+  end
+
+  def duel_result_line(row)
+    t("duels.board.result.#{row.outcome}_html", name: duel_player_name(row.opponent), score: row.score, other_score: row.other_score)
+  end
+
+  def duel_result_line_spoken(row)
+    t("duels.board.result_spoken.#{row.outcome}", name: duel_plain_name(row.opponent), score: row.score, other_score: row.other_score)
+  end
+
   def duel_result(screen)
     t("duels.board.result.#{screen.outcome}_html", name: duel_player_name(screen.opponent),
       score: tag.span(screen.score, class: "duel-result__figure"), other_score: tag.span(screen.other_score, class: "duel-result__figure"))

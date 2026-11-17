@@ -92,5 +92,17 @@
     <p><%= t(".completion.once") %></p>
   <% end %>
 
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-duels" }) do %>
+    <h2 id="how-it-works-duels" class="how-it-works__heading"><%= t(".duels.title") %></h2>
+    <p class="how-it-works__duel-decks"><%= t(".duels.decks", cards: Game::Deck::SLOTS.size, decks: Game::Deck::PER_PLAYER) %></p>
+    <p class="how-it-works__duel-stats"><%= t(".duels.stats", number: Game::DuelStat::STATS.size, names: duel_stat_names(Game::DuelStat::STATS)) %></p>
+    <p class="how-it-works__duel-round"><%= t(".duels.round", rounds: Game::DuelRules::ROUNDS, hand: Game::DuelRules::HAND_SIZE) %></p>
+    <p class="how-it-works__duel-ties"><%= t(".duels.ties") %></p>
+    <p class="how-it-works__duel-timers"><%= t(".duels.timers", accept: Game::DuelClock::ACCEPT.to_i, call: Game::DuelClock::CALL.to_i,
+          answer: Game::DuelClock::ANSWER.to_i, absence: Game::DuelClock::ABSENCE.to_i) %></p>
+    <p class="how-it-works__duel-capsule"><%= t(".duels.capsule", cards: Game::Pack::DUEL_SIZE) %></p>
+    <%= render "pages/odds_table", name: "duel", odds: Game::DrawOdds::DUEL %>
+  <% end %>
+
   <%= render "pages/market_rules", rules: @market_rules if @market_rules %>
 </article>

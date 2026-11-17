@@ -183,6 +183,10 @@
   margin: 0;
 }
 
+.profile-stats__grid + .profile-stats__grid {
+  margin-top: var(--space-5);
+}
+
 .profile-section {
   display: flex;
   flex-direction: column;

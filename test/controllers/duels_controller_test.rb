@@ -2,6 +2,7 @@ require "test_helper"
 require_relative "../support/steam_sign_in"
 require_relative "../support/decks"
 require_relative "../support/live_duels"
+require_relative "../support/duels"
 
 # GET /:locale/duels: the DUELS tab's root, the challenge block above the player's decks in creation order, each a link
 # to its editor with its twelve covers, and the way to a new deck while fewer than five. GET /:locale/duels/:token: a
@@ -10,6 +11,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
   include Decks
   include LiveDuels
+  include Duels
 
   setup do
     @player = accounts_players(:player)
@@ -361,5 +363,85 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     assert_select(rules.caller == :challenger ? "form#duel-call" : "#duel-hand ul li", minimum: 1)
     assert_select "[style]", 0
     assert_select "#duel-board input[name=authenticity_token]", 0
+  end
+
+  def finished_duel(result, challenger: @player, opponent: accounts_players(:moderator), scores: [ 6, 4 ], ended_at: Time.current)
+    duel = active_duel
+    duel.assign_attributes(state: "finished", result:, ended_at:, challenger_score: scores.first, opponent_score: scores.last)
+    duel.save!
+    { "challenger" => challenger, "opponent" => opponent }.each do |role, player|
+      Game::DuelSeat.create!(duel:, role:, player_id: player.id, status: "left")
+    end
+    duel
+  end
+
+  test "the record with the way to the rules, and the last results, each named by its outcome and score, opening its result" do
+    accounts_players(:moderator).update!(persona_name: "Hugo")
+    won = finished_duel("challenger", ended_at: 2.hours.ago)
+    lost = finished_duel("challenger", challenger: accounts_players(:moderator), opponent: @player, ended_at: 1.hour.ago)
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    assert_select ".duel-record .duel-record__line", "Duels: 1 win, 1 loss, 0 draws"
+    assert_select ".duel-record .duel-record__figure", 3
+    assert_select ".duel-record a.button.button--link[href='/en/how-it-works#how-it-works-duels']", "Duel rules"
+    assert_select "h2#duel-history-heading", "Recent duels"
+    names = css_select(".duel-history__row .visually-hidden").map(&:text)
+    assert_equal [ "Loss against Hugo, 4 to 6", "Win against Hugo, 6 to 4" ], names
+    assert_equal [ "/en/duels/#{lost.token}", "/en/duels/#{won.token}" ], css_select(".duel-history__row").map { it["href"] }
+    assert_select "[style]", 0
+
+    get duels_path(locale: :fr)
+
+    assert_select ".duel-record__line", "Duels : 1 victoire, 1 défaite, 0 égalité"
+    assert_select ".duel-record a.button--link", "Règles du duel"
+    assert_select ".duel-history__row .visually-hidden", "Défaite contre Hugo, 4 à 6"
+  end
+
+  test "no duel: a zero record and no recent duels group" do
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    assert_select ".duel-record__line", "Duels: 0 wins, 0 losses, 0 draws"
+    assert_select ".duel-history", 0
+  end
+
+  test "the history keeps ten rows, and an opponent who left the game reads anonymous" do
+    banned = accounts_players(:moderator)
+    12.times { finished_duel("challenger", opponent: banned) }
+    banned.update!(banned_at: Time.current)
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    assert_select ".duel-history__row", 10
+    assert_select ".duel-history__row .visually-hidden", text: "Win against An anonymous player, 6 to 4", count: 10
+    assert_select ".duel-history__row [aria-hidden=true] .player-name--anonymous", 10
+  end
+
+  test "a finished duel's result opens for its two seats and not for a third player" do
+    hugo = accounts_players(:moderator)
+    befriend(@player, hugo)
+    complete_deck(@player, "Lea")
+    complete_deck(hugo, "Hugo")
+    duel = start_duel(@player, hugo)
+    10.times { play_round(duel) }
+    sign_in(accounts_players(:administrator))
+
+    get duel_path(locale: :en, token: duel.token)
+
+    assert_response :forbidden
+
+    delete session_path(locale: :en)
+    sign_in(hugo)
+    get duel_path(locale: :en, token: duel.token)
+
+    assert_response :success
+    assert_select "#duel-result-heading"
+    get duels_path(locale: :en)
+
+    assert_select ".duel-history__row[href='/en/duels/#{duel.token}']", 1
   end
 end

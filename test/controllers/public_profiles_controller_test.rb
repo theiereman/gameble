@@ -93,8 +93,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Common", "Uncommon", "Rare", "Epic", "Legendary" ], rarities.map(&:first)
     assert_equal 11, rarities.sum { it.last.to_i }
     assert_select ".profile-stats__grid--rarities .profile-figure--rarity-5 svg.profile-figure__icon"
-    assert_equal [ [ "Capsules opened", "2" ], [ "First discoveries", "1" ], [ "Trades concluded", "1" ] ],
-      figures(".profile-stats__grid:not(.profile-stats__grid--rarities)")
+    assert_equal [ [ "Capsules opened", "2" ], [ "First discoveries", "1" ], [ "Trades concluded", "1" ], [ "Duel wins", "0" ],
+      [ "Duel losses", "0" ], [ "Duel draws", "0" ] ], figures(".profile-stats__grid:not(.profile-stats__grid--rarities)")
 
     assert_equal [ "Showcase", "Fortune", "Achievements", "Sets" ], css_select("h2").map(&:text)
     assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "5 achievements earned out of #{Game::Achievements::CATALOGUE.size}"
@@ -515,6 +515,36 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Gabe the Brave"
   end
 
+  def finish_duel(result)
+    duel = Game::Duel.new(token: SecureRandom.base58(24), state: "finished", result:, started_at: 1.hour.ago, ended_at: Time.current,
+      first_caller: "challenger", challenger_cards: [], opponent_cards: [], challenger_draw_order: [], opponent_draw_order: [])
+    duel.save!
+    { "challenger" => @owner, "opponent" => accounts_players(:moderator) }.each do |role, player|
+      Game::DuelSeat.create!(duel:, role:, player_id: player.id, status: "left")
+    end
+  end
+
+  test "the Duels figures read the owner's wins, losses and draws, and a private owner's record stays hidden with the other stats" do
+    publish_sets_draft
+    %w[challenger challenger opponent draw].each { finish_duel(it) }
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_equal [ [ "Duel wins", "2" ], [ "Duel losses", "1" ], [ "Duel draws", "1" ] ],
+      figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").last(3)
+
+    get brother_path(locale: :fr, token: @owner.token)
+
+    assert_equal [ [ "Victoires en duel", "2" ], [ "Défaites en duel", "1" ], [ "Égalités en duel", "1" ] ],
+      figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").last(3)
+
+    @owner.update!(visibility: "private")
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_response :not_found
+    assert_no_match(/Duel wins|Duel losses/, response.body)
+  end
+
   test "a private or friends-only owner is the unavailable page for a visitor and a stranger, not for the owner" do
     publish_sets_draft
     stranger = Accounts::Player.create!(steam_id: "76561197960390101")
@@ -629,7 +659,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "Cartes", "0/#{card_total(season)}" ], [ "Sets complets", "0" ], [ "Succès", "0/#{Game::Achievements::CATALOGUE.size}" ] ], keys
     assert_select "section.profile-stats[aria-label=Statistiques]"
     assert_equal [ "Raretés", "Activité" ], css_select(".profile-stats__kicker").map(&:text)
-    assert_equal [ "Capsules ouvertes", "Premières découvertes", "Échanges conclus" ],
+    assert_equal [ "Capsules ouvertes", "Premières découvertes", "Échanges conclus", "Victoires en duel", "Défaites en duel", "Égalités en duel" ],
       figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").map(&:first)
     assert_equal [ "Fortune", "Succès", "Sets" ], css_select("h2").map(&:text)
     assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "0 succès obtenu sur #{Game::Achievements::CATALOGUE.size}"

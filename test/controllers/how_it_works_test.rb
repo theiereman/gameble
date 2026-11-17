@@ -13,14 +13,14 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
 
   FRENCH_HEADINGS = [
     "Quels jeux deviennent des cartes", "La rareté", "Capsules et probabilités", "Le rythme des capsules",
-    "La capsule quotidienne", "La mission hebdo", "Les saisons", "Les sets", "Compléter un set"
+    "La capsule quotidienne", "La mission hebdo", "Les saisons", "Les sets", "Compléter un set", "Les duels"
   ].freeze
 
   FRENCH_MARKET_HEADING = "Le marché".freeze
 
   ENGLISH_HEADINGS = [
     "Which games become cards", "Rarity", "Capsules and odds", "The pace of capsules",
-    "The daily capsule", "The weekly mission", "Seasons", "Sets", "Completing a set"
+    "The daily capsule", "The weekly mission", "Seasons", "Sets", "Completing a set", "Duels"
   ].freeze
 
   ENGLISH_MARKET_HEADING = "The market".freeze
@@ -45,7 +45,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
   def odds_tables
     {
       "regular" => Game::DrawOdds::REGULAR, "bonus" => Game::DrawOdds::BONUS,
-      "reward" => Game::DrawOdds::REWARD, "epic_or_better" => Game::DrawOdds::EPIC_OR_BETTER
+      "reward" => Game::DrawOdds::REWARD, "epic_or_better" => Game::DrawOdds::EPIC_OR_BETTER, "duel" => Game::DrawOdds::DUEL
     }
   end
 
@@ -100,6 +100,18 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select ".how-it-works__studios",
       /#{Regexp.escape(ActiveSupport::NumberHelper.number_to_delimited(Catalog::SetBuilder::STUDIO_REVIEW_FLOOR, locale:))}/
     assert_select ".how-it-works__set-tiers", I18n.t("pages.how_it_works.sets.tiers", locale:)
+    assert_duel_numbers(locale)
+  end
+
+  def assert_duel_numbers(locale)
+    assert_select "#how-it-works-duels"
+    assert_select ".how-it-works__duel-decks", /\b#{Game::Deck::SLOTS.size}\b.*\b#{Game::Deck::PER_PLAYER}\b/m
+    assert_select ".how-it-works__duel-stats", /\b#{Game::DuelStat::STATS.size}\b/
+    Game::DuelStat::STATS.each { assert_select ".how-it-works__duel-stats", /#{Regexp.escape(I18n.t("duel_stats.names.#{it}", locale:))}/ }
+    assert_select ".how-it-works__duel-round", /\b#{Game::DuelRules::ROUNDS}\b.*\b#{Game::DuelRules::HAND_SIZE}\b/m
+    clock = Game::DuelClock
+    assert_select ".how-it-works__duel-timers", /\b#{clock::ACCEPT.to_i}\b.*\b#{clock::CALL.to_i}\b.*\b#{clock::ANSWER.to_i}\b.*\b#{clock::ABSENCE.to_i}\b/m
+    assert_select ".how-it-works__duel-capsule", /\b#{Game::Pack::DUEL_SIZE}\b/
   end
 
   # The tier sentence's rows, by their sizes, with the ranks each names.
@@ -250,7 +262,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select "[data-market]", false
   end
 
-  test "with no settings version the page is the nine sections" do
+  test "with no settings version the page is the ten sections" do
     get how_it_works_path(locale: :en)
 
     assert_equal ENGLISH_HEADINGS, headings

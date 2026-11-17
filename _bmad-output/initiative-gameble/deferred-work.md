@@ -755,3 +755,9 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-the-first-real-win-of-the-day-gives-a-duel-capsule-plan.md`
   summary: A published season with an empty tier makes `Game::DrawPool.current` raise inside the finishing move, as it already does when a capsule opens; the duel then cannot finish until the season is repaired.
   evidence: `Game::DuelCapsule.award` calls `Game::DrawPool.current` only for a granted win; a season cannot be published with an empty tier.
+
+## Deferred from: build of story-the-profile-and-the-duels-screen-show-the-player-s-record-an-plan (2026-11-17)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-the-profile-and-the-duels-screen-show-the-player-s-record-an-plan.md`
+  summary: DERNIERS DUELS reads each row's opponent with its own query, up to ten per Duels screen load, because the accounts domain has no query for several players at once.
+  evidence: `DuelHistory#rows` calls `Accounts::PlayerById` per result; `Accounts::PlayersById` does not exist.

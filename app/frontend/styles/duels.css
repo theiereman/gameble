@@ -131,6 +131,69 @@
   object-fit: cover;
 }
 
+.duels__main,
+.duel-record,
+.duel-history {
+  display: flex;
+  flex-direction: column;
+}
+
+.duels__main {
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.duel-record {
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.duel-record__line {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.duel-record__figure {
+  color: var(--color-text-max);
+  font: var(--font-count-large-phone);
+  letter-spacing: var(--tracking-count-large);
+}
+
+.duel-history {
+  gap: var(--space-4);
+}
+
+.duel-history__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.duel-history__row {
+  display: flex;
+  align-items: center;
+  min-height: var(--space-touch-min);
+  color: var(--color-text);
+  font: var(--font-body);
+  text-decoration: none;
+}
+
+.duel-history__row:hover {
+  color: var(--color-text-bright);
+  text-decoration: underline;
+}
+
+.duel-history__row:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
 @media (min-width: 720px) {
   .deck-row__covers {
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -141,7 +204,7 @@
   .duels {
     display: grid;
     grid-template-columns: 400px minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto auto auto 1fr;
     align-items: start;
     max-width: var(--space-landing-content-max);
   }
@@ -151,13 +214,14 @@
   }
 
   .duel-lobby,
-  .duel-online {
+  .duel-online,
+  .duel-history {
     grid-column: 1;
   }
 
-  .duel-decks {
+  .duels__main {
     grid-column: 2;
-    grid-row: 2 / span 2;
+    grid-row: 2 / span 3;
   }
 
   .duel-sheet-host {
