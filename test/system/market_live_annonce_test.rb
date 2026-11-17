@@ -58,7 +58,7 @@ class MarketLiveAnnonceSystemTest < ApplicationSystemTestCase
     assert_selector ".market-listing__leader", text: "Rival"
     assert_selector ".market-history__line--bid", count: 1
     assert_field "annonce-maximum", with: "26,000"
-    assert_equal "annonce-maximum", page.evaluate_script("document.activeElement.id")
+    assert_selector "#annonce-maximum:focus"
     assert_selector "#annonce-bid button[type=submit]", text: /BID · 26,000/
   end
 
@@ -102,18 +102,21 @@ class MarketLiveAnnonceSystemTest < ApplicationSystemTestCase
 
   test "an auction that ends while the reader has typed gives the outcome's heading focus, with nothing submitted" do
     sign_in_through_the_site(@reader)
-    @listing.update_columns(ends_at: 7.seconds.from_now)
     open_annonce
     find_field("annonce-maximum").click
     fill_in "annonce-maximum", with: "26000"
     bids = Game::Market::Bid.count
 
-    sleep 7.5
+    ends_at = 5.seconds.from_now
+    @listing.update_columns(ends_at:)
+    ListingStreamJob.perform_now([ @listing.id ])
+    assert_field "annonce-maximum", with: "", wait: 10
+    eventually("the auction should be over") { Time.current >= ends_at }
     Game::Market::CloseAuction.new.call(player: @seller, listing_id: @listing.id)
     perform_enqueued_jobs(only: ListingStreamJob)
 
     assert_selector "#listing-outcome-heading", text: "AUCTION ENDED"
-    assert_equal "listing-outcome-heading", page.evaluate_script("document.activeElement.id")
+    assert_selector "#listing-outcome-heading:focus"
     assert_selector "#annonce-bid .market-bid__note", text: "Your amount was not recorded."
     assert_no_field "annonce-maximum"
     assert_equal bids, Game::Market::Bid.count

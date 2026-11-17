@@ -287,7 +287,10 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_no_selector ".entrust-cell .stepper", visible: :visible
     assert_equal 2, find(".entrust-grid__list").style("grid-template-columns")["grid-template-columns"].split.size
     show_single_copies
+    assert_selector ".entrust-cell[data-ref='#{@rare.card.slug}:#{@rare.season.number}']"
+    assert_no_selector "turbo-frame#entrust-results[busy]"
     tick(@common)
+    assert_selector ".entrust-bar .entrust-bar__count", text: "1 copy"
     tick(@rare)
     assert_selector ".entrust-bar .entrust-bar__count", text: "2 copies"
     assert_selector ".entrust-bar .picoin-amount__figure", text: "60"

@@ -41,7 +41,7 @@ class MarketTest < ApplicationSystemTestCase
 
     find(".listing-tile a[href$='#{cheap.token}']").click
     assert_selector "h1#market-listing-heading", text: "Tin Soldier"
-    assert_equal "market-listing-heading", page.evaluate_script("document.activeElement.id")
+    assert_selector "h1#market-listing-heading:focus"
     assert_selector ".market-listing__price", text: "1,300"
     assert_selector ".market-listing__ends time"
     assert_selector ".market-listing__fact a", text: "Alice"

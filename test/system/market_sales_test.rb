@@ -101,8 +101,7 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
     assert_equal "cancelled", first.reload.status
     assert_equal 0, reserved(@common)
     assert_selector ".market-row__chip", text: "CANCELLED"
-    assert_equal "a", page.evaluate_script("document.activeElement.tagName").downcase
-    assert_equal second.token, page.evaluate_script("document.activeElement.dataset.rowToken")
+    assert_selector "a[data-row-token='#{second.token}']:focus"
   end
 
   test "a seller relists an unsold copy with the amounts prefilled and lands on the new Annonce" do
