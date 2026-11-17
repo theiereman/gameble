@@ -45,7 +45,7 @@ module Game
 
     def self.exact_value(card, stat)
       value = card.stat(stat).value
-      stat == :rating ? [ value, card.stat(:popularity).value ] : value
+      stat == :rating ? [ value, card.stat(:popularity).value.to_i ] : value
     end
     private_class_method :exact_value
 

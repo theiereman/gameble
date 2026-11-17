@@ -123,6 +123,14 @@ class Game::DuelRulesTest < ActiveSupport::TestCase
     assert_equal [ :answerer, true, 0 ], outcome(popular, obscure, :rating, :low)
   end
 
+  test "equal ratings still resolve when one edition has no review count" do
+    reviewed = duel_card(1, rating: 70, values: { rating: 90, popularity: 12 })
+    unreviewed = duel_card(2, rating: 70, values: { rating: 90, popularity: nil })
+
+    assert_equal [ :caller, true, 0 ], outcome(reviewed, unreviewed, :rating, :high)
+    assert_equal [ :answerer, true, 0 ], outcome(reviewed, unreviewed, :rating, :low)
+  end
+
   test "equal percentiles and equal values score nothing" do
     assert_equal [ nil, false, 0 ], outcome(duel_card(1, rating: 70), duel_card(2, rating: 70), :rating, :high)
     assert_equal [ nil, false, 0 ], outcome(duel_card(1, rating: 70), duel_card(2, rating: 70), :rating, :low)
