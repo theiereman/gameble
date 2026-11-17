@@ -558,12 +558,17 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
       css_select(".feed__entry .feed__sentence").map(&:text)
   end
 
+  def record_legacy_tier_entry(player, set_id, tier)
+    Game::FeedEntry.create!(kind: "set", player_id: player.id, set_id:, tier:, set_count: 1, notable: true, occurred_at: Time.current)
+  end
+
   def reach_roguelike_silver(player = @player)
     common, uncommon, rare, = fixture_tier_ids
-    insert_set([ common, uncommon, rare, *unheld_cards(2) ], { silver: 2, gold: 3, complete: 5 })
+    theme = insert_set([ common, uncommon, rare, *unheld_cards(2) ], { silver: 2, gold: 3, complete: 5 })
     Game::Holding.create!(player_id: player.id, card_season_id: uncommon, quantity: 1)
     create_pack(player, cards: [ common ] * 5)
     Game::OpenPack.new.call(player:).value!
+    record_legacy_tier_entry(player, theme, "silver")
   end
 
   test "a stranger reads a set reached naming the player, the set and the tier's badge in the headline, with no thumbnail" do
@@ -588,10 +593,11 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
   test "a rank reached shows its rank's badge in the headline only, behind its rank's mark" do
     common, uncommon, rare, legendary = fixture_tier_ids.values_at(0, 1, 2, 4)
-    insert_set([ common, uncommon, rare, legendary, fixture_tier_ids[3] ], Catalog::TierTable.tiers(5))
+    theme = insert_set([ common, uncommon, rare, legendary, fixture_tier_ids[3] ], Catalog::TierTable.tiers(5))
     [ uncommon, rare ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
     create_pack(@player, cards: [ common ] * 5)
     Game::OpenPack.new.call(player: @player).value!
+    record_legacy_tier_entry(@player, theme, "master")
 
     get feed_path(locale: :en)
 

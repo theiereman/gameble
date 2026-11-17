@@ -7,25 +7,20 @@ module Game
 
     KINDS = %w[pull discovery trade repost set verdict sale].freeze
 
-    RECORD_SETS_SQL = <<~SQL.squish.freeze
+    RECORD_COMPLETION_SQL = <<~SQL.squish.freeze
       WITH reached AS (
         SELECT player_id, reached_by, reached_at, pack_id
           FROM game_set_tiers
-         WHERE player_id = :player_id AND set_id = :set_id AND tier = :tier
+         WHERE player_id = :player_id AND set_id = :set_id AND tier = 'complete'
       ),
       results AS (
-        SELECT tiers.set_id, tiers.tier, tiers.reached_at, tiers.tier = 'complete' AS completes,
-               asked.required::numeric / complete.required AS share,
-               tier_order.position
+        SELECT tiers.set_id, tiers.tier, tiers.reached_at
           FROM game_set_tiers AS tiers
           JOIN reached ON tiers.player_id = reached.player_id AND tiers.reached_by = reached.reached_by
            AND tiers.reached_at = reached.reached_at AND tiers.pack_id IS NOT DISTINCT FROM reached.pack_id
-          JOIN catalog_set_tiers AS asked ON asked.set_id = tiers.set_id AND asked.tier = tiers.tier
-          JOIN catalog_set_tiers AS complete ON complete.set_id = tiers.set_id AND complete.tier = 'complete'
-          JOIN #{SetTier::TIER_ORDER_SQL} ON tier_order.tier = tiers.tier
       ),
       highest AS (
-        SELECT set_id, tier, reached_at FROM results ORDER BY completes DESC, share DESC, position DESC, set_id LIMIT 1
+        SELECT set_id, tier, reached_at FROM results ORDER BY tier = 'complete' DESC, set_id LIMIT 1
       )
       INSERT INTO game_feed_entries (kind, player_id, set_id, tier, set_count, notable, occurred_at, created_at, updated_at)
       SELECT 'set', :player_id, highest.set_id, highest.tier, (SELECT COUNT(*) FROM results), TRUE,
@@ -75,9 +70,9 @@ module Game
       insert_all([ row ], unique_by: :trade_id, record_timestamps: false).rows.any?
     end
 
-    def self.record_sets(player_id:, set_id:, tier:, now:)
-      binds = { player_id:, set_id:, tier:, now:, tiers: SetTier::TIERS }
-      connection.exec_update(sanitize_sql_array([ RECORD_SETS_SQL, binds ]), "Game::FeedEntry Record Sets")
+    def self.record_completion(player_id:, set_id:, now:)
+      binds = { player_id:, set_id:, now: }
+      connection.exec_update(sanitize_sql_array([ RECORD_COMPLETION_SQL, binds ]), "Game::FeedEntry Record Completion")
     end
 
     def self.verdict_of?(week_start) = exists?(kind: "verdict", occurred_at: week_start.to_time(:utc))

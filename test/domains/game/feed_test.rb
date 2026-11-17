@@ -329,110 +329,81 @@ class Game::FeedTest < ActiveSupport::TestCase
 
   def set_values(entry) = entry.values_at(:player_id, :set_id, :tier, :set_count, :notable, :card_season_id, :rarity, :pack_id, :trade_id)
 
-  test "an opening that reaches tiers of several sets is one set entry: the highest result, the count of tiers, at the opening's time" do
-    *, metroidvania = insert_four_themes
+  test "an opening that reaches tiers without completing a set writes no set entry" do
+    insert_four_themes
 
-    pack = open_pack(@player, [ fixture_tier_ids[0] ] * 5)
-
-    entry = set_entries.sole
-    assert_equal [ @player.id, metroidvania, "gold", 6, true, nil, nil, nil, nil ], set_values(entry)
-    assert_equal pack.opened_at, entry.occurred_at
-    assert_equal [ "set" ], Game::FeedEntries.call(nil).reject(&:filler).map { it.entry.kind }
-  end
-
-  test "bronze and silver of one set in one opening are one result, silver, counting two tiers" do
-    common, uncommon, = fixture_tier_ids
-    theme = insert_set([ common, uncommon, fixture_tier_ids[2], *unheld_cards(2) ], { bronze: 1, silver: 1, gold: 2, complete: 5 })
-
-    open_pack(@player, [ common ] * 5)
-
-    assert_equal [ [ @player.id, theme, "silver", 2, true, nil, nil, nil, nil ] ], set_entries.map { set_values(it) }
-  end
-
-  test "gold and complete reached together are the completion" do
-    members = [ fixture_tier_ids[0], *unheld_cards(4) ]
-    franchise = insert_set(members, { bronze: 1, silver: 1, gold: 5, complete: 5 }, kind: "franchise", key: "dark-souls",
-      params: { "franchise" => "Dark Souls" })
-
-    open_pack(@player, members)
-
-    assert_equal [ [ franchise, "complete", 4 ] ], set_entries.pluck(:set_id, :tier, :set_count)
-  end
-
-  test "two sets at the same tier: the lowest set id is the highest result" do
-    common = fixture_tier_ids[0]
-    rare = fixture_tier_ids[2]
-    unheld = unheld_cards(3)
-    first = insert_set([ common, rare, *unheld ], { bronze: 1, complete: 5 }, key: "roguelike")
-    insert_set([ common, rare, *unheld ], { bronze: 1, complete: 5 }, key: "horror")
-
-    open_pack(@player, [ common ] * 5)
-
-    assert_equal [ [ first, "bronze", 2 ] ], set_entries.pluck(:set_id, :tier, :set_count)
-  end
-
-  test "across sets the highest result stands for the larger share of its set: Dark Souls expert at 4 of 10 over Roguelike adept at 16 of 62" do
-    common = fixture_tier_ids[0]
-    season = catalog_seasons(:one)
-    seed_card_seasons(Array.new(70) { 0.1 + (it * 0.001) }, season:)
-    extra = Catalog::CardSeason.where(season_id: season.id, rarity: nil).order(:id).ids
-    rate(extra, 1)
-    insert_set([ common, *extra.first(61) ], Catalog::TierTable.tiers(62), key: "roguelike")
-    dark_souls = insert_set([ common, *extra.last(9) ], Catalog::TierTable.tiers(10), kind: "franchise", key: "dark-souls",
-      params: { "franchise" => "Dark Souls" })
-    hold_all(@player, extra.first(15) + extra.last(3))
-
-    open_pack(@player, [ common ] * 5)
-
-    assert_equal [ [ dark_souls, "expert", 3 ] ], set_entries.pluck(:set_id, :tier, :set_count)
-  end
-
-  test "an opening that reaches no tier writes no set entry" do
-    open_pack(@player, [ fixture_tier_ids[4] ] * 5)
+    open_pack(@player, [ fixture_tier_ids[0] ] * 5)
 
     assert_empty set_entries
   end
 
-  test "each opening that reaches tiers is its own set entry" do
-    common, uncommon, = fixture_tier_ids
-    unheld = unheld_cards(3)
-    theme = insert_set([ common, uncommon, *unheld ], { bronze: 1, complete: 5 })
-    open_pack(@player, [ common ] * 5)
+  test "a completion is one set entry at the opening's time, counting the other tiers the opening reached" do
+    insert_four_themes
+    members = [ fixture_tier_ids[0], *unheld_cards(4) ]
+    franchise = insert_set(members, { bronze: 1, silver: 1, gold: 5, complete: 5 }, kind: "franchise", key: "dark-souls",
+      params: { "franchise" => "Dark Souls" })
 
-    open_pack(@player, [ uncommon, *unheld, uncommon ])
+    pack = open_pack(@player, members)
 
-    assert_equal [ [ theme, "bronze" ], [ theme, "complete" ] ], set_entries.pluck(:set_id, :tier)
+    entry = set_entries.sole
+    assert_equal [ @player.id, franchise, "complete", 10, true, nil, nil, nil, nil ], set_values(entry)
+    assert_equal pack.opened_at, entry.occurred_at
+    assert_equal [ "set" ], Game::FeedEntries.call(nil).reject(&:filler).map { it.entry.kind }
   end
 
-  test "a tier event handled again adds no row, changes nothing and publishes nothing" do
-    insert_four_themes
-    open_pack(@player, [ fixture_tier_ids[0] ] * 5)
-    events = game_events(@player).select { it.is_a?(Game::SetTierReached) || it.is_a?(Game::SetCompleted) }
-    assert_equal 6, events.size
+  test "two sets completed by one opening: the lowest set id is the result" do
+    common = fixture_tier_ids[0]
+    unheld = unheld_cards(4)
+    first = insert_set([ common, *unheld ], { complete: 5 }, key: "roguelike")
+    insert_set([ common, *unheld ], { complete: 5 }, key: "horror")
+
+    open_pack(@player, [ common, *unheld ])
+
+    assert_equal [ [ first, "complete", 2 ] ], set_entries.pluck(:set_id, :tier, :set_count)
+  end
+
+  test "each opening that completes a set is its own set entry" do
+    common, uncommon, = fixture_tier_ids
+    unheld = unheld_cards(3)
+    first = insert_set([ common, *unheld ], { complete: 4 }, key: "roguelike")
+    second = insert_set([ uncommon, *unheld ], { complete: 4 }, key: "horror")
+    open_pack(@player, [ common, *unheld, common ])
+
+    open_pack(@player, [ uncommon ] * 5)
+
+    assert_equal [ [ first, "complete" ], [ second, "complete" ] ], set_entries.pluck(:set_id, :tier)
+  end
+
+  test "a completion event handled again adds no row, changes nothing and publishes nothing" do
+    members = [ fixture_tier_ids[0], *unheld_cards(4) ]
+    insert_set(members, { complete: 5 })
+    open_pack(@player, members)
+    events = game_events(@player, Game::SetCompleted)
+    assert_equal 1, events.size
 
     assert_no_changes -> { [ set_entries.map(&:attributes), game_events(@player).size ] } do
       events.each { Game::Handlers::SetTierFeed.call(it) }
     end
   end
 
-  test "an accepted trade that crosses tiers for both players is one set entry per player, with that player's results" do
+  test "an accepted trade writes a set entry only for the player it completes a set for" do
     common, uncommon, rare, = fixture_tier_ids
     unheld = unheld_cards(3)
-    roguelike = insert_set([ common, rare, *unheld ], { bronze: 1, complete: 5 }, key: "roguelike")
-    horror = insert_set([ uncommon, rare, *unheld ], { bronze: 1, silver: 1, complete: 5 }, key: "horror")
+    insert_set([ common, rare, *unheld ], { bronze: 1, complete: 5 }, key: "roguelike")
+    horror = insert_set([ uncommon ], { complete: 1 }, key: "horror")
 
     conclude_trade(@player, @other, offer: { common => 1 }, request: { uncommon => 1 })
 
-    assert_equal({ @player.id => [ horror, "silver", 2 ], @other.id => [ roguelike, "bronze", 1 ] },
-      set_entries.pluck(:player_id, :set_id, :tier, :set_count).to_h { |player_id, *result| [ player_id, result ] })
+    assert_equal [ [ @player.id, horror, "complete", 1 ] ], set_entries.pluck(:player_id, :set_id, :tier, :set_count)
     assert_equal [ nil ], set_entries.pluck(:trade_id).uniq
   end
 
   test "a private player's set entry is stored but hidden from a visitor" do
-    insert_four_themes
+    members = [ fixture_tier_ids[0], *unheld_cards(4) ]
+    insert_set(members, { complete: 5 })
     @player.update!(visibility: :private)
 
-    open_pack(@player, [ fixture_tier_ids[0] ] * 5)
+    open_pack(@player, members)
 
     assert_equal 1, set_entries.count
     assert_empty Game::FeedEntries.call(nil)

@@ -114,11 +114,11 @@ class LiveStreamTest < ActiveSupport::TestCase
     assert_equal [ { player_id: @hugo.id, card_season_id: @epic, at: Time.utc(2026, 10, 8, 12) } ], LiveStream.notices(event)
   end
 
-  test "a tier's notice carries its player, set and tier, a completion's tier being complete" do
+  test "a completion's notice carries its player, set and the complete tier; a lesser tier tells nothing" do
     reached = Game::SetTierReached.new(data: { player_id: @hugo.id, set_id: 7, tier: "silver" })
     completed = Game::SetCompleted.new(data: { player_id: @hugo.id, set_id: 8 })
 
-    assert_equal [ { player_id: @hugo.id, set_id: 7, tier: "silver" } ], LiveStream.notices(reached)
+    assert_empty LiveStream.notices(reached)
     assert_equal [ { player_id: @hugo.id, set_id: 8, tier: "complete" } ], LiveStream.notices(completed)
   end
 
