@@ -1,5 +1,5 @@
 <%# locals: (season:, available:, reserve:, origin:, next_size:) %>
-<div class="booster__zone" data-controller="booster-canister">
+<div class="booster__zone" data-controller="booster-canister" data-action="click->booster-canister#activate">
   <p class="booster__empty" data-booster-canister-target="empty"<%= " hidden" if available.positive? %>>
     <span class="booster__empty-title"><%= t("booster.reserve_empty") %></span>
     <span class="booster__empty-next" data-booster-canister-target="emptyNext" hidden><span aria-hidden="true" data-booster-canister-target="emptyClock"></span><span class="visually-hidden" data-booster-canister-target="emptySpoken"></span></span>
@@ -7,7 +7,7 @@
   <template data-booster-canister-target="canister">
     <div class="booster-canister__wrap">
       <div class="booster-canister__rays" aria-hidden="true"></div>
-      <button type="button" class="booster-canister" aria-label="<%= booster_canister_label(season, next_size) %>" data-action="booster-canister#activate">
+      <button type="button" class="booster-canister" aria-label="<%= booster_canister_label(season, next_size) %>">
         <%= render "boosters/capsule", season: %>
       </button>
       <span class="booster-canister__fx" aria-hidden="true"></span>

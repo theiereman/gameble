@@ -3,25 +3,29 @@ import { motionReduced } from "../lib/motion"
 import {
   EASE,
   FOLLOW,
-  GRID_STEP,
   HALO_RADIUS,
-  SAMPLE_STEP,
+  HALO_SPAN,
+  POINTER_GLOW_RADIUS,
   approach,
+  gridLines,
+  haloOriginOnGrid,
   settled,
   translucent,
-  warp,
-  type Point,
   type Pointer,
 } from "../lib/stage_grid"
 
 type Palette = Readonly<{ accent: string; lime: string; line: string }>
 
+type Box = Readonly<{ left: number; top: number; right: number; bottom: number }>
+
 export default class extends Controller<HTMLElement> {
-  static targets = ["canvas"]
+  static targets = ["floor", "halo"]
 
-  declare readonly canvasTarget: HTMLCanvasElement
+  declare readonly floorTarget: HTMLCanvasElement
+  declare readonly haloTarget: HTMLCanvasElement
 
-  private pen: CanvasRenderingContext2D | null = null
+  private floor: CanvasRenderingContext2D | null = null
+  private halo: CanvasRenderingContext2D | null = null
   private palette: Palette = { accent: "#000000", lime: "#000000", line: "#000000" }
   private observer: ResizeObserver | null = null
   private width = 0
@@ -31,7 +35,8 @@ export default class extends Controller<HTMLElement> {
   private frame = 0
 
   connect(): void {
-    this.pen = this.canvasTarget.getContext("2d")
+    this.floor = this.floorTarget.getContext("2d")
+    this.halo = this.haloTarget.getContext("2d")
     const style = getComputedStyle(this.element)
     const token = (name: string) => style.getPropertyValue(name).trim() || "#000000"
     this.palette = { accent: token("--color-accent"), lime: token("--color-lime"), line: token("--color-line") }
@@ -61,13 +66,21 @@ export default class extends Controller<HTMLElement> {
   }
 
   private resize(): void {
-    const ratio = Math.min(window.devicePixelRatio || 1, 2)
-    this.width = this.element.clientWidth
-    this.height = this.element.clientHeight
-    this.canvasTarget.width = this.width * ratio
-    this.canvasTarget.height = this.height * ratio
-    this.pen?.setTransform(ratio, 0, 0, ratio, 0, 0)
-    this.draw()
+    const width = this.element.clientWidth
+    const height = this.element.clientHeight
+    if (width === this.width && height === this.height) return
+    this.width = width
+    this.height = height
+    const ratio = this.ratio()
+    this.floorTarget.width = width * ratio
+    this.floorTarget.height = height * ratio
+    this.floor?.setTransform(ratio, 0, 0, ratio, 0, 0)
+    this.drawFloor()
+    if (this.haloTarget.width !== HALO_SPAN * ratio) this.drawHalo(ratio)
+  }
+
+  private ratio(): number {
+    return Math.min(window.devicePixelRatio || 1, 2)
   }
 
   private animate(): void {
@@ -82,85 +95,79 @@ export default class extends Controller<HTMLElement> {
       y: approach(this.pointer.y, this.target.y, still ? 1 : FOLLOW),
       pull: approach(this.pointer.pull, this.target.pull, still ? 1 : EASE),
     }
-    this.draw()
+    this.placeHalo()
     if (!settled(this.pointer, this.target)) this.animate()
   }
 
-  private draw(): void {
-    const pen = this.pen
+  private drawFloor(): void {
+    const pen = this.floor
     if (!pen) return
-    const { width, height, pointer, palette } = this
+    const { width, height, palette } = this
     pen.clearRect(0, 0, width, height)
-    this.glow(width / 2, height * 0.38, width * 0.5, palette.accent, 0.2)
-    this.glow(width / 2, height, width * 0.6, palette.lime, 0.1)
-    if (pointer.pull > 0.01) this.glow(pointer.x, pointer.y, 360, palette.accent, 0.035 * pointer.pull)
+    this.glow(pen, width / 2, height * 0.38, width * 0.5, palette.accent, 0.2)
+    this.glow(pen, width / 2, height, width * 0.6, palette.lime, 0.1)
     pen.lineWidth = 1
     pen.strokeStyle = translucent(palette.line, 0.55)
-    this.grid(0, width, 0, height)
-    if (pointer.pull > 0.01) this.halo()
-    this.corners()
+    this.grid(pen, { left: 0, top: 0, right: width, bottom: height })
+    this.corners(pen)
   }
 
-  private glow(x: number, y: number, radius: number, colour: string, alpha: number): void {
-    const pen = this.pen!
+  private drawHalo(ratio: number): void {
+    const pen = this.halo
+    if (!pen) return
+    this.haloTarget.width = HALO_SPAN * ratio
+    this.haloTarget.height = HALO_SPAN * ratio
+    pen.setTransform(ratio, 0, 0, ratio, 0, 0)
+    const centre = HALO_SPAN / 2
+    this.glow(pen, centre, centre, POINTER_GLOW_RADIUS, this.palette.accent, 0.035, HALO_SPAN, HALO_SPAN)
+    const gradient = pen.createRadialGradient(centre, centre, 0, centre, centre, HALO_RADIUS)
+    gradient.addColorStop(0, translucent(this.palette.accent, 0.08))
+    gradient.addColorStop(0.5, translucent(this.palette.accent, 0.03))
+    gradient.addColorStop(1, translucent(this.palette.accent, 0))
+    pen.lineWidth = 1
+    pen.strokeStyle = gradient
+    this.grid(pen, { left: 0, top: 0, right: HALO_SPAN, bottom: HALO_SPAN })
+  }
+
+  private placeHalo(): void {
+    const { x, y, pull } = this.pointer
+    const style = this.haloTarget.style
+    style.setProperty("--halo-x", `${haloOriginOnGrid(x)}px`)
+    style.setProperty("--halo-y", `${haloOriginOnGrid(y)}px`)
+    style.setProperty("--halo-pull", pull <= 0.01 ? "0" : `${Math.min(1, pull)}`)
+  }
+
+  private glow(
+    pen: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    radius: number,
+    colour: string,
+    alpha: number,
+    width = this.width,
+    height = this.height,
+  ): void {
     const gradient = pen.createRadialGradient(x, y, 0, x, y, radius)
     gradient.addColorStop(0, translucent(colour, alpha))
     gradient.addColorStop(1, translucent(colour, 0))
     pen.fillStyle = gradient
-    pen.fillRect(0, 0, this.width, this.height)
+    pen.fillRect(0, 0, width, height)
   }
 
-  private grid(left: number, right: number, top: number, bottom: number): void {
-    for (let y = 0; y <= this.height + GRID_STEP; y += GRID_STEP) {
-      if (y < top || y > bottom) continue
-      this.stroke(this.samples(left, right).map((x): Point => [x, y]))
-    }
-    for (let x = 0; x <= this.width + GRID_STEP; x += GRID_STEP) {
-      if (x < left || x > right) continue
-      this.stroke(this.samples(top, bottom).map((y): Point => [x, y]))
-    }
-  }
-
-  private halo(): void {
-    const pen = this.pen!
-    const { x, y, pull } = this.pointer
-    const reach = HALO_RADIUS + 50
-    const gradient = pen.createRadialGradient(x, y, 0, x, y, HALO_RADIUS)
-    gradient.addColorStop(0, translucent(this.palette.accent, 0.08))
-    gradient.addColorStop(0.5, translucent(this.palette.accent, 0.03))
-    gradient.addColorStop(1, translucent(this.palette.accent, 0))
-    pen.save()
-    pen.globalCompositeOperation = "lighter"
-    pen.globalAlpha = Math.min(1, pull)
-    pen.strokeStyle = gradient
-    this.grid(
-      Math.max(0, x - reach),
-      Math.min(this.width, x + reach),
-      Math.max(0, y - reach),
-      Math.min(this.height, y + reach),
-    )
-    pen.restore()
-  }
-
-  private samples(from: number, to: number): number[] {
-    const points: number[] = []
-    for (let at = from; at <= to + SAMPLE_STEP; at += SAMPLE_STEP) points.push(at)
-    return points
-  }
-
-  private stroke(points: Point[]): void {
-    const pen = this.pen!
+  private grid(pen: CanvasRenderingContext2D, { left, top, right, bottom }: Box): void {
     pen.beginPath()
-    points.forEach((point, index) => {
-      const [x, y] = warp(point, this.pointer)
-      if (index === 0) pen.moveTo(x, y)
-      else pen.lineTo(x, y)
-    })
+    for (const y of gridLines(top, bottom)) {
+      pen.moveTo(left, y)
+      pen.lineTo(right, y)
+    }
+    for (const x of gridLines(left, right)) {
+      pen.moveTo(x, top)
+      pen.lineTo(x, bottom)
+    }
     pen.stroke()
   }
 
-  private corners(): void {
-    const pen = this.pen!
+  private corners(pen: CanvasRenderingContext2D): void {
     const { width, height } = this
     pen.strokeStyle = this.palette.accent
     pen.lineWidth = 2

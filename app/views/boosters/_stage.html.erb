@@ -1,6 +1,7 @@
 <%# locals: (season:, available:, reserve:, origin:, next_size:, market_open:) %>
 <div class="booster__stage" data-controller="booster-stage stage-grid" data-action="pointermove->stage-grid#move pointerleave->stage-grid#leave">
-  <canvas class="booster__grid" aria-hidden="true" data-stage-grid-target="canvas"></canvas>
+  <canvas class="booster__grid" aria-hidden="true" data-stage-grid-target="floor"></canvas>
+  <canvas class="booster__grid booster__grid--halo" aria-hidden="true" data-stage-grid-target="halo"></canvas>
   <div class="booster__shake" data-booster-stage-target="shake">
     <div class="booster__dim" aria-hidden="true"></div>
     <div class="booster__fx" aria-hidden="true" data-booster-stage-target="fx"></div>

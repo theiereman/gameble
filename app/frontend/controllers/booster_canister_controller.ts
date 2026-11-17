@@ -79,7 +79,9 @@ export default class BoosterCanisterController extends Controller<HTMLElement> {
     else button.removeAttribute("aria-disabled")
   }
 
-  activate(): void {
+  activate(event: Event): void {
+    const button = this.parts.button
+    if (!button || !(event.target instanceof Node) || !button.contains(event.target)) return
     if (!this.busy) this.dispatch("open")
   }
 

@@ -1,7 +1,7 @@
 /*
- * The stage's floor and the opened capsule's card badges. The floor is a grid drawn on a canvas
- * (stage-grid) that bulges softly away from a mouse; the CSS background is the same floor, flat,
- * for the first frame.
+ * The stage's floor and the opened capsule's card badges. The floor is a grid drawn once on a canvas
+ * (stage-grid), lit around a mouse on a second canvas; the CSS background is the same floor for the
+ * first frame.
  */
 
 .booster__stage {
@@ -33,6 +33,16 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+.booster__grid--halo {
+  inset: 0 auto auto 0;
+  width: calc(32 * 24px);
+  height: calc(32 * 24px);
+  opacity: var(--halo-pull, 0);
+  transform: translate(var(--halo-x, 0), var(--halo-y, 0));
+  mix-blend-mode: plus-lighter;
+  will-change: transform, opacity;
 }
 
 .booster__stage:has(.booster__grid) {
