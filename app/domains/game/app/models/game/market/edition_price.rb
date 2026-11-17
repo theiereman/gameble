@@ -14,8 +14,9 @@ module Game
         kept.sum.div(kept.size)
       end
 
-      def self.rarity_average(rarity)
-        Median.of(where(card_season_id: Catalog::CardSeason.where(rarity:).select(:id)).where(sales_used: MINIMUM_SALES..).pluck(:average))
+      def self.rarity_average(rarity, settings:, now:)
+        Median.of(Listing.sold.where(card_season_id: Catalog::CardSeason.where(rarity:).select(:id))
+          .where(sold_at: (now - settings.average_window_days.days)...now).pluck(:final_price))
       end
 
       def self.sales_in_window(card_season_id, settings:, now:)

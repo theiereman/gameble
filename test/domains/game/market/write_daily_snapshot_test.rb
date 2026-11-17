@@ -90,13 +90,12 @@ class Game::Market::WriteDailySnapshotTest < ActiveSupport::TestCase
     assert_equal 12_100, circulation_before(@first + 4)
   end
 
-  test "a rarity's price is the median of its editions with enough sales, null with none" do
-    first = catalog_card_seasons(:common_card_one)
+  test "a rarity's price is the median of its sales up to the day's end, null with none" do
     second = catalog_card_seasons(:uncommon_card_one)
     second.update_columns(rarity: 1)
-    Game::Market::EditionPrice.create!(card_season_id: first.id, average: 1_000, sales_used: 3)
-    Game::Market::EditionPrice.create!(card_season_id: second.id, average: 2_000, sales_used: 5)
-    Game::Market::EditionPrice.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, average: 9_000, sales_used: 2)
+    sold!(catalog_card_seasons(:common_card_one), 1_000, sold_at: @first.in_time_zone("UTC") + 1.hour)
+    sold!(second, 2_000, sold_at: @first.in_time_zone("UTC") + 23.hours)
+    sold!(catalog_card_seasons(:rare_card_one), 9_000, sold_at: (@first + 1).in_time_zone("UTC"))
 
     snapshot = write(@first)
 

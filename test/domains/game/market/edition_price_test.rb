@@ -15,6 +15,8 @@ class Game::Market::EditionPriceTest < ActiveSupport::TestCase
 
   def average_of(prices) = Game::Market::EditionPrice.average_of(prices)
 
+  def rarity_average(rarity) = Game::Market::EditionPrice.rarity_average(rarity, settings: @settings, now: @now)
+
   def window(settings: @settings, card: @card) = Game::Market::EditionPrice.sales_in_window(card.id, settings:, now: @now)
 
   test "the minimum sales equal the lower bound of the sale count setting" do
@@ -103,21 +105,23 @@ class Game::Market::EditionPriceTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::StatementInvalid) { row.update_columns(average: 5) }
   end
 
-  test "a rarity's average is the median of its editions with enough sales" do
+  test "a rarity's average is the median of all its sales in the window, one sale enough" do
     other = catalog_card_seasons(:uncommon_card_one)
     other.update_columns(rarity: 1)
-    Game::Market::EditionPrice.create!(card_season_id: @card.id, average: 1_000, sales_used: 3)
-    Game::Market::EditionPrice.create!(card_season_id: other.id, average: 4_001, sales_used: 4)
-    Game::Market::EditionPrice.create!(card_season_id: @other.id, average: 9_000, sales_used: 3)
+    sold!(@card, 1_000, sold_at: @now - 1.day)
+    sold!(other, 4_000, sold_at: @now - 2.days)
+    sold!(other, 5_000, sold_at: @now - 3.days)
+    sold!(@other, 9_000, sold_at: @now - 1.day)
 
-    assert_equal 2_500, Game::Market::EditionPrice.rarity_average(:common)
-    assert_equal 9_000, Game::Market::EditionPrice.rarity_average(:rare)
+    assert_equal 4_000, rarity_average(:common)
+    assert_equal 9_000, rarity_average(:rare)
   end
 
-  test "a rarity's average skips editions under the minimum and is null with none left" do
-    Game::Market::EditionPrice.create!(card_season_id: @card.id, average: 1_000, sales_used: 2)
+  test "a rarity's average skips sales outside the window and is null with none left" do
+    sold!(@card, 1_000, sold_at: @now - 91.days)
+    sold!(@card, 2_000, sold_at: @now + 1.minute)
 
-    assert_nil Game::Market::EditionPrice.rarity_average(:common)
-    assert_nil Game::Market::EditionPrice.rarity_average(:legendary)
+    assert_nil rarity_average(:common)
+    assert_nil rarity_average(:legendary)
   end
 end

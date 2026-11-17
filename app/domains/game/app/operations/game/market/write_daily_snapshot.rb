@@ -8,7 +8,7 @@ module Game
         figures = DailyFigures.of(day)
         transaction do
           snapshot = DailySnapshot.create!(
-            **flows(figures), **prices, day:, circulation:, picoins_per_active_player: per_active_player(circulation, figures),
+            **flows(figures), **prices(day), day:, circulation:, picoins_per_active_player: per_active_player(circulation, figures),
             median_daily_earnings: figures.median_daily_earnings, top_share_basis_points: figures.top_share_basis_points,
             reconciliation_balanced: balanced, wallet_differences:, circulation_difference:
           )
@@ -28,7 +28,11 @@ module Game
 
       def flows(figures) = { created: figures.created, destroyed_total: figures.destroyed, forfeited: figures.forfeited }
 
-      def prices = Catalog::Rarity::TIERS.values.to_h { [ :"average_price_#{it}", EditionPrice.rarity_average(it) ] }
+      def prices(day)
+        settings = CurrentSettings.call
+        now = (day + 1).in_time_zone("UTC")
+        Catalog::Rarity::TIERS.values.to_h { [ :"average_price_#{it}", EditionPrice.rarity_average(it, settings:, now:) ] }
+      end
 
       def per_active_player(circulation, figures) = (circulation.div(figures.active_players) if figures.active_players.positive?)
     end
