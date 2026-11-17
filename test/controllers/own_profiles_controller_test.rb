@@ -92,7 +92,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "the settings are one tap away in the header menu, and no link leads to a former Me screen" do
+  test "the settings are one tap away in the header menu, no link leads to a former Me screen, and with no title earned the title sheet offers only no title and says how to earn one" do
     sign_in(@player)
 
     get me_path(locale: :en)
@@ -100,6 +100,9 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#player-menu a[href='/en/settings']", 1
     assert_select "main a[href='/en/personalization']", false
     assert_select "main a[href^='https://buymeacoffee.com']", false
+    assert_select "#me-title-sheet button.filter-chip", 1
+    assert_select "#me-title-sheet button.filter-chip[aria-current=true]", "No title"
+    assert_select "#me-title-sheet .me-sheet__note", /Reach a tier of a set/
   end
 
   test "no tab leads to the profile any more, and its phone header is the top-level one" do
@@ -143,16 +146,6 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#me-title-sheet button[type=button][aria-current=true][data-action='bottom-sheet#close']", "Adepte · Valve"
     assert_select "#me-title-sheet form button[aria-current]", false
     assert_select "#me-title-sheet .me-sheet__note", false
-  end
-
-  test "with no title earned the title sheet offers only no title, current, and says how to earn one" do
-    sign_in(@player)
-
-    get me_path(locale: :en)
-
-    assert_select "#me-title-sheet button.filter-chip", 1
-    assert_select "#me-title-sheet button.filter-chip[aria-current=true]", "No title"
-    assert_select "#me-title-sheet .me-sheet__note", /Reach a tier of a set/
   end
 
   test "a chosen title comes back on Me with its toast and the focus on the title" do
