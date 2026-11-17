@@ -36,6 +36,7 @@ module Game
     EXPECTATIONS = {
       "regular" => card(DrawOdds::REGULAR) * Pack::SIZE,
       "bonus" => card(DrawOdds::BONUS) * Pack::BONUS_SIZE,
+      "duel" => card(DrawOdds::DUEL) * Pack::DUEL_SIZE,
       "reward" => with_guarantee(DrawOdds::REWARD, min_tier: RewardDraw::MIN_TIER, floor_odds: DrawOdds::EPIC_OR_BETTER),
       "regular_with_guarantee" => with_guarantee(DrawOdds::REGULAR, min_tier: FirstSessionGuarantee::MIN_TIER, floor_odds: DrawOdds::GUARANTEE)
     }.freeze

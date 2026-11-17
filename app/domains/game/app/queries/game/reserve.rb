@@ -1,7 +1,7 @@
 module Game
   module Reserve
     FULL = 10
-    KINDS = { "standard" => %w[regular], "special" => %w[bonus reward] }.freeze
+    KINDS = { "standard" => %w[regular], "special" => %w[bonus reward duel] }.freeze
     NAMES = KINDS.keys.freeze
 
     Counts = Data.define(:standard, :special, :next_special_kind) do

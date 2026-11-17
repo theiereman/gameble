@@ -733,6 +733,16 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-ten-duel-achievements-and-the-duelliste-card-back-plan.md`
   summary: Built before the duel capsule ticket, on purpose; nothing of this ticket needs the duel pack kind, `duel_day` or the Fortune columns, but the capsule ticket's emblem grid and its `origin_canisters.mjs` entry are still to come, and the Duelliste back draws its own crossed blades.
   evidence: `script/pixel_art/named_backs.mjs` (the `duelliste` design) and `script/pixel_art/origin_canisters.mjs` (no duel origin yet); the capsule ticket may reuse the DESIGN.md emblem grid for both.
+  resolved: the duel capsule ticket added the DESIGN.md emblem grid and the duel origin to `origin_canisters.mjs`; the Duelliste back keeps its own blades over two cards, as DESIGN.md asks (2026-11-17).
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-ten-duel-achievements-and-the-duelliste-card-back-plan.md`
   summary: The ticket names a flavour per achievement, but the achievement locale structure has only a name and a condition per key, so no flavour was added.
   evidence: `config/locales/en.yml` and `config/locales/fr.yml` (`achievements.names`, `achievements.conditions`); no flavour key exists for any of the 30 earlier achievements.
+
+## Deferred from: build of story-the-first-real-win-of-the-day-gives-a-duel-capsule-plan (2026-11-17)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-the-first-real-win-of-the-day-gives-a-duel-capsule-plan.md`
+  summary: The winner's top-bar capsule chips do not update on the duel's closing push; they read the new capsule on the next page load.
+  evidence: `PlayerStream` turns `Game::DuelFinished` into a duels notice only, and the event carries no capsule case.
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-the-first-real-win-of-the-day-gives-a-duel-capsule-plan.md`
+  summary: A published season with an empty tier makes `Game::DrawPool.current` raise inside the finishing move, as it already does when a capsule opens; the duel then cannot finish until the season is repaired.
+  evidence: `Game::DuelCapsule.award` calls `Game::DrawPool.current` only for a granted win; a season cannot be published with an empty tier.

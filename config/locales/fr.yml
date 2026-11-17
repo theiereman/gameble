@@ -1921,6 +1921,7 @@ fr:
     origin:
       bonus: "CAPSULE QUOTIDIENNE"
       reward: "RÉCOMPENSE DE MISSION"
+      duel: "CAPSULE DE DUEL"
     origin_label: "Origine"
     reserves:
       label: "Réserves de capsules"
@@ -1940,6 +1941,7 @@ fr:
       standard: "STANDARD"
       bonus: "QUOTIDIEN"
       reward: "OBJECTIF"
+      duel: "CAPSULE DE DUEL"
     result: "Résultat de la capsule"
     card_label: "%{title} — %{details}"
     legendary_banner: "%{rarity} !"
@@ -1960,6 +1962,7 @@ fr:
     first_copy: "Nouveau"
     strings:
       origin_bonus: "CAPSULE QUOTIDIENNE"
+      origin_duel: "CAPSULE DE DUEL"
       origin_opening: "EN OUVERTURE · %{origin}"
       origin_reward: "RÉCOMPENSE DE MISSION"
       special_arrived: "Une capsule spéciale est arrivée."
@@ -2783,6 +2786,7 @@ fr:
         regular: "Capsules standard"
         bonus: "Capsules quotidiennes"
         reward: "Récompenses de mission"
+        duel: "Capsules de duel"
       empty:
         week: "Aucune capsule ouverte cette semaine."
         all_time: "Aucune capsule ouverte pour l'instant."
@@ -4148,6 +4152,10 @@ fr:
       answer: "Répondre avec cette carte"
       hidden_call: "Annonce cachée"
       called_status: "%{name} a annoncé. Sa carte : %{card}."
+      capsule:
+        granted: "CAPSULE DE DUEL GAGNÉE"
+        automatic_move: "Pas de capsule : un de vos coups a été joué automatiquement."
+        already_won_today: "Capsule de duel déjà gagnée aujourd'hui."
       card_name: "%{title}, %{year}"
       their_deck: "Son deck"
       my_deck: "Votre deck"

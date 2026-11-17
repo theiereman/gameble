@@ -1,0 +1,11 @@
+<%# locals: (capsule:) %>
+<% if capsule == :granted %>
+  <%= render PanelComponent.new(class: "duel-capsule") do %>
+    <%= link_to booster_path, class: "duel-capsule__link" do %>
+      <%= pixel_icon("canister-small-duel", class: "duel-capsule__icon") %>
+      <span><%= t("duels.board.capsule.granted") %></span>
+    <% end %>
+  <% end %>
+<% else %>
+  <p class="duel-capsule__none"><%= t("duels.board.capsule.#{capsule}") %></p>
+<% end %>

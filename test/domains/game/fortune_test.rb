@@ -40,10 +40,27 @@ class Game::FortuneTest < ActiveSupport::TestCase
     2.times { open }
 
     fortune = tally
-    assert_equal({ "regular" => 1, "bonus" => 1, "reward" => 0 }, fortune.packs_by_kind)
+    assert_equal({ "regular" => 1, "bonus" => 1, "reward" => 0, "duel" => 0 }, fortune.packs_by_kind)
     assert_equal 11, fortune.actual_points
     assert_in_delta 2.925 + 11.7, fortune.expected_points, 1e-9
     assert_in_delta 42.613875 + 334.47, fortune.variance, 1e-9
+  end
+
+  test "a duel capsule counts in its own column with what a daily capsule promises, as an opening and as a rebuild" do
+    create_pack(@player, kind: :duel, cards: ids(:uncommon_card_one, :rare_card_one, :rare_card_one), available_at: 2.minutes.ago)
+    open
+
+    fortune = tally
+    assert_equal({ "regular" => 0, "bonus" => 0, "reward" => 0, "duel" => 1 }, fortune.packs_by_kind)
+    assert_equal 11, fortune.actual_points
+    assert_in_delta Game::LuckOdds.of(:bonus).points, fortune.expected_points, 1e-9
+    assert_in_delta Game::LuckOdds.of(:bonus).variance, fortune.variance, 1e-9
+
+    summed = compared(fortune)
+    Game::BackfillFortunesJob.perform_now
+    assert_equal 0, Game::BackfillFortunesJob.players_out_of_tally
+    assert_equal summed, compared(tally)
+    assert_equal 1, Game::FortuneBoard.summary(:all_time).packs_opened
   end
 
   test "a replayed opening counts once" do

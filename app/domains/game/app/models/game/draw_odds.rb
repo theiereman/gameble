@@ -8,6 +8,8 @@ module Game
 
     BONUS = { 2 => 7_000, 3 => 2_400, 4 => 500, 5 => 100 }.freeze
 
+    DUEL = BONUS
+
     REWARD = { 2 => 7_000, 3 => 2_400, 4 => 588, 5 => 12 }.freeze
 
     EPIC_OR_BETTER = { 4 => 9_809, 5 => 191 }.freeze

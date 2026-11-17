@@ -11,6 +11,11 @@
   color: var(--color-capsule-goal);
 }
 
+.booster[data-origin="duel"] .booster__origin,
+.booster[data-origin="duel"] .booster__row--origin .booster__value {
+  color: var(--color-capsule-duel);
+}
+
 /* ---- A dealt card ---- */
 
 .booster-card {

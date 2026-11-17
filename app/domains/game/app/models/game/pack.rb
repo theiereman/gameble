@@ -6,6 +6,8 @@ module Game
 
     BONUS_SIZE = 3
 
+    DUEL_SIZE = 3
+
     BANK_SIZE = 10
 
     INTERVAL = 10.minutes
@@ -14,7 +16,7 @@ module Game
 
     has_secure_token :token
 
-    enum :kind, { regular: "regular", bonus: "bonus", reward: "reward" }, validate: true
+    enum :kind, { regular: "regular", bonus: "bonus", reward: "reward", duel: "duel" }, validate: true
 
     validates :reveal_mode, inclusion: { in: REVEAL_MODES }, allow_nil: true
 

@@ -38,6 +38,7 @@ export type BoosterStrings = {
   repostFailed: string
   reposted: string
   originBonus: string
+  originDuel: string
   originOpening: string
   originReward: string
   reserveUnit: Template

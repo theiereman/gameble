@@ -7,7 +7,7 @@
   <% if screen.decided_on_margin? %>
     <p class="duel-result__margin"><%= t("duels.board.decided_on_margin", margin: duel_points(screen.margin_gap)) %></p>
   <% end %>
-  <div id="duel-capsule-line"></div>
+  <div id="duel-capsule-line"><%= render "duels/capsule", capsule: screen.capsule if screen.capsule %></div>
   <%= render "duels/rounds", screen: screen %>
   <%= render "duels/rematch", screen: screen %>
 </section>

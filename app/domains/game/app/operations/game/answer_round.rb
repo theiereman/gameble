@@ -47,7 +47,8 @@ module Game
     end
 
     def finish(player, duel, seats, rules, totals)
-      duel.update!(**totals, state: "finished", result: rules.result.to_s, ended_at: Time.current)
+      now = Time.current
+      duel.update!(**totals, state: "finished", result: rules.result.to_s, ended_at: now, capsule: DuelCapsule.award(rules, seats, now))
       leave(seats)
       published = duel_published(DuelFinished, player, duel, seats)
       release_deleted(seats)

@@ -1157,6 +1157,7 @@ en:
     canister_kind:
       standard: STANDARD
       bonus: DAILY
+      duel: DUEL CAPSULE
       reward: GOAL
     card_label: "%{title} — %{details}"
     close: Close
@@ -1176,6 +1177,7 @@ en:
     open_next: Open the next one
     origin:
       bonus: DAILY CAPSULE
+      duel: DUEL CAPSULE
       reward: MISSION REWARD
     origin_label: Origin
     reserves:
@@ -1266,6 +1268,7 @@ en:
         again.
       reposted: Card reposted to the feed.
       origin_bonus: DAILY CAPSULE
+      origin_duel: DUEL CAPSULE
       origin_opening: 'OPENING · %{origin}'
       origin_reward: MISSION REWARD
       reserve_unit:
@@ -1826,6 +1829,10 @@ en:
       call: Call
       called_status: "%{name} has called. Their card: %{card}."
       calls_left: "Calls left: %{stats}"
+      capsule:
+        already_won_today: Duel capsule already won today.
+        automatic_move: 'No capsule: one of your moves was played automatically.'
+        granted: DUEL CAPSULE WON
       card_name: "%{title}, %{year}"
       decided_on_margin: "Decided on margin: %{margin} percentile points"
       decided_on_value: decided on the exact value
@@ -2440,6 +2447,7 @@ en:
         and only extraordinary luck brings it near +500 or -500.'
       packs:
         bonus: Daily capsules
+        duel: Duel capsules
         regular: Standard capsules
         reward: Mission rewards
       rank: Rank %{rank} of %{count}

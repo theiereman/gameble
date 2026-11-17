@@ -4,7 +4,7 @@ module Game
 
     def self.players_out_of_tally
       opened = Pack.where.not(opened_at: nil).group(:player_id).count
-      tallied = Fortune.all_time.pluck(:player_id, Arel.sql("regular_packs + bonus_packs + reward_packs")).to_h
+      tallied = Fortune.all_time.pluck(:player_id, Arel.sql(Fortune::PACK_COLUMNS.values.join(" + "))).to_h
       opened.count { |player_id, count| tallied[player_id] != count }
     end
 

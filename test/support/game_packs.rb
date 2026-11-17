@@ -2,14 +2,15 @@
 # bank, in the fixture season unless another is given (a pack of an older
 # season is re-drawn when it opens). Cards default to the fixture season's
 # portal_one, as many times as the database allows the kind: five, three
-# for a daily bonus pack. Also
+# for a daily bonus or a duel pack, which also carries the day it was won. Also
 # leaves a bank short and checks that no pack was spent twice, for the races
 # between bank operations.
 module GamePacks
-  def create_pack(player, cards: nil, available_at: 1.minute.ago, kind: :regular, opened_at: nil, season: catalog_seasons(:one))
-    cards ||= Array.new(kind.to_s == "bonus" ? Game::Pack::BONUS_SIZE : Game::Pack::SIZE, catalog_card_seasons(:portal_one).id)
+  def create_pack(player, cards: nil, available_at: 1.minute.ago, kind: :regular, opened_at: nil, season: catalog_seasons(:one),
+    duel_day: (available_at.utc.to_date if kind.to_s == "duel"))
+    cards ||= Array.new(%w[bonus duel].include?(kind.to_s) ? Game::Pack::BONUS_SIZE : Game::Pack::SIZE, catalog_card_seasons(:portal_one).id)
     Game::Pack.create!(player_id: player.id, kind:, season_id: season.id, card_season_ids: cards,
-      available_at:, opened_at:)
+      available_at:, opened_at:, duel_day:)
   end
 
   # The fixture season's card-season ids, common to legendary.

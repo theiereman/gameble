@@ -12,7 +12,7 @@ module Game
 
     Summary = Data.define(:ranked_count, :active_count, :privileged_count, :packs_opened)
 
-    PACKS = "game_fortunes.regular_packs + game_fortunes.bonus_packs + game_fortunes.reward_packs".freeze
+    PACKS = Fortune::PACK_COLUMNS.values.map { "game_fortunes.#{it}" }.join(" + ").freeze
 
     def self.ranked(period = :week, now: Time.current, sort: :luck)
       numbered = of_period(period, now).ranked

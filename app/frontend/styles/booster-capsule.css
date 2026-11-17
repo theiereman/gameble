@@ -153,7 +153,8 @@
 
 .booster:not([data-origin]) .booster-canister .booster-canister__kind--standard,
 .booster[data-origin="bonus"] .booster-canister .booster-canister__kind--bonus,
-.booster[data-origin="reward"] .booster-canister .booster-canister__kind--reward {
+.booster[data-origin="reward"] .booster-canister .booster-canister__kind--reward,
+.booster[data-origin="duel"] .booster-canister .booster-canister__kind--duel {
   display: block;
 }
 
@@ -163,6 +164,10 @@
 
 .booster[data-origin="reward"] .booster-canister {
   --capsule-origin: var(--color-capsule-goal);
+}
+
+.booster[data-origin="duel"] .booster-canister {
+  --capsule-origin: var(--color-capsule-duel);
 }
 
 .booster[data-origin] .booster-canister__label-head {

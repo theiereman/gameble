@@ -17,10 +17,20 @@ module LiveDuels
   # reserves its copy of each, as adding them one by one would; the deck.
   def complete_deck(player, prefix)
     ids = ranked_cards(player, 12, titles: LETTERS.map { "#{prefix} card #{it}" })
+    add_a_card_of_each_other_tier(Catalog::CardSeason.find(ids.first).season)
     deck = Game::CreateDeck.new.call(player:, name: "#{prefix} deck").value!
     ids.each.with_index(1) { |card_season_id, slot| Game::DeckCard.create!(deck:, slot:, card_season_id:, card_id: card_of(card_season_id)) }
     Game::Holding.where(player_id: player.id, card_season_id: ids).update_all(reserved: 1)
     deck
+  end
+
+  # The decks' season holds only Commune cards: a card of each other tier lets a capsule be drawn from it.
+  def add_a_card_of_each_other_tier(season)
+    Catalog::Rarity::TIERS.keys.drop(1).each do |tier|
+      prefix = "tier-#{tier}-#{SecureRandom.hex(3)}"
+      seed_card_seasons([ 0.1 ], season:, prefix:)
+      rate(Catalog::CardSeason.where(season_id: season.id, card_id: Catalog::Card.where("slug LIKE ?", "#{prefix}-%").select(:id)), tier)
+    end
   end
 
   def deck_token_of(player) = Game::Deck.where(player_id: player.id).order(:created_at, :id).first.token

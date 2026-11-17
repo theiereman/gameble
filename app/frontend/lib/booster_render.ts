@@ -83,6 +83,7 @@ export class BoosterRenderer {
     const kind = originKind(state)
     const names: Record<string, string> = {
       bonus: this.strings.originBonus,
+      duel: this.strings.originDuel,
       reward: this.strings.originReward,
     }
     return (kind && names[kind]) || null

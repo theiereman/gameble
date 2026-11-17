@@ -15,6 +15,12 @@ class Game::LuckOddsTest < ActiveSupport::TestCase
     assert_in_delta 334.47, bonus.variance, 1e-9
   end
 
+  test "a duel capsule promises what a daily bonus pack does" do
+    assert_equal Game::LuckOdds.of(:bonus), Game::LuckOdds.of("duel")
+    assert_equal Game::DrawOdds::BONUS, Game::DrawOdds::DUEL
+    assert_equal Game::Pack::BONUS_SIZE, Game::Pack::DUEL_SIZE
+  end
+
   test "a reward pack's expectation counts its guaranteed Epic or better, as the draw itself does" do
     pool = Game::DrawPool::Snapshot.new(key: nil, season_id: nil, tiers: (1..5).to_h { [ it, [ it ] ] }, tier_by_id: (1..5).to_h { [ it, it ] })
     random = Random.new(261)

@@ -2,7 +2,7 @@ module Game
   class Fortune < ApplicationRecord
     self.table_name = "game_fortunes"
 
-    PACK_COLUMNS = { "regular" => :regular_packs, "bonus" => :bonus_packs, "reward" => :reward_packs }.freeze
+    PACK_COLUMNS = { "regular" => :regular_packs, "bonus" => :bonus_packs, "reward" => :reward_packs, "duel" => :duel_packs }.freeze
 
     CARD_COLUMNS = Catalog::Rarity::TIERS.transform_values { |rarity| :"#{rarity}_cards" }.freeze
 

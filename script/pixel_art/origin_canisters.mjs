@@ -45,6 +45,26 @@ const CUP = [
   "....ooooooooo....",
 ]
 
+const BLADES = [
+  "hlo...........olh",
+  "ohlo.........olho",
+  ".ohlo.......olho.",
+  "..ohlo.....olho..",
+  "...ohlo...olho...",
+  "....ohlo.olho....",
+  ".....ohlolho.....",
+  "......ohlho......",
+  "......olhlo......",
+  ".....olhohlo.....",
+  "..g.olho.ohlo.g..",
+  "...g.ho...oh.g...",
+  "....g.......g....",
+  "...k.g.....g.k...",
+  "..k...g...g...k..",
+  ".w.............w.",
+  ".................",
+]
+
 // The band ramp: [lit top line, second line, body, stripe, dark line, edge].
 export const ORIGIN_LOOKS = [
   {
@@ -62,6 +82,14 @@ export const ORIGIN_LOOKS = [
     band: { top: "#f7d9d8", second: "#eba19e", body: "#d6403a", stripe: "#c93c37", dark: "#772420", edge: "#601d1a" },
     emblem: CUP,
     palette: { o: "#06090d", w: "#fff0ec", h: "#ffb3a8", b: "#d6403a", l: "#7a1c1f" },
+  },
+  {
+    key: "duel",
+    title: "Duel capsule",
+    emblemName: "crossed blades",
+    band: { top: "#eaf3fb", second: "#c4dcf0", body: "#9ec3e6", stripe: "#92b8dd", dark: "#4a6580", edge: "#3b5167" },
+    emblem: BLADES,
+    palette: { o: "#06090d", h: "#e8f1f8", l: "#7d9bb8", g: "#f4c542", k: "#5a3d22", w: "#ffffff" },
   },
 ]
 

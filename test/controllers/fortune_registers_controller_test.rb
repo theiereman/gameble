@@ -200,7 +200,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
       assert_select ".profile-figure--rarity-5 .profile-figure__value", "5"
       assert_select ".fortune__standing", /Top\s*100%/
       assert_select ".fortune-odds h3", "Behind the luck"
-      assert_select ".fortune-odds tbody tr", 3
+      assert_select ".fortune-odds tbody tr", 4
       assert_select ".fortune-odds tfoot td:first-of-type", "1"
       assert_select ".fortune-odds__formula", /\A\s*Luck score: \(500 earned − [\d.]+ expected\) ÷ √[\d.]+ = [\d.]+\s*\z/
     end

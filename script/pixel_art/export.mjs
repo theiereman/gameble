@@ -615,6 +615,24 @@ const ICONS = {
       ".oooooo.",
     ],
   },
+  // The duel capsule's small canister (8 × 11): the packs chip's canister
+  // with steel-blue label bands and a white blade emblem.
+  "canister-small-duel": {
+    legend: { o: OUTLINE, S: "#dfe6ec", d: "#5d6b7c", b: "#4a6580", B: "#3b5167", a: "#9ec3e6", g: "#e8f1f8" },
+    grid: [
+      ".oooooo.",
+      "oSSSSSSo",
+      "oddddddo",
+      "obbbbbBo",
+      "oaaaaaao",
+      "obbgbbBo",
+      "oaaaaaao",
+      "obbbbbBo",
+      "oSSSSSSo",
+      "oddddddo",
+      ".oooooo.",
+    ],
+  },
   // The merged counter's standard capsule: a round-ended pill, blue (7 × 11).
   "capsule-standard": {
     legend: { o: OUTLINE, a: "#66c0f4", b: "#2f4f6c" },
@@ -1849,6 +1867,7 @@ const DESCRIPTIONS = {
   "external.svg": "↗ external link (text colour)",
   "hourglass.svg": "⧗ hourglass for expiry and pending (text colour)",
   "canister-small.svg": "The packs chip's small canister, 8 × 11",
+  "canister-small-duel.svg": "The duel result's small canister: the packs chip's canister in the duel capsule's steel blue, 8 × 11",
   "avatar-default.svg": "The player's portrait until they choose an avatar, 16 × 16",
   "avatar-novice.svg": "Avatar: the novice, a blue hood, the face in shadow, a gold clasp, 16 × 16",
   "avatar-archivist.svg": "Avatar: the archivist, a green hood, brass spectacles, 16 × 16",

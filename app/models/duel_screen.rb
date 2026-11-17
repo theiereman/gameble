@@ -76,6 +76,8 @@ class DuelScreen
     end
   end
 
+  def capsule = (@duel.capsule.to_sym if outcome == :win && @duel.capsule)
+
   def decided_on_margin? = finished? && score == other_score && view.result != :draw
 
   def stat_open?(stat) = mine.stats_left.include?(stat)
