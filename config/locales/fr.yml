@@ -4043,6 +4043,7 @@ fr:
       label_in_duel: "Défier %{name} en duel"
     clock:
       seconds: "%{seconds} s"
+      spoken: "%{seconds} secondes"
       warning: "10 secondes"
       you: "Vous"
     decks:
@@ -4091,7 +4092,13 @@ fr:
       title: "Défier un ami"
     board:
       round: "Manche %{number} / 10"
+      round_spoken: "Manche %{number} sur 10"
+      score_spoken: "%{score} à %{other_score}"
       margin: "écart"
+      margin_spoken:
+        plus: "plus %{points}"
+        minus: "moins %{points}"
+        even: "%{points}"
       turn:
         call: "À vous d'annoncer"
         answer: "À vous de répondre"
@@ -4100,24 +4107,45 @@ fr:
       call: "Annoncer"
       answer: "Répondre avec cette carte"
       hidden_call: "Annonce cachée"
+      called_status: "%{name} a annoncé. Sa carte : %{card}."
+      card_name: "%{title}, %{year}"
       their_deck: "Son deck"
       my_deck: "Votre deck"
       played: "Joué"
       hand: "Votre main"
       stat: "Caractéristique"
+      direction: "Sens"
+      next: "Suivante"
       already_called: "Déjà annoncée"
+      stat_called: "%{label}, déjà annoncée"
+      stat_label: "%{name}, %{words}, %{value}"
       calls_left: "Annonces restantes : %{stats}"
+      directions_lowercase: true
+      outcome:
+        won: "Gagnée"
+        lost: "Perdue"
+        drawn: "Nulle"
       reveal:
         won: "Manche %{number} gagnée : %{card}, %{value}, contre %{other_card}, %{other_value}, %{direction}. %{score} à %{other_score}."
         lost: "Manche %{number} perdue : %{card}, %{value}, contre %{other_card}, %{other_value}, %{direction}. %{score} à %{other_score}."
         drawn: "Manche %{number} nulle : %{card}, %{value}, contre %{other_card}, %{other_value}, %{direction}. %{score} à %{other_score}."
+      round_line: "Manche %{number}, %{name} annonce %{direction} : %{card}, contre %{other_card}. %{outcome}."
       decided_on_value: "départagée à la valeur exacte"
       automatic: "Coup joué automatiquement"
       result:
         win_html: "Victoire contre %{name} · %{score} – %{other_score}"
         loss_html: "Défaite contre %{name} · %{score} – %{other_score}"
         draw_html: "Égalité avec %{name} · %{score} – %{other_score}"
+      result_spoken:
+        win: "Victoire contre %{name}, %{score} à %{other_score}"
+        loss: "Défaite contre %{name}, %{score} à %{other_score}"
+        draw: "Égalité avec %{name}, %{score} à %{other_score}"
+      result_margin: ", départagée à l'écart de %{margin} points de centile"
       decided_on_margin: "Départagé à l'écart : %{margin} points de centile"
+      rematch: "Rejouer"
+      rematch_name: "Rejouer contre %{name}"
+      rematch_offline: "%{name} n'est plus en ligne."
+      rematch_in_duel: "Duel en cours"
       ended: "Ce défi est terminé."
     throttled: "Trop de coups en une minute. Réessayez dans un instant."
   exchanges:

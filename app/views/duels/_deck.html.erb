@@ -1,0 +1,19 @@
+<%# locals: (id:, heading:, screen:, side:, calls:) %>
+<section id="<%= id %>" class="duel-deck" aria-labelledby="<%= id %>-heading">
+  <h2 id="<%= id %>-heading" class="duel-board__heading"><%= heading %></h2>
+  <ol class="duel-deck__cards">
+    <% side.deck.each do |card| %>
+      <% played = screen.played?(side, card) %>
+      <li class="<%= class_names("duel-deck__card", "duel-deck__card--played": played) %>">
+        <span class="visually-hidden"><%= screen.title(card) %></span>
+        <% if (image = screen.card_view(card).image_url) %>
+          <%= tag.img src: image, alt: "", loading: "lazy", width: 92, height: 43, class: "duel-deck__art", aria: { hidden: true } %>
+        <% end %>
+        <% if played %><span class="duel-deck__played"><%= t("duels.board.played") %></span><% end %>
+      </li>
+    <% end %>
+  </ol>
+  <% if calls %>
+    <p class="duel-deck__calls"><%= t("duels.board.calls_left", stats: duel_stat_names(side.stats_left)) %></p>
+  <% end %>
+</section>

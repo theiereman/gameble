@@ -31,6 +31,7 @@ The rules sit above the visual identity (console frame, pixel art, VT323 and Jet
 - The top bar shows the same elements on every screen:
   - desktop: rarity counter, capsule counter, PiCoin balance, bell, profile;
   - phone, one system on every screen: a back button when the screen has a parent, then the G, then the screen name, then bell and profile. The back button is an arrow, never the G. The capsule count moves to a badge on the Capsule tab.
+- The duel screen is the one screen with no tab bar and no back button (`content_for :no_tab_bar` and `:no_back`). Its name stays in the top bar.
 - No screen hides, adds or replaces a counter. The Collection does not swap the counters for a unique-cards meter, and a sub-screen does not drop the rarity counter.
 
 ## Headings

@@ -38,9 +38,8 @@ class DuelMovesController < ApplicationController
 
   def announce
     duel = authorized_duel(:announce?)
-    stat, direction = params[:call].split("-", 2) if params[:call].is_a?(String)
     moved(duel, Game::CallRound, Game::CallRound.new.call(player: current_player, token: duel.token, move_number: params[:move_number],
-      card: params[:card], stat:, direction:))
+      card: params[:card], stat: params[:stat], direction: params[:direction]))
   end
 
   def answer

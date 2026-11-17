@@ -18,7 +18,7 @@
     <%= yield :page_footer if content_for?(:page_footer) %>
     <%= yield :ticker if content_for?(:ticker) %>
 
-    <%= render "shell/tab_bar" unless back_office_page? || content_for?(:public_page) || hotwire_native_app? %>
+    <%= render "shell/tab_bar" unless back_office_page? || content_for?(:public_page) || content_for?(:no_tab_bar) || hotwire_native_app? %>
     <%= render "shell/toasts" %>
     <%= render "shell/duel_received", player: current_player if current_player && !back_office_page? %>
     <%= player_stream_tag %>

@@ -1,0 +1,13 @@
+<%# locals: (screen:) %>
+<section id="duel-result" class="duel-result" aria-labelledby="duel-result-heading">
+  <h2 id="duel-result-heading" class="duel-result__heading" tabindex="-1">
+    <span class="duel-board__result" aria-hidden="true"><%= duel_result(screen) %></span>
+    <span class="visually-hidden"><%= duel_result_spoken(screen) %></span>
+  </h2>
+  <% if screen.decided_on_margin? %>
+    <p class="duel-result__margin"><%= t("duels.board.decided_on_margin", margin: duel_points(screen.margin_gap)) %></p>
+  <% end %>
+  <div id="duel-capsule-line"></div>
+  <%= render "duels/rounds", screen: screen %>
+  <%= render "duels/rematch", screen: screen %>
+</section>

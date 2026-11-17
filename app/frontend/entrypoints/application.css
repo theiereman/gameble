@@ -118,6 +118,8 @@
 @import "../styles/deck-coverage.css";
 @import "../styles/duels.css";
 @import "../styles/duel.css";
+@import "../styles/duel-board.css";
+@import "../styles/duel-reveal.css";
 @import "../styles/deck-holding.css";
 @import "../styles/live-strip.css";
 @import "../styles/card-trade.css";

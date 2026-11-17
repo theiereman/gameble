@@ -1,0 +1,7 @@
+<%# locals: (screen:) %>
+<%= form_with url: duel_answers_path(token: screen.token), method: :post, id: "duel-answer", class: "duel-form", authenticity_token: false,
+      data: { duel_target: "form", duel_kind: "answer", action: "click->duel#press keydown->duel#keydown keyup->duel#keyup" } do %>
+  <%= hidden_field_tag :move_number, screen.move_number, id: nil %>
+  <%= render "duels/hand_group", screen: screen %>
+  <%= render ButtonComponent.new(type: :submit, aria_disabled: true) do %><%= t("duels.board.answer") %><% end %>
+<% end %>

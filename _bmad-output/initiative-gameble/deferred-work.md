@@ -702,3 +702,15 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-refactor-sweep-plan.md`
   summary: The duel profile's bar copies the progress-bar rules other screens repeat, and its day format the `:long_day` / `:long_day_first` choice four other helpers repeat.
   evidence: `app/frontend/styles/duel-profile.css` beside `hub-daily-sets.css` (`.set-row__bar`) and the other stylesheets styling `progress`; `DuelProfileHelper#duel_profile_date` beside `card_details_helper.rb`, `card_backs_helper.rb`, `custom_sets_helper.rb` and `market_health_helper.rb`; one shared class and one helper touch screens outside the epic.
+
+## Deferred from: build of story-the-phone-duel-screen-calls-answers-and-reveals-each-round-a-plan (2026-11-17)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-the-phone-duel-screen-calls-answers-and-reveals-each-round-a-plan.md`
+  summary: After ANNONCER or RÉPONDRE fires, the button stays `aria-disabled` if the request fails at the network level, so the player must change a choice to retry.
+  evidence: `app/frontend/controllers/duel_controller.ts` (`release` disables the button and calls `requestSubmit()`); the retry and "ENVOI…" state belong to the dropped-connection entry (43.7).
+- source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-the-phone-duel-screen-calls-answers-and-reveals-each-round-a-plan.md`
+  summary: "Joué" over a 12-column deck thumbnail (about 26 px wide at 390 px, about 22 px at 320) may clip; unverified, needs a real-phone look.
+  evidence: `app/views/duels/_deck.html.erb`, `app/frontend/styles/duel-board.css` (`.duel-deck__played`, `overflow: hidden` on the item); hitl follow-up with the 400 ms touch guard, the flip, the drawn-card slide and a screen-reader pass.
+- source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-the-phone-duel-screen-calls-answers-and-reveals-each-round-a-plan.md`
+  summary: The rematch's availability is read when the result is rendered; a friend going offline later shows on reload only.
+  evidence: `app/models/duel_screen.rb` (`rematch` reads `Game::ReachableFriends` at render; the result board is pushed once at the finishing move).

@@ -1,0 +1,20 @@
+<%# locals: (screen:) %>
+<section id="duel-table" class="duel-table">
+  <% if (call = screen.current_call) %>
+    <div id="duel-current-call" class="<%= class_names("duel-table__slot", "duel-table__slot--hidden": call.stat.nil?) %>">
+      <h2 class="duel-table__call"><%= call.stat ? duel_direction(call.stat, call.direction) : t("duels.board.hidden_call") %></h2>
+      <%= render "duels/face", screen: screen, card: call.card %>
+      <dl class="duel-table__values">
+        <% Game::DuelStat::STATS.each do |stat| %>
+          <div class="duel-table__value">
+            <dt><%= t("duel_stats.names.#{stat}") %></dt>
+            <dd><%= duel_card_value(call.card, stat) %></dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  <% else %>
+    <div class="duel-table__slot duel-table__slot--empty" aria-hidden="true"></div>
+  <% end %>
+  <div class="duel-table__slot duel-table__slot--empty" aria-hidden="true"></div>
+</section>

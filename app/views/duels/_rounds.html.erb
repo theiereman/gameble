@@ -1,0 +1,10 @@
+<%# locals: (screen:) %>
+<ol class="duel-rounds">
+  <% screen.reveals.each do |reveal| %>
+    <li class="duel-rounds__round">
+      <%= duel_round_line(screen, reveal) %>
+      <% if reveal.decided_on_value %><span class="duel-rounds__mark"><%= t("duels.board.decided_on_value") %></span><% end %>
+      <% if reveal.automatic %><span class="duel-rounds__mark"><%= t("duels.board.automatic") %></span><% end %>
+    </li>
+  <% end %>
+</ol>

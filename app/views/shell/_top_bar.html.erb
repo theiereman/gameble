@@ -20,13 +20,13 @@
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
         <span class="top-bar__divider" aria-hidden="true"></span>
-        <% unless top_level && hotwire_native_app? %>
+        <% unless (top_level && hotwire_native_app?) || content_for?(:no_back) %>
           <%= link_to home_path, class: "button button--secondary button--small top-bar__bridge" do %>
             <%= pixel_icon("arrow-left", class: "button__icon") %><%= pixel_icon("back-g", class: "top-bar__back-g") %><span class="button__label"><%= shell_back_label %></span>
           <% end %>
         <% end %>
         <%= yield :phone_back %>
-        <% unless hotwire_native_app? %>
+        <% unless hotwire_native_app? || content_for?(:no_back) %>
           <a class="button button--secondary button--small top-bar__previous" hidden
             data-controller="previous-screen" data-action="previous-screen#back turbo:morph@document->previous-screen#sync" data-turbo-prefetch="false">
             <%= pixel_icon("arrow-left", class: "button__icon") %><span class="visually-hidden"><%= t("shell.top_bar.previous") %> </span><span class="button__label" data-previous-screen-target="label"></span>

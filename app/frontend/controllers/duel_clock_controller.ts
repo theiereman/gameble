@@ -4,12 +4,15 @@ import { clockText, inAlert, secondsLeft, shouldAnnounce, startClock, type DuelC
 const TICK_MS = 250
 
 export default class extends Controller<HTMLElement> {
-  static values = { deadline: String, serverTime: String, template: String, warning: String }
-  static targets = ["text", "status"]
+  static values = { deadline: String, serverTime: String, template: String, spoken: String, warning: String }
+  static targets = ["text", "spoken", "status"]
 
   declare readonly deadlineValue: string
   declare readonly serverTimeValue: string
   declare readonly templateValue: string
+  declare readonly spokenValue: string
+  declare readonly hasSpokenTarget: boolean
+  declare readonly spokenTarget: HTMLElement
   declare readonly warningValue: string
   declare readonly textTarget: HTMLElement
   declare readonly statusTarget: HTMLElement
@@ -36,6 +39,7 @@ export default class extends Controller<HTMLElement> {
 
     const seconds = secondsLeft(this.clock, performance.now() - this.startedAt)
     this.textTarget.textContent = clockText(this.templateValue, seconds)
+    if (this.hasSpokenTarget) this.spokenTarget.textContent = clockText(this.spokenValue, seconds)
     this.element.classList.toggle("duel-clock--alert", inAlert(seconds))
     if (shouldAnnounce(this.clock, seconds)) {
       this.statusTarget.textContent = this.warningValue

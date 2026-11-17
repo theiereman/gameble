@@ -325,7 +325,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "a seat's board: the opponent, the round, the score, both decks, its own hand alone, and no style" do
+  test "a seat's board: the opponent, the round, the score, both decks, its own hand alone, no tab bar, no back and no style" do
     hugo = accounts_players(:moderator)
     hugo.update!(persona_name: "Hugo")
     befriend(@player, hugo)
@@ -339,13 +339,22 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".top-bar__title", "Duel"
+    assert_select ".tab-bar", 0
+    assert_select ".top-bar__bridge, .top-bar__previous, .top-bar__phone-back", 0
     assert_select "turbo-cable-stream-source[channel=DuelSeatChannel]", 1
     assert_select "section.duel.page.page--regular[data-controller=duel] #duel-board[data-duel-target=board][data-move-number='1']"
+    assert_select "#duel-status[role=status][aria-live=polite]", 1
+    assert_select "#duel-board #duel-status", 0
     assert_select "#duel-board .duel-board__opponent", "Hugo"
-    assert_select "#duel-board .duel-board__round", "Round 1 / 10"
-    assert_select "#duel-board .duel-board__figure", "0 – 0"
+    assert_select "#duel-round-heading[tabindex='-1']" do
+      assert_select ".duel-board__round[aria-hidden=true]", "Round 1 / 10"
+      assert_select ".visually-hidden", "Round 1 of 10"
+    end
+    assert_select "#duel-board .duel-board__figure[aria-hidden=true]", "0 – 0"
+    assert_select "#duel-board .visually-hidden", "0 to 0"
     assert_select "#duel-their-deck li", 12
     assert_select "#duel-my-deck li", 12
+    assert_select "#duel-their-deck .duel-deck__calls", "Calls left: Popularity, Rating, Release, Discovery, Circulation"
     hand = css_select("#duel-hand").text
     rules.hand(:challenger).each { assert_includes hand, Catalog::CardText.where(card_id: card_of(it.card_season_id)).pick(:title) }
     assert_no_match(/Hugo card/, hand)

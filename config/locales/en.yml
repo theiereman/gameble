@@ -1803,25 +1803,52 @@ en:
       answer: Answer with this card
       automatic: Move played automatically
       call: Call
+      called_status: "%{name} has called. Their card: %{card}."
       calls_left: "Calls left: %{stats}"
+      card_name: "%{title}, %{year}"
       decided_on_margin: "Decided on margin: %{margin} percentile points"
       decided_on_value: decided on the exact value
+      direction: Direction
+      directions_lowercase: false
       ended: This challenge has ended.
       hand: Your hand
       hidden_call: Hidden call
       margin: margin
+      margin_spoken:
+        even: "%{points}"
+        minus: "minus %{points}"
+        plus: "plus %{points}"
       my_deck: Your deck
+      next: Next
+      outcome:
+        drawn: Draw
+        lost: Lost
+        won: Won
       played: Played
+      rematch: Rematch
+      rematch_in_duel: Duel in progress
+      rematch_name: "Rematch %{name}"
+      rematch_offline: "%{name} is no longer online."
       result:
         draw_html: "Draw with %{name} · %{score} – %{other_score}"
         loss_html: "Loss against %{name} · %{score} – %{other_score}"
         win_html: "Win against %{name} · %{score} – %{other_score}"
+      result_margin: ", decided on the margin of %{margin} percentile points"
+      result_spoken:
+        draw: "Draw with %{name}, %{score} to %{other_score}"
+        loss: "Loss against %{name}, %{score} to %{other_score}"
+        win: "Win against %{name}, %{score} to %{other_score}"
       reveal:
         drawn: "Round %{number} drawn: %{card}, %{value}, against %{other_card}, %{other_value}, %{direction}. %{score} to %{other_score}."
         lost: "Round %{number} lost: %{card}, %{value}, against %{other_card}, %{other_value}, %{direction}. %{score} to %{other_score}."
         won: "Round %{number} won: %{card}, %{value}, against %{other_card}, %{other_value}, %{direction}. %{score} to %{other_score}."
       round: "Round %{number} / 10"
+      round_line: "Round %{number}, %{name} calls %{direction}: %{card}, against %{other_card}. %{outcome}."
+      round_spoken: "Round %{number} of 10"
+      score_spoken: "%{score} to %{other_score}"
       stat: Stat
+      stat_called: "%{label}, already called"
+      stat_label: "%{name}, %{words}, %{value}"
       their_deck: Their deck
       turn:
         answer: Your answer
@@ -1836,6 +1863,7 @@ en:
       label_in_duel: "Challenge %{name} to a duel"
     clock:
       seconds: "%{seconds} s"
+      spoken: "%{seconds} seconds"
       warning: 10 seconds left
       you: You
     decks:

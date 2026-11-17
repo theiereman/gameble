@@ -1,0 +1,20 @@
+<%# locals: (screen:, reveal:) %>
+<%= tag.div id: "duel-reveal", class: "duel-reveal", data: { duel_target: "reveal", round: reveal.number, action: "click->duel#next" } do %>
+  <h2 id="duel-reveal-heading" class="duel-reveal__heading" tabindex="-1"><%= duel_reveal(screen, reveal) %></h2>
+  <div class="duel-reveal__cards">
+    <% [ [ reveal.caller_card, reveal.called ? reveal.mine_automatic : reveal.theirs_automatic ],
+         [ reveal.answer_card, reveal.called ? reveal.theirs_automatic : reveal.mine_automatic ] ].each do |card, automatic| %>
+      <div class="duel-reveal__card">
+        <%= render "duels/face", screen: screen, card: card %>
+        <p class="duel-reveal__words"><%= duel_card_words(card, reveal.stat) %></p>
+        <p class="duel-reveal__value"><%= duel_card_value(card, reveal.stat) %></p>
+        <% if automatic %><p class="duel-reveal__automatic"><%= t("duels.board.automatic") %></p><% end %>
+      </div>
+    <% end %>
+  </div>
+  <p class="<%= class_names("duel-reveal__outcome", "duel-reveal__outcome--won": reveal.outcome == :won) %>">
+    <%= t("duels.board.outcome.#{reveal.outcome}") %>
+    <% if reveal.decided_on_value %><span class="duel-reveal__mark"><%= t("duels.board.decided_on_value") %></span><% end %>
+  </p>
+  <%= render ButtonComponent.new(type: :button) do %><%= t("duels.board.next") %><% end %>
+<% end %>

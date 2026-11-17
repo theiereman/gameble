@@ -1,0 +1,17 @@
+<%# locals: (screen:) %>
+<% if (rematch = screen.rematch) %>
+  <% name = duel_plain_name(screen.opponent) %>
+  <% reason = { offline: t("duels.board.rematch_offline", name:), in_duel: t("duels.board.rematch_in_duel") }[rematch.unavailable] %>
+  <div class="duel-rematch">
+    <% if reason %>
+      <%= render ButtonComponent.new(type: :button, aria_disabled: true, aria_label: t("duels.board.rematch_name", name:), describedby: "duel-rematch-reason") do %><%= t("duels.board.rematch") %><% end %>
+      <p id="duel-rematch-reason" class="duel-rematch__reason"><%= reason %></p>
+    <% else %>
+      <%= form_with url: duel_challenges_path, method: :post, authenticity_token: false do %>
+        <%= hidden_field_tag :friend, rematch.friend_token, id: nil %>
+        <%= hidden_field_tag :deck, rematch.deck_token, id: nil %>
+        <%= render ButtonComponent.new(type: :submit, aria_label: t("duels.board.rematch_name", name:)) do %><%= t("duels.board.rematch") %><% end %>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

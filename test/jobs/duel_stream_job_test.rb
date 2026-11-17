@@ -46,7 +46,7 @@ class DuelStreamJobTest < ActiveSupport::TestCase
       english = board(role, :en)
       assert_equal "2", english.at_css("#duel-board")["data-move-number"]
       hand = english.at_css("#duel-hand").text
-      assert_equal rules.hand(role.to_sym).size, english.css("#duel-hand label, #duel-hand li").size
+      assert_equal rules.hand(role.to_sym).size, english.css("#duel-hand [data-card]").size
       assert_includes hand, "#{prefix(role)} card"
       assert_not_includes hand, "#{prefix(other_role(role))} card"
       assert_equal 12, english.css("#duel-my-deck li").size
@@ -59,6 +59,7 @@ class DuelStreamJobTest < ActiveSupport::TestCase
     assert_equal "Hidden call", board(answerer, :en).at_css("#duel-current-call h2").text.strip
     assert_equal "Annonce cachée", board(answerer, :fr).at_css("#duel-current-call h2").text.strip
     assert board(answerer, :en).at_css("form#duel-answer")
+    assert_nil board(answerer, :en).at_css("input[name=stat], input[name=direction]")
     assert_nil board(caller, :en).at_css("form#duel-call, form#duel-answer")
   end
 
@@ -82,7 +83,8 @@ class DuelStreamJobTest < ActiveSupport::TestCase
     form = board("challenger", :en).at_css("form#duel-call")
     assert_equal "/en/duels/#{@duel.token}/calls", form["action"]
     assert_equal rules.hand(:challenger).map { position_of(rules, :challenger, it).to_s }, form.css("input[name=card]").map { it["value"] }
-    assert_equal Game::DuelStat::STATS.flat_map { |stat| [ "#{stat}-high", "#{stat}-low" ] }, form.css("input[name=call]").map { it["value"] }
+    assert_equal Game::DuelStat::STATS.map(&:to_s) * rules.hand(:challenger).size, form.css("input[name=stat]").map { it["value"] }
+    assert_equal %w[high low] * Game::DuelStat::STATS.size, form.css("input[name=direction]").map { it["value"] }
     assert_equal [ "1" ], form.css("input[type=hidden]").map { it["value"] }
     assert_no_match(/style=/, board("challenger", :en).to_html)
   end
@@ -102,6 +104,8 @@ class DuelStreamJobTest < ActiveSupport::TestCase
       assert_equal "{seconds} s", clock["data-duel-clock-template-value"]
       assert_equal (role == mover ? "You" : (role == "challenger" ? "Hugo" : "Léa")), clock.at_css(".duel-clock__name").text.strip
       assert_equal "45 s", clock.at_css("[data-duel-clock-target=text]").text
+      assert_equal "true", clock.at_css("[data-duel-clock-target=text]")["aria-hidden"]
+      assert_equal "45 seconds", clock.at_css("[data-duel-clock-target=spoken]").text
     end
     assert_equal "Vous", board(mover, :fr).at_css(".duel-clock__name").text.strip
     assert_equal "10 secondes", board(mover, :fr).at_css(".duel-clock")["data-duel-clock-warning-value"]

@@ -1,58 +1,18 @@
 <%# locals: (screen:) %>
-<%= tag.div id: "duel-board", class: "duel-board", data: { duel_target: "board", move_number: screen.move_number } do %>
-  <header class="duel-board__head">
-    <p class="duel-board__opponent"><%= duel_player_name(screen.opponent) %></p>
-    <% if screen.started? %>
-      <p class="duel-board__round"><%= t("duels.board.round", number: screen.round) %></p>
-      <p class="duel-board__score">
-        <span class="duel-board__figure"><%= screen.score %> – <%= screen.other_score %></span>
-        <span class="duel-board__margin"><%= t("duels.board.margin") %> <%= duel_signed_margin(screen.margin_gap) %></span>
-      </p>
+<%= tag.div id: "duel-board", class: "duel-board", data: { duel_target: "board", move_number: screen.move_number, announce: duel_announcement(screen) } do %>
+  <%= render "duels/header", screen: screen %>
+  <% reveal = screen.reveal %>
+  <% if reveal %><%= render "duels/reveal", screen: screen, reveal: reveal %><% end %>
+  <%= tag.div id: "duel-live", class: "duel-live", hidden: reveal.present?, data: { duel_target: "live" } do %>
+    <% if screen.finished? %>
+      <%= render "duels/result", screen: screen %>
+    <% elsif screen.started? %>
+      <%= render "duels/deck", id: "duel-their-deck", heading: t("duels.board.their_deck"), screen: screen, side: screen.theirs, calls: true %>
+      <%= render "duels/table", screen: screen %>
+      <%= render "duels/deck", id: "duel-my-deck", heading: t("duels.board.my_deck"), screen: screen, side: screen.mine, calls: false %>
+      <%= render "duels/hand", screen: screen %>
+    <% else %>
+      <p class="duel-board__line"><%= duel_waiting(screen) %></p>
     <% end %>
-    <% if screen.turn %>
-      <p class="duel-board__turn"><%= duel_turn(screen) %></p>
-    <% end %>
-    <% if screen.clock? %>
-      <%= render "duels/clock", name: duel_clock_name(screen), deadline: screen.deadline, server_time: screen.server_time %>
-    <% end %>
-  </header>
-  <% if screen.finished? %>
-    <p class="duel-board__result"><%= duel_result(screen) %></p>
-    <% if screen.decided_on_margin? %>
-      <p class="duel-board__line"><%= t("duels.board.decided_on_margin", margin: duel_points(screen.margin_gap)) %></p>
-    <% end %>
-  <% elsif screen.started? %>
-    <%= render "duels/side", id: "duel-their-deck", heading: t("duels.board.their_deck"), screen:, side: screen.theirs %>
-    <% if (call = screen.current_call) %>
-      <section id="duel-current-call" class="duel-call" aria-labelledby="duel-current-call-heading">
-        <h2 id="duel-current-call-heading" class="duel-board__heading">
-          <%= call.stat ? duel_direction(call.stat, call.direction) : t("duels.board.hidden_call") %>
-        </h2>
-        <p class="duel-call__card"><%= screen.title(call.card) %></p>
-        <dl class="duel-call__values">
-          <% Game::DuelStat::STATS.each do |stat| %>
-            <div class="duel-call__value">
-              <dt><%= t("duel_stats.names.#{stat}") %></dt>
-              <dd><%= duel_card_value(call.card, stat) %></dd>
-            </div>
-          <% end %>
-        </dl>
-      </section>
-    <% end %>
-    <%= render "duels/side", id: "duel-my-deck", heading: t("duels.board.my_deck"), screen:, side: screen.mine %>
-    <%= render "duels/hand", screen: screen %>
-  <% else %>
-    <p class="duel-board__line"><%= duel_waiting(screen) %></p>
-  <% end %>
-  <% if screen.reveals.any? %>
-    <ol class="duel-rounds">
-      <% screen.reveals.each do |reveal| %>
-        <li class="duel-rounds__round">
-          <%= duel_reveal(screen, reveal) %>
-          <% if reveal.decided_on_value %><span class="duel-rounds__mark"><%= t("duels.board.decided_on_value") %></span><% end %>
-          <% if reveal.automatic %><span class="duel-rounds__mark"><%= t("duels.board.automatic") %></span><% end %>
-        </li>
-      <% end %>
-    </ol>
   <% end %>
 <% end %>

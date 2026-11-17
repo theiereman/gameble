@@ -118,17 +118,17 @@ class DuelMovesControllerTest < ActionDispatch::IntegrationTest
     sign_in(seat_player(duel, rules.caller))
 
     post duel_calls_path(locale: :en, token: duel.token),
-      params: { card: position_of(rules, rules.caller, call.card), call: "#{call.stat}-#{call.direction}", move_number: 1 }
+      params: { card: position_of(rules, rules.caller, call.card), stat: call.stat, direction: call.direction, move_number: 1 }
 
     assert_redirected_to duel_path(locale: :en, token: duel.token)
     assert_nil flash[:alert]
     assert_equal 2, duel.reload.move_number
 
-    post duel_calls_path(locale: :en, token: duel.token), params: { card: 1, call: "luck-high", move_number: 2 }
+    post duel_calls_path(locale: :en, token: duel.token), params: { card: 1, stat: "luck", direction: "high", move_number: 2 }
     assert_redirected_to duel_path(locale: :en, token: duel.token)
     assert_equal "That move could not be read. Reload the page.", flash[:alert]
 
-    post duel_calls_path(locale: :en, token: duel.token), params: { card: 1, call: { stat: "rating" }, move_number: 2 }
+    post duel_calls_path(locale: :en, token: duel.token), params: { card: 1, stat: { name: "rating" }, direction: "high", move_number: 2 }
     assert_equal "That move could not be read. Reload the page.", flash[:alert]
 
     locked = rules_of(Game::Duel.find(duel.id))
@@ -150,7 +150,7 @@ class DuelMovesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:administrator))
     post duel_acceptance_path(locale: :en, token: duel.token), params: { deck: deck_token_of(@hugo), move_number: 0 }
     assert_response :forbidden
-    post duel_calls_path(locale: :en, token: duel.token), params: { card: 1, call: "rating-high", move_number: 0 }
+    post duel_calls_path(locale: :en, token: duel.token), params: { card: 1, stat: "rating", direction: "high", move_number: 0 }
     assert_response :forbidden
     post duel_answers_path(locale: :en, token: duel.token), params: { card: 1, move_number: 0 }
     assert_response :forbidden

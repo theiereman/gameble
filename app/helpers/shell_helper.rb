@@ -69,7 +69,7 @@ module ShellHelper
   }.freeze
 
   def shell_top_level_screen?
-    return false if current_player.nil? || back_office_page? || content_for?(:phone_back)
+    return false if current_player.nil? || back_office_page? || content_for?(:phone_back) || content_for?(:no_back)
 
     %w[boosters trades markets duels].include?(controller_path) ||
       %w[pages#home own_profiles#show library#show library#cards library#sets].include?("#{controller_path}##{action_name}")
