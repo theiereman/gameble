@@ -42,20 +42,6 @@ class BackOfficeMarketTest < ApplicationSystemTestCase
     assert_selector "#announcement-banner", text: "The market is open"
   end
 
-  test "a moderator reads the section with every control disabled" do
-    sign_in_through_the_site(accounts_players(:moderator))
-
-    assert_selector "[data-market-opening-reason]"
-    within("#market-opening") do
-      assert_field "Message in English", disabled: true
-      assert_button "Open the market", disabled: true
-    end
-    within("#market-settings") do
-      assert_field "market-settings-stamp-rare", disabled: true
-      assert_button "Save the settings", disabled: true
-    end
-  end
-
   test "an administrator raises the Rare stamp and minimum, a player sees the announcement and a form drawn before is refused" do
     open_market!
     card = catalog_card_seasons(:rare_card_one)

@@ -90,6 +90,9 @@ module BackOffice
       assert_select "fieldset[disabled][aria-describedby=market-opening-reason]", 2
       assert_select "textarea:not([disabled])", false
       assert_select "button[disabled]", "Open the market"
+      assert_select "#market-opening fieldset[disabled] textarea#market-announcement-en"
+      assert_select "#market-settings input#market-settings-stamp-rare[disabled]"
+      assert_select "#market-settings button[disabled]", "Save the settings"
       assert_select "main button[type=submit]", false
     end
 
