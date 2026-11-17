@@ -1278,27 +1278,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "the entry costs the same queries with three sets started or forty" do
-    entry_season(540)
-    player = accounts_players(:player)
-    sets = (1..45).map { theme("theme-#{it}", 12) }
-    hold_all(player, sets.first(3).flat_map { it.first(2) })
-    sign_in(player)
-
-    three = count_queries { get library_path(locale: :en) }
-
-    hold_all(player, (sets[3, 37] - [ sets[13] ]).flat_map { it.first(2) })
-    forty = count_queries { get library_path(locale: :en) }
-    assert_equal three, forty
-    # Player lookup, season, unique cards and the season's count, the latest
-    # cards gained and their faces, the rarity legend and its copies, the sets'
-    # total; the tab bar's trades and invitations waiting and the player's
-    # avatar; the player's own sets, read once with their Steam library set,
-    # and goals; with no goal, the sets suggested, their standings and the
-    # themes' names; and the market settings in force.
-    assert_equal 23, forty
-  end
-
   test "the way to all the cards fans the three cards gained last, the latest on top" do
     entry_season(10)
     player = accounts_players(:player)

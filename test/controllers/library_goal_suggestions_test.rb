@@ -171,6 +171,13 @@ class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
     hold_all(@player, sets[3, 37].flat_map { it.first(2) })
     suggested_forty = count_queries { get library_path(locale: :en) }
     assert_equal suggested_three, suggested_forty
+    # Player lookup, season, unique cards and the season's count, the latest
+    # cards gained and their faces, the rarity legend and its copies, the sets'
+    # total; the tab bar's trades and invitations waiting and the player's
+    # avatar; the player's own sets, read once with their Steam library set,
+    # and goals; with no goal, the sets suggested, their standings and the
+    # themes' names; and the market settings in force.
+    assert_equal 23, suggested_forty
 
     add(kind: "theme", key: "theme-1")
     one = count_queries { get library_path(locale: :en) }
