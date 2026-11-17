@@ -146,6 +146,7 @@ class TradesTest < ApplicationSystemTestCase
     end
 
     click_on "Send the counter-proposal"
+    assert_selector ".trade-board", text: "Waiting for Lea's answer."
     assert_selector ".toast", text: /Lea has 7 days to answer/
     trade.reload
     assert_equal @hugo.id, trade.proposer_id
@@ -318,6 +319,7 @@ class TradesTest < ApplicationSystemTestCase
     pick_toggle("Green Hills").click
     place_picks
     click_on "Send the counter-proposal"
+    assert_selector ".trade-board", text: "Waiting for Hugo's answer."
     assert_selector ".toast", text: /Hugo has 7 days to answer/
     assert_empty draft_entries
 

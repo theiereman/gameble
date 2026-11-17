@@ -158,6 +158,7 @@ class CustomSetsTest < ApplicationSystemTestCase
     visit custom_set_path(locale: :en, token: custom_set.token)
 
     click_on "Edit"
+    wait_for_dialog_to_finish_opening("dialog#custom-set-editor")
     within(editor) { find(".custom-set-editor__panel .modal__close").click }
     assert_no_selector "dialog[open]"
 

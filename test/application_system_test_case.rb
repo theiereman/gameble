@@ -42,6 +42,14 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     page.document.synchronize { raise Capybara::ExpectationNotMet, message unless condition.call }
   end
 
+  # A dialog rises into place as it opens: a click during the rise can land
+  # where its button no longer is.
+  def wait_for_dialog_to_finish_opening(selector)
+    eventually("#{selector} should be done opening") do
+      evaluate_script("document.querySelector(#{selector.to_json}).getAnimations({ subtree: true }).every((animation) => animation.playState !== 'running')")
+    end
+  end
+
   def choose_sort(label)
     eventually("the sort menu opens") do
       find(".sort summary").click unless page.has_css?(".sort[open]", wait: 0)

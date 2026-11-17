@@ -43,7 +43,7 @@ class BottomSheetTest < ApplicationSystemTestCase
   def assert_open
     assert_selector SHEET, visible: true
     eventually("the sheet should be a modal dialog") { evaluate_script("document.querySelector('#{SHEET}').matches(':modal')") }
-    eventually("the sheet should be done rising") { evaluate_script("document.querySelector('#{SHEET}').getAnimations({ subtree: true }).length === 0") }
+    wait_for_dialog_to_finish_opening(SHEET)
   end
 
   def assert_closed

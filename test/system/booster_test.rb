@@ -516,10 +516,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#booster[data-status=inventory]"
   end
 
-  def filled_slots
-    all(".booster-tray__slot--filled").size
-  end
-
   test "on a phone: a pile of large cards, one at a time, each revealed then stored by Store or a tap, the focus following" do
     on_phone
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
@@ -564,7 +560,7 @@ class BoosterTest < ApplicationSystemTestCase
     sleep 0.45
     find("#{phone_card(2)} .booster-card__front .card").click
     assert_no_selector phone_card(2)
-    assert_equal 2, filled_slots
+    assert_selector ".booster-tray__slot--filled", count: 2
     assert_focus phone_hit(3)
 
     page.send_keys(:enter)
@@ -585,7 +581,7 @@ class BoosterTest < ApplicationSystemTestCase
     sleep 0.45
     store_on_phone(5)
 
-    assert_equal 5, filled_slots
+    assert_selector ".booster-tray__slot--filled", count: 5
     assert_no_selector ".booster__pile .booster-card"
     assert_selector "#booster[data-status=complete]"
     assert_selector ".booster-plate-band .booster-celebration", text: /SET COMPLETE\s+VALVE/
