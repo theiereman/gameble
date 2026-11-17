@@ -8,7 +8,7 @@ module Game
     OTHER_SCORE = "CASE seat.role WHEN 'challenger' THEN duel.opponent_score ELSE duel.challenger_score END".freeze
 
     OPPONENTS_SQL = <<~SQL.squish.freeze
-      SELECT COUNT(DISTINCT COALESCE(other.player_id::text, other.stream_key::text)) FROM #{FINISHED_DUEL}
+      SELECT COUNT(DISTINCT COALESCE(other.player_id::text, 'deleted')) FROM #{FINISHED_DUEL}
         JOIN game_duel_seats AS other ON other.duel_id = duel.id AND other.role <> seat.role
        WHERE duel.state = 'finished' AND seat.player_id = :player_id
     SQL
