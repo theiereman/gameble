@@ -26,25 +26,7 @@ class TradeBoardTest < ApplicationSystemTestCase
     assert_signed_in
   end
 
-  test "the picker and the placed lines show the card faces the board loads in batches" do
-    sign_in_hugo
-    visit new_trade_path(locale: :en, friend: @lea.token)
-
-    find(".trade-side--friend .trade-add").click
-    within(".trade-picker") do
-      assert_selector ".trade-pick .card", text: /Blue Depths/i
-      assert_no_selector ".trade-pick__face--pending"
-      find(".trade-pick__toggle[aria-label^='Blue Depths,']").click
-      click_on "Place", exact: true
-    end
-
-    within(".trade-side--friend.trade-side--editing") do
-      assert_selector ".trade-card .card", text: /Blue Depths/i
-      assert_no_selector ".trade-card__face--pending"
-    end
-  end
-
-  test "a card placed from the picker arrives with its cell's average price, under its stepper" do
+  test "the picker and the placed lines show the card faces the board loads in batches, a placed card arriving with its cell's average price, under its stepper" do
     open_market!(first_opened_at: 1.day.ago)
     Game::Market::EditionPrice.create!(card_season_id: @depths, average: 46_200, sales_used: 5)
     Game::Holding.where(player_id: @lea.id, card_season_id: @depths).update_all(quantity: 2)
@@ -53,6 +35,8 @@ class TradeBoardTest < ApplicationSystemTestCase
 
     find(".trade-side--friend .trade-add").click
     within(".trade-picker") do
+      assert_selector ".trade-pick .card", text: /Blue Depths/i
+      assert_no_selector ".trade-pick__face--pending"
       assert_selector ".trade-pick:has(.trade-pick__toggle[aria-label$=', average price 46,200 PiCoins']) .trade-pick__price", text: "46,200"
       find(".trade-pick__toggle[aria-label^='Blue Depths,']").click
       click_on "Place", exact: true
@@ -60,6 +44,7 @@ class TradeBoardTest < ApplicationSystemTestCase
 
     within(".trade-side--friend.trade-side--editing") do
       assert_selector ".trade-card .card", text: /Blue Depths/i
+      assert_no_selector ".trade-card__face--pending"
       assert_selector ".trade-card .stepper + .trade-card__price", text: "46,200"
     end
     gap = evaluate_script(<<~JS)

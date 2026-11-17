@@ -20,8 +20,7 @@ class ShellTest < ApplicationSystemTestCase
     visit home_path(locale:)
   end
 
-
-  test "a toast closes with its button, and a gameble:toast event adds one" do
+  test "a gameble:toast event adds a toast, which closes with its button, or with Esc while it holds the focus" do
     visit settings_path(locale: :en)
     assert_current_path home_path(locale: :en)
     assert_no_selector ".toasts .toast"
@@ -32,6 +31,12 @@ class ShellTest < ApplicationSystemTestCase
     assert_selector ".toasts .toast.toast--notice .toast__title", text: /PROPOSITION ENVOYÉE/i
     assert_selector ".toasts .toast .toast__message", text: "Léa a 7 jours pour répondre."
     find(".toast__close[aria-label=Close]").click
+    assert_no_selector ".toasts .toast"
+
+    page.execute_script(<<~JS)
+      window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message: "Press Esc to close me." } }))
+    JS
+    find(".toast__close").send_keys(:escape)
     assert_no_selector ".toasts .toast"
   end
 
@@ -61,15 +66,5 @@ class ShellTest < ApplicationSystemTestCase
     messages = all(".toasts .toast__message", text: /kept through/).map(&:text)
     assert_match(/\AFirst toast/i, messages.first)
     assert_match(/\ASecond toast/i, messages.last)
-  end
-
-  test "Esc closes the toast that holds the focus" do
-    visit home_path(locale: :en)
-    page.execute_script(<<~JS)
-      window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message: "Press Esc to close me." } }))
-    JS
-
-    find(".toast__close").send_keys(:escape)
-    assert_no_selector ".toasts .toast"
   end
 end

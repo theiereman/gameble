@@ -28,31 +28,7 @@ class HubTest < ApplicationSystemTestCase
     find(".hub-menu .menu-item[aria-keyshortcuts='#{key}']")
   end
 
-
-  test "number keys act only inside the menu, never on a disabled item; the item used is focused on the way back" do
-    create_pack(@player)
-    sign_in
-
-    item("1").send_keys("0")
-    assert_current_path home_path(locale: :en)
-    find("body").send_keys("2")
-    assert_current_path home_path(locale: :en)
-
-    item("1").send_keys("2")
-    assert_current_path library_path(locale: :en)
-
-    find(".top-bar__home").click
-    assert_current_path home_path(locale: :en)
-    assert_selector ".hub-menu"
-    assert_equal "2", focused_item
-
-    # Only once: a later visit focuses nothing.
-    visit home_path(locale: :en)
-    assert_selector ".hub-menu"
-    assert_nil focused_item
-  end
-
-  test "keys 3 and 4 in the menu open Trades and the Market" do
+  test "keys 3 and 4 in the menu open Trades and the Market, key 7 swaps the menu for the extras in place, Escape or the back row bringing the menu back; number keys act only inside the menu, never on a disabled item, and the item used is focused on the way back" do
     sign_in
 
     item("1").send_keys("3")
@@ -61,10 +37,8 @@ class HubTest < ApplicationSystemTestCase
     find(".top-bar__home").click
     item("3").send_keys("4")
     assert_current_path market_path(locale: :en)
-  end
 
-  test "key 7 swaps the menu for the extras in place; Escape or the back row brings the menu back" do
-    sign_in
+    visit home_path(locale: :en)
 
     item("1").send_keys("7")
     assert_selector "#hub-menu-extras .menu-item--back:focus"
@@ -85,5 +59,26 @@ class HubTest < ApplicationSystemTestCase
 
     find(".top-bar__home").click
     assert_selector "#hub-menu-extras a.menu-item[aria-keyshortcuts='1']:focus"
+
+    create_pack(@player)
+    visit home_path(locale: :en)
+
+    item("1").send_keys("0")
+    assert_current_path home_path(locale: :en)
+    find("body").send_keys("2")
+    assert_current_path home_path(locale: :en)
+
+    item("1").send_keys("2")
+    assert_current_path library_path(locale: :en)
+
+    find(".top-bar__home").click
+    assert_current_path home_path(locale: :en)
+    assert_selector ".hub-menu"
+    assert_equal "2", focused_item
+
+    # Only once: a later visit focuses nothing.
+    visit home_path(locale: :en)
+    assert_selector ".hub-menu"
+    assert_nil focused_item
   end
 end

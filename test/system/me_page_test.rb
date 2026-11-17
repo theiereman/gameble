@@ -101,7 +101,7 @@ class MePageTest < ApplicationSystemTestCase
     assert_selector ".profile-stage__placing", text: "PLACE 2 OF 2"
   end
 
-  test "on a phone the title and the back preview each open their sheet as a modal named by its title, Escape giving the focus back" do
+  test "on a phone the title and the back preview each open their sheet as a modal named by its title, Escape giving the focus back, and the header menu leads to the settings" do
     resize_to(*PHONE)
     sign_in_to_me
 
@@ -114,6 +114,14 @@ class MePageTest < ApplicationSystemTestCase
       assert_no_selector "dialog##{id}", visible: true
       assert_focused opener
     end
+
+    visit me_path(locale: :en)
+    assert_selector ".me[data-controller=me]"
+
+    find(".player-chip__button").click
+    within("#player-menu") { click_link href: "/en/settings" }
+
+    assert_current_path settings_path(locale: :en)
   end
 
   test "the stage's edit link opens the editor, where a tapped card joins the showcase and its count, and Done comes back to Me" do
@@ -133,7 +141,7 @@ class MePageTest < ApplicationSystemTestCase
     assert_selector SLOT, count: 3
   end
 
-  test "a card carried on Me makes the other slide into its place at once, then the new order is announced without a toast and kept after a reload" do
+  test "a card carried on Me makes the other slide into its place at once, then the new order is announced without a toast and kept after a reload; on a phone, a card held then carried does the same and takes its place once let go" do
     choose_two_cards
     sign_in_to_me
     first, second = slot_titles
@@ -150,6 +158,19 @@ class MePageTest < ApplicationSystemTestCase
     assert_no_selector ".profile-stage__placing", visible: true
     assert_selector ".profile-stage__name", text: /\A#{Regexp.escape(second)}\z/i
     visit me_path(locale: :en)
+    assert_selector "#{SLOT}:first-child[data-title=\"#{second}\"]"
+
+    resize_to(*PHONE)
+    visit me_path(locale: :en)
+    assert_selector ".me[data-controller=me]"
+    first, second = slot_titles
+    assert_hand_dealt
+
+    carry_first_slot_onto_second(pointer_type: "touch")
+    assert_carried(first, over: second)
+    let_go
+
+    assert_selector "#profile-stage-status", text: "#{first} is now in place 2 of 2.", visible: :all
     assert_selector "#{SLOT}:first-child[data-title=\"#{second}\"]"
   end
 
@@ -168,21 +189,6 @@ class MePageTest < ApplicationSystemTestCase
     let_go
     assert_no_selector "#toasts .toast"
     assert_equal [ first, second ], Game::ChosenShowcase.call(@player).map { Catalog::CardViews.call([ it ], locale: :en)[it].title }
-  end
-
-  test "on a phone a card held then carried makes the other slide into its place, and takes it once let go" do
-    choose_two_cards
-    resize_to(*PHONE)
-    sign_in_to_me
-    first, second = slot_titles
-    assert_hand_dealt
-
-    carry_first_slot_onto_second(pointer_type: "touch")
-    assert_carried(first, over: second)
-    let_go
-
-    assert_selector "#profile-stage-status", text: "#{first} is now in place 2 of 2.", visible: :all
-    assert_selector "#{SLOT}:first-child[data-title=\"#{second}\"]"
   end
 
   test "a title chosen in its sheet shows in the band with its toast, and no title removes it" do
@@ -205,7 +211,7 @@ class MePageTest < ApplicationSystemTestCase
     assert_selector "#{TITLE_OPENER} .me-opener__value", text: "Choose a title"
   end
 
-  test "a back equipped in its sheet shows in the band's preview at once, the page kept" do
+  test "a back equipped in its sheet shows in the band's preview at once, the page kept, and stays in the preview once the page is restored from the cache by Back, equipping going on from there" do
     Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
     sign_in_to_me
     assert_selector ".me-back-opener [data-me-target=preview] .me-opener__value", text: "Standard"
@@ -225,11 +231,10 @@ class MePageTest < ApplicationSystemTestCase
     assert_selector ".me-back-opener .me-opener__value", text: "RPG"
     visit me_path(locale: :en)
     assert_selector ".me-back-opener .me-opener__value", text: "RPG"
-  end
 
-  test "a back equipped on Me stays in the preview once the page is restored from the cache by Back, and equipping goes on from there" do
-    Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
-    sign_in_to_me
+    Game::ChooseCardBack.new.call(player: @player, back: "standard").value!
+    visit me_path(locale: :en)
+    assert_selector ".me[data-controller=me]"
     open_sheet("a.me-back-opener", "me-back-sheet")
     find("[data-key='set-theme-rpg'] .back-picker__back").click
     assert_selector ".me-back-opener .me-opener__value", text: "RPG", visible: :all
@@ -248,15 +253,5 @@ class MePageTest < ApplicationSystemTestCase
     find("[data-key='set-theme-rpg'] .back-picker__back").click
     assert_selector ".me-back-opener .me-opener__value", text: "RPG", visible: :all
     assert_equal "set-theme-rpg", Game::PlayerState.where(player_id: @player.id).pick(:active_card_back)
-  end
-
-  test "on a phone the header menu leads to the settings" do
-    resize_to(*PHONE)
-    sign_in_to_me
-
-    find(".player-chip__button").click
-    within("#player-menu") { click_link href: "/en/settings" }
-
-    assert_current_path settings_path(locale: :en)
   end
 end

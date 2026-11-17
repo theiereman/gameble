@@ -222,7 +222,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path library_cards_path(locale: :en, **filters)
   end
 
-  test "the grid is one tab stop: arrow keys move the focus by card and by row, into appended pages, End reaches the last card" do
+  test "the grid is one tab stop: arrow keys move the focus by card and by row, into appended pages, End reaches the last card; back from a card of an appended page, the grid shows its appended cards, the focus on that card's link" do
     visit library_cards_path(locale: :en)
     assert_slots 60
     assert_selector ".collection-grid a.card-link[tabindex='0']", count: 1, visible: :all
@@ -245,9 +245,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_focused ".collection-grid > li:nth-child(120) a.card-link"
     page.send_keys(:tab)
     eventually("the focus stayed in the grid") { evaluate_script("!document.activeElement?.closest('.collection-grid')") }
-  end
 
-  test "back from a card of an appended page, the grid shows its appended cards, the focus on that card's link" do
     visit library_cards_path(locale: :en)
     scroll_to_pages
     assert_slots 120

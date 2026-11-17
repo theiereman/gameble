@@ -99,7 +99,7 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_focused ".collection-grid > li:nth-child(5) a.card-link"
   end
 
-  test "on a phone, from a filtered, searched collection ◀ ▶ walk it across its pages and ◀ Grille returns to it with its filters" do
+  test "on a phone, from a filtered, searched collection ◀ ▶ walk it across its pages and ◀ Grille returns to it with its filters; a step from the keyboard keeps the focus on the same control" do
     season = publish_sets_draft
     page.driver.browser.manage.window.resize_to(*PHONE)
     filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
@@ -134,13 +134,8 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".collection-grid"
     assert_focused ".collection-grid > li:nth-child(60) a.card-link"
     assert_equal "seed", find("#collection-search").value
-  end
 
-  test "a step from the keyboard keeps the focus on the same control" do
-    season = publish_sets_draft
     ids = members(season, "horror")
-    page.driver.browser.manage.window.resize_to(*PHONE)
-
     visit in_set_path(ids[1], season)
     find(".card-detail__nav--next").execute_script("this.focus()")
     find(".card-detail__nav--next").send_keys(:enter)

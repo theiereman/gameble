@@ -13,7 +13,8 @@ require_relative "../support/market"
 # in a pile, each revealed card is stored in the tray (Store or a tap) and a
 # filled slot opens the card zoom, which steps through the tray; a card's
 # detail walks the booster and coming back shows it again, every card face
-# up. Reduced motion is emulated in every test.
+# up. Once the last card is face up, the booster records how the capsule was
+# revealed. Reduced motion is emulated in every test.
 class BoosterTest < ApplicationSystemTestCase
   include GamePacks
   include SteamSignIn
@@ -67,6 +68,26 @@ class BoosterTest < ApplicationSystemTestCase
 
   def request_keys
     page.evaluate_script("window.boosterKeys")
+  end
+
+  # Every reveal POST's body, in order, kept by a wrapper around fetch.
+  def record_reveal_posts
+    page.execute_script(<<~JS)
+      window.revealPosts = []
+      const realFetch = window.fetch
+      window.fetch = (url, init) => {
+        if (String(url).endsWith("/reveal")) window.revealPosts.push(init && init.body)
+        return realFetch(url, init)
+      }
+    JS
+  end
+
+  def reveal_posts
+    page.evaluate_script("window.revealPosts")
+  end
+
+  def assert_reveal_mode(pack, mode)
+    eventually("the pack's reveal mode should be #{mode}, not #{pack.reload.reveal_mode.inspect}") { pack.reload.reveal_mode == mode }
   end
 
   def card(position)
@@ -760,18 +781,32 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 2, request_keys.uniq.size
   end
 
-  test "on the wide layout the set celebration waits for the last reveal, is announced once, and comes back still from its album" do
+  test "on the wide layout the set celebration waits for the last reveal, is announced once, and comes back still from its album; the capsule turned card by card records one_by_one once its last card is face up" do
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
+    pack = Game::Pack.where(player_id: @player.id).order(:available_at).first
+    record_reveal_posts
     open_canister
     assert_dealt(5)
 
     (1..4).each do |position|
       find(hit(position)).click
       assert_selector "#{card(position)}[data-revealed]"
+      assert_selector ".booster-card[data-revealed]", count: position
       assert_no_selector "[data-navigation-locked]", visible: :all
       assert_no_selector ".booster-celebration"
     end
+    assert_nil pack.reload.reveal_mode
+    assert_empty reveal_posts
+
     find(hit(5)).click
+    assert_selector ".booster-card[data-revealed]", count: 5
+    assert_reveal_mode pack, "one_by_one"
+    assert_equal 1, reveal_posts.size
+    posted = JSON.parse(reveal_posts.first)
+    assert_equal({ "mode" => "one_by_one", "layout" => "wide" }, posted.slice("mode", "layout"))
+    assert_kind_of Integer, posted["touch_to_blast"]
+    assert_kind_of Integer, posted["touch_to_first_face"]
+
     assert_selector "#booster[data-status=complete]"
     assert_selector ".booster__info .booster-celebration", text: /SET COMPLETE\s+VALVE/
     assert_no_selector ".booster__info .booster-celebration[data-still]"

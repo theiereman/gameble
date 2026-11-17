@@ -61,7 +61,7 @@ class ShareCardTest < ApplicationSystemTestCase
     JS
   end
 
-  test "a holder opens the sheet, which copies the link, copies it again, and gives the focus back once closed" do
+  test "a holder opens the sheet, which copies the link, copies it again, and gives the focus back once closed; without a clipboard the link is selected and copied by execCommand, or the player is told to copy it" do
     sign_in(@holder)
     visit card_path(locale: :en, slug: "portal")
     stub_clipboard
@@ -87,10 +87,7 @@ class ShareCardTest < ApplicationSystemTestCase
     send_keys :escape
     assert_no_selector "dialog#share-sheet[open]"
     assert_selector ":focus", text: /\AShare\z/i
-  end
 
-  test "without a clipboard the link is selected and copied by execCommand, or the player is told to copy it" do
-    sign_in(@holder)
     visit card_path(locale: :en, slug: "portal")
 
     stub_no_clipboard(copied: false)

@@ -27,27 +27,6 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     page.driver.browser.execute_cdp("Network.setBypassServiceWorker", bypass: false)
   end
 
-  test "in the app a screen has one header, out of sight, and leaves the bar's height free" do
-    visit friends_path(locale: :en)
-
-    assert_selector "html[data-native-app][data-native-bar]", visible: :all
-    assert_no_selector ".tab-bar", visible: :all
-    assert_selector "header.top-bar", count: 1, visible: :hidden
-    assert_equal "0px", page.evaluate_script("getComputedStyle(document.documentElement).getPropertyValue('--tabbar-height').trim()")
-    assert_equal "56px", page.evaluate_script("getComputedStyle(document.body).paddingTop")
-    assert_equal [ 0, 0 ], page.evaluate_script("(() => { const box = document.querySelector('header.top-bar').getBoundingClientRect(); return [box.width, box.height] })()")
-  end
-
-  test "an app that does not declare the native bar keeps the page's bar" do
-    page.driver.browser.execute_cdp("Emulation.setUserAgentOverride", userAgent: APP.sub(" top-bar", ""))
-    visit friends_path(locale: :en)
-
-    assert_selector "html[data-native-app]", visible: :all
-    assert_no_selector "html[data-native-bar]", visible: :all
-    assert_selector "header.top-bar .top-bar__end"
-    assert_equal "0px", page.evaluate_script("getComputedStyle(document.body).paddingTop")
-  end
-
   test "a sheet's content scrolls down to the bottom edge of a screen with a home indicator" do
     page.driver.browser.execute_cdp("Emulation.setSafeAreaInsetsOverride", insets: { top: 47, bottom: 34, left: 0, right: 0 })
     visit library_cards_path(locale: :en)
@@ -67,88 +46,46 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     page.driver.browser.execute_cdp("Emulation.setSafeAreaInsetsOverride", insets: { top: 0, bottom: 0, left: 0, right: 0 })
   end
 
-  test "in the app a panel's link goes to the app's navigation, and the bar reads its values again" do
-    visit trades_path(locale: :en)
-    connect_as_the_app
-
-    tap_on_the_bar "menu"
-    within("#player-menu") { click_link "Settings" }
-
-    assert_no_selector "#player-menu:popover-open"
-    assert_current_path trades_path(locale: :en)
-    eventually("the app should be asked for the settings") { sent_to_app.include?("/en/settings") }
-
-    count = standard_count
-    now = Time.current
-    create_pack(accounts_players(:player), available_at: now - 1.minute)
-    execute_script("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
-
-    eventually("the bar should show the new capsule") { standard_count == count + 1 }
-  end
-
-  test "a tap on the native bar opens the panel right under it, and a second tap closes it" do
+  test "in the app every screen keeps one header out of sight and no way back of its own, the capsule screen fits without a scroll, the collection's progress heads the page; an app that does not declare the native bar keeps the page's bar" do
     visit friends_path(locale: :en)
-    connect_as_the_app
 
-    tap_on_the_bar "bell"
+    assert_selector "html[data-native-app][data-native-bar]", visible: :all
+    assert_no_selector ".tab-bar", visible: :all
+    assert_selector "header.top-bar", count: 1, visible: :hidden
+    assert_equal "0px", page.evaluate_script("getComputedStyle(document.documentElement).getPropertyValue('--tabbar-height').trim()")
+    assert_equal "56px", page.evaluate_script("getComputedStyle(document.body).paddingTop")
+    assert_equal [ 0, 0 ], page.evaluate_script("(() => { const box = document.querySelector('header.top-bar').getBoundingClientRect(); return [box.width, box.height] })()")
 
-    assert_selector "#bell-panel:popover-open"
-    top, right_gap = page.evaluate_script(<<~JS)
-      (() => {
-        const box = document.getElementById("bell-panel").getBoundingClientRect()
-        return [box.top, window.innerWidth - box.right]
-      })()
-    JS
-    assert_in_delta 56 + 8, top, 8
-    assert_operator right_gap, :>=, 0
+    visit booster_path(locale: :en)
 
-    tap_on_the_bar "bell"
+    assert_selector ".booster[data-layout='phone']"
+    room, content = page.evaluate_script("[window.innerHeight, document.documentElement.scrollHeight]")
+    assert_operator content, :<=, room
 
-    assert_no_selector "#bell-panel:popover-open"
-  end
+    visit library_path(locale: :en)
 
-  test "the native bar's bell and menu open their panels on a sub-screen too" do
-    visit settings_path(locale: :en)
-    assert_no_selector "header.top-bar.top-bar--top-level", visible: :all
-    connect_as_the_app
+    assert_selector ".native-status .collection-status"
+    assert_no_selector ".top-bar__end .collection-status", visible: :all
+    assert_operator page.evaluate_script("document.querySelector('.native-status .collection-status').getBoundingClientRect().top"), :>=, 56
+    find(".native-status .collection-status").click
+    assert_selector "#rarity-legend:popover-open"
 
-    tap_on_the_bar "bell"
-    assert_selector "#bell-panel:popover-open"
+    [ library_cards_path(locale: :en), friends_path(locale: :en), me_path(locale: :en), feed_path(locale: :en) ].each do |path|
+      visit path
 
-    tap_on_the_bar "menu"
-    assert_selector "#player-menu:popover-open"
-  end
+      assert_no_selector ".top-bar__previous, .top-bar__phone-back, .top-bar__start", visible: :all
+    end
 
-  test "the avatar's menu opens under the native bar, trades places with the bell, and closes when the bar hides" do
+    page.driver.browser.execute_cdp("Emulation.setUserAgentOverride", userAgent: APP.sub(" top-bar", ""))
     visit friends_path(locale: :en)
-    connect_as_the_app
 
-    tap_on_the_bar "bell"
-    assert_selector "#bell-panel:popover-open"
-    tap_on_the_bar "menu"
-
-    assert_no_selector "#bell-panel:popover-open"
-    assert_selector "#player-menu:popover-open"
-    assert_link "Settings"
-    assert_operator page.evaluate_script("document.getElementById('player-menu').getBoundingClientRect().top"), :>=, 56
-
-    tap_on_the_bar nil
-
-    assert_no_selector "#player-menu:popover-open"
+    assert_selector "html[data-native-app]", visible: :all
+    assert_no_selector "html[data-native-bar]", visible: :all
+    assert_selector "header.top-bar .top-bar__end"
+    assert_equal "0px", page.evaluate_script("getComputedStyle(document.body).paddingTop")
   end
 
-  test "a panel closes when its screen comes back on view" do
-    visit friends_path(locale: :en)
-    connect_as_the_app
-
-    tap_on_the_bar "menu"
-    assert_selector "#player-menu:popover-open"
-    execute_script("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
-
-    assert_no_selector "#player-menu:popover-open"
-  end
-
-  test "the page reports the bar's counts, bell and avatar, and again when they change" do
+  test "the page reports the bar's counts, bell and avatar, again when they change, the bell's badge empty while hidden; a tap on the native bar opens its panel right under it, the avatar's menu trades places with the bell, and a panel closes on a second tap, when the bar hides or when its screen comes back on view" do
     visit friends_path(locale: :en)
     connect_as_the_app
 
@@ -177,6 +114,95 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     first_with_it = reports.index { it["standard"] == "77" }
     assert_operator first_with_it, :>, 0
     assert_not_equal "77", reports[first_with_it - 1]["standard"]
+
+    visit friends_path(locale: :en)
+    connect_as_the_app
+    assert_selector "turbo-frame#bell-items[complete]", visible: :all
+
+    execute_script(<<~JS)
+      const count = document.querySelector("[data-bell-target=count]")
+      count.textContent = "3"
+      count.hidden = false
+    JS
+    eventually("the page should report the badge") { top_bar_reports.last["bell"] == "3" }
+
+    execute_script('document.querySelector("[data-bell-target=count]").hidden = true')
+    eventually("the page should report no badge") { top_bar_reports.last["bell"] == "" }
+
+    visit friends_path(locale: :en)
+    connect_as_the_app
+
+    tap_on_the_bar "bell"
+
+    assert_selector "#bell-panel:popover-open"
+    top, right_gap = page.evaluate_script(<<~JS)
+      (() => {
+        const box = document.getElementById("bell-panel").getBoundingClientRect()
+        return [box.top, window.innerWidth - box.right]
+      })()
+    JS
+    assert_in_delta 56 + 8, top, 8
+    assert_operator right_gap, :>=, 0
+
+    tap_on_the_bar "bell"
+
+    assert_no_selector "#bell-panel:popover-open"
+
+    visit friends_path(locale: :en)
+    connect_as_the_app
+
+    tap_on_the_bar "bell"
+    assert_selector "#bell-panel:popover-open"
+    tap_on_the_bar "menu"
+
+    assert_no_selector "#bell-panel:popover-open"
+    assert_selector "#player-menu:popover-open"
+    assert_link "Settings"
+    assert_operator page.evaluate_script("document.getElementById('player-menu').getBoundingClientRect().top"), :>=, 56
+
+    tap_on_the_bar nil
+
+    assert_no_selector "#player-menu:popover-open"
+
+    visit friends_path(locale: :en)
+    connect_as_the_app
+
+    tap_on_the_bar "menu"
+    assert_selector "#player-menu:popover-open"
+    execute_script("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
+
+    assert_no_selector "#player-menu:popover-open"
+  end
+
+  test "in the app a panel's link goes to the app's navigation, and the bar reads its values again" do
+    visit trades_path(locale: :en)
+    connect_as_the_app
+
+    tap_on_the_bar "menu"
+    within("#player-menu") { click_link "Settings" }
+
+    assert_no_selector "#player-menu:popover-open"
+    assert_current_path trades_path(locale: :en)
+    eventually("the app should be asked for the settings") { sent_to_app.include?("/en/settings") }
+
+    count = standard_count
+    now = Time.current
+    create_pack(accounts_players(:player), available_at: now - 1.minute)
+    execute_script("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
+
+    eventually("the bar should show the new capsule") { standard_count == count + 1 }
+  end
+
+  test "the native bar's bell and menu open their panels on a sub-screen too" do
+    visit settings_path(locale: :en)
+    assert_no_selector "header.top-bar.top-bar--top-level", visible: :all
+    connect_as_the_app
+
+    tap_on_the_bar "bell"
+    assert_selector "#bell-panel:popover-open"
+
+    tap_on_the_bar "menu"
+    assert_selector "#player-menu:popover-open"
   end
 
   test "a screen restored from the cache reports the server's counts, never the ones it was cached with" do
@@ -206,48 +232,6 @@ class NativeAppSystemTest < ApplicationSystemTestCase
 
     execute_script("document.querySelector('dialog[open]').close()")
     eventually("the page should say the dialog closed") { dialog_reports.last == false }
-  end
-
-  test "the bell's badge is reported empty while hidden" do
-    visit friends_path(locale: :en)
-    connect_as_the_app
-    assert_selector "turbo-frame#bell-items[complete]", visible: :all
-
-    execute_script(<<~JS)
-      const count = document.querySelector("[data-bell-target=count]")
-      count.textContent = "3"
-      count.hidden = false
-    JS
-    eventually("the page should report the badge") { top_bar_reports.last["bell"] == "3" }
-
-    execute_script('document.querySelector("[data-bell-target=count]").hidden = true')
-    eventually("the page should report no badge") { top_bar_reports.last["bell"] == "" }
-  end
-
-  test "with the native bar the capsule screen fits the web view without a scroll" do
-    visit booster_path(locale: :en)
-
-    assert_selector ".booster[data-layout='phone']"
-    room, content = page.evaluate_script("[window.innerHeight, document.documentElement.scrollHeight]")
-    assert_operator content, :<=, room
-  end
-
-  test "with the native bar the collection's progress heads the page, below the bar, and opens its legend" do
-    visit library_path(locale: :en)
-
-    assert_selector ".native-status .collection-status"
-    assert_no_selector ".top-bar__end .collection-status", visible: :all
-    assert_operator page.evaluate_script("document.querySelector('.native-status .collection-status').getBoundingClientRect().top"), :>=, 56
-    find(".native-status .collection-status").click
-    assert_selector "#rarity-legend:popover-open"
-  end
-
-  test "in the app no screen carries a way back of its own" do
-    [ library_cards_path(locale: :en), friends_path(locale: :en), me_path(locale: :en), feed_path(locale: :en) ].each do |path|
-      visit path
-
-      assert_no_selector ".top-bar__previous, .top-bar__phone-back, .top-bar__start", visible: :all
-    end
   end
 
   private

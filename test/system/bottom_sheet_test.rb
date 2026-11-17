@@ -67,7 +67,7 @@ class BottomSheetTest < ApplicationSystemTestCase
       .map { it.dig("name", "value") }
   end
 
-  test "a tap opens the sheet as a modal dialog named by its title, the page behind inert, focus on its first choice" do
+  test "a tap opens the sheet as a modal dialog named by its title, the page behind inert, focus on its first choice; the ✕ and the scrim close it, the focus back on its opener; the keyboard opens it with Enter, keeps Tab inside it, and Escape gives the focus back to the link; a chip ticked in it reloads the grid behind it, its pastille and the sheet's status following" do
     resize_to(*PHONE)
     sign_in
     visit_cards
@@ -83,11 +83,21 @@ class BottomSheetTest < ApplicationSystemTestCase
     within(SHEET) do
       assert_equal RARITIES, all(".filter-chip__text").map(&:text)
     end
-  end
 
-  test "the keyboard opens the sheet with Enter, keeps Tab inside it, and Escape gives the focus back to the link" do
-    resize_to(*PHONE)
-    sign_in
+    visit_cards
+
+    find(OPENER).click
+    assert_open
+    within(SHEET) { find("button.modal__close[aria-label=Close]").click }
+    assert_closed
+    assert_focused OPENER
+
+    find(OPENER).click
+    assert_open
+    page.driver.browser.action.move_to_location(195, 20).click.perform
+    assert_closed
+    assert_focused OPENER
+
     visit_cards
 
     find(OPENER).send_keys(:enter)
@@ -104,29 +114,7 @@ class BottomSheetTest < ApplicationSystemTestCase
 
     assert_closed
     assert_focused OPENER
-  end
 
-  test "the ✕ and the scrim close the sheet, the focus back on its opener" do
-    resize_to(*PHONE)
-    sign_in
-    visit_cards
-
-    find(OPENER).click
-    assert_open
-    within(SHEET) { find("button.modal__close[aria-label=Close]").click }
-    assert_closed
-    assert_focused OPENER
-
-    find(OPENER).click
-    assert_open
-    page.driver.browser.action.move_to_location(195, 20).click.perform
-    assert_closed
-    assert_focused OPENER
-  end
-
-  test "a chip ticked in the sheet reloads the grid behind it, its pastille and the sheet's status following" do
-    resize_to(*PHONE)
-    sign_in
     visit_cards
     rare = Catalog::CardSeason.where(season_id: @season.id, rarity: "rare").count
 

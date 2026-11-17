@@ -115,7 +115,7 @@ class CustomSetsTest < ApplicationSystemTestCase
     assert_equal [ 0, 2, 3, 4 ].map { title(it).downcase }, all(".set-album__grid .card__title").map { it.text.downcase }
   end
 
-  test "ANNULER, the close button or Esc discards the editor's changes and gives the focus back" do
+  test "ANNULER, the close button or Esc discards the editor's changes and gives the focus back; closing the editor over unsaved changes asks first, keeping on editing keeps them, an untouched editor closes at once" do
     custom_set = create_set
     sign_in(@player)
     visit custom_set_path(locale: :en, token: custom_set.token)
@@ -150,11 +150,7 @@ class CustomSetsTest < ApplicationSystemTestCase
       end
     end
     assert_equal "Mes favoris", custom_set.reload.name
-  end
 
-  test "closing the editor over unsaved changes asks first; keeping on editing keeps them, an untouched editor closes at once" do
-    custom_set = create_set
-    sign_in(@player)
     visit custom_set_path(locale: :en, token: custom_set.token)
 
     click_on "Edit"

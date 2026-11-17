@@ -147,13 +147,11 @@ class BellTest < ApplicationSystemTestCase
     end
   end
 
-  test "marking all as read clears every line that can be seen away and leaves the lasting daily line" do
+  test "marking all as read clears every line that can be seen away and leaves the lasting daily line, and lines read on one device stay read on another" do
     sign_in
     assert_count 3
-
     open_bell
     within("#bell-panel") { click_on "Mark all as read" }
-
     assert_count 1
     within("#bell-panel") do
       assert_selector ".bell__line", count: 1
@@ -161,14 +159,6 @@ class BellTest < ApplicationSystemTestCase
       assert_no_link href: "/en/friends"
       assert_no_button "Mark all as read"
     end
-  end
-
-  test "lines read on one device stay read on another" do
-    sign_in
-    assert_count 3
-    open_bell
-    within("#bell-panel") { click_on "Mark all as read" }
-    assert_count 1
 
     Capybara.using_session(:phone) do
       sign_in

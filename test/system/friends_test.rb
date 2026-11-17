@@ -25,7 +25,7 @@ class FriendsTest < ApplicationSystemTestCase
     visit friends_path(locale: :en)
   end
 
-  test "a player finds another by name and invites them with one click" do
+  test "a player finds another by name and invites them with one click, and the friend code field uppercases and places the dash as the code is typed" do
     stranger = accounts_players(:administrator)
     stranger.update_columns(persona_name: "Samwise")
     sign_in
@@ -36,17 +36,15 @@ class FriendsTest < ApplicationSystemTestCase
     assert_selector ".toast", text: "Invitation sent to Samwise."
     assert_selector ".friends__invitation", text: "Sent to Samwise"
     assert_equal 1, Game::Invitation.where(sender_id: @player.id, recipient_id: stranger.id).count
-  end
 
-  test "the friend code field uppercases and places the dash as the code is typed" do
-    sign_in
+    visit friends_path(locale: :en)
 
     find_field("Friend code").send_keys("8f2dk9")
 
     assert_field "Friend code", with: "8F2D-K9"
   end
 
-  test "a player opens a friend's profile, sees no showcase and reports it from its more-actions menu" do
+  test "a player opens a friend's profile, sees no showcase and reports it from its more-actions menu, then removes the friend from that menu after a confirmation that can be cancelled" do
     sign_in
 
     within(".friends__friend", text: "Lea") { click_on "Lea" }
@@ -76,10 +74,8 @@ class FriendsTest < ApplicationSystemTestCase
     assert_current_path friends_path(locale: :en)
     assert_selector ".toast", text: /moderation team will review this profile/i
     assert_equal 1, Accounts::Report.where(reporter_id: @player.id, reported_id: @friend.id).count
-  end
 
-  test "a player removes a friend from the more-actions menu, after a confirmation that can be cancelled" do
-    sign_in
+    visit friends_path(locale: :en)
 
     within(".friends__friend", text: "Lea") do
       assert_no_button "Remove"
