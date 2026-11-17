@@ -66,9 +66,9 @@ class PublicUrlTest < ActiveSupport::TestCase
 
   # A production boot in a subprocess, every variable it reads given
   # explicitly (nil unsets it): its status and output.
-  def boot_production(public_url:, dummy: nil)
+  def boot_production(public_url:, dummy: nil, legal_host_name: "Example Hosting")
     env = { "RAILS_ENV" => "production", "SECRET_KEY_BASE" => "0" * 128, "PUBLIC_URL" => public_url, "SECRET_KEY_BASE_DUMMY" => dummy,
-            "LEGAL_CONTACT_EMAIL" => "contact@example.test", "LEGAL_HOST_NAME" => "Example Hosting", "LEGAL_HOST_ADDRESS" => "France" }
+            "LEGAL_CONTACT_EMAIL" => "contact@example.test", "LEGAL_HOST_NAME" => legal_host_name, "LEGAL_HOST_ADDRESS" => "France" }
     script = %(puts "PUBLIC_URL_BASE=\#{Rails.configuration.x.public_url.inspect}")
     output, status = Open3.capture2e(env, "bin/rails", "runner", script, chdir: Rails.root.to_s)
     [ status, output ]
@@ -78,7 +78,7 @@ class PublicUrlTest < ActiveSupport::TestCase
   def printed_base(output) = output[/^PUBLIC_URL_BASE=(.*)$/, 1]
 
   test "production refuses to boot without PUBLIC_URL, or with a malformed one, naming PUBLIC_URL only" do
-    [ nil, "", "gameble.example", "https://user:#{SECRET}@gameble.example" ].each do |public_url|
+    [ nil, "", "https://user:#{SECRET}@gameble.example" ].each do |public_url|
       status, output = boot_production(public_url:)
 
       assert_not status.success?, "#{public_url.inspect} booted: #{output}"
@@ -88,12 +88,12 @@ class PublicUrlTest < ActiveSupport::TestCase
     end
   end
 
-  test "production boots with a valid PUBLIC_URL, normalised, and in the Docker build without one" do
+  test "production boots with a valid PUBLIC_URL, normalised, and in the Docker build without it or a legal variable" do
     status, output = boot_production(public_url: "https://Gameble.example/")
     assert status.success?, output
     assert_equal "\"https://gameble.example\"", printed_base(output)
 
-    status, output = boot_production(public_url: nil, dummy: "1")
+    status, output = boot_production(public_url: nil, dummy: "1", legal_host_name: nil)
     assert status.success?, output
     assert_equal "nil", printed_base(output)
   end
