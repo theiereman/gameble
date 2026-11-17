@@ -136,6 +136,16 @@ class Game::DuelAchievementsTest < ActiveSupport::TestCase
     assert_equal [ 5, 1 ], [ progress(:distinct_duel_opponents), progress(:distinct_duel_opponents, friends.first) ]
   end
 
+  test "an opponent who deletes their account still counts for the duels they played, so progress never falls" do
+    friends = Array.new(2) { Accounts::Player.create!(steam_id: "7656119796044#{(9000 + it)}") }
+    friends.each { finished_duel(opponent: it, result: "draw", scores: [ 5, 5 ]) }
+    assert_equal 2, progress(:distinct_duel_opponents)
+
+    Game::DuelSeat.where(player_id: friends.first.id).update_all(player_id: nil)
+
+    assert_equal 2, progress(:distinct_duel_opponents)
+  end
+
   test "the rounds won with each of the five stats count once per stat, in any duel" do
     stats = Game::DuelStat::STATS.map(&:to_s)
     finished_duel(rounds: stats.first(3).map { { stat: it } })
