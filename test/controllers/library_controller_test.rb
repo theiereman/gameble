@@ -717,9 +717,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       filters-more filters-more-title collection-set-search collection-set-options collection-results collection-results-status collection-slots collection-pages],
       css_select(".collection [id]").map { it["id"] }
     html = css_select(".collection").sole.to_html
-    ids.each do |id|
-      assert_no_match(/\b#{id}\b/, html.gsub(/\d+\/\d+|\d+ (cards?|copies|copy|duplicates?) |out of \d+|\b(19|20)\d\d\b|x\d+|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|viewbox="[\d ]+"|\?(page|shelf)=\d+|\/seasons\/\d+|value="\d+"|max="\d+"|[Ss]eason \d+|#\d+|Page<\/span> \d+|<dd>\d+<\/dd>|[MmHhVvZz][\d.-]+/, ""))
-    end
+    without_figures = html.gsub(/\d+\/\d+|\d+ (cards?|copies|copy|duplicates?) |out of \d+|\b(19|20)\d\d\b|x\d+|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|viewbox="[\d ]+"|\?(page|shelf)=\d+|\/seasons\/\d+|value="\d+"|max="\d+"|[Ss]eason \d+|#\d+|Page<\/span> \d+|<dd>\d+<\/dd>|[MmHhVvZz][\d.-]+/, "")
+    ids.each { |id| assert_no_match(/\b#{id}\b/, without_figures) }
   end
 
   test "a player's request costs seventeen queries, a visitor's eight" do
@@ -1627,9 +1626,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     html = css_select("main").sole.to_html
     assert_select "main [data-id]", false
-    ids.each do |id|
-      assert_no_match(/\b#{id}\b/, html.gsub(/\d+\/\d+|\d+ (cards?|sets?) |out of \d+|at \d+|value="\d+"|max="\d+"|maxlength="\d+"/, ""))
-    end
+    without_figures = html.gsub(/\d+\/\d+|\d+ (cards?|sets?) |out of \d+|at \d+|value="\d+"|max="\d+"|maxlength="\d+"/, "")
+    ids.each { |id| assert_no_match(/\b#{id}\b/, without_figures) }
 
     assert_no_changes -> { [ Game::SetTier.count, Game::PlayerState.find_by!(player_id: player.id).attributes ] } do
       get_in_progress
@@ -1638,9 +1636,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "5/30" ], tile_rows.map(&:last)
     html = css_select("turbo-frame").sole.to_html
     assert_select "[data-id]", false
-    ids.each do |id|
-      assert_no_match(/\b#{id}\b/, html.gsub(/\d+\/\d+|\d+ (cards?|sets?) |out of \d+|at \d+|\+\d+|value="\d+"|max="\d+"|seed-\d+-\d+|board-\d+-\d+|data-card-art-[a-z-]+-value="\d+"|data-tilt-max-value="\d+"|data-tier-at="[\d.]+"|width="\d+"|height="\d+"|viewbox="[\d ]+"|\b(19|20)\d\d\b|[MmHhVvZz][\d.-]+|<b>\d+<\/b>|"set-tile__dot">\d+|"set-tile__node-required">\d+|il y a \d+|\d+ (minutes?|hours?|days?) ago/, ""))
-    end
+    without_figures = html.gsub(/\d+\/\d+|\d+ (cards?|sets?) |out of \d+|at \d+|\+\d+|value="\d+"|max="\d+"|seed-\d+-\d+|board-\d+-\d+|data-card-art-[a-z-]+-value="\d+"|data-tilt-max-value="\d+"|data-tier-at="[\d.]+"|width="\d+"|height="\d+"|viewbox="[\d ]+"|\b(19|20)\d\d\b|[MmHhVvZz][\d.-]+|<b>\d+<\/b>|"set-tile__dot">\d+|"set-tile__node-required">\d+|il y a \d+|\d+ (minutes?|hours?|days?) ago/, "")
+    ids.each { |id| assert_no_match(/\b#{id}\b/, without_figures) }
   end
 
   def earlier_edition(card_season_id, rarity:)

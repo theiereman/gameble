@@ -702,9 +702,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       without_urls = response.body.gsub(/(href|action|value)="[^"]*"/, "")
       assert_not_includes without_urls, @owner.token
       html = css_select("main").sole.to_html
-      ids.each do |id|
-        assert_no_match(/\b#{id}\b/, html.gsub(/<dd class="profile-figure__value">.*?<\/dd>|<p class="achievements__count"[^>]*>.*?<\/p>|\d+ \/ \d+|\d+ of \d+|\d+ cards?|\d+ sets?|\b(19|20)\d\d\b|×\d+|\d+ cop(y|ies)|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\?page=\d+|page=\d+|\/seasons\/\d+|[Ss]eason \d+/, ""))
-      end
+      without_figures = html.gsub(/<dd class="profile-figure__value">.*?<\/dd>|<p class="achievements__count"[^>]*>.*?<\/p>|\d+ \/ \d+|\d+ of \d+|\d+ cards?|\d+ sets?|\b(19|20)\d\d\b|×\d+|\d+ cop(y|ies)|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\?page=\d+|page=\d+|\/seasons\/\d+|[Ss]eason \d+/, "")
+      ids.each { |id| assert_no_match(/\b#{id}\b/, without_figures) }
     end
   end
 
