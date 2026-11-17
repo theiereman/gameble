@@ -41,7 +41,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
   def names = css_select(".feed__sentence .feed__name").map(&:text).uniq.sort
 
-  test "a stranger reads the pulls of Epic or better" do
+  test "a stranger reads the pulls of Epic or better, each linking its player and game, with no discovery chip" do
     open_epic
 
     get feed_path(locale: :en)
@@ -54,9 +54,13 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__entry--filler", 0
     assert_select ".feed__sentence .feed__name", text: "Hugo"
     assert_select ".feed__tag--epic", /Epic/
+    assert_select ".feed__sentence a.feed__name[href^=?]", "/en/brothers/"
+    assert_select ".feed__sentence a.feed__game[href=?]", card_path(locale: :en, slug: "portal")
+    assert_select "[style]", 0
+    assert_select ".feed__chip", 0
   end
 
-  test "each entry also carries the post a phone shows: the player's avatar and name, then what happened as a headline" do
+  test "each entry also carries the post a phone shows; All without a filter listens to the public stream, its list named for new entries, with a polite status line" do
     open_epic
 
     get feed_path(locale: :fr)
@@ -71,6 +75,16 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select ".feed__entry--epic", 5
     assert_select ".feed__entry--decor-pull, .feed__entry--decor-discovery", 5
+    assert_equal %w[live:fr], stream_names
+    assert_select "section.feed[data-controller=feed-announcer]"
+    assert_select "section.feed[data-controller=feed-announcer]" do |section|
+      templates = JSON.parse(section.sole["data-feed-announcer-templates-value"])
+      assert_equal "3 nouvelles entrées dans le fil.", templates["other"].sub("%{count}", "3")
+      assert_equal "1 nouvelle entrée dans le fil.", templates["one"]
+      assert templates["zero"]
+    end
+    assert_select "ul#feed-entries.feed__list[data-feed-announcer-target=list] > li.feed__entry", 6
+    assert_select ".feed p.visually-hidden[role=status][data-feed-announcer-target=status]", text: ""
   end
 
   test "a trade's headline names the partner and both games" do
@@ -179,24 +193,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     get feed_path(locale: :en, filter: "pulls")
     assert_select ".feed__entry", 0
-  end
-
-  test "an entry's player and game are links to the profile and the card page" do
-    open_epic
-
-    get feed_path(locale: :en)
-
-    assert_select ".feed__sentence a.feed__name[href^=?]", "/en/brothers/"
-    assert_select ".feed__sentence a.feed__game[href=?]", card_path(locale: :en, slug: "portal")
-    assert_select "[style]", 0
-  end
-
-  test "a pull carries no discovery chip" do
-    open_epic
-
-    get feed_path(locale: :en)
-
-    assert_select ".feed__chip", 0
   end
 
   test "an entry's time is the instant in UTC, for the browser to show in its own time" do
@@ -460,23 +456,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     css_select("turbo-cable-stream-source:not([channel=PlayerStreamChannel])").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
   end
 
-  test "All without a filter listens to the public stream, its list named for new entries, with a polite status line" do
-    open_epic
-
-    get feed_path(locale: :fr)
-
-    assert_equal %w[live:fr], stream_names
-    assert_select "section.feed[data-controller=feed-announcer]"
-    assert_select "section.feed[data-controller=feed-announcer]" do |section|
-      templates = JSON.parse(section.sole["data-feed-announcer-templates-value"])
-      assert_equal "3 nouvelles entrées dans le fil.", templates["other"].sub("%{count}", "3")
-      assert_equal "1 nouvelle entrée dans le fil.", templates["one"]
-      assert templates["zero"]
-    end
-    assert_select "ul#feed-entries.feed__list[data-feed-announcer-target=list] > li.feed__entry", 6
-    assert_select ".feed p.visually-hidden[role=status][data-feed-announcer-target=status]", text: ""
-  end
-
   test "an empty All keeps its live list for the first entry, beside the empty line" do
     get feed_path(locale: :en)
 
@@ -642,22 +621,17 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
   def next_link = css_select(".feed__pages a[rel=next]").first
 
-  test "a feed longer than a page links to the older entries with an opaque cursor" do
+  test "a feed longer than a page links to the older entries with an opaque cursor, opened as a page without JavaScript and as a stream carrying the bars with it" do
     add_pulls(Game::FeedEntries::LIMIT + 5)
 
     get feed_path(locale: :en)
 
     assert_select ".feed__list#feed-entries > .feed__entry", Game::FeedEntries::LIMIT
     assert_select ".feed__pages[data-next-page-target=pages] a[rel=next][href*=\"cursor=\"]", 1
-    cursor = Rack::Utils.parse_query(URI(next_link["href"]).query)["cursor"]
+    href = next_link["href"]
+    cursor = Rack::Utils.parse_query(URI(href).query)["cursor"]
     assert_no_match(/\d{4}-\d{2}-\d{2}/, cursor)
     assert_no_match(/\d{10}/, cursor)
-  end
-
-  test "the next link opens the older entries as a page without JavaScript, and as a stream with it" do
-    add_pulls(Game::FeedEntries::LIMIT + 5)
-    get feed_path(locale: :en)
-    href = next_link["href"]
 
     get href
     assert_response :success
@@ -668,6 +642,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     get href, headers: { "Accept" => Mime[:turbo_stream].to_s }
     assert_equal Mime[:turbo_stream], response.media_type
     assert_select "turbo-stream[action=append][target=feed-entries] .feed__entry", 5
+    assert_select "turbo-stream[action=append][target=feed-entries] .feed__entry .feed__reactions", 5
     assert_select "turbo-stream[action=replace][target=feed-pages]"
   end
 
@@ -791,15 +766,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal 1, few
     assert_equal 1, many
-  end
-
-  test "the pages the endless scroll appends carry the bars" do
-    add_pulls(Game::FeedEntries::LIMIT + 5)
-    get feed_path(locale: :en)
-
-    get next_link["href"], headers: { "Accept" => Mime[:turbo_stream].to_s }
-
-    assert_select "turbo-stream[action=append][target=feed-entries] .feed__entry .feed__reactions", 5
   end
 
   test "no name and no database id comes with a counter" do
