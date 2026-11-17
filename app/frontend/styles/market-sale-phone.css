@@ -24,7 +24,7 @@
 [data-layout="phone"] .sale-cell {
   gap: var(--space-1);
   min-width: 0;
-  padding: var(--space-2);
+  padding: var(--space-3) var(--space-2);
 }
 
 [data-layout="phone"] .sale-cell__name {
