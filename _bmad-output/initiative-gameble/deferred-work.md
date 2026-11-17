@@ -728,6 +728,15 @@
   summary: Every board push also renders the connection slot and the absence sweep re-pushes an unchanged slot every 10 s while a seat is away; the load is unmeasured.
   evidence: `app/jobs/duel_stream_job.rb`, `app/jobs/duel_absence_job.rb`; epic Unknown: live duel load.
 
+## Deferred from: build of story-refactor-sweep-plan (2026-11-17)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-refactor-sweep-plan.md`
+  summary: `CallRound` and `AnswerRound` open their locked block with the same four steps (`role_of`, `duel.rules`, a turn check, `card_in_hand`) and differ only in the turn predicate; a shared step would need a turn-kind argument that reads no better than the two short blocks.
+  evidence: `app/domains/game/app/operations/game/call_round.rb` (`calling`), `app/domains/game/app/operations/game/answer_round.rb` (`answering`).
+- source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-refactor-sweep-plan.md`
+  summary: `duel_sheet_controller.ts` and `duel_received_controller.ts` both carry `guard` and the open-attribute `keepOpen`, and the two clock controllers both set `TICK_MS = 250`; each is a one-to-three-line copy between two Stimulus controllers.
+  evidence: `app/frontend/controllers/duel_sheet_controller.ts`, `duel_received_controller.ts`, `duel_clock_controller.ts`, `duel_link_controller.ts`.
+
 ## Deferred from: build of story-ten-duel-achievements-and-the-duelliste-card-back-plan (2026-11-17)
 
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-ten-duel-achievements-and-the-duelliste-card-back-plan.md`

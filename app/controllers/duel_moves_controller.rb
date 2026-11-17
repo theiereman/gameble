@@ -6,18 +6,15 @@ class DuelMovesController < ApplicationController
     result = Game::ChallengeFriend.new.call(player: current_player, friend: Accounts::PlayerByToken.call(params[:friend]),
       deck_token: params[:deck])
     return friend_gone(params[:friend]) if %i[friend_unavailable friend_busy].include?(result.failure)
-    return redirect_refused(Game::ChallengeFriend, result, duels_path) if result.failure?
 
-    redirect_to duels_path(friend: params[:friend]), status: :see_other
+    settled(Game::ChallengeFriend, result, duels_path(friend: params[:friend]), failed_to: duels_path)
   end
 
   def accept
     duel = authorized_duel(:accept?)
     result = Game::AcceptChallenge.new.call(player: current_player, token: duel.token, deck_token: params[:deck],
       move_number: params[:move_number])
-    return redirect_refused(Game::AcceptChallenge, result, duels_path) if result.failure?
-
-    redirect_to duel_path(token: duel.token), status: :see_other
+    settled(Game::AcceptChallenge, result, duel_path(token: duel.token), failed_to: duels_path)
   end
 
   def decline
@@ -31,9 +28,7 @@ class DuelMovesController < ApplicationController
   def cancel
     duel = authorized_duel(:cancel?)
     result = Game::CancelChallenge.new.call(player: current_player, token: duel.token)
-    return redirect_refused(Game::CancelChallenge, result, duels_path) if result.failure?
-
-    redirect_to duels_path, status: :see_other
+    settled(Game::CancelChallenge, result, duels_path)
   end
 
   def announce
@@ -60,9 +55,13 @@ class DuelMovesController < ApplicationController
 
     def moved(duel, operation, result)
       return redirect_to(duel_path(token: duel.token), status: :see_other) if repeated?(result)
-      return redirect_refused(operation, result, duel_path(token: duel.token)) if result.failure?
+      settled(operation, result, duel_path(token: duel.token))
+    end
 
-      redirect_to duel_path(token: duel.token), status: :see_other
+    def settled(operation, result, to, failed_to: to)
+      return redirect_refused(operation, result, failed_to) if result.failure?
+
+      redirect_to to, status: :see_other
     end
 
     def repeated?(result) = params[:resent] == "1" && result.failure == :not_your_move

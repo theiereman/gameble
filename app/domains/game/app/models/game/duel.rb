@@ -13,6 +13,10 @@ module Game
 
     def draw_order(role) = self[:"#{role}_draw_order"] || []
 
+    def rules = DuelRules.new(self, rounds.to_a)
+
+    def clock = DuelClock.new(self, seats, rules)
+
     def seat_of(player) = player && seats.find { it.player_id == player.id }
   end
 end

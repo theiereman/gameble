@@ -1,0 +1,5 @@
+<%# locals: (seated:) %>
+<p class="duel-lobby__line"><%= t("duels.lobby.waiting_html", name: duel_player_name(seated.opponent)) %></p>
+<% if seated.deadline %>
+  <%= render "duels/clock", name: duel_player_name(seated.opponent), deadline: seated.deadline, server_time: Time.current %>
+<% end %>

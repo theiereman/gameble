@@ -8,7 +8,7 @@ module Game
 
     def self.call(now)
       candidates = Duel.where(OPEN).where(DEADLINE_PASSED, now:, lapsed_lease: now - DuelClock::ABSENCE).includes(:seats, :rounds)
-      candidates.select { DuelClock.new(it, it.seats, DuelRules.new(it, it.rounds.to_a)).due?(now) }.map(&:token)
+      candidates.select { it.clock.due?(now) }.map(&:token)
     end
   end
 end

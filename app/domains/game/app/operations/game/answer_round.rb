@@ -11,11 +11,11 @@ module Game
       transaction do
         duel, seats = lock_duel(duel)
         role = step role_of(seats, player)
-        rules = DuelRules.new(duel, duel.rounds.to_a)
+        rules = duel.rules
         step answering(duel, rules, role, move_number)
         card = step card_in_hand(rules, role, position)
         round = answer(rules, card, automatic)
-        step settle(player, duel, seats, DuelRules.new(duel, duel.rounds.to_a), round)
+        step settle(player, duel, seats, duel.rules, round)
         duel
       end
     end
@@ -49,10 +49,7 @@ module Game
     def finish(player, duel, seats, rules, totals)
       now = Time.current
       duel.update!(**totals, state: "finished", result: rules.result.to_s, ended_at: now, capsule: DuelCapsule.award(rules, seats, now))
-      leave(seats)
-      published = duel_published(DuelFinished, player, duel, seats)
-      release_deleted(seats)
-      published
+      close_seats(DuelFinished, player, duel, seats)
     end
   end
 end

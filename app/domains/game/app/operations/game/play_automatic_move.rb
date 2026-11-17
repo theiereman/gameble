@@ -7,7 +7,7 @@ module Game
 
       transaction do
         duel, seats = lock_duel(duel)
-        rules = DuelRules.new(duel, duel.rounds.to_a)
+        rules = duel.rules
         step due("active", duel, seats, move_number, rules)
         step(rules.pending ? play_answer(player, duel, rules) : play_call(player, duel, rules))
       end

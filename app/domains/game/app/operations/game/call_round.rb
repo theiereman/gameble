@@ -13,7 +13,7 @@ module Game
       transaction do
         duel, seats = lock_duel(duel)
         role = step role_of(seats, player)
-        rules = DuelRules.new(duel, duel.rounds.to_a)
+        rules = duel.rules
         step calling(duel, rules, role, move_number)
         card = step card_in_hand(rules, role, position)
         step uncalled(rules, role, stat)

@@ -97,6 +97,10 @@ module Game
       return Failure(:not_your_move) unless duel.state == "challenged"
 
       duel.update!(state:, ended_at: Time.current, move_number: next_move(duel))
+      close_seats(event, player, duel, seats)
+    end
+
+    def close_seats(event, player, duel, seats)
       leave(seats)
       published = duel_published(event, player, duel, seats)
       release_deleted(seats)

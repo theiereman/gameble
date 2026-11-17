@@ -4,7 +4,7 @@ module Game
       duel = DuelByToken.call(token)
       return if duel.nil? || (move_number && duel.move_number != move_number)
 
-      clock = DuelClock.new(duel, duel.seats, DuelRules.new(duel, duel.rounds.to_a))
+      clock = duel.clock
       return unless clock.open? && (mover = Accounts::PlayerById.call(clock.mover_seat&.player_id))
 
       operation = duel.state == "challenged" ? LapseChallenge : PlayAutomaticMove

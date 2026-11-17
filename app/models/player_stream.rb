@@ -136,7 +136,6 @@ module PlayerStream
       counterparts[:trades].uniq.map { trades_notice(it) } + counterparts[:friends].map { friends_notice(it) }
     end
 
-    # A deleted player's received challenge lapses within the deletion; its challenger hears of it as of any lapse.
     def lapsed_challenge_notices(player_id)
       Game::ChallengesReceived.call(player_id).map do
         { player_id: it.challenger_id, topic: "duels", duel_id: it.duel_id, kind: "lapsed", role: "challenger" }
