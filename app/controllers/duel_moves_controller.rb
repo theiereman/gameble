@@ -59,8 +59,11 @@ class DuelMovesController < ApplicationController
     end
 
     def moved(duel, operation, result)
+      return redirect_to(duel_path(token: duel.token), status: :see_other) if repeated?(result)
       return redirect_refused(operation, result, duel_path(token: duel.token)) if result.failure?
 
       redirect_to duel_path(token: duel.token), status: :see_other
     end
+
+    def repeated?(result) = params[:resent] == "1" && result.failure == :not_your_move
 end

@@ -10,14 +10,18 @@ import {
   moveNumberFrom,
   ready,
   released,
+  retryOpen,
+  RETRY_MS,
   revealDismissed,
   revealSeen,
+  sendFailed,
   startDuel,
   viewShown,
   withReadiness,
   type DuelState,
   type Field,
 } from "../lib/duel"
+import { secondsUntil } from "../lib/booster_clock"
 import { focusTarget, handCards, renderChoices, submitButton } from "../lib/duel_form"
 
 type StreamElement = Element & { templateContent?: DocumentFragment }
@@ -40,6 +44,7 @@ export default class extends Controller<HTMLElement> {
   private state?: DuelState
   private armTimer?: number
   private revealTimer?: number
+  private retryTimer?: number
 
   connect(): void {
     document.addEventListener("turbo:before-stream-render", this.streamed)
@@ -51,6 +56,7 @@ export default class extends Controller<HTMLElement> {
     document.removeEventListener("keydown", this.escaped)
     window.clearTimeout(this.armTimer)
     window.clearTimeout(this.revealTimer)
+    window.clearTimeout(this.retryTimer)
   }
 
   boardTargetConnected(board: HTMLElement): void {
@@ -59,7 +65,8 @@ export default class extends Controller<HTMLElement> {
 
     const first = this.state === undefined
     const now = performance.now()
-    let state = boardShown(this.state ?? startDuel(moveNumber), moveNumber)
+    window.clearTimeout(this.retryTimer)
+    let state = boardShown(this.state ?? startDuel(moveNumber), moveNumber, this.deadlineAt(board, now))
     state = revealSeen(state, this.revealRound(), now)
 
     const hand = handCards(board)
@@ -99,18 +106,41 @@ export default class extends Controller<HTMLElement> {
     if (button && event.key === "Enter") this.release(button)
   }
 
+  ended(event: Event): void {
+    const { success, error, fetchResponse } = (event as CustomEvent).detail ?? {}
+    if (!success && (error || (fetchResponse?.statusCode ?? 0) >= 500)) this.failed()
+  }
+
+  failed(): void {
+    if (!this.state || !this.hasFormTarget) return
+
+    this.state = sendFailed(this.state)
+    const button = submitButton(this.formTarget)
+    if (button && this.formTarget.dataset.duelSending) button.textContent = this.formTarget.dataset.duelSending
+    window.clearTimeout(this.retryTimer)
+    this.retryTimer = window.setTimeout(() => this.resend(), RETRY_MS)
+  }
+
   next(event: Event): void {
     if ((event.target as Element).closest("button")) this.dismissReveal()
   }
 
   private readonly streamed = (event: Event): void => {
     const stream = event.target as StreamElement
+    if (stream.getAttribute("target") === "duel-connection") return this.connectionStreamed(event, stream)
     if (stream.getAttribute("target") !== "duel-board") return
 
     const moveNumber = moveNumberFrom(stream.templateContent?.firstElementChild?.getAttribute("data-move-number"))
     if (moveNumber === null || (this.state && !acceptsView(this.state, moveNumber))) return event.preventDefault()
 
     this.state = this.state ? viewShown(this.state, moveNumber) : startDuel(moveNumber)
+  }
+
+  private connectionStreamed(event: Event, stream: StreamElement): void {
+    const incoming = stream.templateContent?.firstElementChild?.getAttribute("data-away-until") ?? null
+    const shown =
+      document.querySelector("#duel-connection > [data-away-until]")?.getAttribute("data-away-until") ?? null
+    if (incoming === shown) event.preventDefault()
   }
 
   private readonly escaped = (event: KeyboardEvent): void => {
@@ -137,6 +167,24 @@ export default class extends Controller<HTMLElement> {
     button.setAttribute("aria-disabled", "true")
     button.removeAttribute("data-armed")
     this.formTarget.requestSubmit()
+  }
+
+  private resend(): void {
+    if (!this.state || !this.hasFormTarget || !retryOpen(this.state, performance.now())) return
+
+    this.retryTimer = window.setTimeout(() => this.resend(), RETRY_MS)
+    const resent = this.formTarget.querySelector<HTMLInputElement>("input[name=resent]")
+    if (resent) resent.value = "1"
+    this.formTarget.requestSubmit()
+  }
+
+  private deadlineAt(board: HTMLElement, now: number): number | null {
+    const clock = board.querySelector<HTMLElement>(".duel-clock")
+    const seconds = secondsUntil(
+      clock?.dataset.duelClockDeadlineValue ?? null,
+      clock?.dataset.duelClockServerTimeValue ?? "",
+    )
+    return seconds === null ? null : now + seconds * 1000
   }
 
   private revealRound(): number | null {
@@ -171,6 +219,8 @@ export default class extends Controller<HTMLElement> {
 
     const form = this.formTarget
     renderChoices(form, this.state)
+    if (this.state.sending) return
+
     const before = this.state.activeSince
     this.state = withReadiness(
       this.state,

@@ -13,7 +13,7 @@ module PlayerStream
   MARKET_EVENTS = [ Game::Market::LeadVoided, Game::Market::ListingCancelled ].freeze
   DUEL_KINDS = {
     Game::DuelChallengeSent => "sent", Game::DuelChallengeAccepted => "accepted", Game::DuelChallengeLapsed => "lapsed",
-    Game::DuelChallengeRefused => "refused", Game::DuelChallengeCancelled => "cancelled"
+    Game::DuelChallengeRefused => "refused", Game::DuelChallengeCancelled => "cancelled", Game::DuelFinished => "finished"
   }.freeze
   DUEL_EVENTS = DUEL_KINDS.keys.freeze
   EVENTS = (TRADE_EVENTS + SEEN_EVENTS + INVITATION_EVENTS + FRIENDSHIP_EVENTS +

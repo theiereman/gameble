@@ -19,6 +19,7 @@ class PlayerStreamJob < ApplicationJob
         unclaimed: (Game::UnclaimedAchievements.count(player) if rewards_changed),
         balance: (Game::Market::Balance.call(player) if own.any? { it[:balance] }),
         outbid: (Game::Market::OutbidCount.call(player) if exchanges_changed),
+        duels_active: (Game::DuelInProgress.count(player) if topics.include?("duels")),
         pending: (pending_for(player) if invitations_changed || rewards_changed),
         achievements: own.filter_map { it[:achievement] }.uniq,
         card_backs: own.filter_map { it[:card_back] }.uniq,

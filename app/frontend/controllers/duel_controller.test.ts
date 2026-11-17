@@ -2,7 +2,7 @@
 import { Application } from "@hotwired/stimulus"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import DuelController from "./duel_controller"
-import { GUARD_MS } from "../lib/duel"
+import { GUARD_MS, RETRY_MS } from "../lib/duel"
 import { serverTemplate } from "../lib/server_html"
 
 const BOARD = `
@@ -10,8 +10,9 @@ const BOARD = `
     <p data-duel-target="status"></p>
     <div id="duel-board" data-duel-target="board" data-move-number="1">
       <div id="duel-live" data-duel-target="live">
-        <form id="duel-call" data-duel-target="form" data-duel-kind="call"
-          data-action="click->duel#press keydown->duel#keydown keyup->duel#keyup">
+        <form id="duel-call" data-duel-target="form" data-duel-kind="call" data-duel-sending="Sending…"
+          data-action="click->duel#press keydown->duel#keydown keyup->duel#keyup turbo:fetch-request-error->duel#failed turbo:submit-end->duel#ended">
+          <input type="hidden" name="resent" value="0" />
           <input type="radio" name="card" value="1" data-action="change->duel#choose" />
           <input type="radio" name="card" value="2" data-action="change->duel#choose" />
           <fieldset data-duel-group="stat" hidden>
@@ -173,5 +174,46 @@ describe("the duel screen", () => {
 
     expect(escape().defaultPrevented).toBe(false)
     expect(radio("direction", "high").checked).toBe(true)
+  })
+
+  it("reads Sending… on the button after a network failure and sends the same form again until a newer board arrives", () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+    chooseAll()
+    now += GUARD_MS
+    button().click()
+    submit.mockClear()
+
+    document.querySelector("form")!.dispatchEvent(new Event("turbo:fetch-request-error", { bubbles: true }))
+    expect(button().textContent).toBe("Sending…")
+    expect(button().getAttribute("aria-disabled")).toBe("true")
+
+    vi.advanceTimersByTime(RETRY_MS)
+    expect(submit).toHaveBeenCalledTimes(1)
+    expect(document.querySelector<HTMLInputElement>("input[name=resent]")!.value).toBe("1")
+    expect(radio("direction", "high").checked).toBe(true)
+
+    pick(radio("direction", "low"))
+    expect(radio("direction", "high").checked).toBe(true)
+    vi.useRealTimers()
+  })
+
+  it("also treats a server error response as a move that did not get through, and keeps sending until a board arrives", () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+    chooseAll()
+    now += GUARD_MS
+    button().click()
+    submit.mockClear()
+    const ended = (detail: object): void => {
+      document.querySelector("form")!.dispatchEvent(new CustomEvent("turbo:submit-end", { bubbles: true, detail }))
+    }
+
+    ended({ success: false, fetchResponse: { statusCode: 422 } })
+    expect(button().textContent).toBe("Call")
+
+    ended({ success: false, fetchResponse: { statusCode: 502 } })
+    expect(button().textContent).toBe("Sending…")
+    vi.advanceTimersByTime(RETRY_MS * 3)
+    expect(submit).toHaveBeenCalledTimes(3)
+    vi.useRealTimers()
   })
 })

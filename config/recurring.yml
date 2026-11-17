@@ -80,6 +80,12 @@ sweep_duel_deadlines: &sweep_duel_deadlines
   queue: duels
   schedule: every 10 seconds
 
+# A seat whose lease has lapsed is shown to the other player as disconnected, with the time left to return.
+sweep_duel_absence: &sweep_duel_absence
+  class: DuelAbsenceJob
+  queue: duels
+  schedule: every 10 seconds
+
 # The Archives' stock of each edition is summed from the players' deposits.
 sum_archive_stocks: &sum_archive_stocks
   class: Game::ArchiveStocksJob
@@ -121,6 +127,7 @@ development:
   check_discord_memberships: *check_discord_memberships
   compute_duel_stats: *compute_duel_stats
   sweep_duel_deadlines: *sweep_duel_deadlines
+  sweep_duel_absence: *sweep_duel_absence
 
 production:
   recover_stalled_imports: *recover_stalled_imports
@@ -139,6 +146,7 @@ production:
   check_discord_memberships: *check_discord_memberships
   compute_duel_stats: *compute_duel_stats
   sweep_duel_deadlines: *sweep_duel_deadlines
+  sweep_duel_absence: *sweep_duel_absence
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

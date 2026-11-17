@@ -1,0 +1,14 @@
+<%# locals: (screen:) %>
+<% if screen.away_until %>
+  <% name = duel_plain_name(screen.opponent) %>
+  <%= tag.div data: { away_until: screen.away_until.utc.iso8601(3) } do %>
+    <%= tag.p class: "duel-clock duel-connection__line", aria: { hidden: true },
+          data: { controller: "duel-clock", duel_clock_deadline_value: screen.away_until.utc.iso8601(3),
+            duel_clock_server_time_value: screen.server_time.utc.iso8601(3),
+            duel_clock_template_value: t("duels.connection.other_lost", name:, seconds: "{seconds}"), duel_clock_warning_value: "" } do %>
+      <span data-duel-clock-target="text"><%= t("duels.connection.other_lost", name:, seconds: [ (screen.away_until - screen.server_time).ceil, 0 ].max) %></span>
+      <span hidden data-duel-clock-target="status"></span>
+    <% end %>
+    <span class="visually-hidden"><%= t("duels.connection.other_lost_spoken", name:) %></span>
+  <% end %>
+<% end %>

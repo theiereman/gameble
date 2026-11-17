@@ -4,7 +4,7 @@
     <div id="duel-seated" class="duel-lobby__block">
       <% if seated.active %>
         <p class="duel-lobby__line"><%= t("duels.lobby.in_progress_html", name: duel_player_name(seated.opponent)) %></p>
-        <%= render ButtonComponent.new(href: duel_path(token: seated.token)) do %><%= t("duels.lobby.resume") %><% end %>
+        <%= render ButtonComponent.new(href: duel_path(token: seated.token), aria_label: t("duels.lobby.resume_label", name: duel_plain_name(seated.opponent))) do %><%= t("duels.lobby.resume") %><% end %>
       <% else %>
         <p class="duel-lobby__line"><%= t("duels.lobby.waiting_html", name: duel_player_name(seated.opponent)) %></p>
         <% if seated.deadline %>

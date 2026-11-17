@@ -10,9 +10,11 @@ import {
   moveNumberFrom,
   ready,
   released,
+  retryOpen,
   revealDismissed,
   revealSeen,
   REVEAL_MS,
+  sendFailed,
   startDuel,
   viewShown,
   withReadiness,
@@ -143,5 +145,25 @@ describe("drawn cards", () => {
 
     expect(drawnCards(first, ["1", "2", "3"])).toEqual([])
     expect(drawnCards(shown, ["1", "3", "4"])).toEqual(["4"])
+  })
+})
+
+describe("a move that did not get through", () => {
+  it("is sent again while its timer runs, and no choice changes meanwhile", () => {
+    const chosen = choose(boardShown(startDuel(1), 1, 5000), "card", "2")
+    const failed = sendFailed(chosen)
+
+    expect(retryOpen(failed, 4999)).toBe(true)
+    expect(retryOpen(failed, 5000)).toBe(false)
+    expect(choose(failed, "card", "3")).toBe(failed)
+    expect(cleared(failed)).toBe(failed)
+    expect(retryOpen(chosen, 1000)).toBe(false)
+  })
+
+  it("is sent again until a board arrives when no timer is shown, and a newer board ends it", () => {
+    const failed = sendFailed(startDuel(1))
+
+    expect(retryOpen(failed, 1e9)).toBe(true)
+    expect(retryOpen(boardShown(failed, 2), 0)).toBe(false)
   })
 })

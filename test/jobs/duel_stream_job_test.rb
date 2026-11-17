@@ -20,11 +20,16 @@ class DuelStreamJobTest < ActiveSupport::TestCase
 
   def stream(role, locale) = DuelStream.streamables(Game::DuelSeat.find_by!(duel_id: @duel.id, role:).stream_key, locale).join(":")
 
-  def board(role, locale)
-    message = ActiveSupport::JSON.decode(broadcasts(stream(role, locale)).sole)
-    replace = Nokogiri::HTML5.fragment(message).at_css("turbo-stream[action=replace][target=duel-board]")
-    Nokogiri::HTML5.fragment(replace.at_css("template").inner_html)
+  def pushes(role, locale, target)
+    broadcasts(stream(role, locale)).filter_map do |message|
+      pushed = Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(message)).at_css("turbo-stream[target=#{target}]")
+      Nokogiri::HTML5.fragment(pushed.at_css("template").inner_html) if pushed
+    end
   end
+
+  def board(role, locale) = pushes(role, locale, "duel-board").sole
+
+  def connection(role, locale) = pushes(role, locale, "duel-connection").sole
 
   def prefix(role) = role == "challenger" ? "Lea" : "Hugo"
 
@@ -42,7 +47,7 @@ class DuelStreamJobTest < ActiveSupport::TestCase
     DuelStreamJob.perform_now([ duel.id, duel.id ])
 
     %w[challenger opponent].each do |role|
-      %i[en fr].each { |locale| assert_equal 1, broadcasts(stream(role, locale)).size, "#{role} #{locale}" }
+      %i[en fr].each { |locale| assert_equal 1, pushes(role, locale, "duel-board").size, "#{role} #{locale}" }
       english = board(role, :en)
       assert_equal "2", english.at_css("#duel-board")["data-move-number"]
       hand = english.at_css("#duel-hand").text
@@ -68,7 +73,7 @@ class DuelStreamJobTest < ActiveSupport::TestCase
 
     DuelStreamJob.perform_now([ @duel.id ])
 
-    assert_equal 1, broadcasts(stream("challenger", :en)).size
+    assert_equal 2, broadcasts(stream("challenger", :en)).size
     assert_empty broadcasts(stream("opponent", :en))
     assert_empty broadcasts(PlayerStream.name(@lea, :en))
     assert_empty broadcasts(PlayerStream.name(@hugo, :en))
@@ -85,7 +90,7 @@ class DuelStreamJobTest < ActiveSupport::TestCase
     assert_equal rules.hand(:challenger).map { position_of(rules, :challenger, it).to_s }, form.css("input[name=card]").map { it["value"] }
     assert_equal Game::DuelStat::STATS.map(&:to_s) * rules.hand(:challenger).size, form.css("input[name=stat]").map { it["value"] }
     assert_equal %w[high low] * Game::DuelStat::STATS.size, form.css("input[name=direction]").map { it["value"] }
-    assert_equal [ "1" ], form.css("input[type=hidden]").map { it["value"] }
+    assert_equal [ "1", "0" ], form.css("input[type=hidden]").map { it["value"] }
     assert_no_match(/style=/, board("challenger", :en).to_html)
   end
 
@@ -112,6 +117,31 @@ class DuelStreamJobTest < ActiveSupport::TestCase
     assert_equal "45\u202fs", board(mover, :fr).at_css("[data-duel-clock-target=text]").text
   ensure
     travel_back
+  end
+
+  test "a push of the connection slots alone leaves the boards, and an absent seat shows to the other with the time left to return" do
+    lease = 1.minute.ago.change(usec: 0)
+    Game::DuelSeat.where(duel_id: @duel.id, role: "opponent").update_all(present_until: lease)
+
+    DuelStreamJob.perform_now([ @duel.id ], boards: false)
+
+    %w[challenger opponent].each { |role| assert_empty pushes(role, :en, "duel-board") }
+    away = connection("challenger", :en).at_css("[data-away-until]")
+    assert_equal lease + 60.seconds, Time.iso8601(away["data-away-until"])
+    assert_includes away.at_css(".duel-clock").text, "Hugo's connection lost… "
+    assert_equal "Connexion de Hugo perdue… ", connection("challenger", :fr).at_css(".duel-clock").text.squish.sub(/\d+.s\z/, "")
+    assert_nil connection("opponent", :en).at_css("[data-away-until]")
+  end
+
+  test "a seat that never held a lease, or holds one, is not shown as away" do
+    Game::DuelSeat.where(duel_id: @duel.id, role: "opponent").update_all(present_until: nil)
+    DuelStreamJob.perform_now([ @duel.id ], boards: false)
+    assert_nil connection("challenger", :en).at_css("[data-away-until]")
+
+    pubsub_adapter.clear_messages(stream("challenger", :en))
+    Game::DuelSeat.where(duel_id: @duel.id, role: "opponent").update_all(present_until: 5.seconds.from_now)
+    DuelStreamJob.perform_now([ @duel.id ], boards: false)
+    assert_nil connection("challenger", :en).at_css("[data-away-until]")
   end
 
   private

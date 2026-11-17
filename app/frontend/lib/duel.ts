@@ -1,5 +1,6 @@
 export const GUARD_MS = 400
 export const REVEAL_MS = 3000
+export const RETRY_MS = 2000
 
 export type Field = "card" | "stat" | "direction"
 export type Kind = "call" | "answer"
@@ -17,6 +18,8 @@ export type DuelState = {
   readonly dismissed: number
   readonly reveal: Reveal | null
   readonly hand: readonly string[] | null
+  readonly sending: boolean
+  readonly deadlineAt: number | null
 }
 
 export function startDuel(moveNumber: number): DuelState {
@@ -29,6 +32,8 @@ export function startDuel(moveNumber: number): DuelState {
     dismissed: 0,
     reveal: null,
     hand: null,
+    sending: false,
+    deadlineAt: null,
   }
 }
 
@@ -44,17 +49,34 @@ export function moveNumberFrom(text: string | null | undefined): number | null {
   return text != null && /^\d+$/.test(text) ? Number(text) : null
 }
 
-export function boardShown(state: DuelState, moveNumber: number): DuelState {
-  return { ...viewShown(state, moveNumber), card: null, stat: null, direction: null, activeSince: null }
+export function boardShown(state: DuelState, moveNumber: number, deadlineAt: number | null = null): DuelState {
+  return {
+    ...viewShown(state, moveNumber),
+    card: null,
+    stat: null,
+    direction: null,
+    activeSince: null,
+    sending: false,
+    deadlineAt,
+  }
+}
+
+export function sendFailed(state: DuelState): DuelState {
+  return state.sending ? state : { ...state, sending: true }
+}
+
+export function retryOpen(state: DuelState, now: number): boolean {
+  return state.sending && (state.deadlineAt === null || now < state.deadlineAt)
 }
 
 export function choose(state: DuelState, field: Field, value: string, blocked = false): DuelState {
-  if (blocked || state[field] === value) return state
+  if (blocked || state.sending || state[field] === value) return state
   const chosen = { ...state, [field]: value }
   return field === "stat" ? { ...chosen, direction: null } : chosen
 }
 
 export function cleared(state: DuelState): DuelState {
+  if (state.sending) return state
   const field = LATEST_FIRST.find((name) => state[name] !== null)
   return field ? { ...state, [field]: null } : state
 }

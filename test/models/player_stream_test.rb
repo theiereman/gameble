@@ -68,10 +68,10 @@ class PlayerStreamTest < ActiveSupport::TestCase
       PlayerStream.notices(Game::InvitationAccepted.new(data:))
   end
 
-  test "every end of a challenge tells both players' Duels screens what happened to whom; a round tells no one" do
+  test "every end of a challenge and of a duel tells both players' Duels screens what happened to whom; a round tells no one" do
     data = { duel_id: 1, challenger_id: @alice.id, opponent_id: @bob.id }
     kinds = { Game::DuelChallengeSent => "sent", Game::DuelChallengeAccepted => "accepted", Game::DuelChallengeLapsed => "lapsed",
-              Game::DuelChallengeRefused => "refused", Game::DuelChallengeCancelled => "cancelled" }
+              Game::DuelChallengeRefused => "refused", Game::DuelChallengeCancelled => "cancelled", Game::DuelFinished => "finished" }
 
     assert_equal kinds.keys, PlayerStream::DUEL_EVENTS
     kinds.each do |type, kind|
@@ -81,7 +81,6 @@ class PlayerStreamTest < ActiveSupport::TestCase
         PlayerStream.notices(type.new(data:)), type.name
     end
     assert_empty PlayerStream.notices(Game::DuelRoundCalled.new(data: { duel_id: 1, number: 1 }))
-    assert_empty PlayerStream.notices(Game::DuelFinished.new(data:))
   end
 
   test "an ignored invitation tells its recipient alone, so the sender never learns of it" do

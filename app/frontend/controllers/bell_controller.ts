@@ -42,6 +42,7 @@ export default class extends Controller<HTMLElement> {
       onGameble("gameble:friends-updated", () => this.reload()),
       onGameble("gameble:reactions-updated", () => this.reload()),
       onGameble("gameble:market-updated", () => this.reload()),
+      onGameble("gameble:duels-updated", () => this.reload()),
       onGameble("gameble:screen-shown", () => this.reload()),
     ]
   }

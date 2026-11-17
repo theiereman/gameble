@@ -8,5 +8,11 @@
 <section class="duel page page--regular" aria-labelledby="duel-heading" data-controller="duel">
   <h1 id="duel-heading" class="visually-hidden"><%= t(".title") %></h1>
   <p id="duel-status" class="visually-hidden" role="status" aria-live="polite" data-duel-target="status"></p>
+  <p class="duel-connection__line duel-connection__line--own" role="status" hidden data-controller="duel-link"
+    data-duel-link-template-value="<%= t("duels.connection.own_lost", seconds: "{seconds}") %>">
+    <span aria-hidden="true" data-duel-link-target="text"></span>
+    <span class="visually-hidden"><%= t("duels.connection.own_lost_spoken") %></span>
+  </p>
+  <div id="duel-connection" class="duel-connection" role="status"><%= render "duels/connection", screen: @screen %></div>
   <%= render "duels/board", screen: @screen %>
 </section>

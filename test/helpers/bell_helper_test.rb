@@ -1,6 +1,8 @@
 require "test_helper"
 
 class BellHelperTest < ActionView::TestCase
+  include DuelsHelper
+
   setup { controller.request.path_parameters[:locale] = "en" }
 
   def text_of(sentence) = Nokogiri::HTML.fragment(sentence).text
@@ -100,9 +102,38 @@ class BellHelperTest < ActionView::TestCase
   end
 
   test "a market line comes after the reaction lines and before the daily capsule" do
-    items = Game::BellItems::Result.new(trades: [], updates: [], invitations: [], reactions: [], market: [ market_notice ], daily: nil,
+    items = Game::BellItems::Result.new(trades: [], updates: [], invitations: [], reactions: [], market: [ market_notice ], daily: nil, duels: [],
       goal: Game::BellItems::GoalLine.new(week_start: Date.new(2026, 11, 9), reward_ready: false, target: 10, reached: false))
 
     assert_equal [ "market", "mission" ], bell_lines(items).map { it.key.split(":").first }
+  end
+
+  TOKEN = "a" * 24
+
+  def duel_line(kind:, outcome: nil, score: 0, other_score: 0)
+    Game::BellItems::DuelLine.new(token: TOKEN, opponent: accounts_players(:moderator), kind:, outcome:, score:, other_score:, ended_at: nil)
+  end
+
+  test "a duel in progress is a lasting resume line to the duel, in both languages" do
+    accounts_players(:moderator).update_columns(persona_name: "Hugo")
+    line = bell_duel_line(duel_line(kind: :resume))
+
+    assert_equal [ "duel-resume:#{TOKEN}", "/en/duels/#{TOKEN}", true ], [ line.key, line.href, line.lasting ]
+    assert_equal [ "Your duel against Hugo awaits your return.", "Resume" ], [ line.sentence, line.action ]
+    I18n.with_locale(:fr) do
+      assert_equal [ "Votre duel contre Hugo attend votre retour.", "Reprendre" ], [ bell_duel_line(duel_line(kind: :resume)).sentence, bell_duel_line(duel_line(kind: :resume)).action ]
+    end
+  end
+
+  test "a finished duel is a result line with the player's score first, in both languages" do
+    accounts_players(:moderator).update_columns(persona_name: "Hugo")
+    win = bell_duel_line(duel_line(kind: :finished, outcome: :win, score: 6, other_score: 4))
+
+    assert_equal [ "duel:#{TOKEN}", false, "See" ], [ win.key, win.lasting, win.action ]
+    assert_equal "Duel against Hugo finished: victory, 6 to 4.", win.sentence
+    I18n.with_locale(:fr) do
+      assert_equal "Duel contre Hugo terminé\u202f: défaite, 3 à 7.", bell_duel_line(duel_line(kind: :finished, outcome: :loss, score: 3, other_score: 7)).sentence
+      assert_equal "Duel contre Hugo terminé\u202f: égalité, 5 à 5.", bell_duel_line(duel_line(kind: :finished, outcome: :draw, score: 5, other_score: 5)).sentence
+    end
   end
 end

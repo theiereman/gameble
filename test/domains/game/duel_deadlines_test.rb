@@ -212,4 +212,28 @@ class Game::DuelDeadlinesTest < ActiveSupport::TestCase
 
     assert_equal current(duel).move_deadline_at, clock.deadline
   end
+
+  test "an absent player's moves are all played automatically as they come, and the present player's never" do
+    duel = accept(challenge)
+    lease_ran_out(duel, :opponent)
+
+    30.times do
+      break if current(duel).state == "finished"
+
+      rules = rules_of(current(duel))
+      mover = rules.pending ? rules.answerer : rules.caller
+      if mover == :opponent then sweep
+      elsif rules.pending then answer_round(current(duel))
+      else call_round(current(duel))
+      end
+    end
+
+    duel = current(duel)
+    assert_equal [ "finished", 10 ], [ duel.state, duel.rounds.size ]
+    duel.rounds.each do |round|
+      hugo, lea = round.caller == "opponent" ? [ round.caller_automatic, round.answer_automatic ] : [ round.answer_automatic, round.caller_automatic ]
+      assert hugo, "round #{round.number}: the absent player's move"
+      assert_not lea, "round #{round.number}: the present player's move"
+    end
+  end
 end

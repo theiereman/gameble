@@ -5,6 +5,10 @@
   <%= turbo_stream.update "subtab-market-badge", partial: "exchanges/market_badge", locals: { outbid: } %>
   <%= turbo_stream.update "market-bids-badge", partial: "markets/bids_badge", locals: { outbid: } %>
 <% end %>
+<% unless duels_active.nil? %>
+  <%= turbo_stream.update "tab-duels-badge", partial: "shell/tab_duels_badge", locals: { count: duels_active } %>
+  <%= turbo_stream.update "menu-duels-badge", partial: "pages/menu_duels_badge", locals: { count: duels_active } %>
+<% end %>
 <% unless invitations.nil? %>
   <%= turbo_stream.update "player-menu-invitations-badge", partial: "pages/menu_invitations_badge", locals: { invitations: } %>
 <% end %>

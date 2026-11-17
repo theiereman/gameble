@@ -106,13 +106,14 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_empty streams(english, "append")
   end
 
-  test "a duels notice sends the duels signal and nothing else, in each locale" do
+  test "a duels notice sends the duels signal and the DUELS badges, nothing else, in each locale" do
     PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "duels" } ])
 
     %i[en fr].each do |locale|
       fragment = received(@hugo, locale)
       assert_equal [ "duels-updated" ], streams(fragment, "gameble-event").map { it["event"] }
-      assert_empty streams(fragment, "update")
+      assert_equal %w[tab-duels-badge menu-duels-badge], streams(fragment, "update").map { it["target"] }
+      assert_empty template(streams(fragment, "update", "tab-duels-badge").sole).text.strip
       assert_empty streams(fragment, "append")
     end
   end

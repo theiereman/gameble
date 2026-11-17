@@ -1,0 +1,16 @@
+.duel-connection__line {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-alert);
+  color: var(--color-alert);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.duel-connection__line[hidden] {
+  display: none;
+}
+
+.duel-connection .duel-clock {
+  color: var(--color-alert);
+}

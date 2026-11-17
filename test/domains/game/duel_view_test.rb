@@ -179,4 +179,24 @@ class Game::DuelViewTest < ActiveSupport::TestCase
       assert_nil Game::DuelView.for(duel, seat).deadline
     end
   end
+
+  test "a seat sees the other as away, with the end of its minute, only once that seat's lease has lapsed in an active duel" do
+    now = Time.zone.now.change(usec: 0)
+    duel = active_duel
+    mine, other = seats(duel)
+
+    travel_to(now) do
+      assert_nil Game::DuelView.for(duel, mine).away_until
+
+      other.present_until = now + 5.seconds
+      assert_nil Game::DuelView.for(duel, mine).away_until
+
+      other.present_until = now - 5.seconds
+      assert_equal now + 55.seconds, Game::DuelView.for(duel, mine).away_until
+      assert_nil Game::DuelView.for(duel, other).away_until, "the seat's own lapse is not shown to it"
+
+      duel.assign_attributes(state: "finished")
+      assert_nil Game::DuelView.for(duel, mine).away_until
+    end
+  end
 end

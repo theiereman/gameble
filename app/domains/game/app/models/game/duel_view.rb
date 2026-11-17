@@ -1,6 +1,6 @@
 module Game
   class DuelView < Data.define(:token, :state, :move_number, :round, :caller, :mine, :theirs, :hand, :current_call, :rounds, :result,
-    :deadline, :server_time)
+    :deadline, :server_time, :away_until)
     Side = Data.define(:role, :deck, :played, :score, :margin, :stats_left)
 
     def self.for(duel, seat)
@@ -13,13 +13,20 @@ module Game
       new(token: duel.token, state: duel.state.to_sym, move_number: duel.move_number, round: rules.round, caller: rules.caller,
         mine: side(rules, role), theirs: side(rules, DuelRules.other(role)), hand: rules.hand(role),
         current_call: current_call(rules, role), rounds: rules.played_rounds, result: rules.result,
-        deadline: deadline(duel), server_time: Time.current)
+        deadline: deadline(duel), server_time: Time.current, away_until: away_until(duel, seat))
     end
 
     def self.unstarted(duel, role)
       new(token: duel.token, state: duel.state.to_sym, move_number: duel.move_number, round: nil, caller: nil,
         mine: empty_side(role), theirs: empty_side(DuelRules.other(role)), hand: [], current_call: nil, rounds: [], result: nil,
-        deadline: deadline(duel), server_time: Time.current)
+        deadline: deadline(duel), server_time: Time.current, away_until: nil)
+    end
+
+    def self.away_until(duel, seat)
+      return unless duel.state == "active"
+
+      lease = duel.seats.find { it.role != seat.role }&.present_until
+      lease + DuelClock::ABSENCE if lease && lease <= Time.current
     end
 
     def self.deadline(duel)
@@ -42,6 +49,6 @@ module Game
 
       DuelRules::Call.new(card:, stat: locked.stat.to_sym, direction: locked.direction.to_sym)
     end
-    private_class_method :deadline, :unstarted, :empty_side, :side, :current_call
+    private_class_method :away_until, :deadline, :unstarted, :empty_side, :side, :current_call
   end
 end

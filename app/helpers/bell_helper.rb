@@ -11,6 +11,7 @@ module BellHelper
       *items.updates.map { bell_trade_update_line(it) },
       *items.invitations.map { bell_invitation_line(it) },
       *items.reactions.map { bell_reaction_line(it) },
+      *items.duels.map { bell_duel_line(it) },
       *items.market.filter_map { bell_market_line(it) },
       (bell_daily_line(items.daily) if items.daily),
       bell_goal_line(items.goal)
@@ -27,6 +28,18 @@ module BellHelper
     path = trade_path(token: update.token)
     BellLine.new(key: "trade-update:#{update.token}:#{update.closed_at.utc.iso8601(6)}", path:, href: path,
       sentence: t("shell.bell.trade_#{update.outcome}", name: friend_name(update.player)), action: t("shell.bell.see"))
+  end
+
+  def bell_duel_line(duel)
+    path = duel_path(token: duel.token)
+    if duel.kind == :resume
+      BellLine.new(key: "duel-resume:#{duel.token}", path:, href: path, sentence: t("shell.bell.duel_resume", name: duel_plain_name(duel.opponent)),
+        action: t("shell.bell.resume"), lasting: true, dom_id: "bell-duel-resume")
+    else
+      BellLine.new(key: "duel:#{duel.token}", path:, href: path, action: t("shell.bell.see"),
+        sentence: t("shell.bell.duel_finished", name: duel_plain_name(duel.opponent), outcome: t("shell.bell.duel_outcome.#{duel.outcome}"),
+          score: duel.score, other_score: duel.other_score))
+    end
   end
 
   def bell_invitation_line(invitation)

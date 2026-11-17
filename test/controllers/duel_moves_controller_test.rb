@@ -141,6 +141,41 @@ class DuelMovesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 3, duel.reload.move_number
   end
 
+  test "a move sent again after it landed is refused by its move number and never played twice; a resent one comes back without an alert" do
+    duel = start_duel(@lea, @hugo)
+    rules = rules_of(Game::Duel.find(duel.id))
+    call = rules.automatic_call
+    params = { card: position_of(rules, rules.caller, call.card), stat: call.stat, direction: call.direction, move_number: 1 }
+    sign_in(seat_player(duel, rules.caller))
+
+    post duel_calls_path(locale: :en, token: duel.token), params: params
+    assert_equal 2, duel.reload.move_number
+
+    post duel_calls_path(locale: :en, token: duel.token), params: params.merge(resent: 1)
+    assert_redirected_to duel_path(locale: :en, token: duel.token)
+    assert_nil flash[:alert]
+    assert_equal [ 2, 1 ], [ duel.reload.move_number, duel.rounds.count ]
+
+    post duel_calls_path(locale: :en, token: duel.token), params: params.merge(resent: 0)
+    assert_equal "This move is no longer yours to play.", flash[:alert]
+    assert_equal [ 2, 1 ], [ duel.reload.move_number, duel.rounds.count ]
+  end
+
+  test "an answer sent again after it landed comes back without an alert and is never played twice" do
+    duel = call_round(start_duel(@lea, @hugo))
+    rules = rules_of(Game::Duel.find(duel.id))
+    params = { card: position_of(rules, rules.answerer, rules.automatic_answer), move_number: 2 }
+    sign_in(seat_player(duel, rules.answerer))
+
+    post duel_answers_path(locale: :en, token: duel.token), params: params
+    assert_equal 3, duel.reload.move_number
+
+    post duel_answers_path(locale: :en, token: duel.token), params: params.merge(resent: 1)
+    assert_redirected_to duel_path(locale: :en, token: duel.token)
+    assert_nil flash[:alert]
+    assert_equal [ 3, 1 ], [ duel.reload.move_number, duel.rounds.count ]
+  end
+
   test "a player holding no seat is refused every move, and a visitor is sent to sign in" do
     duel = challenge
 

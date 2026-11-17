@@ -158,7 +158,14 @@ fr:
       mission_reward: "La mission hebdo est accomplie : une capsule rare vous attend."
       answer: "Répondre"
       see: "Voir"
+      resume: "Reprendre"
       collect: "Récupérer"
+      duel_resume: "Votre duel contre %{name} attend votre retour."
+      duel_finished: "Duel contre %{name} terminé : %{outcome}, %{score} à %{other_score}."
+      duel_outcome:
+        win: "victoire"
+        loss: "défaite"
+        draw: "égalité"
     live:
       marker: "Live"
     market_status:
@@ -237,6 +244,11 @@ fr:
       support: "Soutenir"
       back_office: "Back-office"
       sign_out: "Se déconnecter"
+    duels:
+      in_progress:
+        zero: ""
+        one: ", %{count} duel en cours"
+        other: ", %{count} duels en cours"
     exchanges:
       trades:
         zero: "%{number} échange"
@@ -4046,6 +4058,11 @@ fr:
       spoken: "%{seconds} secondes"
       warning: "10 secondes"
       you: "Vous"
+    connection:
+      own_lost: "Connexion perdue… %{seconds} s"
+      own_lost_spoken: "Votre connexion est perdue."
+      other_lost: "Connexion de %{name} perdue… %{seconds} s"
+      other_lost_spoken: "La connexion de %{name} est perdue. Ses coups seront joués automatiquement dans une minute."
     decks:
       heading: "Mes decks"
       count: "%{count} / 5"
@@ -4062,6 +4079,7 @@ fr:
       challenge: "Défier"
       accept: "Accepter"
       resume: "Reprendre"
+      resume_label: "Reprendre le duel contre %{name}"
       received_html: "%{name} vous défie en duel."
       waiting_html: "En attente de la réponse de %{name}…"
       in_progress_html: "Duel en cours contre %{name}."
@@ -4105,6 +4123,7 @@ fr:
         their_call_html: "%{name} annonce…"
         their_answer_html: "%{name} répond…"
       call: "Annoncer"
+      sending: "Envoi…"
       answer: "Répondre avec cette carte"
       hidden_call: "Annonce cachée"
       called_status: "%{name} a annoncé. Sa carte : %{card}."

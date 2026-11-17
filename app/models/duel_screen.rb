@@ -12,7 +12,7 @@ class DuelScreen
 
   attr_reader :view
 
-  delegate :token, :move_number, :state, :round, :mine, :theirs, :hand, :current_call, :deadline, :server_time, to: :view
+  delegate :token, :move_number, :state, :round, :mine, :theirs, :hand, :current_call, :deadline, :server_time, :away_until, to: :view
 
   def initialize(duel, seat, locale:)
     @duel = duel

@@ -8,6 +8,8 @@
           <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
           <% if key == :booster %>
             <%= render "shell/tab_capsules_badge", bank: shell_bank %>
+          <% elsif key == :duels %>
+            <span id="tab-duels-badge" class="stream-slot"><%= render("shell/tab_duels_badge", count: shell_duels_in_progress) %></span>
           <% elsif key == :trades %>
             <span id="tab-trades-badge" class="stream-slot"><%= render("shell/tab_trades_badge", waiting: shell_trades_waiting, outbid: shell_outbid_count) %></span>
           <% end %>

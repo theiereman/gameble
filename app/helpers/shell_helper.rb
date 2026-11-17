@@ -182,6 +182,12 @@ module ShellHelper
     @shell_invitations_waiting = current_player && Game::InvitationsWaiting.call(current_player)
   end
 
+  def shell_duels_in_progress
+    return @shell_duels_in_progress if defined?(@shell_duels_in_progress)
+
+    @shell_duels_in_progress = Game::DuelInProgress.count(current_player)
+  end
+
   def shell_achievements_unclaimed
     return @shell_achievements_unclaimed if defined?(@shell_achievements_unclaimed)
 

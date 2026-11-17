@@ -708,9 +708,22 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-the-phone-duel-screen-calls-answers-and-reveals-each-round-a-plan.md`
   summary: After ANNONCER or RÉPONDRE fires, the button stays `aria-disabled` if the request fails at the network level, so the player must change a choice to retry.
   evidence: `app/frontend/controllers/duel_controller.ts` (`release` disables the button and calls `requestSubmit()`); the retry and "ENVOI…" state belong to the dropped-connection entry (43.7).
+  resolved: entry 43.7 (2026-11-17): `duel#failed` shows the sending label on the button and sends the same form again every 2 s while the move's timer runs; a resent move refused by its `move_number` comes back without an alert.
 - source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-the-phone-duel-screen-calls-answers-and-reveals-each-round-a-plan.md`
   summary: "Joué" over a 12-column deck thumbnail (about 26 px wide at 390 px, about 22 px at 320) may clip; unverified, needs a real-phone look.
   evidence: `app/views/duels/_deck.html.erb`, `app/frontend/styles/duel-board.css` (`.duel-deck__played`, `overflow: hidden` on the item); hitl follow-up with the 400 ms touch guard, the flip, the drawn-card slide and a screen-reader pass.
 - source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-the-phone-duel-screen-calls-answers-and-reveals-each-round-a-plan.md`
   summary: The rematch's availability is read when the result is rendered; a friend going offline later shows on reload only.
   evidence: `app/models/duel_screen.rb` (`rematch` reads `Game::ReachableFriends` at render; the result board is pushed once at the finishing move).
+
+## Deferred from: build of story-a-dropped-connection-or-a-reload-never-breaks-a-duel-plan (2026-11-17)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-a-dropped-connection-or-a-reload-never-breaks-a-duel-plan.md`
+  summary: The native apps are not changed: a native tab or top-bar destination does not yet count as a disconnection through native code, and the native DUELS tab badge is not wired.
+  evidence: no Swift or Kotlin toolchain on the build machine; `mobile/` untouched; on the web the lease lapses 20 s after the page leaves.
+- source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-a-dropped-connection-or-a-reload-never-breaks-a-duel-plan.md`
+  summary: After a move's timer has run out the button keeps its sending label until a board arrives; a cable that never connects shows no own-connection banner; the resume bell line also shows on the duel's own page.
+  evidence: `app/frontend/controllers/duel_controller.ts` (`resend`), `app/frontend/lib/duel_link.ts` (`linkChecked`), `Game::BellItems.duel_seats`.
+- source_plan: `_bmad-output/initiative-gameble/epic-live-friend-duels/story-a-dropped-connection-or-a-reload-never-breaks-a-duel-plan.md`
+  summary: Every board push also renders the connection slot and the absence sweep re-pushes an unchanged slot every 10 s while a seat is away; the load is unmeasured.
+  evidence: `app/jobs/duel_stream_job.rb`, `app/jobs/duel_absence_job.rb`; epic Unknown: live duel load.

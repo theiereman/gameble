@@ -1846,6 +1846,7 @@ en:
       round_line: "Round %{number}, %{name} calls %{direction}: %{card}, against %{other_card}. %{outcome}."
       round_spoken: "Round %{number} of 10"
       score_spoken: "%{score} to %{other_score}"
+      sending: Sending…
       stat: Stat
       stat_called: "%{label}, already called"
       stat_label: "%{name}, %{words}, %{value}"
@@ -1866,6 +1867,11 @@ en:
       spoken: "%{seconds} seconds"
       warning: 10 seconds left
       you: You
+    connection:
+      other_lost: "%{name}'s connection lost… %{seconds} s"
+      other_lost_spoken: "%{name}'s connection is lost. Their moves will be played automatically after a minute."
+      own_lost: "Connection lost… %{seconds} s"
+      own_lost_spoken: "Your connection is lost."
     decks:
       complete:
         one: ", %{count} card"
@@ -1883,6 +1889,7 @@ en:
       in_progress_html: "Duel in progress against %{name}."
       received_html: "%{name} challenges you to a duel."
       resume: Resume
+      resume_label: "Resume the duel against %{name}"
       waiting_html: "Waiting for %{name}'s answer…"
     online:
       add_friends: "Add friends"
@@ -4510,6 +4517,12 @@ en:
       answer: Answer
       collect: Collect
       daily: Your daily capsule is ready.
+      duel_finished: "Duel against %{name} finished: %{outcome}, %{score} to %{other_score}."
+      duel_outcome:
+        draw: draw
+        loss: defeat
+        win: victory
+      duel_resume: "Your duel against %{name} awaits your return."
       empty: Nothing new for now.
       invitation: "%{name} invites you to be friends."
       label:
@@ -4536,6 +4549,7 @@ en:
         other: "%{name} and %{count} others reacted to your post."
       reaction_trade: "%{card} for %{partner_card}"
       read_all: Mark all as read
+      resume: Resume
       see: See
       title: What is new
       trade: "%{name} awaits your answer to a trade."
@@ -4610,6 +4624,11 @@ en:
       terms: terms of use
     steam_sign_in:
       alt: Sign in through Steam (opens Steam)
+    duels:
+      in_progress:
+        zero: ""
+        one: ", %{count} duel in progress"
+        other: ", %{count} duels in progress"
     exchanges:
       auctions:
         one: "%{number} auction"
