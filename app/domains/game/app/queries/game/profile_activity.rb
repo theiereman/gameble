@@ -6,7 +6,7 @@ module Game
     SQL = <<~SQL.squish.freeze
       SELECT
         (#{AchievementProgress::PACKS_OPENED_SQL}),
-        (SELECT COUNT(*) FROM game_first_discoveries WHERE player_id = :player_id),
+        (#{AchievementProgress::FIRST_DISCOVERIES_SQL}),
         (#{AchievementProgress::TRADES_ACCEPTED_SQL}),
         (#{DuelRecord::WINS_SQL}),
         (#{DuelRecord::LOSSES_SQL}),

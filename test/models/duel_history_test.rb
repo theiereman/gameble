@@ -1,0 +1,36 @@
+require "test_helper"
+require_relative "../support/duels"
+
+class DuelHistoryTest < ActiveSupport::TestCase
+  include Duels
+
+  setup do
+    @lea = accounts_players(:player)
+    @hugo = accounts_players(:moderator)
+  end
+
+  def finish_duel(opponent)
+    duel = active_duel
+    duel.update!(state: "finished", result: "challenger", ended_at: Time.current, challenger_score: 6, opponent_score: 4)
+    { "challenger" => @lea, "opponent" => opponent }.each do |role, player|
+      Game::DuelSeat.create!(duel:, role:, player_id: player&.id, status: "left")
+    end
+  end
+
+  def player_queries
+    count = 0
+    counter = ->(*, payload) { count += 1 if payload[:sql].include?("FROM \"accounts_players\"") }
+    ActiveSupport::Notifications.subscribed(counter, "sql.active_record") { yield }
+    count
+  end
+
+  test "each row names its opponent, all read with one query" do
+    3.times { finish_duel(@hugo) }
+    finish_duel(nil)
+    history = DuelHistory.new(@lea)
+
+    rows = nil
+    assert_equal 1, player_queries { rows = history.rows }
+    assert_equal [ nil, @hugo, @hugo, @hugo ], rows.map(&:opponent).sort_by { it&.id.to_i }
+  end
+end

@@ -742,7 +742,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-ten-duel-achievements-and-the-duelliste-card-back-plan.md`
   summary: Built before the duel capsule ticket, on purpose; nothing of this ticket needs the duel pack kind, `duel_day` or the Fortune columns, but the capsule ticket's emblem grid and its `origin_canisters.mjs` entry are still to come, and the Duelliste back draws its own crossed blades.
   evidence: `script/pixel_art/named_backs.mjs` (the `duelliste` design) and `script/pixel_art/origin_canisters.mjs` (no duel origin yet); the capsule ticket may reuse the DESIGN.md emblem grid for both.
-  resolved: the duel capsule ticket added the DESIGN.md emblem grid and the duel origin to `origin_canisters.mjs`; the Duelliste back keeps its own blades over two cards, as DESIGN.md asks (2026-11-17).
+  resolved: the duel capsule ticket added the DESIGN.md emblem grid and the duel origin to `origin_canisters.mjs`; the Duelliste back keeps its own motif, seven rows of blades over two cards in the back's own palette, because the emblem's 17 × 17 grid leaves no room for the cards; the two blade drawings do not share data and nothing contradicts DESIGN.md (2026-11-17).
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-ten-duel-achievements-and-the-duelliste-card-back-plan.md`
   summary: The ticket names a flavour per achievement, but the achievement locale structure has only a name and a condition per key, so no flavour was added.
   evidence: `config/locales/en.yml` and `config/locales/fr.yml` (`achievements.names`, `achievements.conditions`); no flavour key exists for any of the 30 earlier achievements.
@@ -761,3 +761,13 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-the-profile-and-the-duels-screen-show-the-player-s-record-an-plan.md`
   summary: DERNIERS DUELS reads each row's opponent with its own query, up to ten per Duels screen load, because the accounts domain has no query for several players at once.
   evidence: `DuelHistory#rows` calls `Accounts::PlayerById` per result; `Accounts::PlayersById` does not exist.
+  resolved: `Accounts::PlayersById` reads the opponents of all rows in one query (refactor sweep of the epic, 2026-11-17).
+
+## Deferred from: build of story-refactor-sweep-plan (2026-11-17, epic-duel-capsule-record-and-achievements)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-refactor-sweep-plan.md`
+  summary: Three drawings of crossed blades exist (the 17 × 17 canister emblem, the 7 × 7 achievement glyph, the Duelliste back's motif) and the DUELS tab icon is a fourth; they differ in size and palette on purpose, so a shared grid would change the art.
+  evidence: `script/pixel_art/origin_canisters.mjs` (`BLADES`), `script/pixel_art/export.mjs` (`ACHIEVEMENT_GLYPHS.blades`), `script/pixel_art/named_backs.mjs` (`duelliste`).
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-refactor-sweep-plan.md`
+  summary: `Game::DuelCapsule.award` returns `nil` both when nobody won and when the winner is removed or the pool is missing; a named constant for it would add a value no caller reads.
+  evidence: `app/domains/game/app/models/game/duel_capsule.rb`, `app/domains/game/app/operations/game/answer_round.rb` (`finish`).

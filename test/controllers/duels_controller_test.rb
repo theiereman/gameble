@@ -394,7 +394,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
 
     get duels_path(locale: :fr)
 
-    assert_select ".duel-record__line", "Duels : 1 victoire, 1 défaite, 0 égalité"
+    assert_select ".duel-record__line", "Duels : 1 victoire, 1 défaite, 0 égalité"
     assert_select ".duel-record a.button--link", "Règles du duel"
     assert_select ".duel-history__row .visually-hidden", "Défaite contre Hugo, 4 à 6"
   end

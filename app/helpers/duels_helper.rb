@@ -98,8 +98,7 @@ module DuelsHelper
   end
 
   def duel_result_spoken(screen)
-    spoken = t("duels.board.result_spoken.#{screen.outcome}", name: duel_plain_name(screen.opponent), score: screen.score,
-      other_score: screen.other_score)
+    spoken = duel_result_line_spoken(screen)
     screen.decided_on_margin? ? spoken + t("duels.board.result_margin", margin: duel_points(screen.margin_gap)) : spoken
   end
 

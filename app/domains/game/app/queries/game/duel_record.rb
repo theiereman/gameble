@@ -3,7 +3,7 @@ module Game
     Record = Data.define(:wins, :losses, :draws)
     NONE = Record.new(wins: 0, losses: 0, draws: 0)
 
-    WINS_SQL = "SELECT COUNT(*) FROM #{DuelAchievementMetrics::OWN_WINS}".freeze
+    WINS_SQL = DuelAchievementMetrics::SQL.fetch(:duels_won)
     LOSSES_SQL = "SELECT COUNT(*) FROM #{DuelAchievementMetrics::OWN_FINISHED_DUELS} AND duel.result <> 'draw' AND duel.result <> seat.role".freeze
     DRAWS_SQL = "SELECT COUNT(*) FROM #{DuelAchievementMetrics::OWN_FINISHED_DUELS} AND duel.result = 'draw'".freeze
 

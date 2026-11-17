@@ -6,8 +6,6 @@ module Game
 
     INDEX = "index_game_packs_one_duel_pack_per_day".freeze
 
-    # The case that applied to a finished duel's win, with the capsule drawn under the winner's bank lock when it is granted;
-    # nil when nobody won, or the winner can no longer receive one.
     def self.award(rules, seats, now, random: SecureRandom)
       winner_role = rules.result
       return if winner_role == :draw
