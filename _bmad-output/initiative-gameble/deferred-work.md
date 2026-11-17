@@ -651,3 +651,7 @@
 - source_plan: none
   summary: A "contribute to the code" achievement the author grants by hand from the back office.
   evidence: Split on 2026-11-16 from the achievements-wave request; it needs a new back-office action, independent of the metric-based achievements.
+
+- source_plan: `_bmad-output/initiative-gameble/plan-repost-set-tiers.md`
+  summary: FeedsControllerTest "the counters of a page are read in one query whatever the number of entries" fails when run alone or with few files (2 reaction queries instead of 1).
+  evidence: fails on baseline e34e9da0 with `bin/rails test test/controllers/feeds_controller_test.rb:777`; passes in the full run, so it is order-dependent.
