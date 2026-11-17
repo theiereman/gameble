@@ -138,8 +138,18 @@ class Game::RemovedPlayerDuelsTest < ActiveSupport::TestCase
     assert_not_nil lapsed.ended_at
     assert_equal [ "left", nil ], [ seat(duel, :opponent).status, seat(duel, :opponent).player_id ]
     assert_equal [ "left", @lea.id ], [ seat(duel, :challenger).status, seat(duel, :challenger).player_id ]
-    assert_equal [ { player_id: @lea.id, topic: "duels", duel_id: duel.id, kind: "lapsed", role: "challenger" } ], duel_notices
+    assert_equal [ { player_id: @lea.id, topic: "duels", duel_id: duel.id, kind: "lapsed", role: "challenger" } ], duel_notices.select { it[:player_id] == @lea.id }
     assert_equal :not_due, Game::LapseChallenge.new.call(player: @lea, token: duel.token, move_number: 0).failure
+  end
+
+  test "a received challenge lapsed by the deletion publishes one lapse event and refreshes the challenger's duel screen" do
+    duel = Game::ChallengeFriend.new.call(player: @lea, friend: @hugo, deck_token: deck_token_of(@lea)).value!
+    clear_enqueued_jobs
+
+    delete(@hugo)
+
+    assert_equal [ { duel_id: duel.id, challenger_id: @lea.id, opponent_id: @hugo.id } ], events("Game::DuelChallengeLapsed").map(&:data)
+    assert_enqueued_with(job: DuelStreamJob, args: [ [ duel.id ] ])
   end
 
   test "a challenge from a banned player cannot be accepted and lapses at its deadline" do

@@ -1,10 +1,12 @@
 module Game
   class ReleaseDuelSeats < Operation
+    include DuelSteps
+
     def call(player:)
       player = step require_account(player)
 
       transaction do
-        lapse_received_challenge(player)
+        step lapse_received_challenge(player)
         DuelSeat.where(player_id: player.id, status: "left").update_all(player_id: nil, updated_at: Time.current)
         player
       end
@@ -14,13 +16,13 @@ module Game
 
     def lapse_received_challenge(player)
       seat = DuelSeat.find_by(player_id: player.id, status: "invited")
-      return unless seat
+      return Success() unless seat
 
       duel = Duel.lock.find(seat.duel_id)
-      return unless duel.state == "challenged"
+      return Success() unless duel.state == "challenged"
 
-      DuelSeat.where(duel_id: duel.id).order(:id).lock.each { it.update!(status: "left") }
-      duel.update!(state: "lapsed", ended_at: Time.current, move_number: duel.move_number + 1)
+      seats = DuelSeat.where(duel_id: duel.id).order(:id).lock.index_by { it.role.to_sym }
+      lapse(player, duel, seats)
     end
   end
 end
