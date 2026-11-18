@@ -78,11 +78,6 @@ export default class extends Controller<HTMLElement> {
     event.preventDefault()
   }
 
-  // Turbo restores a cached frame marked complete and never reloads its source.
-  reloadWhenRestored(): void {
-    this.frameTarget.removeAttribute("complete")
-  }
-
   show(): void {
     const lines = this.lines()
     this.markRead(linesSeenHere(lines, window.location.pathname))

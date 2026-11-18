@@ -200,6 +200,19 @@ class BellTest < ApplicationSystemTestCase
     resize_to(*SCREEN_SIZE)
   end
 
+  test "the bell stays the same element through a Turbo navigation, keeping its count without asking for its lines again" do
+    sign_in
+    assert_count 3
+    page.execute_script("document.querySelector('.bell').dataset.kept = 'yes'")
+    page.execute_script("window.addEventListener('turbo:before-fetch-request', (event) => { if (event.detail.url.pathname === '/en/bell') document.body.dataset.bellFetched = 'yes' })")
+
+    page.execute_script("Turbo.visit('/en/friends')")
+    assert_current_path "/en/friends"
+    assert_selector ".bell[data-kept='yes']"
+    assert_count 2
+    assert_no_selector "body[data-bell-fetched]"
+  end
+
   test "once every line is seen there is no count and the panel says nothing is new" do
     Game::DailyBonusClaim.create!(player_id: @hugo.id, day: Game::DailyBonusClaim.day_of(Time.current), pack_id: create_pack(@hugo, kind: :bonus).id)
     sign_in

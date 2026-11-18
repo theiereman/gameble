@@ -1,4 +1,4 @@
-<%= tag.div class: "bell", data: { controller: "bell", action: "turbo:morph@document->bell#show turbo:before-cache@document->bell#reloadWhenRestored",
+<%= tag.div id: "bell-#{current_player.token}", class: "bell", data: { turbo_permanent: true, controller: "bell", action: "turbo:morph@document->bell#show turbo:load@document->bell#show",
       bell_labels_value: t("shell.bell.label").to_json, bell_owner_value: current_player.token, bell_read_url_value: bell_read_path } do %>
   <button type="button" class="bell__button" popovertarget="bell-panel">
     <%= pixel_icon("bell", class: "bell__icon") %>
