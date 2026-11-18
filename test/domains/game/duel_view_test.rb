@@ -46,7 +46,7 @@ class Game::DuelViewTest < ActiveSupport::TestCase
     assert_equal [ role, other ], [ seen.mine.role, seen.theirs.role ]
     assert_equal [ rules.deck(role), rules.deck(other) ], [ seen.mine.deck, seen.theirs.deck ]
     assert_equal [ rules.played(role), rules.played(other) ], [ seen.mine.played, seen.theirs.played ]
-    assert_equal [ rules.round, rules.caller, rules.result ], [ seen.round, seen.caller, seen.result ]
+    assert_equal [ rules.round, rules.caller, duel.result&.to_sym ], [ seen.round, seen.caller, seen.result ]
     assert_equal rules.played_rounds, seen.rounds
     assert_equal [ duel.token, duel.state.to_sym ], [ seen.token, seen.state ]
     assert_hand(rules, seen, role)

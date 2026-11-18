@@ -67,6 +67,11 @@
 @container (width < 170px) {
   .deck-card__overlay {
     padding: 0 var(--space-4) var(--space-4);
+    background: linear-gradient(
+      to bottom,
+      transparent 24%,
+      color-mix(in srgb, var(--color-panel-sunken) 92%, transparent) 46%
+    );
   }
 
   .deck-card .stat-bars {

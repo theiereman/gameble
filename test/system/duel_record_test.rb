@@ -71,7 +71,8 @@ class DuelRecordSystemTest < ApplicationSystemTestCase
     assert_no_selector "a[href='#{duel_path(locale: :en, token: lost.token)}']"
 
     visit duels_path(locale: :en)
-    click_link "Duel rules"
+    find(".duel-tutorial .hub-fold").click
+    click_link "Detailed rules"
     assert_current_path "/en/how-it-works"
     assert_equal "how-it-works-duels", URI(current_url).fragment
     assert_selector "#how-it-works-duels", text: /duels/i

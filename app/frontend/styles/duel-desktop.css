@@ -1,7 +1,7 @@
-/* ---- The duel screen on a desktop window: it fills the window, the player's deck on the left and the opponent's on
-   the right, each a list, the table and the call between them. The reveal and the result keep the phone column. ---- */
+/* ---- The duel screen on a desktop window, or a phone turned sideways (duel-landscape.css): it fills the window, the
+   player's deck on the left and the opponent's on the right, each a list, the table and the call between them. The reveal and the result keep the phone column. ---- */
 
-@media (min-width: 1180px) {
+@media (min-width: 1180px), (orientation: landscape) and (max-height: 540px) {
   .duel.page,
   .duel-board {
     max-width: none;

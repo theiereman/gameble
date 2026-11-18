@@ -45,4 +45,44 @@ describe("the hub panel fold", () => {
     expect(button().getAttribute("aria-expanded")).toBe("true")
     expect(animate).not.toHaveBeenCalled()
   })
+
+  describe("with a remembered fold", () => {
+    const mount = async (saved?: string): Promise<void> => {
+      application.stop()
+      window.localStorage.clear()
+      if (saved) window.localStorage.setItem("duel-tutorial", saved)
+      document.body.replaceChildren(
+        serverTemplate(`
+        <section class="panel">
+          <button type="button" aria-expanded="true" data-controller="hub-fold" data-hub-fold-remember-value="duel-tutorial" data-action="hub-fold#toggle"></button>
+        </section>`).content,
+      )
+      application = Application.start()
+      application.register("hub-fold", HubFoldController)
+      await Promise.resolve()
+    }
+
+    afterEach(() => window.localStorage.clear())
+
+    it("keeps the server's state when nothing was saved, and saves each choice", async () => {
+      await mount()
+      expect(button().getAttribute("aria-expanded")).toBe("true")
+
+      button().click()
+      expect(window.localStorage.getItem("duel-tutorial")).toBe("false")
+      button().click()
+      expect(window.localStorage.getItem("duel-tutorial")).toBe("true")
+    })
+
+    it("comes back folded when the player folded it before", async () => {
+      await mount("false")
+      expect(button().getAttribute("aria-expanded")).toBe("false")
+    })
+
+    it("does not touch the storage for a fold that remembers nothing", async () => {
+      window.localStorage.clear()
+      button().click()
+      expect(window.localStorage.length).toBe(0)
+    })
+  })
 })

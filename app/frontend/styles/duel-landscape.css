@@ -1,0 +1,180 @@
+/* ---- The duel on a phone turned sideways: the desktop layout (duel-desktop.css) squeezed into a window a few
+   hundred pixels high. The page never scrolls: the header is one line, each deck is a list that scrolls inside its
+   column, and everything that only explains (hints, headings, the alpha warning, the past rounds) is left out. ---- */
+
+@media (orientation: landscape) and (max-height: 540px) and (max-width: 1179px) {
+  body:has(.duel-board) .top-bar,
+  body:has(.duel-board) .app-version {
+    display: none;
+  }
+
+  .main:has(> .duel) {
+    padding-block: var(--space-3);
+  }
+
+  .duel.page {
+    position: relative;
+    max-width: none;
+    gap: var(--space-3);
+  }
+
+  .alpha-banner {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-4);
+    z-index: 2;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .alpha-banner__warning,
+  .duel-header__hint,
+  .duel-board__heading,
+  .duel-table__caption,
+  .duel-table .duel-past {
+    display: none;
+  }
+
+  .duel-board {
+    gap: var(--space-3);
+  }
+
+  .duel-header {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-2) 17rem var(--space-2) var(--space-5);
+  }
+
+  .duel-header__round {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0;
+  }
+
+  .duel-header__turn {
+    align-self: center;
+    font: var(--font-label);
+  }
+
+  .duel-header .duel-board__score {
+    flex: 1;
+    grid-column: auto;
+    grid-row: auto;
+    min-width: 0;
+  }
+
+  .duel-header .duel-board__figure,
+  .duel-header .duel-clock__time {
+    font: var(--font-number);
+    letter-spacing: 0;
+  }
+
+  .duel-board__margin {
+    display: none;
+  }
+
+  .duel-forfeit {
+    position: absolute;
+    top: var(--space-2);
+    right: 6rem;
+    z-index: 2;
+  }
+
+  .duel-live:has(> .duel-deck):not([hidden]) {
+    grid-template-columns: 280px minmax(0, 1fr) minmax(0, 1fr) 280px;
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: var(--space-4);
+    height: calc(100dvh - 7rem);
+  }
+
+  .duel-deck {
+    min-height: 0;
+    gap: var(--space-3);
+  }
+
+  .duel-deck__head {
+    gap: var(--space-1);
+    padding-inline: var(--space-3);
+    font-size: 0.5625rem;
+    letter-spacing: 0;
+  }
+
+  .duel-deck__cards {
+    flex: 1;
+    grid-auto-rows: max-content;
+    align-content: start;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .duel-table {
+    min-height: 0;
+    overflow-y: auto;
+    gap: var(--space-3);
+  }
+
+  #duel-my-deck .duel-deck__card--played {
+    display: flex;
+  }
+
+  .duel-call__card {
+    gap: var(--space-1);
+    padding: var(--space-2);
+  }
+
+  .duel-call__row {
+    grid-template-columns: 28px minmax(0, 1fr) 28px;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .duel-call__side {
+    min-height: 24px;
+    padding: 0;
+  }
+
+  .duel-call__stat {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .duel-call__stat .stat-bars__bar {
+    display: none;
+  }
+
+  .duel-call__name {
+    flex: none;
+    width: 3.75rem;
+    overflow: hidden;
+    font-size: 0.625rem;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .duel-call__value {
+    flex: 1;
+    font-size: 0.625rem;
+    letter-spacing: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .duel-table__slot .duel-face,
+  .duel-table__slot .duel-table__place {
+    max-width: 72px;
+  }
+
+  .duel-table__slot .duel-face .stat-bars {
+    display: none;
+  }
+}
