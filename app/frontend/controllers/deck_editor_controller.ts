@@ -20,6 +20,8 @@ import {
   requestFor,
   saved,
   slotsView,
+  searchFor,
+  showMore,
   sortBy,
   start,
   SLOT_COUNT,
@@ -166,6 +168,14 @@ export default class DeckEditorController extends Controller<HTMLElement> {
     this.apply(chooseGap(this.state, call))
   }
 
+  search({ detail: { query } }: Intent<{ query: string }>): void {
+    if (this.state) this.apply(searchFor(this.state, query))
+  }
+
+  more(): void {
+    if (this.state) this.apply(showMore(this.state))
+  }
+
   sortBy({ detail: { sort } }: Intent<{ sort: string }>): void {
     if (!this.state) return
     this.apply(sortBy(this.state, sort))
@@ -222,7 +232,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
     const strings = this.stringsValue
     const count = countOf(state)
     this.deckName()?.render({ name: state.name, refusal: state.nameRefusal })
-    if (state.coverage) this.coverage()?.render(state.coverage, strings.coverageCovered)
+    if (state.coverage) this.coverage()?.render(state.coverage)
     this.slots()?.render(slotsView(state, strings))
     this.collection()?.render(collectionView(state), strings)
     writeText(this.summaryNameTarget, state.name)

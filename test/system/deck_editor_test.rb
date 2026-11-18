@@ -4,7 +4,7 @@ require_relative "../support/decks"
 
 # The deck editor: a new deck is created by its first change, every change saves at once, a second edition of a game
 # and a thirteenth card are refused, a slot's button takes its card out, a deleted deck frees its copies and lands on Duels,
-# a coverage gap sorts the collection and the fill completes the deck.
+# a coverage gap sorts the collection, the search narrows it and a page of cards shows more on request.
 class DeckEditorTest < ApplicationSystemTestCase
   include SteamSignIn
   include Decks
@@ -48,7 +48,7 @@ class DeckEditorTest < ApplicationSystemTestCase
 
     fill_in "Deck name", with: "Vieux briscards"
     find("#deck-name").send_keys(:tab)
-    assert_selector ".deck-editor__summary-name", text: "Vieux briscards"
+    assert_selector ".deck-editor__summary-name", text: "Vieux briscards", visible: :all
     eventually("the name should be saved") { deck.reload.name == "Vieux briscards" }
 
     entry(@second_edition).click
@@ -115,11 +115,28 @@ class DeckEditorTest < ApplicationSystemTestCase
     visit deck_path(locale: :en, token: deck.token)
 
     assert_selector ".deck-slots__slot:first-child .deck-slot__moves", text: "▲ Pop."
-    find(".deck-coverage__cell[data-call='release-low'] .deck-coverage__gap .button").click
+    find(".deck-coverage__cell[data-call='release-low'] .deck-coverage__gap").click
     assert_status "Collection sorted: Oldest"
     assert_selector ".deck-collection__list > li:first-child .deck-entry__toggle[data-ref='#{ref_of(oldest)}']"
     assert_selector ".deck-collection .sort__current", text: /\AOldest\z/i
     assert_selector ".deck-collection .sort__option[aria-current='true']", text: "Oldest", visible: :all
     eventually("the gap should keep the focus") { page.evaluate_script("document.activeElement.closest('[data-call]')?.dataset.call") == "release-low" }
+  end
+
+  test "the search narrows the collection by title, and the rest of a long collection shows on request" do
+    extra = ranked_cards(@player, 14, titles: Array.new(14) { format("Extra %02d", it + 1) })
+    sign_in(@player)
+    visit deck_path(locale: :en, token: Game::CreateDeck.new.call(player: @player).value!.token)
+
+    assert_selector ".deck-entry:not([hidden])", count: 24
+    click_on "Show more cards"
+    assert_selector ".deck-entry:not([hidden])", count: 28
+    assert_no_selector ".deck-collection__more:not([hidden])"
+
+    fill_in "deck-search", with: "extra 01"
+    assert_selector ".deck-entry:not([hidden])", count: 1
+    fill_in "deck-search", with: "zzzz"
+    assert_selector ".deck-collection__empty", text: "No card matches."
+    assert_equal 14, extra.size
   end
 end

@@ -1,22 +1,26 @@
 <%# locals: (editor:) %>
 <% deck = editor.deck %>
-<%= tag.section id: "deck-editor", class: "deck-editor", aria: { labelledby: "deck-editor-heading" }, data: deck_editor_root_data(editor) do %>
+<%= tag.section id: "deck-editor", class: "deck-editor page page--wide", aria: { labelledby: "deck-editor-heading" }, data: deck_editor_root_data(editor) do %>
   <h1 id="deck-editor-heading" class="visually-hidden"><%= t("decks.editor.title") %></h1>
-  <p class="deck-editor__summary">
-    <span class="deck-editor__summary-name" data-deck-editor-target="summaryName"><%= deck&.name %></span>
-    <span class="deck-editor__save" aria-hidden="true" data-deck-editor-target="saveState"></span>
-    <span class="deck-editor__count" aria-hidden="true" data-deck-editor-target="count"><%= editor.count %> / <%= Game::Deck::SLOTS.size %></span>
-    <span class="visually-hidden" data-deck-editor-target="countHidden"><%= t("decks.editor.strings.count_hidden", count: editor.count) %></span>
-  </p>
-  <div class="deck-editor__name" data-controller="deck-name">
-    <label for="deck-name" class="deck-editor__label"><%= t("decks.editor.name_label") %></label>
-    <%= text_field_tag :name, deck&.name, id: "deck-name", class: "deck-editor__input", autocomplete: "off", spellcheck: false,
-          aria: { describedby: "deck-name-refusal" },
-          data: { deck_name_target: "input", action: "change->deck-name#commit keydown.enter->deck-name#commit" } %>
-    <p id="deck-name-refusal" class="deck-editor__refusal" data-deck-name-target="refusal"></p>
+  <div class="deck-editor__head">
+    <div class="deck-editor__name" data-controller="deck-name">
+      <label for="deck-name" class="deck-editor__label"><%= t("decks.editor.name_label") %></label>
+      <%= text_field_tag :name, deck&.name, id: "deck-name", class: "deck-editor__input", autocomplete: "off", spellcheck: false,
+            aria: { describedby: "deck-name-refusal" },
+            data: { deck_name_target: "input", action: "change->deck-name#commit keydown.enter->deck-name#commit" } %>
+      <p id="deck-name-refusal" class="deck-editor__refusal" data-deck-name-target="refusal"></p>
+    </div>
+    <p class="deck-editor__summary">
+      <span class="deck-editor__summary-name visually-hidden" data-deck-editor-target="summaryName"><%= deck&.name %></span>
+      <span class="deck-editor__save" aria-hidden="true" data-deck-editor-target="saveState"></span>
+      <span class="deck-editor__count" aria-hidden="true" data-deck-editor-target="count"><%= editor.count %> / <%= Game::Deck::SLOTS.size %></span>
+      <span class="visually-hidden" data-deck-editor-target="countHidden"><%= t("decks.editor.strings.count_hidden", count: editor.count) %></span>
+    </p>
   </div>
-  <%= render "decks/coverage", coverage: editor.coverage %>
-  <%= render "decks/slots", editor: editor %>
+  <%= render PanelComponent.new(class: "deck-editor__deck") do %>
+    <%= render "decks/slots", editor: editor %>
+    <%= render "decks/coverage", coverage: editor.coverage %>
+  <% end %>
   <p class="deck-editor__status" role="status" data-deck-editor-target="status"></p>
   <%= render "decks/collection", editor: editor %>
   <div class="deck-editor__delete" data-deck-editor-target="deleteArea" <%= "hidden" unless deck %>>

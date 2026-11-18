@@ -3,7 +3,7 @@ export const ALL_TRUMPS = "all"
 
 export type Percentiles = Readonly<Record<string, number | null>>
 
-export type Ranked = { percentiles: Percentiles; trump: string }
+export type Ranked = { percentiles: Percentiles; trump: string; title: string }
 
 type Entries = Readonly<Record<string, Ranked | undefined>>
 
@@ -29,6 +29,14 @@ export function sortRefs(entries: Entries, order: readonly string[], sort: strin
   return ranked.map(({ ref }) => ref)
 }
 
-export function visibleRefs(entries: Entries, order: readonly string[], trump: string): string[] {
-  return trump === ALL_TRUMPS ? [...order] : order.filter((ref) => entries[ref]?.trump === trump)
+const plain = (text: string): string => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
+
+export function visibleRefs(entries: Entries, order: readonly string[], trump: string, query = ""): string[] {
+  const words = plain(query).split(/\s+/).filter(Boolean)
+  return order.filter((ref) => {
+    const entry = entries[ref]
+    if (trump !== ALL_TRUMPS && entry?.trump !== trump) return false
+    const title = plain(entry?.title ?? "")
+    return words.every((word) => title.includes(word))
+  })
 }

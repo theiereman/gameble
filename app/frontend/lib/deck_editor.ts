@@ -6,6 +6,7 @@ import { t, type Template, type Vars } from "./i18n"
 export type { CoverageCell } from "./deck_editor_answers"
 
 export const SLOT_COUNT = 12
+const PAGE_SIZE = 24
 
 export type Availability = "available" | "unranked" | "reserved"
 
@@ -44,6 +45,8 @@ export type DeckState = {
   order: readonly string[]
   sort: string
   trump: string
+  query: string
+  shown: number
   coverage: readonly CoverageCell[] | null
   pending: readonly Change[]
   active: string | null
@@ -79,7 +82,6 @@ export type DeckStrings = {
   saveStateSaving: string
   notYetRanked: string
   noFreeCopy: string
-  coverageCovered: string
   sorted: string
   calls: Readonly<Record<string, string>>
 }
@@ -88,7 +90,13 @@ export type SlotView = { ref: string; title: string; image: string; label: strin
 
 export type EntryView = { inDeck: boolean; tabbable: boolean; hidden: boolean }
 
-export type CollectionView = { sort: string; trump: string; entries: ReadonlyMap<string, EntryView> }
+export type CollectionView = {
+  sort: string
+  trump: string
+  remaining: number
+  matches: number
+  entries: ReadonlyMap<string, EntryView>
+}
 
 export type Request = { url: string; method: "POST" | "PATCH" | "DELETE"; body: Record<string, string | null> }
 
@@ -114,6 +122,8 @@ export function start({ token, url, name, slots, entries }: Start): DeckState {
     order: entries.map((entry) => entry.ref),
     sort: BY_TITLE,
     trump: ALL_TRUMPS,
+    query: "",
+    shown: PAGE_SIZE,
     coverage: null,
     pending: [],
     active: entries[0]?.ref ?? null,
@@ -127,7 +137,10 @@ export const countOf = (state: DeckState): number => state.slots.filter((ref) =>
 
 const sortedOrder = (state: DeckState): string[] => sortRefs(state.entries, state.order, state.sort)
 
-const visibleOrder = (state: DeckState): string[] => visibleRefs(state.entries, sortedOrder(state), state.trump)
+const filteredOrder = (state: DeckState): string[] =>
+  visibleRefs(state.entries, sortedOrder(state), state.trump, state.query)
+
+const visibleOrder = (state: DeckState): string[] => filteredOrder(state).slice(0, state.shown)
 
 function noticed(state: DeckState, notice: Notice): DeckState {
   return { ...state, notice, noticeCount: state.noticeCount + 1 }
@@ -179,18 +192,30 @@ export function rename(state: DeckState, typed: string): DeckState {
 }
 
 export function sortBy(state: DeckState, sort: string): DeckState {
-  return sort === state.sort ? state : { ...state, sort }
+  return sort === state.sort ? state : { ...state, sort, shown: PAGE_SIZE }
 }
 
 export function chooseGap(state: DeckState, call: string): DeckState {
-  return noticed({ ...state, sort: call }, { kind: "sorted", call })
+  return noticed({ ...state, sort: call, shown: PAGE_SIZE }, { kind: "sorted", call })
 }
 
 export function filterBy(state: DeckState, trump: string): DeckState {
   if (trump === state.trump) return state
-  const next = { ...state, trump }
+  const next = { ...state, trump, shown: PAGE_SIZE }
   const visible = visibleOrder(next)
   return state.active !== null && visible.includes(state.active) ? next : { ...next, active: visible[0] ?? null }
+}
+
+export function searchFor(state: DeckState, typed: string): DeckState {
+  const query = typed.trim()
+  if (query === state.query) return state
+  const next = { ...state, query, shown: PAGE_SIZE }
+  const first = visibleOrder(next)[0] ?? null
+  return { ...next, active: first }
+}
+
+export function showMore(state: DeckState): DeckState {
+  return { ...state, shown: state.shown + PAGE_SIZE }
 }
 
 export function nextToSend(state: DeckState): Change | null {
@@ -303,7 +328,13 @@ export function collectionView(state: DeckState): CollectionView {
       { inDeck: inDeck.has(ref), tabbable: ref === state.active, hidden: !visible.has(ref) },
     ]),
   )
-  return { sort: state.sort, trump: state.trump, entries }
+  return {
+    sort: state.sort,
+    trump: state.trump,
+    remaining: Math.max(filteredOrder(state).length - state.shown, 0),
+    matches: filteredOrder(state).length,
+    entries,
+  }
 }
 
 export function noticeText(state: DeckState, strings: DeckStrings): string {

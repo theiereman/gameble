@@ -3941,12 +3941,17 @@ fr:
       slots: "Emplacements"
       empty_slot: "Emplacement vide"
       collection: "Votre collection"
+      more: "Voir plus de cartes"
+      no_match: "Aucune carte ne correspond."
+      search:
+        label: "Rechercher dans vos cartes"
+        placeholder: "Rechercher une carte…"
       empty_collection: "Aucune carte dans votre collection pour l'instant."
       no_stats: "Stats lundi"
       trump: "%{trump} · %{stat}"
       coverage:
-        heading: "Couverture"
-        gap: "Manque"
+        heading: "Il manque"
+        none: "Rien ne manque"
         gap_label: "%{call}, manque, trier la collection"
         short:
           popularity:
@@ -3995,7 +4000,6 @@ fr:
         save_state_failed: "Non enregistré"
         save_state_saved: "Enregistré"
         save_state_saving: "Enregistrement…"
-        coverage_covered: "%{call}, %{best}"
         sorted: "Collection triée : %{call}"
     holding:
       tag: "Dans un deck"

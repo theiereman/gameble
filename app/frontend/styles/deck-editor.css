@@ -1,16 +1,6 @@
-/* ---- The deck editor: the deck's name and count, its twelve slots, the
-   status line, then the player's collection, one row per edition. ---- */
-
-.deck-editor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  width: 100%;
-  max-width: var(--space-content-max);
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-gutter-phone);
-  box-sizing: border-box;
-}
+/* ---- The deck editor: the name, save state and count; one panel holding the
+   twelve slots beside the list of what the deck still misses, stuck to the top
+   on desktop while the collection scrolls; then the collection. ---- */
 
 .deck-editor__notice {
   margin: 0;
@@ -21,27 +11,23 @@
   font: var(--font-body);
 }
 
+.deck-editor__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
 .deck-editor__summary {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-4);
   margin: 0;
   min-height: var(--space-touch-min);
-  color: var(--color-text-bright);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-}
-
-.deck-editor__summary-name {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .deck-editor__save {
-  margin-left: auto;
   color: var(--color-muted);
   font: var(--font-body-small);
   letter-spacing: var(--tracking-body-small);
@@ -58,26 +44,29 @@
 .deck-editor__count {
   flex: none;
   padding: var(--space-1) var(--space-3);
-  box-shadow: inset 0 0 0 1px var(--color-dim);
-  color: var(--color-muted);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+  color: var(--color-text-bright);
   font: var(--font-number);
   letter-spacing: var(--tracking-number);
 }
 
 .deck-editor__name {
   display: flex;
+  flex: 1 1 280px;
   flex-direction: column;
   gap: var(--space-2);
+  max-width: 480px;
 }
 
 .deck-editor__label {
   color: var(--color-accent);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
 }
 
-.deck-editor__input {
+.deck-editor__input,
+.deck-collection__search {
   box-sizing: border-box;
   min-width: 0;
   min-height: var(--space-button-height);
@@ -90,7 +79,8 @@
   letter-spacing: var(--tracking-body);
 }
 
-.deck-editor__input:focus-visible {
+.deck-editor__input:focus-visible,
+.deck-collection__search:focus-visible {
   outline: 0;
   box-shadow:
     var(--focus-ring-gap),
@@ -124,13 +114,18 @@
   display: none;
 }
 
-/* ---- Slots: four columns of three, three of four on the phone ---- */
+.deck-editor__deck {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ---- Slots: six columns of two ---- */
 
 .deck-slots__list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  max-width: calc(4 * var(--space-grid-card-min));
-  gap: var(--space-3);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -172,17 +167,18 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.55;
 }
 
 .deck-slot__name {
   position: relative;
+  box-sizing: border-box;
+  width: 100%;
   padding: var(--space-1) var(--space-2);
   overflow: hidden;
+  background: var(--color-panel-sunken);
   font: var(--font-card-meta);
   letter-spacing: var(--tracking-card-meta);
   text-overflow: ellipsis;
-  text-shadow: 0 1px 0 var(--color-outline);
   white-space: nowrap;
 }
 
@@ -215,19 +211,19 @@ button.deck-slot:focus-visible {
     inset 0 0 0 var(--space-unit) var(--color-accent);
 }
 
-/* ---- Collection: one row per edition ---- */
+/* ---- Collection: the tools, then the tiles (deck-entry.css) ---- */
 
 .deck-collection {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .deck-collection__heading {
   margin: 0;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
 }
 
@@ -237,11 +233,21 @@ button.deck-slot:focus-visible {
   font: var(--font-body);
 }
 
+.deck-collection__empty[hidden],
+.deck-collection__more[hidden] {
+  display: none;
+}
+
 .deck-collection__tools {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
+}
+
+.deck-collection__search {
+  flex: 1 1 220px;
+  max-width: 360px;
 }
 
 .deck-collection__trumps {
@@ -258,117 +264,9 @@ button.deck-slot:focus-visible {
   margin-left: auto;
 }
 
-.deck-collection__list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(calc(2 * var(--space-grid-card-min)), 1fr));
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.deck-entry {
+.deck-collection__more {
   display: flex;
-  min-width: 0;
-}
-
-.deck-entry[hidden] {
-  display: none;
-}
-
-.deck-entry__toggle {
-  display: grid;
-  grid-template-columns: calc(var(--space-touch-min) + var(--space-1)) minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  align-items: center;
-  width: 100%;
-  min-height: var(--space-touch-min);
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-panel);
-  border: 0;
-  box-shadow: inset 0 0 0 1px var(--color-line-soft);
-  color: var(--color-text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.deck-entry__toggle[aria-pressed="true"] {
-  box-shadow: inset 0 0 0 1px var(--color-accent);
-}
-
-.deck-entry__toggle[aria-disabled="true"] {
-  cursor: default;
-}
-
-.deck-entry__toggle[aria-disabled="true"] .deck-entry__art {
-  opacity: 0.4;
-}
-
-.deck-entry__toggle:focus-visible {
-  outline: 0;
-  box-shadow:
-    var(--focus-ring-gap),
-    inset 0 0 0 var(--space-unit) var(--color-accent);
-}
-
-.deck-entry__art {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 460 / 215;
-  object-fit: cover;
-}
-
-.deck-entry__text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-.deck-entry__title {
-  overflow: hidden;
-  color: var(--color-text-bright);
-  font: var(--font-body);
-  font-weight: var(--font-weight-bold);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.deck-entry__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-}
-
-.deck-entry__meta .season-mark {
-  position: static;
-  padding: 0 var(--space-1);
-}
-
-.deck-entry__action {
-  color: var(--color-accent);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.deck-entry__toggle[aria-pressed="true"] .deck-entry__action {
-  color: var(--color-muted);
-}
-
-.deck-entry__reserved {
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-panel-sunken);
-  box-shadow: inset 0 0 0 2px var(--color-line-deep);
-  color: var(--color-accent);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  justify-content: center;
 }
 
 /* ---- The delete dialog ---- */
@@ -391,22 +289,20 @@ button.deck-slot:focus-visible {
   gap: var(--space-4);
 }
 
-@media (max-width: 719px) {
-  .deck-editor__summary {
+@media (min-width: 1180px) {
+  .deck-editor__deck {
     position: sticky;
-    top: 0;
-    z-index: 2;
-    padding: 0 var(--space-3);
-    background: var(--color-steam-bar);
-    box-shadow: 0 2px 0 var(--color-line);
+    top: calc(var(--topbar-height) + var(--space-2));
+    z-index: 3;
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(220px, 1fr);
+    align-items: start;
   }
+}
 
+@media (max-width: 719px) {
   .deck-slots__list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .deck-collection__list {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .deck-collection__tools .sort {

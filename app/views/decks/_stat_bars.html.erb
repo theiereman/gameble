@@ -1,0 +1,11 @@
+<%# locals: (bars:) %>
+<ul class="stat-bars" aria-hidden="true">
+  <% bars.each do |bar| %>
+    <%= tag.li class: class_names("stat-bars__row", "stat-bars__row--trump": bar.trump), data: { tier: bar.tier } do %>
+      <span class="stat-bars__name"><%= t("duel_stats.short.#{bar.stat}") %></span>
+      <span class="stat-bars__side"><%= bar.side == "high" ? "▲" : "▼" %></span>
+      <%= tag.progress class: "stat-bars__bar", max: 100, value: bar.strength %>
+      <span class="stat-bars__value"><%= bar.strength %></span>
+    <% end %>
+  <% end %>
+</ul>

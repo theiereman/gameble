@@ -3,7 +3,7 @@ module DeckEditorHelper
     "deck-name" => { rename: :rename },
     "deck-coverage" => { gap: :chooseGap },
     "deck-slots" => { remove: :removeSlot },
-    "deck-collection" => { choose: :choose, move: :move, sort: :sortBy, filter: :filterBy }
+    "deck-collection" => { choose: :choose, move: :move, sort: :sortBy, filter: :filterBy, more: :more, search: :search }
   }.freeze
 
   def deck_editor_root_data(editor)
@@ -19,6 +19,24 @@ module DeckEditorHelper
     { ref: entry.ref, game: entry.game, title: entry.title, image: entry.image_url, availability: entry.availability,
       label: deck_entry_label(entry), percentiles: entry.percentiles, trump: entry.trump_stat.to_s,
       moves_text: deck_moves_text(entry), moves_sentence: deck_moves_sentence(entry) }
+  end
+
+  StatBar = Data.define(:stat, :side, :strength, :tier, :trump)
+
+  def deck_entry_bars(entry)
+    Game::DuelStat::STATS.filter_map do |stat|
+      percentile = entry.percentiles[stat] or next
+      side = percentile >= 50 ? "high" : "low"
+      strength = (side == "high" ? percentile : 100 - percentile).round.clamp(0, 99)
+      StatBar.new(stat:, side:, strength:, tier: deck_strength_tier(strength), trump: entry.trump_stat == stat)
+    end
+  end
+
+  def deck_strength_tier(strength)
+    if strength >= 90 then "strong"
+    elsif strength >= 75 then "good"
+    else "weak"
+    end
   end
 
   def deck_entry_label(entry)

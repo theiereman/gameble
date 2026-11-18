@@ -18,6 +18,7 @@ import {
   saved,
   slotsView,
   sortBy,
+  showMore,
   start,
   type DeckState,
   type DeckStrings,
@@ -41,7 +42,6 @@ const STRINGS: DeckStrings = {
   saveStateSaving: "Saving…",
   notYetRanked: "This card gets its stats on Monday.",
   noFreeCopy: "All your copies of this card are reserved.",
-  coverageCovered: "%{call}, %{best}",
   sorted: "Collection sorted: %{call}",
   calls: { "release-low": "Oldest", "popularity-high": "Most popular" },
 }
@@ -320,6 +320,24 @@ describe("sort and trump filter", () => {
     expect(move(state, "ArrowDown", 1)).toBe(state)
     expect(move(state, "Home", 1).active).toBe("older:1")
     expect([...collectionView(state).entries.values()].filter((view) => view.tabbable)).toHaveLength(1)
+  })
+})
+
+describe("paging the collection", () => {
+  const many = Array.from({ length: 30 }, (_, index) => entry(`card-${index}:1`))
+  const shown = (state: DeckState) => [...collectionView(state).entries.values()].filter((view) => !view.hidden).length
+
+  it("shows a page of cards, then the rest on request, and starts over when the sort or the filter changes", () => {
+    let state = fresh(many)
+    expect(shown(state)).toBe(24)
+    expect(collectionView(state).remaining).toBe(6)
+
+    state = showMore(state)
+    expect(shown(state)).toBe(30)
+    expect(collectionView(state).remaining).toBe(0)
+
+    expect(shown(sortBy(state, "release-low"))).toBe(24)
+    expect(shown(filterBy(state, "rating"))).toBe(0)
   })
 })
 

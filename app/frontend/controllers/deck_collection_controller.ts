@@ -8,15 +8,19 @@ export type MoveIntent = { key: string; columns: number }
 const sortOf = (option: HTMLAnchorElement): string => new URL(option.href).searchParams.get("sort") ?? ""
 
 export default class DeckCollectionController extends Controller<HTMLElement> {
-  static targets = ["entry", "list", "sortOption", "trump"]
+  static targets = ["empty", "entry", "list", "more", "sortOption", "trump"]
 
   declare readonly entryTargets: HTMLElement[]
   declare readonly hasListTarget: boolean
   declare readonly listTarget: HTMLElement
   declare readonly sortOptionTargets: HTMLAnchorElement[]
   declare readonly trumpTargets: HTMLInputElement[]
+  declare readonly hasEmptyTarget: boolean
+  declare readonly emptyTarget: HTMLElement
+  declare readonly hasMoreTarget: boolean
+  declare readonly moreTarget: HTMLElement
 
-  render({ sort, trump, entries }: CollectionView, strings: DeckStrings): void {
+  render({ sort, trump, remaining, matches, entries }: CollectionView, strings: DeckStrings): void {
     this.reorder([...entries.keys()])
     for (const entry of this.entryTargets) {
       const state = entries.get(entry.dataset.ref ?? "")
@@ -35,6 +39,8 @@ export default class DeckCollectionController extends Controller<HTMLElement> {
       writeFlag(option, "aria-current", current)
       if (current) writeText(this.element.querySelector(".sort__current"), option.textContent ?? "")
     }
+    if (this.hasEmptyTarget) writeHidden(this.emptyTarget, matches > 0)
+    if (this.hasMoreTarget) writeHidden(this.moreTarget, remaining === 0)
     for (const radio of this.trumpTargets) writeChecked(radio, radio.value === trump)
   }
 
@@ -45,6 +51,14 @@ export default class DeckCollectionController extends Controller<HTMLElement> {
   choose(event: Event): void {
     const ref = (event.currentTarget as HTMLElement).dataset.ref
     if (ref) this.dispatch("choose", { detail: { ref } })
+  }
+
+  search(event: Event): void {
+    this.dispatch("search", { detail: { query: (event.currentTarget as HTMLInputElement).value } })
+  }
+
+  more(event: Event): void {
+    if (event.target instanceof Element && event.target.closest("button")) this.dispatch("more")
   }
 
   sort(event: Event): void {

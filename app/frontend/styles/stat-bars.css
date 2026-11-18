@@ -1,0 +1,69 @@
+/* ---- A card's five duel stats as bars: the card's stronger side of each
+   stat, a ▲ or ▼ for which side, and a tier colour (strong from 90, good from
+   75); the trump row is brightest. ---- */
+
+.stat-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stat-bars__row {
+  --tier-colour: var(--color-dim);
+
+  display: grid;
+  grid-template-columns: 56px 12px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.stat-bars__row[data-tier="good"] {
+  --tier-colour: var(--color-accent);
+}
+
+.stat-bars__row[data-tier="strong"] {
+  --tier-colour: var(--color-lime);
+}
+
+.stat-bars__row--trump {
+  color: var(--color-text-max);
+}
+
+.stat-bars__side,
+.stat-bars__value {
+  color: var(--tier-colour);
+}
+
+.stat-bars__value {
+  text-align: right;
+}
+
+.stat-bars__bar {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border: 0;
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+  color: var(--tier-colour);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.stat-bars__bar::-webkit-progress-bar {
+  background: var(--color-panel-raised);
+}
+
+.stat-bars__bar::-webkit-progress-value {
+  background: var(--tier-colour);
+}
+
+.stat-bars__bar::-moz-progress-bar {
+  background: var(--tier-colour);
+}

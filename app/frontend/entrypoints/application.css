@@ -116,6 +116,8 @@
 @import "../styles/duel-profile.css";
 @import "../styles/deck-editor.css";
 @import "../styles/deck-coverage.css";
+@import "../styles/deck-entry.css";
+@import "../styles/stat-bars.css";
 @import "../styles/duels.css";
 @import "../styles/duel.css";
 @import "../styles/duel-board.css";

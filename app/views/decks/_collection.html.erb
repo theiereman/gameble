@@ -1,10 +1,13 @@
 <%# locals: (editor:) %>
 <section class="deck-collection" aria-labelledby="deck-collection-heading" data-controller="deck-collection">
-  <h2 id="deck-collection-heading" class="deck-collection__heading"><%= t("decks.editor.collection") %></h2>
+  <h2 id="deck-collection-heading" class="deck-collection__heading"><%= t("decks.editor.collection") %> · <%= editor.entries.size %></h2>
   <% if editor.entries.empty? %>
     <p class="deck-collection__empty"><%= t("decks.editor.empty_collection") %></p>
   <% else %>
     <div class="deck-collection__tools">
+      <%= search_field_tag :q, nil, id: "deck-search", class: "deck-collection__search", autocomplete: "off", spellcheck: false,
+            placeholder: t("decks.editor.search.placeholder"), aria: { label: t("decks.editor.search.label") },
+            data: { action: "input->deck-collection#search" } %>
       <fieldset class="deck-collection__trumps">
         <legend class="visually-hidden"><%= t("decks.editor.trump_filter.label") %></legend>
         <% deck_trump_options.each do |label, value| %>
@@ -21,5 +24,9 @@
     <ul class="deck-collection__list" data-deck-collection-target="list" data-action="keydown->deck-collection#keydown">
       <%= render partial: "decks/entry", collection: editor.entries, as: :entry, locals: { editor: editor } %>
     </ul>
+    <p class="deck-collection__empty" hidden data-deck-collection-target="empty"><%= t("decks.editor.no_match") %></p>
+    <div class="deck-collection__more" data-deck-collection-target="more" data-action="click->deck-collection#more">
+      <%= render ButtonComponent.new(variant: :link) do %><%= t("decks.editor.more") %><% end %>
+    </div>
   <% end %>
 </section>

@@ -1,0 +1,111 @@
+/* ---- The collection's tiles: the cover, the title, five stat bars and the
+   add action; a card in the deck is edged in the accent colour. ---- */
+
+.deck-collection__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.deck-entry {
+  display: flex;
+  min-width: 0;
+}
+
+.deck-entry[hidden] {
+  display: none;
+}
+
+.deck-entry__toggle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  background: var(--color-panel);
+  border: 0;
+  box-shadow: var(--panel-border);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.deck-entry__toggle:hover {
+  box-shadow: inset 0 0 0 2px var(--color-line-deep);
+}
+
+.deck-entry__toggle[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.deck-entry__toggle[aria-disabled="true"] {
+  cursor: default;
+}
+
+.deck-entry__toggle[aria-disabled="true"] .deck-entry__cover {
+  opacity: 0.4;
+}
+
+.deck-entry__toggle:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.deck-entry__cover {
+  position: relative;
+  display: block;
+  aspect-ratio: 460 / 215;
+  overflow: hidden;
+  background: var(--color-panel-sunken);
+}
+
+.deck-entry__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.deck-entry__cover .season-mark {
+  inset: var(--space-1) auto auto var(--space-1);
+}
+
+.deck-entry__title {
+  overflow: hidden;
+  color: var(--color-text-bright);
+  font: var(--font-body);
+  font-weight: var(--font-weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-entry__detail {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.deck-entry__action,
+.deck-entry__reserved {
+  align-self: flex-start;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.deck-entry__toggle[aria-pressed="true"] .deck-entry__action {
+  color: var(--color-lime);
+}
+
+@media (max-width: 719px) {
+  .deck-collection__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

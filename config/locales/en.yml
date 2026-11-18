@@ -1679,10 +1679,15 @@ en:
     throttled: Too many changes in a minute. Try again in a moment.
     editor:
       collection: Your collection
+      more: Show more cards
+      no_match: No card matches.
+      search:
+        label: Search your cards
+        placeholder: Search a card…
       coverage:
-        gap: Gap
-        gap_label: "%{call}, gap, sort the collection"
-        heading: Coverage
+        gap_label: "%{call}, missing, sort the collection"
+        heading: Missing
+        none: Nothing missing
         short:
           circulation:
             high: Widespread
@@ -1726,7 +1731,6 @@ en:
         add: Add
         added: "%{card} added, %{count} of 12"
         count_hidden: "%{count} of 12"
-        coverage_covered: "%{call}, %{best}"
         delete_title: Delete the deck "%{deck}"?
         full: The deck is full.
         in_deck: In the deck

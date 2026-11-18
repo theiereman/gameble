@@ -102,15 +102,14 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "meta[name=turbo-cache-control][content=no-cache]"
     assert_select ".deck-coverage__cell", 10
-    assert_select ".deck-coverage__cell[data-call=popularity-high]" do
-      assert_select ".deck-coverage__name", "Populaire"
-      assert_select ".deck-coverage__value:not([hidden]) .deck-coverage__number", "95"
-      assert_select ".deck-coverage__gap[hidden]"
+    assert_select ".deck-coverage__cell[data-call=popularity-high][hidden]"
+    assert_select ".deck-coverage__cell[data-call=release-low]:not([hidden])" do
+      assert_select ".deck-coverage__name", "Ancienne"
+      assert_select "button.deck-coverage__gap[aria-label=?]", "La plus ancienne, manque, trier la collection"
     end
-    assert_select ".deck-coverage__cell[data-call=release-low]" do
-      assert_select ".deck-coverage__value[hidden]"
-      assert_select ".deck-coverage__gap:not([hidden]) .button--secondary[aria-label=?]", "La plus ancienne, manque, trier la collection", text: "Manque"
-    end
+    assert_select ".deck-coverage__none[hidden]", 1
+    assert_select "input.deck-collection__search[type=search][aria-label=?]", "Rechercher dans vos cartes"
+    assert_select ".deck-entry .stat-bars .stat-bars__row", minimum: 5
     assert_select "select", 0
     assert_select ".deck-collection .sort__button", /\ATri : Par titre\z/
     assert_select ".deck-collection .sort__current", "Par titre"

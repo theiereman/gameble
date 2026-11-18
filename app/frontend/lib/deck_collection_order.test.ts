@@ -4,6 +4,7 @@ import { callValue, sortRefs, visibleRefs, type Ranked } from "./deck_collection
 const ranked = (release: number | null, trump = "release"): Ranked => ({
   percentiles: { popularity: 50, rating: 50, release, discovery: 50, circulation: 50 },
   trump,
+  title: "Some Game",
 })
 
 const entries: Record<string, Ranked> = {
@@ -36,6 +37,13 @@ describe("sortRefs", () => {
 })
 
 describe("visibleRefs", () => {
+  it("keeps the cards whose title holds every typed word, ignoring case and accents", () => {
+    const named = { "x:1": { ...ranked(50), title: "Pokémon Red Edition" }, "y:1": { ...ranked(50), title: "Portal" } }
+    expect(visibleRefs(named, ["x:1", "y:1"], "all", "pokemon edit")).toEqual(["x:1"])
+    expect(visibleRefs(named, ["x:1", "y:1"], "all", "  ")).toEqual(["x:1", "y:1"])
+    expect(visibleRefs(named, ["x:1", "y:1"], "all", "zzz")).toEqual([])
+  })
+
   it("keeps every card for all trumps, else only the cards whose trump is that stat, in the order given", () => {
     expect(visibleRefs(entries, order, "all")).toEqual(order)
     expect(visibleRefs(entries, ["e:1", "a:1", "b:1", "d:1"], "release")).toEqual(["e:1", "a:1", "b:1"])
