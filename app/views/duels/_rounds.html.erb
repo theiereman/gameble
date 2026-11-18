@@ -1,10 +1,23 @@
 <%# locals: (screen:) %>
 <ol class="duel-rounds">
   <% screen.reveals.each do |reveal| %>
-    <li class="duel-rounds__round">
-      <%= duel_round_line(screen, reveal) %>
-      <% if reveal.decided_on_value %><span class="duel-rounds__mark"><%= t("duels.board.decided_on_value") %></span><% end %>
-      <% if reveal.automatic %><span class="duel-rounds__mark"><%= t("duels.board.automatic") %></span><% end %>
+    <% mine, theirs = reveal.called ? [ reveal.caller_card, reveal.answer_card ] : [ reveal.answer_card, reveal.caller_card ] %>
+    <li class="duel-rounds__round" data-outcome="<%= reveal.outcome %>">
+      <p class="visually-hidden"><%= duel_round_line(screen, reveal) %></p>
+      <p class="duel-past__title" aria-hidden="true">
+        <span class="duel-past__number"><%= t("duels.board.round", number: reveal.number) %></span>
+        <span><%= duel_direction(reveal.stat, reveal.direction) %> · <%= t("duels.board.outcome.#{reveal.outcome}") %></span>
+        <% if reveal.decided_on_value %><span class="duel-rounds__mark"><%= t("duels.board.decided_on_value") %></span><% end %>
+        <% if reveal.automatic %><span class="duel-rounds__mark"><%= t("duels.board.automatic") %></span><% end %>
+      </p>
+      <div class="duel-past__cards">
+        <% [ mine, theirs ].each do |card| %>
+          <div class="duel-past__card">
+            <%= render "duels/face", screen: screen, card: card, called: [ reveal.stat ], direction: reveal.direction, spent: screen.spent_before(reveal) %>
+            <p class="duel-past__value" aria-hidden="true"><%= duel_card_value(card, reveal.stat) %></p>
+          </div>
+        <% end %>
+      </div>
     </li>
   <% end %>
 </ol>

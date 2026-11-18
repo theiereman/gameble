@@ -1,5 +1,5 @@
 class DuelMovesController < ApplicationController
-  throttle_player to: 60, only: %i[challenge practice accept decline cancel announce answer], path: -> { duels_path }, alert: "duels.throttled"
+  throttle_player to: 60, only: %i[challenge practice accept decline cancel forfeit announce answer], path: -> { duels_path }, alert: "duels.throttled"
 
   def challenge
     authorize :duel, :challenge?, policy_class: DuelPolicy
@@ -37,6 +37,12 @@ class DuelMovesController < ApplicationController
     duel = authorized_duel(:cancel?)
     result = Game::CancelChallenge.new.call(player: current_player, token: duel.token)
     settled(Game::CancelChallenge, result, duels_path)
+  end
+
+  def forfeit
+    duel = authorized_duel(:forfeit?)
+    result = Game::ForfeitDuel.new.call(player: current_player, token: duel.token)
+    settled(Game::ForfeitDuel, result, duel_path(token: duel.token), failed_to: duels_path)
   end
 
   def announce

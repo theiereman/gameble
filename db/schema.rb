@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_18_130001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["player_id"], name: "index_accounts_data_exports_on_player_id", unique: true
+  end
+
+  create_table "accounts_feedbacks", force: :cascade do |t|
+    t.string "token", null: false
+    t.bigint "player_id", null: false
+    t.string "feature", null: false
+    t.text "message", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feature", "created_at"], name: "index_accounts_feedbacks_on_feature_and_created_at"
+    t.index ["player_id"], name: "index_accounts_feedbacks_on_player_id"
+    t.index ["token"], name: "index_accounts_feedbacks_on_token", unique: true
+    t.check_constraint "char_length(message) >= 1 AND char_length(message) <= 1000", name: "accounts_feedbacks_message_length_check"
   end
 
   create_table "accounts_identities", force: :cascade do |t|
@@ -87,6 +100,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.datetime "last_exported_at"
     t.boolean "welcome_pending", default: false, null: false
     t.boolean "steam_library_sync", default: true, null: false
+    t.datetime "reachable_until"
+    t.bigint "bot_of_id"
+    t.index ["bot_of_id"], name: "index_accounts_players_one_bot_per_player", unique: true, where: "(bot_of_id IS NOT NULL)"
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["stream_key"], name: "index_accounts_players_on_stream_key", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
@@ -464,6 +480,55 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.check_constraint "char_length(name::text) >= 1 AND char_length(name::text) <= 24", name: "game_decks_name_check"
   end
 
+  create_table "game_duel_rounds", force: :cascade do |t|
+    t.bigint "duel_id", null: false
+    t.integer "number", limit: 2, null: false
+    t.string "caller", null: false
+    t.bigint "caller_card_season_id", null: false
+    t.bigint "answer_card_season_id"
+    t.string "stat", null: false
+    t.string "direction", null: false
+    t.jsonb "caller_value"
+    t.jsonb "answer_value"
+    t.boolean "caller_automatic", default: false, null: false
+    t.boolean "answer_automatic", default: false, null: false
+    t.string "winner"
+    t.boolean "decided_on_value", default: false, null: false
+    t.datetime "called_at", null: false
+    t.datetime "answered_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["duel_id", "number"], name: "index_game_duel_rounds_on_duel_id_and_number", unique: true
+    t.check_constraint "(answered_at IS NULL) = (answer_card_season_id IS NULL)", name: "game_duel_rounds_answer_check"
+    t.check_constraint "answered_at IS NOT NULL OR winner IS NULL", name: "game_duel_rounds_winner_answered_check"
+    t.check_constraint "caller::text = 'challenger'::text OR caller::text = 'opponent'::text", name: "game_duel_rounds_caller_check"
+    t.check_constraint "direction::text = 'high'::text OR direction::text = 'low'::text", name: "game_duel_rounds_direction_check"
+    t.check_constraint "number >= 1 AND number <= 10", name: "game_duel_rounds_number_check"
+    t.check_constraint "stat::text = 'popularity'::text OR stat::text = 'rating'::text OR stat::text = 'release'::text OR stat::text = 'discovery'::text OR stat::text = 'circulation'::text", name: "game_duel_rounds_stat_check"
+    t.check_constraint "winner::text = 'challenger'::text OR winner::text = 'opponent'::text", name: "game_duel_rounds_winner_check"
+  end
+
+  create_table "game_duel_seats", force: :cascade do |t|
+    t.bigint "duel_id", null: false
+    t.string "role", null: false
+    t.bigint "player_id"
+    t.string "deck_token"
+    t.uuid "stream_key", default: -> { "gen_random_uuid()" }, null: false
+    t.datetime "present_until"
+    t.string "status", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["duel_id", "role"], name: "index_game_duel_seats_on_duel_id_and_role", unique: true
+    t.index ["player_id"], name: "index_game_duel_seats_on_invited_player_id", unique: true, where: "((status)::text = 'invited'::text)"
+    t.index ["player_id"], name: "index_game_duel_seats_on_player_id"
+    t.index ["player_id"], name: "index_game_duel_seats_on_seated_player_id", unique: true, where: "((status)::text = 'seated'::text)"
+    t.index ["stream_key"], name: "index_game_duel_seats_on_stream_key", unique: true
+    t.check_constraint "player_id IS NOT NULL OR status::text = 'left'::text", name: "game_duel_seats_player_check"
+    t.check_constraint "role::text = 'challenger'::text OR role::text = 'opponent'::text", name: "game_duel_seats_role_check"
+    t.check_constraint "role::text = 'opponent'::text OR status::text <> 'invited'::text", name: "game_duel_seats_invited_check"
+    t.check_constraint "status::text = 'invited'::text OR status::text = 'seated'::text OR status::text = 'left'::text", name: "game_duel_seats_status_check"
+  end
+
   create_table "game_duel_stats", force: :cascade do |t|
     t.bigint "card_season_id", null: false
     t.integer "popularity_value"
@@ -507,6 +572,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.check_constraint "release_weekly_percentile >= 0::numeric AND release_weekly_percentile <= 100::numeric", name: "game_duel_stats_release_weekly_percentile_check"
     t.check_constraint "trump_direction::text = 'high'::text OR trump_direction::text = 'low'::text", name: "game_duel_stats_trump_direction_check"
     t.check_constraint "trump_stat::text = 'popularity'::text OR trump_stat::text = 'rating'::text OR trump_stat::text = 'release'::text OR trump_stat::text = 'discovery'::text OR trump_stat::text = 'circulation'::text", name: "game_duel_stats_trump_stat_check"
+  end
+
+  create_table "game_duels", force: :cascade do |t|
+    t.string "token", null: false
+    t.string "state", default: "challenged", null: false
+    t.jsonb "challenger_cards"
+    t.jsonb "opponent_cards"
+    t.bigint "challenger_draw_order", array: true
+    t.bigint "opponent_draw_order", array: true
+    t.string "first_caller"
+    t.integer "move_number", default: 0, null: false
+    t.datetime "move_deadline_at"
+    t.integer "challenger_score", limit: 2, default: 0, null: false
+    t.integer "opponent_score", limit: 2, default: 0, null: false
+    t.decimal "challenger_margin", precision: 5, scale: 1, default: "0.0", null: false
+    t.decimal "opponent_margin", precision: 5, scale: 1, default: "0.0", null: false
+    t.string "result"
+    t.string "capsule"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "practice", default: false, null: false
+    t.string "forfeited_by"
+    t.index ["move_deadline_at"], name: "index_game_duels_on_move_deadline_at", where: "(((state)::text = 'challenged'::text) OR ((state)::text = 'active'::text))"
+    t.index ["token"], name: "index_game_duels_on_token", unique: true
+    t.check_constraint "(state::text = 'active'::text OR state::text = 'finished'::text) = (started_at IS NOT NULL AND first_caller IS NOT NULL AND challenger_cards IS NOT NULL AND opponent_cards IS NOT NULL AND challenger_draw_order IS NOT NULL AND opponent_draw_order IS NOT NULL)", name: "game_duels_started_check"
+    t.check_constraint "(state::text = 'challenged'::text OR state::text = 'active'::text) = (ended_at IS NULL)", name: "game_duels_ended_check"
+    t.check_constraint "(state::text = 'finished'::text) = (result IS NOT NULL)", name: "game_duels_finished_check"
+    t.check_constraint "capsule IS NULL OR state::text = 'finished'::text", name: "game_duels_capsule_finished_check"
+    t.check_constraint "capsule::text = 'granted'::text OR capsule::text = 'automatic_move'::text OR capsule::text = 'already_won_today'::text", name: "game_duels_capsule_check"
+    t.check_constraint "challenger_margin >= 0::numeric AND opponent_margin >= 0::numeric", name: "game_duels_margins_check"
+    t.check_constraint "challenger_score >= 0 AND challenger_score <= 10 AND opponent_score >= 0 AND opponent_score <= 10 AND (challenger_score + opponent_score) <= 10", name: "game_duels_scores_check"
+    t.check_constraint "first_caller::text = 'challenger'::text OR first_caller::text = 'opponent'::text", name: "game_duels_first_caller_check"
+    t.check_constraint "forfeited_by IS NULL OR state::text = 'finished'::text AND (forfeited_by::text = ANY (ARRAY['challenger'::character varying, 'opponent'::character varying]::text[]))", name: "game_duels_forfeited_by_check"
+    t.check_constraint "move_number >= 0", name: "game_duels_move_number_check"
+    t.check_constraint "result::text = 'challenger'::text OR result::text = 'opponent'::text OR result::text = 'draw'::text", name: "game_duels_result_check"
+    t.check_constraint "state::text = 'challenged'::text OR state::text = 'cancelled'::text OR state::text = 'refused'::text OR state::text = 'lapsed'::text OR state::text = 'active'::text OR state::text = 'finished'::text", name: "game_duels_state_check"
   end
 
   create_table "game_feed_entries", force: :cascade do |t|
@@ -558,7 +661,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.datetime "updated_at", null: false
     t.index ["feed_entry_id", "kind"], name: "index_game_feed_reactions_on_feed_entry_id_and_kind"
     t.index ["player_id", "feed_entry_id"], name: "index_game_feed_reactions_on_player_id_and_feed_entry_id", unique: true
-    t.check_constraint "kind::text = ANY (ARRAY['thumb'::character varying::text, 'heart'::character varying::text, 'gg'::character varying::text, 'wow'::character varying::text, 'middle_finger'::character varying::text, 'poop'::character varying::text, 'want'::character varying::text])", name: "game_feed_reactions_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['thumb'::character varying, 'heart'::character varying, 'gg'::character varying, 'wow'::character varying, 'middle_finger'::character varying, 'poop'::character varying, 'want'::character varying]::text[])", name: "game_feed_reactions_kind_check"
   end
 
   create_table "game_first_discoveries", force: :cascade do |t|
@@ -590,9 +693,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.virtual "z_score", type: :float, as: "\nCASE\n    WHEN (variance > (0)::double precision) THEN (((actual_points)::double precision - expected_points) / sqrt(variance))\n    ELSE (0)::double precision\nEND", stored: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "duel_packs", default: 0, null: false
     t.index ["player_id", "week_start"], name: "index_game_fortunes_on_player_id_and_week_start", unique: true, nulls_not_distinct: true
     t.index ["week_start", "z_score", "player_id"], name: "index_game_fortunes_on_week_start_and_z_score_and_player_id", order: { z_score: :desc }
-    t.check_constraint "regular_packs >= 0 AND bonus_packs >= 0 AND reward_packs >= 0", name: "game_fortunes_packs_check"
+    t.check_constraint "regular_packs >= 0 AND bonus_packs >= 0 AND reward_packs >= 0 AND duel_packs >= 0", name: "game_fortunes_packs_check"
     t.check_constraint "variance >= 0::double precision", name: "game_fortunes_variance_check"
     t.check_constraint "week_start IS NULL OR EXTRACT(isodow FROM week_start) = 1::numeric", name: "game_fortunes_week_start_monday_check"
   end
@@ -898,15 +1002,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.integer "card_back_season"
     t.string "reveal_mode"
     t.integer "opened_local_hour", limit: 2
+    t.date "duel_day"
     t.index ["opened_at"], name: "index_game_packs_on_opened_at", where: "(opened_at IS NOT NULL)"
     t.index ["player_id", "available_at", "id"], name: "index_game_packs_unopened", where: "(opened_at IS NULL)"
+    t.index ["player_id", "duel_day"], name: "index_game_packs_one_duel_pack_per_day", unique: true, where: "(duel_day IS NOT NULL)"
     t.index ["player_id", "idempotency_key"], name: "index_game_packs_on_player_id_and_idempotency_key", unique: true, where: "(idempotency_key IS NOT NULL)"
     t.index ["player_id", "season_id", "opened_at"], name: "index_game_packs_opened", order: { opened_at: :desc }, where: "(opened_at IS NOT NULL)"
     t.index ["player_id"], name: "index_game_packs_on_player_id"
     t.index ["season_id"], name: "index_game_packs_on_season_id"
     t.index ["token"], name: "index_game_packs_on_token", unique: true
-    t.check_constraint "array_ndims(card_season_ids) = 1 AND cardinality(card_season_ids) >= 1 AND array_position(card_season_ids, NULL::bigint) IS NULL AND (kind::text <> 'regular'::text OR cardinality(card_season_ids) = 5) AND (kind::text <> 'bonus'::text OR cardinality(card_season_ids) = 3)", name: "game_packs_card_season_ids_check"
-    t.check_constraint "kind::text = 'regular'::text OR kind::text = 'bonus'::text OR kind::text = 'reward'::text", name: "game_packs_kind_check"
+    t.check_constraint "(kind::text = 'duel'::text) = (duel_day IS NOT NULL)", name: "game_packs_duel_day_check"
+    t.check_constraint "array_ndims(card_season_ids) = 1 AND cardinality(card_season_ids) >= 1 AND array_position(card_season_ids, NULL::bigint) IS NULL AND (kind::text <> 'regular'::text OR cardinality(card_season_ids) = 5) AND (kind::text <> 'bonus'::text OR cardinality(card_season_ids) = 3) AND (kind::text <> 'duel'::text OR cardinality(card_season_ids) = 3)", name: "game_packs_card_season_ids_check"
+    t.check_constraint "kind::text = 'regular'::text OR kind::text = 'bonus'::text OR kind::text = 'reward'::text OR kind::text = 'duel'::text", name: "game_packs_kind_check"
     t.check_constraint "reveal_mode IS NULL OR reveal_mode::text = 'all'::text OR reveal_mode::text = 'one_by_one'::text", name: "game_packs_reveal_mode_values_check"
   end
 
@@ -925,6 +1032,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.string "active_title_rank"
     t.integer "active_card_back_season"
     t.string "active_avatar"
+    t.string "exchanges_tab"
     t.integer "goals_completed", default: 0, null: false
     t.datetime "source_code_opened_at"
     t.datetime "support_opened_at"
@@ -933,6 +1041,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.datetime "discord_checked_at"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
     t.check_constraint "(active_title_kind IS NULL) = (active_title_key IS NULL) AND (active_title_key IS NULL) = (active_title_rank IS NULL)", name: "game_player_states_active_title_whole_check"
+    t.check_constraint "exchanges_tab::text = 'friends'::text OR exchanges_tab::text = 'market'::text", name: "game_player_states_exchanges_tab_check"
   end
 
   create_table "game_profile_visits", force: :cascade do |t|
@@ -1108,6 +1217,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
   add_foreign_key "accounts_announcement_dismissals", "accounts_announcements", column: "announcement_id", on_delete: :cascade
   add_foreign_key "accounts_announcement_dismissals", "accounts_players", column: "player_id"
   add_foreign_key "accounts_data_exports", "accounts_players", column: "player_id"
+  add_foreign_key "accounts_feedbacks", "accounts_players", column: "player_id"
   add_foreign_key "accounts_identities", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "staff_id"
@@ -1141,6 +1251,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
   add_foreign_key "game_deck_cards", "catalog_cards", column: "card_id"
   add_foreign_key "game_deck_cards", "game_decks", column: "deck_id", on_delete: :cascade
   add_foreign_key "game_decks", "accounts_players", column: "player_id"
+  add_foreign_key "game_duel_rounds", "catalog_card_seasons", column: "answer_card_season_id"
+  add_foreign_key "game_duel_rounds", "catalog_card_seasons", column: "caller_card_season_id"
+  add_foreign_key "game_duel_rounds", "game_duels", column: "duel_id"
+  add_foreign_key "game_duel_seats", "accounts_players", column: "player_id"
+  add_foreign_key "game_duel_seats", "game_duels", column: "duel_id"
   add_foreign_key "game_duel_stats", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "partner_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "player_id"

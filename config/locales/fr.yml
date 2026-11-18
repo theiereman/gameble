@@ -768,6 +768,15 @@ fr:
         draft: "La note de %{version} repasse en brouillon."
         ready: "La note de %{version} est prête."
         skipped: "%{version} n'a pas besoin de note."
+    feedbacks:
+      index:
+        count:
+          one: "%{count} feedback"
+          other: "%{count} feedbacks"
+          zero: "aucun feedback"
+        empty: "Rien pour l'instant."
+        heading: "Testing"
+        intro: "Ce que les joueurs ont écrit sur les fonctionnalités que vous leur avez demandé de tester, du plus récent au plus ancien."
     announcements:
       create:
         created: "L'annonce est enregistrée."
@@ -1027,6 +1036,9 @@ fr:
           release_notes:
             title: "Les notes de version"
             text: "Ce que voit chaque joueur après une mise à jour."
+          feedbacks:
+            title: "Testing"
+            text: "Les retours des joueurs sur les fonctionnalités en test."
           announcements:
             title: "Les annonces"
             text: "Le bandeau rouge, en français et en anglais."
@@ -2159,6 +2171,16 @@ fr:
       confirm: "Désactiver"
       cancel: "Annuler"
       close: "Fermer"
+  feedbacks:
+    create:
+      sent: "Merci, votre feedback est envoyé."
+      throttled: "Trop de feedbacks en une minute. Réessayez dans un instant."
+    features:
+      duels: "Duels"
+    new:
+      message: "Ce qui a marché, ce qui n'a pas marché, ce que vous attendiez"
+      send: "Envoyer"
+      title: "Envoyer un feedback"
   feeds:
     show:
       title: "Fil d'activité"
@@ -4121,6 +4143,10 @@ fr:
         one: "%{number} joueur"
         other: "%{number} joueurs"
   duels:
+  duels:
+    alpha: "ALPHA"
+    alpha_warning: "Attention, ce mode est en alpha. Il peut contenir des bugs et des problèmes d'équilibrage."
+    feedback: "Envoyer un feedback"
     show:
       title: "Duels"
     tutorial:
@@ -4128,16 +4154,16 @@ fr:
       steps:
         deck:
           title: "Composez un deck"
-          text: "Choisissez 12 cartes que vous possédez. Chaque carte est un jeu Steam avec cinq stats."
+          text: "Choisissez 12 cartes que vous possédez. Veillez à ce que votre deck soit équilibré pour gagner les 5 manches."
         challenge:
           title: "Défiez un ami"
-          text: "Choisissez un deck et un ami en ligne. Les decks sont visibles des deux côtés ; seules les 3 cartes de la main restent cachées."
+          text: "Défiez un ami avec un de vos decks personnalisés. Lors de la partie, vos cartes sont visibles, mais votre main reste cachée."
         call:
-          title: "Une carte visible, une stat cachée"
-          text: "Jouez une carte de votre main, face visible. En secret, choisissez une de ses stats et Haut ou Bas : c'est votre annonce. Chaque stat ne peut être annoncée qu'une seule fois par duel : choisir quand la dépenser fait partie de la stratégie."
+          title: "Faites le bon choix"
+          text: "Choisissez une carte de votre main ainsi qu'une statistique qui vous permettra de remporter la manche selon les cartes disponibles de votre adversaire. Attention, une statistique ne peut pas être réutilisée deux fois, donc jaugez bien."
         win:
-          title: "Répondez à l'aveugle"
-          text: "Votre ami joue une carte sans connaître votre annonce. Elle est ensuite révélée : en Haut, la plus haute valeur marque le point ; en Bas, la plus basse. Après 10 manches, le plus de points l'emporte."
+          title: "Répondez à l'aveugle !"
+          text: "Lorsque c'est le tour de votre adversaire, essayez de deviner quelle statistique il a choisie selon sa carte, afin d'y répondre le mieux possible et de gagner à l'aveugle."
     challenge:
       button: "Défier"
       button_in_duel: "Défier en duel"
@@ -4225,6 +4251,17 @@ fr:
         refused: "%{name} a décliné."
       title: "Défier un ami"
     board:
+      forfeit:
+        button: "Abandonner le duel"
+        by_them: "%{name} a abandonné le duel."
+        by_you: "Vous avez abandonné le duel."
+        confirm: "Abandonner ce duel ? Votre adversaire le remporte."
+      see_rounds: "Voir les manches"
+      verdict:
+        draw: "ÉGALITÉ"
+        loss: "DÉFAITE"
+        win: "VICTOIRE !"
+      versus_html: "contre %{name}"
       round: "Manche %{number} / 10"
       select: "Sélectionner"
       round_spoken: "Manche %{number} sur 10"
@@ -4517,6 +4554,8 @@ fr:
         other_season: "appartient à une autre saison"
   errors:
     accounts:
+      invalid_feedback: "Écrivez votre feedback en 1000 caractères au plus."
+      unknown_feature: "Cette fonctionnalité n'est pas ouverte aux feedbacks."
       incomplete_release_note: "Une note prête a besoin de son titre et de son texte dans les deux langues."
       invalid_release_note: "Un titre fait 80 caractères au plus, un texte 1500."
       invalid_release_note_state: "Cet état n'existe pas."

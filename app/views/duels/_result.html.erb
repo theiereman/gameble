@@ -1,13 +1,32 @@
 <%# locals: (screen:) %>
-<section id="duel-result" class="duel-result" aria-labelledby="duel-result-heading">
+<section id="duel-result" class="duel-result" data-outcome="<%= screen.outcome %>" aria-labelledby="duel-result-heading" data-controller="unfold">
   <h2 id="duel-result-heading" class="duel-result__heading" tabindex="-1">
-    <span class="duel-board__result" aria-hidden="true"><%= duel_result(screen) %></span>
     <span class="visually-hidden"><%= duel_result_spoken(screen) %></span>
+    <% if screen.outcome == :win %><%= pixel_icon("duel-trophy", class: "duel-result__trophy") %><% end %>
+    <span class="duel-result__verdict" aria-hidden="true"><%= t("duels.board.verdict.#{screen.outcome}") %></span>
+    <span class="duel-result__versus" aria-hidden="true"><%= t("duels.board.versus_html", name: duel_player_name(screen.opponent)) %></span>
   </h2>
-  <% if screen.decided_on_margin? %>
-    <p class="duel-result__margin"><%= t("duels.board.decided_on_margin", margin: duel_points(screen.margin_gap)) %></p>
+  <%= render PanelComponent.new(class: "duel-result__score") do %>
+    <p class="duel-result__figures" aria-hidden="true">
+      <span class="duel-result__figure"><%= screen.score %> – <%= screen.other_score %></span>
+    </p>
+    <ol class="duel-result__pips" aria-hidden="true">
+      <% screen.reveals.each do |reveal| %>
+        <li class="duel-result__pip" data-outcome="<%= reveal.outcome %>"></li>
+      <% end %>
+    </ol>
+    <% if screen.forfeited? %>
+      <p class="duel-result__margin"><%= screen.forfeited_by_me? ? t("duels.board.forfeit.by_you") : t("duels.board.forfeit.by_them", name: duel_plain_name(screen.opponent)) %></p>
+    <% end %>
+    <% if screen.decided_on_margin? %>
+      <p class="duel-result__margin"><%= t("duels.board.decided_on_margin", margin: duel_points(screen.margin_gap)) %></p>
+    <% end %>
   <% end %>
   <div id="duel-capsule-line"><%= render "duels/capsule", capsule: screen.capsule if screen.capsule %></div>
-  <%= render "duels/rounds", screen: screen %>
   <%= render "duels/rematch", screen: screen %>
+  <%= tag.button t("duels.board.see_rounds"), type: :button, class: "button button--link", data: { unfold_target: "button", action: "unfold#show" } %>
+  <div class="duel-result__rounds" hidden tabindex="-1" data-unfold-target="content">
+    <%= render "duels/rounds", screen: screen %>
+  </div>
+  <%= render "duels/feedback_link" %>
 </section>

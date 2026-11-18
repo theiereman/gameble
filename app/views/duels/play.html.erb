@@ -7,6 +7,7 @@
 <%= turbo_stream_from(*DuelStream.streamables(@screen.stream_key), channel: DuelSeatChannel) %>
 <section class="duel page page--regular" aria-labelledby="duel-heading" data-controller="duel">
   <h1 id="duel-heading" class="visually-hidden"><%= t(".title") %></h1>
+  <%= render "duels/alpha" %>
   <p id="duel-status" class="visually-hidden" role="status" aria-live="polite" data-duel-target="status"></p>
   <p class="duel-connection__line duel-connection__line--own" role="status" hidden data-controller="duel-link"
     data-duel-link-template-value="<%= t("duels.connection.own_lost", seconds: "{seconds}") %>">

@@ -45,7 +45,7 @@ module Game
       duels_won: "SELECT COUNT(*) FROM #{OWN_WINS}",
       common_beats_legendary_rounds: COMMON_BEATS_LEGENDARY_SQL,
       shutout_duels: "SELECT COUNT(*) FROM #{OWN_WINS} AND #{OWN_SCORE} = #{DuelRules::ROUNDS} AND #{OTHER_SCORE} = 0",
-      margin_wins: "SELECT COUNT(*) FROM #{OWN_WINS} AND duel.challenger_score = duel.opponent_score",
+      margin_wins: "SELECT COUNT(*) FROM #{OWN_WINS} AND duel.challenger_score = duel.opponent_score AND duel.forfeited_by IS NULL",
       distinct_duel_opponents: OPPONENTS_SQL,
       distinct_stats_won: "SELECT COUNT(DISTINCT round.stat) FROM #{ROUNDS_WON_BY_OWN_MOVE}"
     }.freeze

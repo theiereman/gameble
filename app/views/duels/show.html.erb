@@ -4,6 +4,7 @@
 <% content_for :back_button, true %>
 <section class="duels page page--wide" aria-labelledby="duels-heading" data-controller="live-refresh" data-live-refresh-signal-value="duels-updated">
   <h1 id="duels-heading" class="visually-hidden"><%= t(".title") %></h1>
+  <%= render "duels/alpha", feedback: true %>
   <%= render "duels/tutorial", open: @history.record.wins + @history.record.losses + @history.record.draws == 0 %>
   <div class="duels__grid">
     <div class="duels__side">

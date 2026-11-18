@@ -91,7 +91,11 @@ class DuelScreen
 
   def capsule = (@duel.capsule.to_sym if outcome == :win && @duel.capsule)
 
-  def decided_on_margin? = finished? && score == other_score && view.result != :draw
+  def forfeited? = @duel.forfeited_by.present?
+
+  def forfeited_by_me? = @duel.forfeited_by == @seat.role
+
+  def decided_on_margin? = finished? && !forfeited? && score == other_score && view.result != :draw
 
   def stat_open?(stat) = mine.stats_left.include?(stat)
 

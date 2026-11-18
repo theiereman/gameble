@@ -1,0 +1,33 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% Accounts::Feedback::FEATURES.each do |feature| %>
+    <% feedbacks = @by_feature.fetch(feature, []) %>
+    <section class="stack" aria-labelledby="feedback-<%= feature %>" data-feedback-feature="<%= feature %>">
+      <h2 id="feedback-<%= feature %>"><%= t("feedbacks.features.#{feature}") %> · <%= t(".count", count: feedbacks.size) %></h2>
+      <% if feedbacks.empty? %>
+        <%= render PanelComponent.new(tag: :p) do %><%= t(".empty") %><% end %>
+      <% else %>
+        <ol class="feedback-list">
+          <% feedbacks.each do |feedback| %>
+            <li data-feedback-token="<%= feedback.token %>">
+              <%= render PanelComponent.new do %>
+                <p class="feedback-list__meta">
+                  <%= link_to public_profile_title(feedback.player), brother_path(token: feedback.player.token) %>
+                  · <%= render "back_office/import_runs/time", time: feedback.created_at %>
+                </p>
+                <p class="feedback-list__message"><%= feedback.message %></p>
+              <% end %>
+            </li>
+          <% end %>
+        </ol>
+      <% end %>
+    </section>
+  <% end %>
+</div>

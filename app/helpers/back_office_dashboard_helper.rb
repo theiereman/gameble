@@ -19,7 +19,8 @@ module BackOfficeDashboardHelper
       communication: [
         back_office_tile(:release_notes, back_office_release_notes_path, status: release_note_status),
         back_office_tile(:announcements, back_office_announcements_path, status: announcement_status),
-        back_office_tile(:roadmap, back_office_roadmap_path, action: :show?)
+        back_office_tile(:roadmap, back_office_roadmap_path, action: :show?),
+        back_office_tile(:feedbacks, back_office_feedbacks_path)
       ],
       market: [
         back_office_tile(:market, back_office_market_path, action: :show?)

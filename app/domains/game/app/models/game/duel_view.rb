@@ -12,7 +12,7 @@ module Game
       rules = duel.rules
       new(token: duel.token, state: duel.state.to_sym, move_number: duel.move_number, round: rules.round, caller: rules.caller,
         mine: side(rules, role), theirs: side(rules, DuelRules.other(role)), hand: rules.hand(role),
-        current_call: current_call(rules, role), rounds: rules.played_rounds, result: rules.result,
+        current_call: current_call(rules, role), rounds: rules.played_rounds, result: duel.result&.to_sym,
         deadline: deadline(duel), server_time: Time.current, away_until: away_until(duel, seat))
     end
 

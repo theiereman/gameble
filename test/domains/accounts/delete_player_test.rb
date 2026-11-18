@@ -84,6 +84,15 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_not Game::FeedEntry.exists?(own_entry.id)
   end
 
+  test "the feedback a player wrote goes with the account; another player's stays" do
+    Accounts::SendFeedback.new.call(player: @player, feature: "duels", message: "Mine").value!
+    Accounts::SendFeedback.new.call(player: @other, feature: "duels", message: "Theirs").value!
+
+    assert delete.success?
+
+    assert_equal [ "Theirs" ], Accounts::Feedback.pluck(:message)
+  end
+
   test "the identity rows go with the account; another player keeps theirs" do
     Accounts::Identity.create!(player: @player, provider: "google", uid: "g-1")
     other_rows = Accounts::Identity.where(player_id: @other.id).count

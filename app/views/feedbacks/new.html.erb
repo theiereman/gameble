@@ -1,0 +1,16 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<section class="page page--reading" aria-labelledby="feedback-heading">
+  <h1 id="feedback-heading" class="visually-hidden"><%= t(".title") %></h1>
+  <%= render PanelComponent.new(brackets: true, class: "feedback-form") do %>
+    <p class="feedback-form__feature"><%= t("feedbacks.features.#{@feature}") %></p>
+    <%= form_with url: feedback_path, method: :post, class: "feedback-form__form" do %>
+      <%= hidden_field_tag :feature, @feature, id: nil %>
+      <label for="feedback-message"><%= t(".message") %></label>
+      <%= text_area_tag :message, nil, id: "feedback-message", class: "feedback-form__message", rows: 8, required: true,
+            maxlength: Accounts::Feedback::MESSAGE_LENGTH %>
+      <%= render ButtonComponent.new(type: :submit) do %><%= t(".send") %><% end %>
+    <% end %>
+  <% end %>
+</section>

@@ -633,6 +633,24 @@ const ICONS = {
       ".oooooo.",
     ],
   },
+  // The trophy of a won duel (14 × 12): a gold cup with two handles.
+  "duel-trophy": {
+    legend: { o: OUTLINE, g: "#f4c542", h: "#fff3c4", s: "#8f5e0a" },
+    grid: [
+      "..oooooooooo..",
+      ".ooghgggggsoo.",
+      "ogoghgggggsogo",
+      "ogoghgggggsogo",
+      ".ooghgggggsoo.",
+      "...oghgggso...",
+      "....ogggso....",
+      ".....ogso.....",
+      ".....ogso.....",
+      "...ogggggso...",
+      "..ogggggggso..",
+      "..oooooooooo..",
+    ],
+  },
   // The merged counter's standard capsule: a round-ended pill, blue (7 × 11).
   "capsule-standard": {
     legend: { o: OUTLINE, a: "#66c0f4", b: "#2f4f6c" },
@@ -1868,6 +1886,7 @@ const DESCRIPTIONS = {
   "hourglass.svg": "⧗ hourglass for expiry and pending (text colour)",
   "canister-small.svg": "The packs chip's small canister, 8 × 11",
   "canister-small-duel.svg": "The duel result's small canister: the packs chip's canister in the duel capsule's steel blue, 8 × 11",
+  "duel-trophy.svg": "The trophy of a won duel: a gold cup with two handles, 14 × 12",
   "avatar-default.svg": "The player's portrait until they choose an avatar, 16 × 16",
   "avatar-novice.svg": "Avatar: the novice, a blue hood, the face in shadow, a gold clasp, 16 × 16",
   "avatar-archivist.svg": "Avatar: the archivist, a green hood, brass spectacles, 16 × 16",

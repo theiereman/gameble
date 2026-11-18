@@ -148,6 +148,7 @@ class DuelPlayTest < ApplicationSystemTestCase
       using_session(name) do
         assert_selector "#duel-result-heading", text: /#{line} #{role == :challenger ? "Hugo" : "Léa"}, #{rules.scores[role]} to #{rules.scores[other]}/
         focused "duel-result-heading"
+        click_button "See the rounds"
         assert_selector "ol.duel-rounds > li", count: 10
         assert_no_selector "#duel-hand"
         assert_no_selector ".tab-bar"

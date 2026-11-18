@@ -1,0 +1,131 @@
+/* ---- The finished duel: the verdict, the score with one pip per round, the capsule, the rounds as cards. ---- */
+
+.duel-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+.duel-result__heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.duel-result__trophy {
+  width: calc(14 * var(--space-unit) * 2);
+  height: auto;
+}
+
+.duel-result__verdict {
+  color: var(--color-text-bright);
+  font: var(--font-banner-small);
+  letter-spacing: var(--tracking-label);
+}
+
+.duel-result[data-outcome="win"] .duel-result__verdict {
+  color: var(--color-gold);
+  text-shadow: 0 var(--space-1) 0 var(--color-rarity-legendaire-lo);
+}
+
+.duel-result[data-outcome="loss"] .duel-result__verdict {
+  color: var(--color-danger-text);
+}
+
+.duel-result__versus {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.duel-result__score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.duel-result__figures {
+  margin: 0;
+}
+
+.duel-result__figure {
+  color: var(--color-text-max);
+  font: var(--font-count-large-phone);
+}
+
+.duel-result__pips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.duel-result__pip {
+  width: var(--space-4);
+  height: var(--space-4);
+  background: var(--color-dim);
+}
+
+.duel-result__pip[data-outcome="won"] {
+  background: var(--color-lime);
+}
+
+.duel-result__pip[data-outcome="lost"] {
+  background: var(--color-live-red-hi);
+}
+
+.duel-result__margin {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.duel-result__rounds {
+  width: 100%;
+}
+
+.duel-rounds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.duel-rounds__round {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 320px;
+  margin-inline: auto;
+  padding: var(--space-3);
+  background: var(--color-panel);
+  box-shadow: inset var(--space-1) 0 0 var(--color-dim);
+}
+
+.duel-rounds__round[data-outcome="won"] {
+  box-shadow: inset var(--space-1) 0 0 var(--color-lime);
+}
+
+.duel-rounds__round[data-outcome="lost"] {
+  box-shadow: inset var(--space-1) 0 0 var(--color-live-red-hi);
+}
+
+.duel-rounds__mark {
+  color: var(--color-muted);
+}
+
+.duel-forfeit {
+  display: flex;
+  justify-content: center;
+}

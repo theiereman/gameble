@@ -9,6 +9,7 @@
       <%= render "duels/deck", id: "duel-my-deck", heading: t("duels.board.my_deck"), screen: screen, side: screen.mine, calls: false,
         pick: { call: "duel-call", answer: "duel-answer" }[screen.turn] %>
       <%= render "duels/deck", id: "duel-their-deck", heading: t("duels.board.their_deck"), screen: screen, side: screen.theirs, calls: true %>
+      <%= render "duels/forfeit", screen: screen %>
     <% else %>
       <p class="duel-board__line"><%= duel_waiting(screen) %></p>
     <% end %>

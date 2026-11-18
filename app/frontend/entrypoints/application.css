@@ -128,6 +128,8 @@
 @import "../styles/duel-reveal.css";
 @import "../styles/duel-motion.css";
 @import "../styles/duel-connection.css";
+@import "../styles/duel-result.css";
+@import "../styles/feedback.css";
 @import "../styles/deck-holding.css";
 @import "../styles/live-strip.css";
 @import "../styles/card-trade.css";

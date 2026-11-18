@@ -209,4 +209,20 @@ export const BACK_OFFICE_ICONS = {
       ".....c.....",
     ],
   },
+  feedbacks: {
+    look: "a speech bubble",
+    grid: [
+      ".ccccccccc.",
+      "cc.......cc",
+      "c.........c",
+      "c..c...c..c",
+      "c.........c",
+      "c..c...c..c",
+      "c...ccc...c",
+      "cc.......cc",
+      ".cccc.cccc.",
+      "....c.c....",
+      ".....c.....",
+    ],
+  },
 }

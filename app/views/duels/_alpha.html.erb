@@ -1,0 +1,6 @@
+<%# locals: (feedback: false) %>
+<aside class="alpha-banner" aria-label="<%= t("duels.alpha") %>">
+  <span class="alpha-tag"><%= t("duels.alpha") %></span>
+  <p class="alpha-banner__warning"><%= t("duels.alpha_warning") %></p>
+  <% if feedback %><%= render "duels/feedback_link" %><% end %>
+</aside>

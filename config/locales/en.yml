@@ -408,6 +408,15 @@ en:
         draft: "The note of %{version} is back to draft."
         ready: "The note of %{version} is ready."
         skipped: "%{version} needs no note."
+    feedbacks:
+      index:
+        count:
+          one: "%{count} feedback"
+          other: "%{count} feedbacks"
+          zero: "no feedback"
+        empty: "Nothing yet."
+        heading: "Testing"
+        intro: "What players wrote about the features you asked them to test, newest first."
     announcements:
       create:
         created: "The announcement is saved."
@@ -720,6 +729,9 @@ en:
           release_notes:
             title: The release notes
             text: What every player sees after an update.
+          feedbacks:
+            title: Testing
+            text: What players say about the features under test.
           announcements:
             title: The announcements
             text: The red banner, in English and French.
@@ -1861,7 +1873,22 @@ en:
         high: Newer than %{percent} of cards
         low: Older than %{percent} of cards
   duels:
+  duels:
+    alpha: ALPHA
+    alpha_warning: "Careful: this mode is in alpha. It may contain bugs and balance problems."
+    feedback: Send feedback
     board:
+      forfeit:
+        button: "Give up the duel"
+        by_them: "%{name} gave up the duel."
+        by_you: "You gave up the duel."
+        confirm: "Give up this duel? Your opponent wins it."
+      see_rounds: "See the rounds"
+      verdict:
+        draw: "DRAW"
+        loss: "DEFEAT"
+        win: "VICTORY!"
+      versus_html: "vs %{name}"
       answer: Answer with this card
       automatic: Move played automatically
       call: Call
@@ -2021,19 +2048,21 @@ en:
       heading: How a duel works
       steps:
         call:
-          text: "Play a card from your hand, face up. In secret, pick one of its stats and High or Low: that is your call. Each stat can be called only once per duel, so when to spend it is part of the strategy."
-          title: Show a card, hide a stat
+          text: "Pick a card from your hand and a stat that should win you the round given your opponent's available cards. Careful: a stat cannot be used twice, so weigh it well."
+          title: Make the right choice
         challenge:
-          text: "Choose a deck and a friend who is online. Both decks are face up; only the 3 cards in each hand stay hidden."
+          text: "Challenge a friend with one of your custom decks. During the game your cards are face up, but your hand stays hidden."
           title: Challenge a friend
         deck:
-          text: Pick 12 cards you own. Each card is a Steam game with five stats.
+          text: Pick 12 cards you own. Make sure your deck is balanced enough to win the 5 rounds.
           title: Build a deck
         win:
-          text: "Your friend plays a card without knowing your call. Then it is revealed: on High the higher value scores the point, on Low the lower one. After 10 rounds, most points wins."
-          title: Answer in the dark
+          text: "When it is your opponent's turn, try to guess which stat they picked from their card, so you can answer as well as possible and win in the dark."
+          title: Answer in the dark!
   errors:
     accounts:
+      invalid_feedback: "Write your feedback in 1000 characters at most."
+      unknown_feature: "That feature is not open to feedback."
       incomplete_release_note: "A ready note needs its title and its text in both languages."
       invalid_release_note: "A title holds 80 characters at most, a text 1500."
       invalid_release_note_state: "That state does not exist."
@@ -2307,6 +2336,16 @@ en:
       throttled: Too many changes in a minute. Try again in a moment.
   external_links:
     new_tab: "(new tab)"
+  feedbacks:
+    create:
+      sent: "Thank you, your feedback is sent."
+      throttled: "Too many feedbacks in a minute. Try again in a moment."
+    features:
+      duels: Duels
+    new:
+      message: "What worked, what did not, what you expected"
+      send: Send
+      title: Send feedback
   feeds:
     show:
       add_friends: Add friends

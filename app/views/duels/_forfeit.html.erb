@@ -1,0 +1,5 @@
+<%# locals: (screen:) %>
+<%= form_with url: duel_forfeit_path(token: screen.token), method: :post, authenticity_token: false, class: "duel-forfeit",
+      data: { turbo_confirm: t("duels.board.forfeit.confirm") } do %>
+  <%= render ButtonComponent.new(type: :submit, variant: :danger, size: :small) do %><%= t("duels.board.forfeit.button") %><% end %>
+<% end %>

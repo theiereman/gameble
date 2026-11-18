@@ -122,8 +122,9 @@ class DuelBoardTest < ActionDispatch::IntegrationTest
 
     assert_select "#duel-result-heading[tabindex='-1']" do
       assert_select ".visually-hidden", text: summary
-      assert_select "[aria-hidden=true]", text: /#{scores[:challenger]}.*#{scores[:opponent]}/
     end
+    assert_select "#duel-result .duel-result__figures[aria-hidden=true]", text: /#{scores[:challenger]} – #{scores[:opponent]}/
+    assert_select "#duel-result .duel-result__pip", 10
     assert_select "#duel-capsule-line", 1
     assert_select "ol.duel-rounds > li", 10
     assert_select "ol.duel-rounds > li:first-child", text: /\ARound 1, (Léa|Hugo) calls .+: .+, \d{4}, against .+, \d{4}\. (Won|Lost|Draw)\./
@@ -132,6 +133,19 @@ class DuelBoardTest < ActionDispatch::IntegrationTest
 
     visit_as(@lea, locale: :fr)
     assert_select "#duel-result-heading .visually-hidden", text: /\A(Victoire contre|Défaite contre|Égalité avec) Hugo, \d+ à \d+/
+  end
+
+  test "an active duel offers to give up, and a finished one says who did" do
+    visit_as(@lea)
+
+    assert_select "form[action='/en/duels/#{@duel.token}/forfeit'][method=post][data-turbo-confirm] button", "Give up the duel"
+
+    Game::ForfeitDuel.new.call(player: @lea, token: @duel.token).value!
+    visit_as(@hugo)
+
+    assert_select "form.duel-forfeit", 0
+    assert_select "#duel-result[data-outcome=win]"
+    assert_select ".duel-result__margin", "Léa gave up the duel."
   end
 
   test "the rematch posts the challenge to the same friend with the player's own deck" do

@@ -124,9 +124,4 @@ module DuelsHelper
   def duel_result_line_spoken(row)
     t("duels.board.result_spoken.#{row.outcome}", name: duel_plain_name(row.opponent), score: row.score, other_score: row.other_score)
   end
-
-  def duel_result(screen)
-    t("duels.board.result.#{screen.outcome}_html", name: duel_player_name(screen.opponent),
-      score: tag.span(screen.score, class: "duel-result__figure"), other_score: tag.span(screen.other_score, class: "duel-result__figure"))
-  end
 end
