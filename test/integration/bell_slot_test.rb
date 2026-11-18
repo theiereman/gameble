@@ -30,7 +30,9 @@ class BellSlotTest < ActionDispatch::IntegrationTest
     assert_bell
     bell = css_select(".bell").sole
     assert_equal accounts_players(:player).token, bell["data-bell-owner-value"]
-    assert_equal "turbo:morph@document->bell#show turbo:before-cache@document->bell#reloadWhenRestored", bell["data-action"]
+    assert_equal "turbo:morph@document->bell#show turbo:load@document->bell#show", bell["data-action"]
+    assert_equal "bell-#{accounts_players(:player).token}", bell["id"]
+    assert_equal "true", bell["data-turbo-permanent"]
     assert_select "turbo-frame#bell-items[refresh=morph][data-action='turbo:frame-render->bell#show turbo:frame-missing->bell#keep']"
     labels = JSON.parse(bell["data-bell-labels-value"])
     assert_equal({ "zero" => "What is new, all seen", "one" => "What is new, %{count} unseen", "other" => "What is new, %{count} unseen" }, labels)
