@@ -37,6 +37,14 @@
       </section>
     </div>
   <% end %>
+  <%= render BottomSheetComponent.new(id: "deck-card-info", title: t("decks.editor.info.title")) do %>
+    <div class="deck-info">
+      <p class="deck-info__name"></p>
+      <div class="deck-info__card"></div>
+      <dl class="deck-info__stats"></dl>
+      <%= render(ButtonComponent.new(href: "#")) { t("decks.editor.info.page") } %>
+    </div>
+  <% end %>
   <p class="deck-editor__status" role="status" data-deck-editor-target="status"></p>
   <%= render "decks/collection", editor: editor %>
   <div class="deck-editor__delete" data-deck-editor-target="deleteArea" <%= "hidden" unless deck %>>

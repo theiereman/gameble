@@ -3937,6 +3937,10 @@ fr:
     throttled: "Trop de changements en une minute. Réessayez dans un instant."
     editor:
       title: "Deck"
+      info:
+        open: "Détails"
+        page: "Fiche complète"
+        title: "Détails de la carte"
       name_label: "Nom du deck"
       save: "Enregistrer"
       slots: "Emplacements"
@@ -3966,9 +3970,22 @@ fr:
         drawbacks: "Il manque"
         many: "Beaucoup de %{cards}"
         lacking: "Manque de %{cards}"
-        directions:
-          high: "haute"
-          low: "basse"
+        qualifiers:
+          popularity:
+            high: "forte"
+            low: "faible"
+          rating:
+            high: "haute"
+            low: "basse"
+          release:
+            high: "récente"
+            low: "ancienne"
+          discovery:
+            high: "précoce"
+            low: "tardive"
+          circulation:
+            high: "forte"
+            low: "faible"
         gap_label: "Manque de %{cards}, trier la collection"
         no_advantage: "Aucun pour l'instant"
         none: "Rien ne manque"

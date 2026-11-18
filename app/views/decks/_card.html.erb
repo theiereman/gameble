@@ -1,6 +1,6 @@
 <%# locals: (entry:) %>
 <% bars = deck_entry_bars(entry) %>
-<span class="deck-card">
+<span class="deck-card" data-url="<%= card_season_path(slug: entry.card.id, number: entry.card.season_number) %>" data-title="<%= entry.title %>">
   <%= render CardComponent.new(card: entry.card, size: :grid, tilt: false) %>
   <span class="deck-card__overlay">
     <% if bars.any? %>

@@ -117,3 +117,37 @@
     transition: none;
   }
 }
+
+/* ---- The details sheet of a card of the deck ---- */
+
+.deck-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.deck-info__name {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-body);
+}
+
+.deck-info__card {
+  width: min(100%, 300px);
+}
+
+.deck-info__stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.deck-info__stats .deck-editor__legend-stat {
+  display: flex;
+  gap: var(--space-4);
+}

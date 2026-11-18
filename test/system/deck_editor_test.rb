@@ -104,6 +104,22 @@ class DeckEditorTest < ApplicationSystemTestCase
     eventually("the card should be taken out") { Game::DeckCard.count == 1 }
   end
 
+  test "a card of the deck opens its details sheet from the button revealed by a click" do
+    deck = Game::CreateDeck.new.call(player: @player).value!
+    Game::AddCardToDeck.new.call(player: @player, token: deck.token, card_season_id: @cards.first).value!
+    sign_in(@player)
+    visit deck_path(locale: :en, token: deck.token)
+
+    find(".deck-slots__slot:first-child button.deck-slot").click
+    click_on "Details"
+
+    within("#deck-card-info") do
+      assert_selector ".deck-info__name", text: "Game 01"
+      assert_selector ".deck-info__card .deck-card"
+      assert_link "Full card page", href: /\/cards\/.+\/seasons\/\d+/
+    end
+  end
+
   test "the save button waits for the changes on their way, then goes back to Duels" do
     sign_in(@player)
     visit new_deck_path(locale: :en)

@@ -181,6 +181,8 @@
 }
 
 .deck-slot__actions {
+  flex-direction: column;
+  gap: var(--space-3);
   position: absolute;
   inset: 0 0 auto;
   display: flex;
@@ -192,6 +194,25 @@
 
 .deck-slot__actions[hidden] {
   display: none;
+}
+
+.deck-slot__info {
+  padding: var(--space-3) var(--space-5);
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+  background: var(--color-panel-sunken);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.deck-slot__info:hover,
+.deck-slot__info:focus-visible {
+  background: var(--color-accent);
+  color: var(--color-panel-sunken);
+  outline: 0;
 }
 
 .deck-slot__remove {

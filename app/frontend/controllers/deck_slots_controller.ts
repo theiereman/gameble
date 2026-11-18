@@ -43,6 +43,22 @@ export default class DeckSlotsController extends Controller<HTMLElement> {
     if (open) this.showActions(filled)
   }
 
+  // Fills the shared details sheet, which the bottom sheet then opens, with the card of the slot.
+  fillInfo(event: Event): void {
+    const card = (event.currentTarget as Element)
+      .closest(".deck-slot__filled")
+      ?.querySelector<HTMLElement>(".deck-card")
+    const sheet = document.getElementById("deck-card-info")
+    const legend = this.element.closest(".deck-editor")?.querySelector(".deck-editor__legend-stats")
+    if (!card || !sheet) return
+    writeText(sheet.querySelector(".deck-info__name"), card.dataset.title ?? "")
+    sheet.querySelector(".deck-info__card")?.replaceChildren(card.cloneNode(true))
+    sheet
+      .querySelector(".deck-info__stats")
+      ?.replaceChildren(...(legend ? Array.from(legend.cloneNode(true).childNodes) : []))
+    sheet.querySelector("a.button")?.setAttribute("href", card.dataset.url ?? "#")
+  }
+
   dismiss(event: Event): void {
     if (event.target instanceof Element && event.target.closest(".deck-slot__filled")) return
     this.closeActions()

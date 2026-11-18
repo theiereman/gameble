@@ -106,7 +106,7 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".deck-coverage__group--advantages .deck-coverage__none:not([hidden])", "Aucun pour l'instant"
     assert_select ".deck-coverage__group--drawbacks .deck-coverage__line[data-call=popularity-high][hidden]"
     assert_select ".deck-coverage__group--drawbacks .deck-coverage__line[data-call=release-low]:not([hidden])" do
-      assert_select "button.deck-coverage__gap[aria-label=?]", "Manque de cartes anciennes, trier la collection", text: "− Sortie basse"
+      assert_select "button.deck-coverage__gap[aria-label=?]", "Manque de cartes anciennes, trier la collection", text: "Sortie ancienne"
     end
     assert_select "input.deck-collection__search[type=search][aria-label=?]", "Rechercher dans vos cartes"
     assert_select ".deck-entry .stat-bars .stat-bars__row", minimum: 5

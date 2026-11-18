@@ -1714,9 +1714,22 @@ en:
             high: recent cards
             low: old cards
         drawbacks: Missing
-        directions:
-          high: high
-          low: low
+        qualifiers:
+          circulation:
+            high: high
+            low: low
+          discovery:
+            high: early
+            low: late
+          popularity:
+            high: high
+            low: low
+          rating:
+            high: high
+            low: low
+          release:
+            high: recent
+            low: old
         gap_label: "Lacks %{cards}, sort the collection"
         lacking: Lacks %{cards}
         many: Lots of %{cards}
@@ -1730,6 +1743,10 @@ en:
         text: The cards stay in your collection.
       empty_collection: No card in your collection yet.
       empty_slot: Empty slot
+      info:
+        open: Details
+        page: Full card page
+        title: Card details
       moves:
         down: "%{stat} down: %{to}, against %{from} last Monday"
         up: "%{stat} up: %{to}, against %{from} last Monday"
