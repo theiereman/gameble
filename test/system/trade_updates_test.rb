@@ -41,7 +41,7 @@ class TradeUpdatesTest < ApplicationSystemTestCase
     within("#bell-panel") { click_link href: "/en/trades/#{trade.token}" }
 
     assert_current_path "/en/trades/#{trade.token}"
-    assert_no_selector update_line(trade), visible: :all
+    assert_selector "#bell-items li[hidden] a[href='/en/trades/#{trade.token}']", visible: :all
     eventually("opening the trade should record one view") { Game::TradeView.where(player_id: @hugo.id).count == 1 }
 
     visit library_path(locale: :en)
