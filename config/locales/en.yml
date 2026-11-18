@@ -2006,6 +2006,21 @@ en:
     show:
       title: Duels
     throttled: Too many moves in a minute. Try again in a moment.
+    tutorial:
+      heading: How a duel works
+      steps:
+        call:
+          text: Lock a card, pick a stat and High or Low. The most extreme cards win, whichever way.
+          title: Call a stat
+        challenge:
+          text: Choose a deck and a friend who is online. A duel is 10 rounds, with a hand of 3 cards.
+          title: Challenge a friend
+        deck:
+          text: Pick 12 cards you own. Each card is a Steam game with five stats.
+          title: Build a deck
+        win:
+          text: Your friend answers with a card. The better one in the called direction scores a point. Most points after 10 rounds wins.
+          title: Win rounds
   errors:
     accounts:
       incomplete_release_note: "A ready note needs its title and its text in both languages."

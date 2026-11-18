@@ -4123,6 +4123,21 @@ fr:
   duels:
     show:
       title: "Duels"
+    tutorial:
+      heading: "Comment fonctionne un duel"
+      steps:
+        deck:
+          title: "Composez un deck"
+          text: "Choisissez 12 cartes que vous possédez. Chaque carte est un jeu Steam avec cinq stats."
+        challenge:
+          title: "Défiez un ami"
+          text: "Choisissez un deck et un ami en ligne. Un duel dure 10 manches, avec une main de 3 cartes."
+        call:
+          title: "Annoncez une stat"
+          text: "Posez une carte, choisissez une stat et Haut ou Bas. Les cartes les plus extrêmes gagnent, dans un sens comme dans l'autre."
+        win:
+          title: "Gagnez des manches"
+          text: "Votre ami répond avec une carte. La meilleure dans le sens annoncé marque un point. Le plus de points après 10 manches l'emporte."
     challenge:
       button: "Défier"
       button_in_duel: "Défier en duel"

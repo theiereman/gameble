@@ -1,0 +1,8 @@
+<svg class="duel-tutorial__svg" viewBox="0 0 160 100" aria-hidden="true" focusable="false">
+  <% 3.times do |row| %>
+    <% 4.times do |column| %>
+      <rect class="<%= class_names("t-card", "t-card--hot": (row + column).even?) %>" x="<%= 19 + column * 32 %>" y="<%= 14 + row * 24 %>" width="26" height="18" />
+      <rect class="t-bar t-bar--accent" x="<%= 22 + column * 32 %>" y="<%= 28 + row * 24 %>" width="<%= 8 + ((row * 4 + column) * 5) % 14 %>" height="2" />
+    <% end %>
+  <% end %>
+</svg>

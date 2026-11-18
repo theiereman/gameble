@@ -1,0 +1,176 @@
+/* ---- "How a duel works": four numbered steps, each with a small pixel
+   illustration, in a panel that opens by default for a player who never
+   duelled and folds to its title otherwise. ---- */
+
+.duel-tutorial {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.duel-tutorial > .button {
+  align-self: flex-start;
+}
+
+.duel-tutorial__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  list-style: none;
+  cursor: pointer;
+}
+
+.duel-tutorial__summary::-webkit-details-marker {
+  display: none;
+}
+
+.duel-tutorial__summary::after {
+  content: "▾";
+  color: var(--color-accent);
+}
+
+.duel-tutorial__details[open] > .duel-tutorial__summary::after {
+  content: "▴";
+}
+
+.duel-tutorial__summary:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.duel-tutorial__heading {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.duel-tutorial__steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-5);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.duel-tutorial__step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.duel-tutorial__art {
+  position: relative;
+  aspect-ratio: 8 / 5;
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 1px var(--color-line);
+}
+
+.duel-tutorial__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  shape-rendering: crispEdges;
+}
+
+.duel-tutorial__number {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  display: grid;
+  place-items: center;
+  width: var(--space-6);
+  height: var(--space-6);
+  background: var(--color-accent);
+  color: var(--color-panel-sunken);
+  font: var(--font-number);
+}
+
+.duel-tutorial__title {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.duel-tutorial__text {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.t-card {
+  fill: var(--color-panel-raised);
+  stroke: var(--color-line);
+  stroke-width: 1;
+}
+
+.t-card--hot {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+
+.t-bar--track {
+  fill: var(--color-panel-sunken);
+}
+
+.t-bar--accent {
+  fill: var(--color-accent);
+}
+
+.t-bar--lime {
+  fill: var(--color-lime);
+}
+
+.t-bar--orange {
+  fill: var(--color-alert);
+}
+
+.t-pick {
+  fill: none;
+  stroke: var(--color-text-max);
+  stroke-width: 1;
+}
+
+.t-arrow--up {
+  fill: var(--color-lime);
+}
+
+.t-arrow--down {
+  fill: var(--color-alert);
+}
+
+.t-badge {
+  fill: var(--color-lime);
+}
+
+.t-text {
+  fill: var(--color-text-max);
+  font: var(--font-label);
+}
+
+.t-text--big {
+  font-size: 16px;
+}
+
+.t-text--lime {
+  fill: var(--color-lime);
+  font-size: 20px;
+}
+
+.t-text--muted {
+  fill: var(--color-muted);
+  font-size: 20px;
+}
+
+.t-text--dark {
+  fill: var(--color-panel-sunken);
+}

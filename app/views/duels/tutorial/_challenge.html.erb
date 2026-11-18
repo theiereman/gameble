@@ -1,0 +1,7 @@
+<svg class="duel-tutorial__svg" viewBox="0 0 160 100" aria-hidden="true" focusable="false">
+  <% 3.times do |index| %>
+    <rect class="<%= class_names("t-card", "t-card--hot": index == 2) %>" x="<%= 10 + index * 10 %>" y="<%= 18 + index * 4 %>" width="34" height="52" />
+    <rect class="<%= class_names("t-card", "t-card--hot": index == 2) %>" x="<%= 116 - index * 10 %>" y="<%= 18 + index * 4 %>" width="34" height="52" />
+  <% end %>
+  <text class="t-text t-text--big" x="80" y="56" text-anchor="middle">VS</text>
+</svg>

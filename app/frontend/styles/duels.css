@@ -9,6 +9,12 @@
   align-items: start;
 }
 
+.duels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-page);
+}
+
 .duels__side,
 .duels__main {
   display: flex;
@@ -21,7 +27,9 @@
   display: contents;
 }
 
-.duel-decks {
+.duel-decks,
+.duel-online,
+.duel-lobby {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -176,7 +184,7 @@
 }
 
 .duel-record {
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .duel-record__stats {

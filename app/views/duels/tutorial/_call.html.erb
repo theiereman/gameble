@@ -1,0 +1,10 @@
+<svg class="duel-tutorial__svg" viewBox="0 0 160 100" aria-hidden="true" focusable="false">
+  <rect class="t-card t-card--hot" x="34" y="10" width="60" height="80" />
+  <% [ [ 44, "t-bar--orange" ], [ 20, "t-bar--accent" ], [ 52, "t-bar--lime" ], [ 36, "t-bar--accent" ], [ 12, "t-bar--orange" ] ].each_with_index do |(length, tone), index| %>
+    <rect class="t-bar t-bar--track" x="40" y="<%= 30 + index * 11 %>" width="48" height="5" />
+    <rect class="t-bar <%= tone %>" x="40" y="<%= 30 + index * 11 %>" width="<%= length * 48 / 56 %>" height="5" />
+  <% end %>
+  <rect class="t-pick" x="37" y="49" width="54" height="11" />
+  <polygon class="t-arrow t-arrow--up" points="112,38 120,50 104,50" />
+  <polygon class="t-arrow t-arrow--down" points="112,72 104,60 120,60" />
+</svg>
