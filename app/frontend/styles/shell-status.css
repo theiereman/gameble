@@ -215,6 +215,11 @@ html:has(body > .ticker) {
   text-transform: uppercase;
 }
 
+/* Without a box of its own, the wrapper adds no flex gap that lifts the capsule icon above the other tabs. */
+.tab-bar__capsules:not([hidden]) {
+  display: contents;
+}
+
 .tab-bar__badge {
   position: absolute;
   top: var(--space-2);

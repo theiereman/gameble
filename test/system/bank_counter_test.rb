@@ -30,4 +30,19 @@ class BankCounterSystemTest < ApplicationSystemTestCase
 
     assert_no_selector ".tab-bar__capsules"
   end
+
+  test "the Capsule tab's icon sits level with the other tabs' while the badge shows" do
+    player = accounts_players(:player)
+    create_pack(player)
+    mock_steam_sign_in(player.steam_id)
+    visit home_path(locale: :en)
+    click_steam_sign_in
+    assert_signed_in
+    resize_to(*PHONE)
+
+    assert_selector ".tab-bar__capsules .tab-bar__badge"
+    tops = page.evaluate_script("Array.from(document.querySelectorAll('.tab-bar__icon'), (icon) => icon.getBoundingClientRect().top)")
+
+    assert_equal 1, tops.uniq.size
+  end
 end
