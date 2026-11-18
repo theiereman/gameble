@@ -28,6 +28,21 @@ class Accounts::UpdateSettingsTest < ActiveSupport::TestCase
     assert_equal true, @player.reload.reduced_motion
   end
 
+  test "it stores the rarity aura choice and leaves the motion setting alone" do
+    @player.update!(reduced_motion: true)
+
+    assert update(rarity_aura: false).success?
+    assert_equal false, @player.reload.rarity_aura
+    assert_equal true, @player.reduced_motion
+  end
+
+  [ nil, "off", 1 ].each do |value|
+    test "#{value.inspect} is no rarity aura choice: invalid_setting" do
+      assert_equal :invalid_setting, update(rarity_aura: value).failure
+      assert @player.reload.rarity_aura
+    end
+  end
+
   [ "true", "on", 1, :reduced, "" ].each do |value|
     test "#{value.inspect} is no motion choice: invalid_setting, and nothing is written" do
       @player.update!(reduced_motion: true)

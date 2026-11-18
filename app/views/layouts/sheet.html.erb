@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<%= I18n.locale %>"<% if forced_motion %> data-motion="<%= forced_motion %>"<% end %><% if hotwire_native_app? %> data-native-app<% end %>>
+<html lang="<%= I18n.locale %>"<% if forced_motion %> data-motion="<%= forced_motion %>"<% end %><% if rarity_aura_hidden? %> data-rarity-aura="off"<% end %><% if hotwire_native_app? %> data-native-app<% end %>>
   <head>
     <%= render "layouts/head" %>
   </head>

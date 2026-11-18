@@ -1,5 +1,6 @@
 class SettingsController < ApplicationController
   MOTION_CHOICES = { "system" => nil, "on" => true, "off" => false }.freeze
+  RARITY_AURA_CHOICES = { "on" => true, "off" => false }.freeze
   LIBRARY_SYNC_CHOICES = { "on" => true, "off" => false }.freeze
 
   throttle_player to: 1, within: 5.minutes, only: :sync_steam_library, path: -> { settings_path }, alert: "settings.sync_library.throttled"
@@ -7,6 +8,7 @@ class SettingsController < ApplicationController
   def show
     authorize :settings, :show?
     @reduced_motion = current_player.reduced_motion
+    @rarity_aura = current_player.rarity_aura
     @visibility = current_player.visibility
     @last_export = Accounts::LastExportOf.call(current_player)
     @next_export_at = current_player.next_export_at
@@ -83,6 +85,17 @@ class SettingsController < ApplicationController
     result = Accounts::UpdateSettings.new.call(player: current_player, reduced_motion: MOTION_CHOICES.fetch(params[:reduced_motion].to_s, :invalid))
     if result.success?
       write_motion_cookie(result.value!.reduced_motion)
+      redirect_to settings_path, status: :see_other
+    else
+      redirect_refused Accounts::UpdateSettings, result, settings_path
+    end
+  end
+
+  def rarity_aura
+    authorize :settings, :rarity_aura?
+
+    result = Accounts::UpdateSettings.new.call(player: current_player, rarity_aura: RARITY_AURA_CHOICES.fetch(params[:rarity_aura].to_s, :invalid))
+    if result.success?
       redirect_to settings_path, status: :see_other
     else
       redirect_refused Accounts::UpdateSettings, result, settings_path

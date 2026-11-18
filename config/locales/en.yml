@@ -4577,6 +4577,10 @@ en:
       release_notes: "Release notes"
       legal: Legal notice
       source_code: Source code
+      rarity_aura:
+        label: Rarity aura
+        'on': Shown
+        'off': Hidden
       motion:
         label: Reduced motion
         'off': 'No'

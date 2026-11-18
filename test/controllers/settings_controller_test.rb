@@ -42,8 +42,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "title", /Profil et paramètres/
     assert_select "main h1", "Profil et paramètres"
-    assert_select ".settings-row", 13
-    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Synchroniser mes jeux Steam", "Session", "Connexions", "Mes données", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
+    assert_select ".settings-row", 14
+    assert_equal [ "Langue", "Visibilité du profil", "Aura de rareté", "Animations réduites", "Synchroniser mes jeux Steam", "Session", "Connexions", "Mes données", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
     assert_select "[role=group][aria-labelledby=settings-language] a.segmented__option[data-locale-choice][data-turbo-action=replace]", 2
     assert_select "a.segmented__option[href='/fr/settings'][aria-current=true][lang=fr]", "Français"
     assert_select "a.segmented__option[href='/en/settings'][lang=en]:not([aria-current])", "English"
@@ -137,7 +137,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
 
     assert_select "main h1", "Profile and settings"
-    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Sync my Steam games", "Session", "Sign-ins", "My data", "Account", "Support" ], css_select(".settings-row__label").map(&:text)
+    assert_equal [ "Language", "Profile visibility", "Rarity aura", "Reduced motion", "Sync my Steam games", "Session", "Sign-ins", "My data", "Account", "Support" ], css_select(".settings-row__label").map(&:text)
     assert_select "button[name=reduced_motion][value=on][aria-pressed=true]", "Yes"
     assert_select "button[name=reduced_motion][value=system][aria-pressed=false]", "System"
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "No"
@@ -340,6 +340,28 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
       assert_equal cookie, cookies[:motion]
       assert_match(/motion=#{cookie}.*HttpOnly.*SameSite=Lax/im, Array(response.headers["Set-Cookie"]).join("\n"))
     end
+  end
+
+  test "hiding the rarity aura is stored on the player and shows in the page" do
+    sign_in(@player)
+    get settings_path(locale: :en)
+    assert_select "html[data-rarity-aura]", 0
+
+    patch settings_rarity_aura_path(locale: :en), params: { rarity_aura: "off" }
+
+    assert_redirected_to settings_path(locale: :en)
+    assert_equal false, @player.reload.rarity_aura
+    follow_redirect!
+    assert_select "html[data-rarity-aura=off]"
+    assert_select "button[name=rarity_aura][value=off][aria-pressed=true]"
+  end
+
+  test "an unknown rarity aura choice changes nothing" do
+    sign_in(@player)
+
+    patch settings_rarity_aura_path(locale: :en), params: { rarity_aura: "dim" }
+
+    assert @player.reload.rarity_aura
   end
 
   test "choosing the system empties the setting and removes the cookie" do

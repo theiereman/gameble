@@ -102,6 +102,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_140000) do
     t.boolean "steam_library_sync", default: true, null: false
     t.datetime "reachable_until"
     t.bigint "bot_of_id"
+    t.boolean "rarity_aura", default: true, null: false
     t.index ["bot_of_id"], name: "index_accounts_players_one_bot_per_player", unique: true, where: "(bot_of_id IS NOT NULL)"
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["stream_key"], name: "index_accounts_players_on_stream_key", unique: true

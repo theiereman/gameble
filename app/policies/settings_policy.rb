@@ -2,6 +2,7 @@ class SettingsPolicy < ApplicationPolicy
   def show? = player?
   def update? = player?
   def visibility? = player?
+  def rarity_aura? = player?
   def name? = player?
   def steam_library? = player?
   def sync_steam_library? = player?

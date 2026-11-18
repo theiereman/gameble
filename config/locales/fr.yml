@@ -2116,6 +2116,10 @@ fr:
         public: "Public"
         friends_only: "Amis uniquement"
         private: "Privé"
+      rarity_aura:
+        label: "Aura de rareté"
+        "on": "Affichés"
+        "off": "Masqués"
       motion:
         label: "Animations réduites"
         system: "Système"

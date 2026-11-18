@@ -88,3 +88,7 @@ html[data-motion="reduced"] .card-rays {
 html[data-motion="reduced"] .card-float {
   animation: none;
 }
+
+html[data-rarity-aura="off"] .booster-card__aura {
+  display: none;
+}

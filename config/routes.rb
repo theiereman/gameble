@@ -184,6 +184,8 @@ Rails.application.routes.draw do
     patch "personalization/back" => "card_backs#update", as: :personalization_back
     # The profile visibility row of the settings.
     patch "settings/visibility" => "settings#visibility", as: :settings_visibility
+    # The rarity aura row of the settings.
+    patch "settings/rarity-aura" => "settings#rarity_aura", as: :settings_rarity_aura
     # The name row of the settings, for a player whose name does not come from Steam.
     patch "settings/name" => "settings#name", as: :settings_name
     # The Steam library sync row of the settings, for a player with a Steam identity.

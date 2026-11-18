@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
 
   CLOSED_ANNOUNCEMENT_COOKIE = :closed_announcement
 
-  helper_method :current_player, :forced_motion, :motion_reduced?, :running_release
+  helper_method :current_player, :forced_motion, :motion_reduced?, :rarity_aura_hidden?, :running_release
 
   def self.throttle_player(to:, only:, path:, alert:, within: 1.minute)
     rate_limit to:, within:, only:,
@@ -98,6 +98,10 @@ class ApplicationController < ActionController::Base
 
     def motion_reduced?
       forced_motion == "reduced"
+    end
+
+    def rarity_aura_hidden?
+      current_player.present? && !current_player.rarity_aura
     end
 
     def write_motion_cookie(setting)
