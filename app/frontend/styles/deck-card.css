@@ -21,8 +21,8 @@
   padding: 0 var(--space-6) var(--space-5);
   background: linear-gradient(
     to bottom,
-    transparent 45%,
-    color-mix(in srgb, var(--color-panel-sunken) 80%, transparent) 100%
+    transparent 48%,
+    color-mix(in srgb, var(--color-panel-sunken) 88%, transparent) 66%
   );
   pointer-events: none;
 }
