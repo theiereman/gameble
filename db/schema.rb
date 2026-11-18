@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_16_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -486,7 +486,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_220000) do
     t.datetime "updated_at", null: false
     t.index ["feed_entry_id", "kind"], name: "index_game_feed_reactions_on_feed_entry_id_and_kind"
     t.index ["player_id", "feed_entry_id"], name: "index_game_feed_reactions_on_player_id_and_feed_entry_id", unique: true
-    t.check_constraint "kind::text = 'thumb'::text OR kind::text = 'heart'::text OR kind::text = 'gg'::text OR kind::text = 'wow'::text OR kind::text = 'middle_finger'::text", name: "game_feed_reactions_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['thumb'::character varying::text, 'heart'::character varying::text, 'gg'::character varying::text, 'wow'::character varying::text, 'middle_finger'::character varying::text, 'poop'::character varying::text, 'want'::character varying::text])", name: "game_feed_reactions_kind_check"
   end
 
   create_table "game_first_discoveries", force: :cascade do |t|

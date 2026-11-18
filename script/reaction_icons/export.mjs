@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// Exports the five feed reaction icons (thumb, heart, GG, wow, middle
-// finger) as PNGs in app/frontend/images/reactions/.
+// Exports the feed reaction icons (thumb, heart, GG, wow, middle finger,
+// poop, want) as PNGs in app/frontend/images/reactions/.
 //
 // Each icon is a vector drawing in sources/<name>.svg, inspired by its emoji
 // and drawn by hand: a lit side, a shaded side and an outline tinted from its
-// colour. The script renders it
+// colour. The poop is the exception: its source wraps a 320 px render of the
+// emoji with an outline added. The script renders it
 // with resvg at SUPERSAMPLE times the icon's size, then pixelates it with
 // pixelcrush, the filter of the card art, to SIZE × SIZE in COLOURS colours.
 // The app shows each pixel at 1 CSS px.

@@ -39,9 +39,9 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     frame = frames.find { it["id"] == "reactions-#{token}" }
     assert_equal "lazy", frame["loading"]
     assert_equal "/en/feed/entries/#{token}/reactions", frame["src"]
-    assert_equal 5, frame.css(".feed__reaction--static").size
+    assert_equal Game::FeedReaction::KINDS.size, frame.css(".feed__reaction--static").size
     assert_empty frame.css("button, form")
-    assert_equal [ "" ] * 5, frame.css(".feed__reaction-count").map(&:text)
+    assert_equal [ "" ] * Game::FeedReaction::KINDS.size, frame.css(".feed__reaction-count").map(&:text)
   end
 
   test "an opening's entries go to the feed, the ticker and the strip, rendered once per locale" do

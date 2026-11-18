@@ -59,7 +59,7 @@ class FeedReactionsTest < ApplicationSystemTestCase
     using_session("other browser") do
       visit feed_path(locale: :en)
       assert_selector "turbo-cable-stream-source[connected]", visible: :all
-      assert_selector "#{@bar} .feed__reaction--static", count: 5, visible: :all
+      assert_selector "#{@bar} .feed__reaction--static", count: Game::FeedReaction::KINDS.size, visible: :all
       assert_no_selector "#{@bar} .feed__reaction"
       assert_no_selector "#{@bar} button", visible: :all
       page.execute_script("window.liveMark = true")
@@ -109,6 +109,23 @@ class FeedReactionsTest < ApplicationSystemTestCase
     assert_empty Game::FeedReaction.all
   end
 
+  test "the poop and the want reactions are chosen from the + like the others, one replacing the other" do
+    sign_in(@reader)
+    visit feed_path(locale: :en)
+    assert_selector @bar
+
+    find("#{@bar} [data-reaction-toggle]").click
+    choose("poop")
+    assert_selector "#{own_reaction}[data-reaction-kind=poop][aria-pressed=true]"
+    assert_selector "#reaction-status", text: "Reaction sent: Poop.", visible: :all
+
+    find(own_reaction).hover
+    choose("want")
+    assert_selector "#{own_reaction}[data-reaction-kind=want][aria-pressed=true]"
+    assert_selector "#reaction-status", text: "Reaction sent: I want it.", visible: :all
+    assert_equal %w[want], Game::FeedReaction.pluck(:kind)
+  end
+
   test "an entry that tops the live feed loads the viewer's own bar with their reaction in place of the +, and a visitor still cannot react" do
     sign_in(@reader)
     visit feed_path(locale: :en)
@@ -121,14 +138,14 @@ class FeedReactionsTest < ApplicationSystemTestCase
 
     frame = "#reactions-#{fresh.token}"
     assert_selector "#{frame} .feed__reaction--mine[data-reaction-kind=gg][aria-pressed=true]", text: "1"
-    assert_selector "#{frame} .feed__reaction-pill button", count: 5, visible: :all
+    assert_selector "#{frame} .feed__reaction-pill button", count: Game::FeedReaction::KINDS.size, visible: :all
     assert_selector "#{frame} button", count: 1
     assert_no_selector "#{frame} [data-reaction-toggle]", visible: :all
 
     using_session("visitor") do
       visit feed_path(locale: :en)
       assert_selector "#{frame} .feed__reaction--static", count: 1, text: "1"
-      assert_selector "#{frame} .feed__reaction--static", count: 5, visible: :all
+      assert_selector "#{frame} .feed__reaction--static", count: Game::FeedReaction::KINDS.size, visible: :all
       assert_no_selector ".feed__reactions button", visible: :all
     end
   end

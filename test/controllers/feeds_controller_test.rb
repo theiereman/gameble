@@ -725,7 +725,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     entries = css_select(".feed__entry").size
     assert_select ".feed__reactions[role=group]", entries
-    assert_select ".feed__reactions .feed__reaction", entries * 5
+    assert_select ".feed__reactions .feed__reaction", entries * Game::FeedReaction::KINDS.size
     assert_select ".feed__reactions button", 0
     assert_select "[data-reaction-count='#{ReactionStream.slot(entry.token, "heart")}']", "1"
     assert_equal [ "reactions:en", "live:en" ], all_stream_names
@@ -740,12 +740,12 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     get feed_path(locale: :en)
 
     entries = css_select(".feed__entry").size
-    assert_select ".feed__reaction-pill button", entries * 5
-    assert_select ".feed__reaction-choice", entries * 5
+    assert_select ".feed__reaction-pill button", entries * Game::FeedReaction::KINDS.size
+    assert_select ".feed__reaction-choice", entries * Game::FeedReaction::KINDS.size
     assert_select "button[data-reaction-toggle]", entries - 1
     assert_select "#reactions-#{entry.token} .feed__reaction--mine[data-reaction-kind=wow][aria-pressed=true]", 1
     assert_select "#reactions-#{entry.token} .feed__reaction-choice[aria-pressed=true][data-reaction-kind=wow]", 1
-    assert_select "form[action='/en/feed/entries/#{entry.token}/reaction']", 11
+    assert_select "form[action='/en/feed/entries/#{entry.token}/reaction']", 2 * Game::FeedReaction::KINDS.size + 1
   end
 
   test "the counters of a page are read in one query whatever the number of entries" do

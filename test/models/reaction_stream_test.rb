@@ -79,7 +79,7 @@ class ReactionStreamTest < ActiveSupport::TestCase
     ReactionCountsJob.perform_now([ @entry.id ])
 
     sent = received
-    assert_equal({ "thumb" => "", "heart" => "1", "gg" => "", "wow" => "1", "middle_finger" => "" },
+    assert_equal({ "thumb" => "", "heart" => "1", "gg" => "", "wow" => "1", "middle_finger" => "", "poop" => "", "want" => "" },
       Game::FeedReaction::KINDS.index_with { count_update(sent, it) })
     assert_no_match(/#{@reader.token}|#{@author.token}/, sent.to_html)
   end

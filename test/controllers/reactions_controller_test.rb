@@ -147,7 +147,7 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
 
     get feed_entry_reactions_path(locale: :en, token: @entry.token)
     assert_response :success
-    assert_select "turbo-frame#reactions-#{@entry.token} .feed__reaction--static", 5
+    assert_select "turbo-frame#reactions-#{@entry.token} .feed__reaction--static", Game::FeedReaction::KINDS.size
     assert_select "turbo-frame button", 0
     assert_select "[data-reaction-count='#{ReactionStream.slot(@entry.token, "thumb")}']", "1"
     assert_select "[data-reaction-count='#{ReactionStream.slot(@entry.token, "heart")}']", ""
@@ -155,8 +155,8 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@reader)
     get feed_entry_reactions_path(locale: :en, token: @entry.token)
 
-    assert_select "turbo-frame#reactions-#{@entry.token} .feed__reaction-pill button", 5
-    assert_select "turbo-frame#reactions-#{@entry.token} .feed__reaction-choice", 5
+    assert_select "turbo-frame#reactions-#{@entry.token} .feed__reaction-pill button", Game::FeedReaction::KINDS.size
+    assert_select "turbo-frame#reactions-#{@entry.token} .feed__reaction-choice", Game::FeedReaction::KINDS.size
     assert_select ".feed__reaction--mine[data-reaction-kind=thumb][aria-pressed=true]", 1
     assert_select ".feed__reaction-choice[aria-pressed=true]", 1
   end

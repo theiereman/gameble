@@ -14,7 +14,7 @@ class Game::FeedReactionSummariesTest < ActiveSupport::TestCase
   test "an entry nobody reacted to counts zero of each kind and has no own reaction" do
     summary = reaction_counts(@entry, viewer: @first)
 
-    assert_equal({ "thumb" => 0, "heart" => 0, "gg" => 0, "wow" => 0, "middle_finger" => 0 }, summary.counts)
+    assert_equal({ "thumb" => 0, "heart" => 0, "gg" => 0, "wow" => 0, "middle_finger" => 0, "poop" => 0, "want" => 0 }, summary.counts)
     assert_nil summary.mine
     assert_equal 0, summary.total
     assert(summary.names.values.all?(&:empty?))

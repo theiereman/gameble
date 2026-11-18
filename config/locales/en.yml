@@ -3948,7 +3948,9 @@ en:
       gg: GG
       heart: Heart
       middle_finger: Middle finger
+      poop: Poop
       thumb: Thumb up
+      want: I want it
       wow: Wow
     reacted: 'Reaction sent: %{reaction}.'
     remove: 'Remove your reaction: %{reaction}'
