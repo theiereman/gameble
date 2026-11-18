@@ -768,6 +768,21 @@ fr:
         draft: "La note de %{version} repasse en brouillon."
         ready: "La note de %{version} est prête."
         skipped: "%{version} n'a pas besoin de note."
+    features:
+      index:
+        heading: "Les fonctionnalités"
+        intro: "Une fonctionnalité désactivée est cachée à tous les joueurs et ses pages répondent « introuvable ». L'activer la montre à tout le monde d'un coup."
+        names:
+          duels: "Duels"
+        descriptions:
+          duels: "L'onglet Duels, les decks, les défis entre amis et le profil de duel des cartes."
+        enabled: "Activée"
+        disabled: "Désactivée"
+        turn_on: "Activer"
+        turn_off: "Désactiver"
+      update:
+        turned_on: "%{name} est activée pour tous les joueurs."
+        turned_off: "%{name} est cachée aux joueurs."
     feedbacks:
       index:
         count:
@@ -1039,6 +1054,9 @@ fr:
           feedbacks:
             title: "Testing"
             text: "Les retours des joueurs sur les fonctionnalités en test."
+          features:
+            title: "Les fonctionnalités"
+            text: "Activer ce qui est encore caché aux joueurs."
           announcements:
             title: "Les annonces"
             text: "Le bandeau rouge, en français et en anglais."
@@ -4731,6 +4749,7 @@ fr:
       unknown_season: "Vous n'avez pas obtenu ce dos de carte pendant cette saison."
       showcase_edge: "Cette carte ne peut pas aller plus loin."
       unknown_direction: "Direction inconnue."
+      unknown_feature: "Cette fonctionnalité n'existe pas."
       position_out_of_range: "La vitrine n'a pas cette place."
       amounts_changed: "Les montants ont changé pendant votre choix. Ils sont redessinés ci-dessous : vérifiez-les puis validez à nouveau."
       empty_batch: "Choisissez au moins un exemplaire à confier."

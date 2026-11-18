@@ -1,5 +1,5 @@
 <%# locals: (friend:) %>
-<% if Game::Visibility.open_to_friends?(current_player) %>
+<% if feature_enabled?(:duels) && Game::Visibility.open_to_friends?(current_player) %>
   <% if !Game::Visibility.open_to_friends?(friend) %>
     <%= tag.p Game::ChallengeFriend.failure_message(:friend_duels_closed), class: "trades-closed" %>
   <% elsif (row = duel_reachable(friend)) && row.in_duel %>

@@ -178,7 +178,7 @@ class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
     # and goals; with no goal, the sets suggested, their standings and the
     # themes' names; the market settings in force; and the player's duels
     # in progress for the tab bar.
-    assert_equal 24, suggested_forty
+    assert_equal 25, suggested_forty
 
     add(kind: "theme", key: "theme-1")
     one = count_queries { get library_path(locale: :en) }

@@ -6,6 +6,7 @@ require_relative "../support/game_packs"
 class ShellHelperTest < ActionView::TestCase
   include GamePacks
   include ExchangesHelper
+  include ApplicationHelper
 
   attr_accessor :current_player
 

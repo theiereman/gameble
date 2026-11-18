@@ -83,8 +83,8 @@ module ShellHelper
       [ :booster, "tab-capsule", booster_path, page_if(%w[boosters packs].include?(controller_path)) ],
       [ :sets, "tab-sets", library_path, page_if(%w[library cards custom_sets].include?(controller_path)) ],
       [ :trades, "tab-commerce", exchanges_path, exchanges_tab_current ],
-      [ :duels, "tab-duels", duels_path, duels_tab_current ]
-    ]
+      ([ :duels, "tab-duels", duels_path, duels_tab_current ] if feature_enabled?(:duels))
+    ].compact
   end
 
   def visitor_tabs

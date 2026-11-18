@@ -49,7 +49,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     }
   }.freeze
 
-  PLAYER_HUB_QUERIES = 31
+  PLAYER_HUB_QUERIES = 32
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 

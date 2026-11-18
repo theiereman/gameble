@@ -1,4 +1,5 @@
 class DeckCardsController < ApplicationController
+  require_feature :duels
   include DeckChanges
 
   limit_deck_changes only: %i[create destroy]

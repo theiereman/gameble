@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_18_130001) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_18_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -610,6 +610,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_130001) do
     t.check_constraint "move_number >= 0", name: "game_duels_move_number_check"
     t.check_constraint "result::text = 'challenger'::text OR result::text = 'opponent'::text OR result::text = 'draw'::text", name: "game_duels_result_check"
     t.check_constraint "state::text = 'challenged'::text OR state::text = 'cancelled'::text OR state::text = 'refused'::text OR state::text = 'lapsed'::text OR state::text = 'active'::text OR state::text = 'finished'::text", name: "game_duels_state_check"
+  end
+
+  create_table "game_feature_flags", force: :cascade do |t|
+    t.string "key", null: false
+    t.boolean "enabled", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_game_feature_flags_on_key", unique: true
   end
 
   create_table "game_feed_entries", force: :cascade do |t|
