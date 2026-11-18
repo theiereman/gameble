@@ -1750,6 +1750,7 @@ en:
         full: The deck is full.
         in_deck: In the deck
         in_deck_suffix: ", in the deck"
+        remove: Remove
         remove_slot: Remove %{card} from the deck
         removed: "%{card} removed, %{count} of 12"
         same_game: This game is already in the deck.

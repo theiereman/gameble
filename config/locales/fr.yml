@@ -4004,6 +4004,7 @@ fr:
         add: "Ajouter"
         in_deck: "Dans le deck"
         in_deck_suffix: ", dans le deck"
+        remove: Retirer
         remove_slot: "Retirer %{card} du deck"
         added: "%{card} ajoutée, %{count} sur 12"
         removed: "%{card} retirée, %{count} sur 12"

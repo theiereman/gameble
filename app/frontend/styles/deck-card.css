@@ -87,3 +87,33 @@
     font-size: 0.8125rem;
   }
 }
+
+/* The card a mouse drags out of the deck: it follows the pointer, tilted, and fades when let go. */
+.deck-card--ghost {
+  position: fixed;
+  top: var(--ghost-top);
+  left: var(--ghost-left);
+  z-index: 50;
+  width: var(--ghost-width);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-panel-sunken) 90%, transparent);
+  transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(3deg) scale(1.04);
+  transition:
+    opacity 160ms ease-out,
+    transform 160ms ease-out;
+  pointer-events: none;
+}
+
+.deck-card--ghost[data-state="leaving"] {
+  opacity: 0;
+  transform: translate(var(--drag-x, 0), var(--drag-y, 0)) rotate(8deg) scale(0.7);
+}
+
+.deck-card--ghost[data-state="returning"] {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-card--ghost {
+    transition: none;
+  }
+}

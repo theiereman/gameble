@@ -1,8 +1,12 @@
 <%# locals: (entry:) %>
 <span class="deck-slot__filled">
-  <%= tag.button type: "button", class: "deck-slot", data: { action: "deck-slots#remove" },
-        aria: { label: (deck_slot_label(entry) if entry) } do %>
+  <%= tag.button type: "button", class: "deck-slot", aria: { expanded: "false" },
+        data: { action: "pointerdown->deck-slots#press click->deck-slots#toggle" } do %>
     <span class="deck-slot__card"><%= render("decks/card", entry:) if entry %></span>
   <% end %>
+  <span class="deck-slot__actions" hidden>
+    <%= tag.button t("decks.editor.strings.remove"), type: "button", class: "deck-slot__remove",
+          aria: { label: (deck_slot_label(entry) if entry) }, data: { action: "deck-slots#remove" } %>
+  </span>
   <span class="deck-slot__moves" aria-hidden="true"><%= deck_moves_text(entry) %></span>
 </span>

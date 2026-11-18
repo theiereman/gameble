@@ -1,5 +1,5 @@
 <%# locals: (editor:) %>
-<section class="deck-slots" aria-labelledby="deck-slots-heading" data-controller="deck-slots">
+<section class="deck-slots" aria-labelledby="deck-slots-heading" data-controller="deck-slots" data-action="click@document->deck-slots#dismiss keydown.esc@document->deck-slots#dismiss">
   <h2 id="deck-slots-heading" class="visually-hidden"><%= t("decks.editor.slots") %></h2>
   <ol class="deck-slots__list">
     <% editor.slots.each do |entry| %>

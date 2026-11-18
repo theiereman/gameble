@@ -59,10 +59,15 @@ class DeckEditorTest < ApplicationSystemTestCase
     assert_status "The deck is full."
     assert_selector "#{LIST} .deck-entry__toggle[data-ref='#{ref_of(@cards.last)}'][aria-pressed=false]"
 
-    find("button.deck-slot[aria-label='Remove Game 01 from the deck']").click
+    find(".deck-slots__slot:first-child button.deck-slot").click
+    assert_selector ".deck-slot__remove", count: 1
+    find("#deck-search").click
+    assert_no_selector ".deck-slot__remove"
+    find(".deck-slots__slot:first-child button.deck-slot").click
+    find("button.deck-slot__remove[aria-label='Remove Game 01 from the deck']").click
     assert_selector ".deck-slots__slot:first-child .deck-slot--empty"
     assert_selector ".deck-editor__count", text: "11 / 12"
-    eventually("the next filled slot should take the focus") { page.evaluate_script("document.activeElement.getAttribute('aria-label')") == "Remove Game 02 from the deck" }
+    eventually("the next filled slot should take the focus") { page.evaluate_script("document.activeElement.closest('li')?.dataset.ref") == ref_of(@cards.second) }
     eventually("the card should be taken out") { Game::DeckCard.count == 11 }
     assert_equal 0, reserved_of(@player, @cards.first)
 
@@ -82,6 +87,21 @@ class DeckEditorTest < ApplicationSystemTestCase
     assert_no_selector "#{LIST} .deck-entry__toggle[aria-disabled=true]"
     assert_selector "#{LIST} .deck-entry__toggle[aria-pressed=false]", count: 14
     assert_equal 0, Game::Holding.where(player_id: @player.id).sum(:reserved)
+  end
+
+  test "a card dragged out of the deck is taken out, and one dropped back inside stays" do
+    deck = Game::CreateDeck.new.call(player: @player).value!
+    @cards.first(2).each { Game::AddCardToDeck.new.call(player: @player, token: deck.token, card_season_id: it).value! }
+    sign_in(@player)
+    visit deck_path(locale: :en, token: deck.token)
+
+    first_slot = find(".deck-slots__slot:first-child button.deck-slot")
+    page.driver.browser.action.move_to(first_slot.native).click_and_hold.move_to(find(".deck-slots__slot:nth-child(2) button.deck-slot").native).release.perform
+    assert_selector ".deck-editor__count", text: "2 / 12"
+
+    page.driver.browser.action.move_to(first_slot.native).click_and_hold.move_to(find("#deck-search").native).release.perform
+    assert_selector ".deck-editor__count", text: "1 / 12"
+    eventually("the card should be taken out") { Game::DeckCard.count == 1 }
   end
 
   test "the collection is one tab stop moved by the arrow keys; a card added or taken out keeps the focus" do
