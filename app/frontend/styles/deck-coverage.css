@@ -45,8 +45,13 @@
   font: var(--font-body);
 }
 
+.deck-coverage__line {
+  display: flex;
+  gap: var(--space-2);
+}
+
 .deck-coverage__line::before {
-  content: "• ";
+  content: "•";
 }
 
 .deck-coverage__line[hidden],
