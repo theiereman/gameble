@@ -13,6 +13,10 @@ module Game
         lines(Notice.where(player_id: player.id, listing_id: listing_ids, kind: "outbid").order(:id).to_a, locale)
       end
 
+      def self.of_kinds(player_id:, listing_ids:, kinds:, locale: I18n.locale)
+        lines(Notice.where(player_id:, listing_id: listing_ids, kind: kinds).order(:id).to_a, locale)
+      end
+
       def self.lines(notices, locale)
         return [] if notices.empty?
 

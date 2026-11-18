@@ -49,6 +49,8 @@ Rails.configuration.to_prepare do
   event_store.subscribe(PlayerStream, to: PlayerStream::EVENTS)
   event_store.subscribe(ListingStream, to: ListingStream::EVENTS)
   event_store.subscribe(PushNotices, to: PushNotices::EVENTS)
+  # Every market line of the bell that is not a wanted card also reaches the player's phone.
+  event_store.subscribe(MarketPushNotice, to: MarketPushNotice::EVENTS)
   # A player whose standard reserve has filled up again hears of it once, on their phone.
   event_store.subscribe(ReserveFullNotice, to: ReserveFullNotice::EVENTS)
   # A player hears on their phone of a card their goals miss going on sale, at most once an hour.

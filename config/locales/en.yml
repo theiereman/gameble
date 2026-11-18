@@ -12,6 +12,24 @@ en:
     invitation_sent:
       body: "%{name} wants to be your friend."
       title: Friend request
+    market_lead_voided:
+      body: "The leading player on %{card} was removed. The auction restarts from its starting price."
+      title: Auction restarted
+    market_outbid:
+      body: "%{name} went past your maximum on %{card}."
+      title: You were outbid
+    market_sold:
+      body: "%{card} sold. You receive %{amount}."
+      title: Card sold
+    market_unsold:
+      body: "%{card} received no offers. The card is returned to you."
+      title: No offers
+    market_withdrawn:
+      body: "%{card} was withdrawn from the market. Your %{amount} are available again."
+      title: Listing withdrawn
+    market_won:
+      body: "You won %{card} for %{amount}."
+      title: Auction won
     reserve_full:
       body: "Your %{number} capsules are waiting. Open one so the next ones keep coming."
       title: Reserve full
