@@ -61,7 +61,7 @@ class DuelLandscapeTest < ApplicationSystemTestCase
     assert_no_selector ".duel-past"
   end
 
-  test "the card picked for the call shows a gauge per stat and no written value" do
+  test "the card picked for the call shows a gauge and its figure per stat, and no longer the strip of gauges above" do
     resize_viewport_to(*LANDSCAPE)
     sign_in(@lea)
     visit duel_path(locale: :en, token: @duel.token)
@@ -71,6 +71,8 @@ class DuelLandscapeTest < ApplicationSystemTestCase
 
     assert_selector ".duel-call__card:not([hidden]) .duel-call__stat .stat-bars__bar", count: 5
     assert_no_selector ".duel-call__card:not([hidden]) .duel-call__value"
+    assert_selector ".duel-call__card:not([hidden]) .duel-call__level", count: 5, text: /\A\d+\z/
+    assert_no_selector "#duel-my-deck .duel-deck__card:has(.duel-call__card:not([hidden])) .stat-bars"
     page.save_screenshot(ENV["DUEL_LANDSCAPE_SHOT"]) if ENV["DUEL_LANDSCAPE_SHOT"]
   end
 

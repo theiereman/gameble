@@ -132,6 +132,10 @@
     display: flex;
   }
 
+  .duel-deck__card:has(> .duel-call__card:not([hidden])) .stat-bars {
+    display: none;
+  }
+
   .duel-call__card {
     gap: var(--space-1);
     padding: var(--space-2);
@@ -171,6 +175,17 @@
 
   .duel-call__value {
     display: none;
+  }
+
+  .duel-call__level {
+    display: block;
+    flex: none;
+    width: 1.5rem;
+    color: var(--tier-colour);
+    font: var(--font-number);
+    font-size: 0.75rem;
+    letter-spacing: 0;
+    text-align: right;
   }
 
   .duel-table__slot .duel-face,

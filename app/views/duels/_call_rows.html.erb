@@ -17,6 +17,7 @@
         <span class="duel-call__name"><%= t("duel_stats.names.#{stat}") %></span>
         <%= tag.progress class: "stat-bars__bar", max: 100, value: level %>
         <span class="duel-call__value"><%= duel_card_value(card, stat) %></span>
+        <span class="duel-call__level" aria-hidden="true"><%= level %></span>
         <span class="visually-hidden"><%= duel_stat_label(card, stat, open:) %></span>
       </div>
     </div>

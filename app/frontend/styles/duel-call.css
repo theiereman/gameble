@@ -140,6 +140,10 @@
   color: var(--color-accent);
 }
 
+.duel-call__level {
+  display: none;
+}
+
 .duel-call__value {
   color: var(--color-muted);
   font: var(--font-label);
