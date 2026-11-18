@@ -1,21 +1,11 @@
 <%# locals: (editor:, entry:, entry_counter:) %>
 <% in_deck = editor.in_deck?(entry) %>
-<% bars = deck_entry_bars(entry) %>
 <li class="deck-entry">
   <%= tag.button type: "button", class: "deck-entry__toggle", tabindex: entry_counter.zero? ? 0 : -1,
         aria: { pressed: in_deck.to_s, disabled: (true unless entry.available?),
                 label: [ deck_entry_label(entry), (t("decks.editor.strings.in_deck_suffix") if in_deck) ].join },
         data: { deck_collection_target: "entry", deck_editor_target: "entry", action: "deck-collection#choose", **deck_entry_data(editor, entry) } do %>
-    <span class="deck-entry__cover">
-      <%= tag.img class: "deck-entry__art", src: entry.image_url, alt: "", loading: "lazy", width: 460, height: 215 %>
-      <%= render SeasonMarkComponent.new(season: entry.season_number) %>
-    </span>
-    <span class="deck-entry__title"><%= entry.title %></span>
-    <% if bars.any? %>
-      <%= render "decks/stat_bars", bars: %>
-    <% else %>
-      <span class="deck-entry__detail"><%= deck_entry_detail(entry) %></span>
-    <% end %>
+    <%= render "decks/card", entry: %>
     <% if entry.availability == :reserved %>
       <span class="deck-entry__reserved"><%= t("trades.side.reserved", count: 1) %></span>
     <% elsif entry.available? %>

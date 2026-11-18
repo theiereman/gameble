@@ -259,13 +259,9 @@ describe("views", () => {
 
     expect(view[0]).toEqual({
       ref: "game-0:1",
-      title: "game-0",
-      image: "https://images.test/game-0:1.jpg",
       label: "Remove game-0 from the deck",
       moves: "",
-      bars: expect.arrayContaining([{ stat: "popularity", value: 50, tier: 5, trump: true }]),
     })
-    expect(view[0]?.bars).toHaveLength(5)
     expect(view.slice(1).every((slot) => slot === null)).toBe(true)
     expect(view).toHaveLength(12)
   })

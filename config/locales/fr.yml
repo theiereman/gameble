@@ -3941,7 +3941,16 @@ fr:
       slots: "Emplacements"
       empty_slot: "Emplacement vide"
       collection: "Toutes vos cartes"
-      legend: "▲ ▼ Stat en hausse ou en baisse cette semaine"
+      legend:
+        heading: "Légende"
+        moves: "▲ ▼ Stat en hausse ou en baisse cette semaine"
+        bars: "Barres : rang parmi toutes les cartes, de 0 à 99"
+        stats:
+          popularity: "nombre d'avis sur Steam"
+          rating: "part d'avis positifs"
+          release: "date de sortie"
+          discovery: "rapidité de découverte par la communauté"
+          circulation: "nombre de joueurs qui la possèdent"
       recommendations: "Recommandations"
       more: "Voir plus de cartes"
       no_match: "Aucune carte ne correspond."

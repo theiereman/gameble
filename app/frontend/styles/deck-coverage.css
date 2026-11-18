@@ -59,6 +59,7 @@
 }
 
 .deck-coverage__gap {
+  display: inline;
   padding: 0;
   background: none;
   border: 0;

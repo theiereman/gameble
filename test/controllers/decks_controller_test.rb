@@ -45,12 +45,12 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    titles = css_select(".deck-entry__title").map(&:text)
+    titles = css_select(".deck-entry__toggle .card__title").map(&:text)
     assert_equal [ "Alone in the Dark", "Myst", "Quake", "Seed 0" ], titles
     assert_select ".deck-entry__toggle[aria-disabled=true]", 2
     assert_select ".deck-entry__toggle[data-ref='#{ref_of(ranked.first)}'][aria-pressed=false]"
     assert_select ".deck-entry__reserved", "Réservée"
-    assert_select ".deck-entry__detail", "Stats lundi"
+    assert_select ".deck-card__detail", "Stats lundi"
     assert_select ".deck-slots__slot .deck-slot--empty", 12
     assert_select ".deck-editor__delete[hidden]"
     assert_select "[data-deck-editor-target=entry][data-ref]", 4

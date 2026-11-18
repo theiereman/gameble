@@ -1,7 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import type { SlotView } from "../lib/deck_editor"
-import type { Bar } from "../lib/deck_stats"
-import { writeAttribute, writeData, writeHidden, writeText } from "../lib/dom_writes"
+import { writeAttribute, writeData, writeText } from "../lib/dom_writes"
 import { cloneFirstElement } from "../lib/templates"
 
 export default class DeckSlotsController extends Controller<HTMLElement> {
@@ -32,28 +31,21 @@ export default class DeckSlotsController extends Controller<HTMLElement> {
     if (index !== -1) this.dispatch("remove", { detail: { slot: index + 1 } })
   }
 
-  private filled({ title, image, label, moves, bars }: NonNullable<SlotView>): HTMLElement | null {
+  private filled({ ref, label, moves }: NonNullable<SlotView>): HTMLElement | null {
     const filled = cloneFirstElement<HTMLElement>(this.filledTemplateTarget)
     const button = filled?.querySelector(".deck-slot")
     if (!filled || !button) return null
     writeAttribute(button, "aria-label", label)
-    const art = button.querySelector<HTMLImageElement>("img")
-    if (art) writeAttribute(art, "src", image)
-    writeText(button.querySelector(".deck-slot__name"), title)
+    button.querySelector(".deck-slot__card")?.replaceChildren(...this.cardOf(ref))
     writeText(filled.querySelector(".deck-slot__moves"), moves)
-    drawBars(filled, bars)
     return filled
   }
-}
 
-function drawBars(root: HTMLElement, bars: readonly Bar[]): void {
-  for (const row of root.querySelectorAll<HTMLElement>("[data-stat]")) {
-    const bar = bars.find((each) => each.stat === row.dataset.stat)
-    writeHidden(row, !bar)
-    if (!bar) continue
-    writeAttribute(row, "data-tier", String(bar.tier))
-    row.classList.toggle("stat-bars__row--trump", bar.trump)
-    writeText(row.querySelector(".stat-bars__value"), String(bar.value))
-    row.querySelector("progress")?.setAttribute("value", String(bar.value))
+  private cardOf(ref: string): Node[] {
+    const editor = this.element.closest(".deck-editor")
+    const source = editor?.querySelector(
+      `[data-deck-collection-target~="list"] [data-ref="${CSS.escape(ref)}"] .deck-card`,
+    )
+    return source ? [source.cloneNode(true)] : []
   }
 }

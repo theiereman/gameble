@@ -1679,7 +1679,16 @@ en:
     throttled: Too many changes in a minute. Try again in a moment.
     editor:
       collection: All your cards
-      legend: "▲ ▼ Stat up or down this week"
+      legend:
+        bars: "Bars: rank among all cards, 0 to 99"
+        heading: Legend
+        moves: "▲ ▼ Stat up or down this week"
+        stats:
+          circulation: how many players own the card
+          discovery: how early the community found the card
+          popularity: number of reviews on Steam
+          rating: share of positive reviews
+          release: release date
       recommendations: Recommendations
       more: Show more cards
       no_match: No card matches.

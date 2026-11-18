@@ -2,9 +2,7 @@
 <span class="deck-slot__filled">
   <%= tag.button type: "button", class: "deck-slot", data: { action: "deck-slots#remove" },
         aria: { label: (deck_slot_label(entry) if entry) } do %>
-    <span class="deck-slot__cover"><%= tag.img class: "deck-slot__art", src: entry&.image_url, alt: "", loading: "lazy", width: 460, height: 215 %></span>
-    <span class="deck-slot__name"><%= entry&.title %></span>
-    <%= render "decks/stat_bars", bars: entry ? deck_entry_bars(entry) : deck_blank_bars %>
+    <span class="deck-slot__card"><%= render("decks/card", entry:) if entry %></span>
   <% end %>
   <span class="deck-slot__moves" aria-hidden="true"><%= deck_moves_text(entry) %></span>
 </span>

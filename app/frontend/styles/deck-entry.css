@@ -1,4 +1,4 @@
-/* ---- The collection's tiles: the cover, the title, five stat bars and the
+/* ---- The collection's tiles: the card with its stat bars over it (deck-card.css) and the
    add action; a card in the deck is edged in the accent colour. ---- */
 
 .deck-collection__list {
@@ -46,11 +46,7 @@
   cursor: default;
 }
 
-.deck-entry__toggle[aria-disabled="true"] .deck-entry__cover {
-  opacity: 0.4;
-}
-
-.deck-entry__toggle:focus-visible {
+.deck-entry__toggle[aria-disabled="true"] .deck-entry__toggle:focus-visible {
   outline: 0;
   box-shadow:
     var(--focus-ring-gap),
@@ -63,32 +59,6 @@
   aspect-ratio: 460 / 215;
   overflow: hidden;
   background: var(--color-panel-sunken);
-}
-
-.deck-entry__art {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.deck-entry__cover .season-mark {
-  inset: var(--space-1) auto auto var(--space-1);
-}
-
-.deck-entry__title {
-  overflow: hidden;
-  color: var(--color-text-bright);
-  font: var(--font-body);
-  font-weight: var(--font-weight-bold);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.deck-entry__detail {
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
 }
 
 .deck-entry__action,

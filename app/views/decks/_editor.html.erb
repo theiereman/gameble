@@ -21,7 +21,19 @@
     <%= render "decks/slots", editor: editor %>
     <div class="deck-editor__side">
       <%= render "decks/coverage", coverage: editor.coverage %>
-      <p class="deck-editor__legend"><%= t("decks.editor.legend") %></p>
+      <section class="deck-editor__legend" aria-labelledby="deck-legend-heading">
+        <h3 id="deck-legend-heading" class="deck-editor__legend-heading"><%= t("decks.editor.legend.heading") %></h3>
+        <p class="deck-editor__legend-line"><%= t("decks.editor.legend.moves") %></p>
+        <p class="deck-editor__legend-line"><%= t("decks.editor.legend.bars") %></p>
+        <dl class="deck-editor__legend-stats">
+          <% Game::DuelStat::STATS.each do |stat| %>
+            <div class="deck-editor__legend-stat">
+              <dt><%= t("duel_stats.short.#{stat}") %></dt>
+              <dd><%= t("decks.editor.legend.stats.#{stat}") %></dd>
+            </div>
+          <% end %>
+        </dl>
+      </section>
     </div>
   <% end %>
   <p class="deck-editor__status" role="status" data-deck-editor-target="status"></p>

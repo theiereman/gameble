@@ -1,0 +1,47 @@
+/* ---- A card with its stat bars over it: the real card face, darkened, and the
+   bars laid on its lower part. Used by the collection's tiles, the
+   recommendations and the deck's slots. ---- */
+
+.deck-card {
+  position: relative;
+  display: block;
+  container-type: inline-size;
+}
+
+.deck-card .card {
+  display: block;
+}
+
+.deck-card__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 var(--space-3) calc(var(--space-8) + var(--space-5));
+  background: linear-gradient(
+    to bottom,
+    transparent 15%,
+    color-mix(in srgb, var(--color-panel-sunken) 80%, transparent) 55%
+  );
+  pointer-events: none;
+}
+
+.deck-card__detail {
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: center;
+}
+
+@container (width < 170px) {
+  .deck-card__overlay {
+    padding: 0 var(--space-2) calc(var(--space-7) + var(--space-5));
+  }
+
+  .deck-card .stat-bars__row {
+    grid-template-columns: 42px minmax(0, 1fr) 20px;
+    gap: var(--space-1);
+    font-size: 0.625rem;
+  }
+}

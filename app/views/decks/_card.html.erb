@@ -1,0 +1,12 @@
+<%# locals: (entry:) %>
+<% bars = deck_entry_bars(entry) %>
+<span class="deck-card">
+  <%= render CardComponent.new(card: entry.card, size: :grid, tilt: false) %>
+  <span class="deck-card__overlay">
+    <% if bars.any? %>
+      <%= render "decks/stat_bars", bars: %>
+    <% else %>
+      <span class="deck-card__detail"><%= deck_entry_detail(entry) %></span>
+    <% end %>
+  </span>
+</span>

@@ -1,6 +1,5 @@
 import { ALL_TRUMPS, BY_POPULARITY, sortRefs, visibleRefs, type Percentiles } from "./deck_collection_order"
 import { coverageOf, type CoverageCell } from "./deck_editor_answers"
-import { barsOf, type Bar } from "./deck_stats"
 import { recommendedRefs } from "./deck_recommendations"
 import { nextIndex } from "./grid_keys"
 import { t, type Template, type Vars } from "./i18n"
@@ -88,14 +87,7 @@ export type DeckStrings = {
   calls: Readonly<Record<string, string>>
 }
 
-export type SlotView = {
-  ref: string
-  title: string
-  image: string
-  label: string
-  moves: string
-  bars: Bar[]
-} | null
+export type SlotView = { ref: string; label: string; moves: string } | null
 
 export type EntryView = { inDeck: boolean; tabbable: boolean; hidden: boolean }
 
@@ -322,11 +314,8 @@ export function slotsView(state: DeckState, strings: DeckStrings): SlotView[] {
     if (!entry) return null
     return {
       ref: entry.ref,
-      title: entry.title,
-      image: entry.image,
       label: [t(strings.removeSlot, { card: entry.title }), entry.movesSentence].filter(Boolean).join(". "),
       moves: entry.movesText,
-      bars: barsOf(entry.percentiles, entry.trump),
     }
   })
 }

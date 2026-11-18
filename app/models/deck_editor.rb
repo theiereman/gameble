@@ -1,5 +1,5 @@
 class DeckEditor
-  Entry = Data.define(:ref, :game, :title, :season_number, :image_url, :trump_stat, :availability, :percentiles, :moves) do
+  Entry = Data.define(:ref, :game, :title, :season_number, :image_url, :trump_stat, :availability, :percentiles, :moves, :card) do
     def available? = availability == :available
   end
 
@@ -49,7 +49,7 @@ class DeckEditor
     def entry(card_season_id, view, profile)
       Entry.new(ref: Game::Market::EntrustableCopies.ref(view.id, view.season_number), game: view.id, title: view.title,
         season_number: view.season_number, image_url: view.image_url, trump_stat: profile&.trump_stat, availability: availability(card_season_id, profile),
-        percentiles: percentiles(profile), moves: moves(profile))
+        percentiles: percentiles(profile), moves: moves(profile), card: view)
     end
 
     def percentiles(profile)

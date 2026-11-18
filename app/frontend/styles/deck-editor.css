@@ -120,11 +120,11 @@
   gap: var(--space-5);
 }
 
-/* ---- Slots: four columns of three tiles, each a card with its stat bars ---- */
+/* ---- Slots: six columns of two, each a card with its stat bars over it ---- */
 
 .deck-slots__list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
@@ -138,15 +138,11 @@
 }
 
 .deck-slot {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  display: block;
   width: 100%;
-  padding: var(--space-2);
-  box-sizing: border-box;
-  background: var(--color-panel-sunken);
+  padding: 0;
+  background: none;
   border: 0;
-  box-shadow: inset 0 0 0 1px var(--color-line);
   color: var(--color-text-max);
   font: inherit;
   text-align: left;
@@ -154,32 +150,11 @@
 }
 
 .deck-slot--empty {
-  min-height: 210px;
+  aspect-ratio: 2 / 3;
   box-shadow: none;
   outline: 1px dashed var(--color-dim);
   outline-offset: -1px;
   cursor: default;
-}
-
-.deck-slot__cover {
-  display: block;
-  aspect-ratio: 460 / 215;
-  overflow: hidden;
-}
-
-.deck-slot__art {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.deck-slot__name {
-  overflow: hidden;
-  font: var(--font-card-meta);
-  letter-spacing: var(--tracking-card-meta);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .deck-slot__filled {
@@ -234,6 +209,7 @@ button.deck-slot:focus-visible {
 }
 
 .deck-editor__side {
+  align-self: stretch;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
@@ -241,10 +217,49 @@ button.deck-slot:focus-visible {
 }
 
 .deck-editor__legend {
-  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line);
   color: var(--color-muted);
   font: var(--font-body-small);
   letter-spacing: var(--tracking-body-small);
+}
+
+.deck-editor__legend-heading {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.deck-editor__legend-line {
+  margin: 0;
+}
+
+.deck-editor__legend-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.deck-editor__legend-stat {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.deck-editor__legend-stat dt {
+  flex: none;
+  min-width: 52px;
+  color: var(--color-text);
+}
+
+.deck-editor__legend-stat dd {
+  margin: 0;
 }
 
 .deck-recommendations {
