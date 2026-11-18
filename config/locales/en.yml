@@ -1735,6 +1735,9 @@ en:
         removed: "%{card} removed, %{count} of 12"
         same_game: This game is already in the deck.
         save_failed: Could not save, try again.
+        save_state_failed: Not saved
+        save_state_saved: Saved
+        save_state_saving: Saving…
         sorted: "Collection sorted: %{call}"
     holding:
       names: 'In: %{decks}'

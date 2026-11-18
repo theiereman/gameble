@@ -69,6 +69,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
     "count",
     "countHidden",
     "status",
+    "saveState",
     "deleteArea",
     "deleteForm",
     "deleteTitle",
@@ -82,6 +83,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
   declare readonly countTarget: HTMLElement
   declare readonly countHiddenTarget: HTMLElement
   declare readonly statusTarget: HTMLElement
+  declare readonly saveStateTarget: HTMLElement
   declare readonly deleteAreaTarget: HTMLElement
   declare readonly deleteFormTarget: HTMLFormElement
   declare readonly deleteTitleTarget: HTMLElement
@@ -102,6 +104,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
   private state?: DeckState
   private announced = 0
   private flushing = false
+  private hasSaved = false
 
   connect(): void {
     this.state = start({
@@ -196,6 +199,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
           break
         }
         const wasNew = this.state.token === null
+        if (result.kind === "saved") this.hasSaved = true
         this.apply(
           result.kind === "saved" ? saved(this.state, result.body) : refused(this.state, result.code, result.message),
         )
@@ -225,9 +229,24 @@ export default class DeckEditorController extends Controller<HTMLElement> {
     writeText(this.countTarget, `${count} / ${SLOT_COUNT}`)
     writeText(this.countHiddenTarget, t(strings.countHidden, { count }))
     writeText(this.deleteTitleTarget, t(strings.deleteTitle, { deck: state.savedName }))
+    this.renderSaveState(state, strings)
     writeHidden(this.deleteAreaTarget, state.url === null)
     if (state.url) writeAttribute(this.deleteFormTarget, "action", state.url)
     this.announce(state)
+  }
+
+  private renderSaveState(state: DeckState, strings: DeckStrings): void {
+    const saveState =
+      state.notice?.kind === "save_failed"
+        ? "failed"
+        : state.pending.length > 0
+          ? "saving"
+          : this.hasSaved
+            ? "saved"
+            : ""
+    const label = { failed: strings.saveStateFailed, saving: strings.saveStateSaving, saved: strings.saveStateSaved }
+    writeAttribute(this.saveStateTarget, "data-state", saveState)
+    writeText(this.saveStateTarget, saveState ? label[saveState] : "")
   }
 
   private announce(state: DeckState): void {

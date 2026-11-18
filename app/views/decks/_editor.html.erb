@@ -4,6 +4,7 @@
   <h1 id="deck-editor-heading" class="visually-hidden"><%= t("decks.editor.title") %></h1>
   <p class="deck-editor__summary">
     <span class="deck-editor__summary-name" data-deck-editor-target="summaryName"><%= deck&.name %></span>
+    <span class="deck-editor__save" aria-hidden="true" data-deck-editor-target="saveState"></span>
     <span class="deck-editor__count" aria-hidden="true" data-deck-editor-target="count"><%= editor.count %> / <%= Game::Deck::SLOTS.size %></span>
     <span class="visually-hidden" data-deck-editor-target="countHidden"><%= t("decks.editor.strings.count_hidden", count: editor.count) %></span>
   </p>

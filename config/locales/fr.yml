@@ -3992,6 +3992,9 @@ fr:
         full: "Le deck est complet."
         same_game: "Ce jeu est déjà dans le deck."
         save_failed: "Enregistrement impossible, réessayez."
+        save_state_failed: "Non enregistré"
+        save_state_saved: "Enregistré"
+        save_state_saving: "Enregistrement…"
         coverage_covered: "%{call}, %{best}"
         sorted: "Collection triée : %{call}"
     holding:

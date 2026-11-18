@@ -74,6 +74,9 @@ export type DeckStrings = {
   removed: string
   sameGame: string
   saveFailed: string
+  saveStateFailed: string
+  saveStateSaved: string
+  saveStateSaving: string
   notYetRanked: string
   noFreeCopy: string
   coverageCovered: string
