@@ -1,7 +1,7 @@
 /* ---- A card's five duel stats as bars: the bar is the percentile itself, full
-   for a high stat and empty for a low one, coloured in ten steps (one per ten
-   percentiles) along a gradient from red through orange and yellow to green;
-   the trump row is brightest. ---- */
+   for a high stat and empty for a low one; green from the 70th percentile (an
+   asset), orange up to the 30th (a weakness), neutral grey in between; the
+   trump row is brightest. ---- */
 
 .stat-bars {
   display: flex;
@@ -24,42 +24,21 @@
   letter-spacing: var(--tracking-label);
 }
 
-.stat-bars__row[data-tier="0"] {
-  --tier-colour: var(--color-live-red-hi);
-}
-
-.stat-bars__row[data-tier="1"] {
-  --tier-colour: color-mix(in srgb, var(--color-alert) 33%, var(--color-live-red-hi));
-}
-
+.stat-bars__row[data-tier="0"],
+.stat-bars__row[data-tier="1"],
 .stat-bars__row[data-tier="2"] {
-  --tier-colour: color-mix(in srgb, var(--color-alert) 67%, var(--color-live-red-hi));
-}
-
-.stat-bars__row[data-tier="3"] {
   --tier-colour: var(--color-alert);
 }
 
-.stat-bars__row[data-tier="4"] {
-  --tier-colour: color-mix(in srgb, var(--color-gold) 33%, var(--color-alert));
-}
-
-.stat-bars__row[data-tier="5"] {
-  --tier-colour: color-mix(in srgb, var(--color-gold) 67%, var(--color-alert));
-}
-
+.stat-bars__row[data-tier="3"],
+.stat-bars__row[data-tier="4"],
+.stat-bars__row[data-tier="5"],
 .stat-bars__row[data-tier="6"] {
-  --tier-colour: var(--color-gold);
+  --tier-colour: var(--color-muted);
 }
 
-.stat-bars__row[data-tier="7"] {
-  --tier-colour: color-mix(in srgb, var(--color-lime) 33%, var(--color-gold));
-}
-
-.stat-bars__row[data-tier="8"] {
-  --tier-colour: color-mix(in srgb, var(--color-lime) 67%, var(--color-gold));
-}
-
+.stat-bars__row[data-tier="7"],
+.stat-bars__row[data-tier="8"],
 .stat-bars__row[data-tier="9"] {
   --tier-colour: var(--color-lime);
 }
