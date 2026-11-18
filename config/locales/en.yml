@@ -1735,6 +1735,7 @@ en:
         up: "%{stat} up: %{to}, against %{from} last Monday"
       name_label: Deck name
       no_stats: Stats on Monday
+      save: Save
       slots: Slots
       sort:
         by_title: By title

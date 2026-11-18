@@ -13,6 +13,7 @@
     <p class="deck-editor__summary">
       <span class="deck-editor__summary-name visually-hidden" data-deck-editor-target="summaryName"><%= deck&.name %></span>
       <span class="deck-editor__save" aria-hidden="true" data-deck-editor-target="saveState"></span>
+      <span class="deck-editor__finish" data-action="click->deck-editor#finish"><%= render(ButtonComponent.new(href: duels_path)) { t("decks.editor.save") } %></span>
       <span class="deck-editor__count" aria-hidden="true" data-deck-editor-target="count"><%= editor.count %> / <%= Game::Deck::SLOTS.size %></span>
       <span class="visually-hidden" data-deck-editor-target="countHidden"><%= t("decks.editor.strings.count_hidden", count: editor.count) %></span>
     </p>

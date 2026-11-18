@@ -3938,6 +3938,7 @@ fr:
     editor:
       title: "Deck"
       name_label: "Nom du deck"
+      save: "Enregistrer"
       slots: "Emplacements"
       empty_slot: "Emplacement vide"
       collection: "Toutes vos cartes"

@@ -104,6 +104,17 @@ class DeckEditorTest < ApplicationSystemTestCase
     eventually("the card should be taken out") { Game::DeckCard.count == 1 }
   end
 
+  test "the save button waits for the changes on their way, then goes back to Duels" do
+    sign_in(@player)
+    visit new_deck_path(locale: :en)
+
+    entry(@cards.first).click
+    click_on "Save"
+
+    assert_current_path duels_path(locale: :en)
+    assert_equal 1, Game::DeckCard.count
+  end
+
   test "the collection is one tab stop moved by the arrow keys; a card added or taken out keeps the focus" do
     sign_in(@player)
     visit new_deck_path(locale: :en)

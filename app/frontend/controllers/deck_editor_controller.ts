@@ -108,6 +108,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
   private announced = 0
   private flushing = false
   private hasSaved = false
+  private leaveTo: string | null = null
 
   connect(): void {
     this.state = start({
@@ -197,6 +198,15 @@ export default class DeckEditorController extends Controller<HTMLElement> {
     this.collection()?.focusActive()
   }
 
+  // "Save" leaves for the duels screen, once the changes still on their way have been saved.
+  finish(event: Event): void {
+    const link = (event.target as Element).closest("a")
+    if (!link || !this.state || (!this.flushing && this.state.pending.length === 0)) return
+    event.preventDefault()
+    this.leaveTo = link.href
+    void this.flush()
+  }
+
   private async flush(): Promise<void> {
     if (this.flushing) return
     this.flushing = true
@@ -219,6 +229,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
       }
     } finally {
       this.flushing = false
+      if (this.leaveTo && this.state?.pending.length === 0) window.Turbo.visit(this.leaveTo)
     }
   }
 
