@@ -3963,8 +3963,11 @@ fr:
       coverage:
         advantages: "Avantages"
         drawbacks: "Inconvénients"
-        many: "Beaucoup de %{cards}"
-        lacking: "Manque de %{cards}"
+        many: "Beaucoup de cartes"
+        lacking: "Manque de cartes"
+        directions:
+          high: "haute"
+          low: "basse"
         gap_label: "Manque de %{cards}, trier la collection"
         no_advantage: "Aucun pour l'instant"
         none: "Rien ne manque"

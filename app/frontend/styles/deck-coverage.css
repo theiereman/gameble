@@ -53,10 +53,12 @@
 
 .deck-coverage__stat {
   flex: none;
-  min-width: 52px;
-  color: var(--color-text-max);
+  padding: 0 var(--space-2);
+  box-shadow: inset 0 0 0 1px var(--verdict-colour);
+  color: var(--verdict-colour);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
+  white-space: nowrap;
 }
 
 .deck-coverage__line[hidden],
