@@ -1237,6 +1237,21 @@ const ICONS = {
       "..c........",
     ],
   },
+  "tab-commerce": {
+    grid: [
+      "...ccccc...",
+      "..ccccccc..",
+      ".ccccccccc.",
+      "cc.......cc",
+      "ccc.cc.cccc",
+      "ccc.cc.cccc",
+      "ccc.cc.cccc",
+      "ccc.cc..ccc",
+      ".ccccccccc.",
+      "..ccccccc..",
+      "...ccccc...",
+    ],
+  },
   "tab-market": {
     grid: [
       "...........",
@@ -1916,6 +1931,7 @@ const DESCRIPTIONS = {
   "tab-capsule.svg": "Phone tab bar icon: CAPSULE, a vertical pill (text colour)",
   "tab-sets.svg": "Phone tab bar icon: SETS, four tiles (text colour)",
   "tab-trades.svg": "Phone tab bar icon: ÉCHANGES, two opposed arrows (text colour)",
+  "tab-commerce.svg": "Phone tab bar icon: COMMERCE, the picoin, a solid disc with its pi cut out (text colour)",
   "tab-market.svg": "Phone tab bar icon: MARCHÉ, four bars rising and falling (text colour)",
   "tab-duels.svg": "Phone tab bar icon: DUELS, two crossed blades (text colour)",
   "tab-friends.svg": "Phone tab bar icon: AMIS, two heads and shoulders (text colour)",

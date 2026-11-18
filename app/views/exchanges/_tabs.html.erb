@@ -5,17 +5,17 @@
                 exchanges_tabs_kept_value: kept_exchanges_tab } do %>
     <ul class="exchanges-tabs__list">
       <li class="exchanges-tabs__item">
-        <%= link_to trades_path, class: "exchanges-tabs__tab", aria: { current: ("page" if current == :friends) },
-              data: { turbo_action: "replace", turbo_prefetch: false, action: "exchanges-tabs#follow" } do %>
-          <%= pixel_icon("tab-friends", class: "exchanges-tabs__icon") %>
-          <span class="exchanges-tabs__label"><%= t("exchanges.tabs.friends") %></span><span id="subtab-friends-badge" class="stream-slot"><%= render "exchanges/friends_badge", waiting: shell_trades_waiting %></span>
-        <% end %>
-      </li>
-      <li class="exchanges-tabs__item">
         <%= link_to market_path, class: "exchanges-tabs__tab", aria: { current: ("page" if current == :market) },
               data: { turbo_action: "replace", turbo_prefetch: false, action: "exchanges-tabs#follow" } do %>
           <%= pixel_icon("tab-market", class: "exchanges-tabs__icon") %>
           <span class="exchanges-tabs__label"><%= t("exchanges.tabs.market") %></span><span id="subtab-market-badge" class="stream-slot"><%= render "exchanges/market_badge", outbid: shell_outbid_count %></span>
+        <% end %>
+      </li>
+      <li class="exchanges-tabs__item">
+        <%= link_to trades_path, class: "exchanges-tabs__tab", aria: { current: ("page" if current == :friends) },
+              data: { turbo_action: "replace", turbo_prefetch: false, action: "exchanges-tabs#follow" } do %>
+          <%= pixel_icon("tab-friends", class: "exchanges-tabs__icon") %>
+          <span class="exchanges-tabs__label"><%= t("exchanges.tabs.friends") %></span><span id="subtab-friends-badge" class="stream-slot"><%= render "exchanges/friends_badge", waiting: shell_trades_waiting %></span>
         <% end %>
       </li>
     </ul>

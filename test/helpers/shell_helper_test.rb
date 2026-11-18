@@ -97,7 +97,7 @@ class ShellHelperTest < ActionView::TestCase
 
     tabs = shell_tabs
     assert_equal %i[hub booster sets trades duels], tabs.map(&:first)
-    assert_equal %w[tab-hub tab-capsule tab-sets tab-trades tab-duels], tabs.map(&:second)
+    assert_equal %w[tab-hub tab-capsule tab-sets tab-commerce tab-duels], tabs.map(&:second)
     assert_equal %w[/en /en/booster /en/library /en/exchanges /en/duels], tabs.map(&:third)
   end
 

@@ -2324,11 +2324,11 @@ en:
         staged cards are thrown away: start a new import.'
   exchanges:
     tabs:
-      friends: Between friends
+      friends: Trades
       friends_waiting:
         one: ", %{number} trade waiting"
         other: ", %{number} trades waiting"
-      label: Trades
+      label: Commerce
       market: Market
       market_outbid:
         one: ", %{number} auction outbid"
@@ -3808,7 +3808,7 @@ en:
           one: "%{number} special capsule"
           other: "%{number} special capsules"
         support: Support
-        trades: Trades
+        trades: Commerce
       showcase:
         empty:
           open: Open a capsule
@@ -4815,7 +4815,7 @@ en:
       landing: Home
       me: My profile
       sets: Sets
-      trades: Trades
+      trades: Commerce
     ticker:
       open: Open the activity feed
     toast:

@@ -73,29 +73,29 @@ class DuelsTest < ApplicationSystemTestCase
     assert_selector ".tab-bar a.tab-bar__tab[aria-current=true]", text: "DUELS"
   end
 
-  test "on a phone, the trades tab opens between friends, then the market once the player used it" do
+  test "on a phone, the Commerce tab opens the market, then the trades once the player used them" do
     open_market!(first_opened_at: 1.day.ago)
     sign_in(@player)
     resize_to(*PHONE)
 
-    tab("Trades").click
-
-    assert_current_path trades_path(locale: :en)
-    assert_selector "nav.exchanges-tabs a.exchanges-tabs__tab[aria-current=page]", text: "BETWEEN FRIENDS"
-
-    find("nav.exchanges-tabs a.exchanges-tabs__tab", text: "MARKET").click
+    tab("Commerce").click
 
     assert_current_path market_path(locale: :en)
     assert_selector "nav.exchanges-tabs a.exchanges-tabs__tab[aria-current=page]", text: "MARKET"
-    eventually("the market's heading should have the focus") { page.evaluate_script("document.activeElement.id") == "market-screen-heading" }
-    eventually("the market should be kept") { Game::ExchangesTab.call(@player) == "market" }
+
+    find("nav.exchanges-tabs a.exchanges-tabs__tab", text: "TRADES").click
+
+    assert_current_path trades_path(locale: :en)
+    assert_selector "nav.exchanges-tabs a.exchanges-tabs__tab[aria-current=page]", text: "TRADES"
+    eventually("the trades' heading should have the focus") { page.evaluate_script("document.activeElement.id") == "trades-heading" }
+    eventually("the trades should be kept") { Game::ExchangesTab.call(@player) == "friends" }
 
     tab("Bridge").click
     assert_current_path home_path(locale: :en)
-    tab("Trades").click
+    tab("Commerce").click
 
-    assert_current_path market_path(locale: :en)
-    assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: "TRADES"
+    assert_current_path trades_path(locale: :en)
+    assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: "COMMERCE"
 
     visit market_path(locale: :en)
     assert_selector ".market-screen"
@@ -115,11 +115,11 @@ class DuelsTest < ApplicationSystemTestCase
     assert_no_selector ".tab-bar"
   end
 
-  test "on desktop, the hub's menu reads 03 Trades and 04 Duels" do
+  test "on desktop, the hub's menu reads 03 Commerce and 04 Duels" do
     sign_in(@player)
 
     within(".hub-menu") do
-      assert_selector "a.menu-item[aria-keyshortcuts='3'][href='/en/exchanges']", text: /03\s*TRADES/
+      assert_selector "a.menu-item[aria-keyshortcuts='3'][href='/en/exchanges']", text: /03\s*COMMERCE/
       assert_selector "a.menu-item[aria-keyshortcuts='4'][href='/en/duels']", text: /04\s*DUELS/
     end
   end
