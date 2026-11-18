@@ -228,7 +228,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     with_counting_rate_limit(Market::EntrustmentsController) do
-      11.times { post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: "" }, headers: JSON_ANSWER }
+      31.times { post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: "" }, headers: JSON_ANSWER }
     end
 
     assert_response :too_many_requests
@@ -286,12 +286,12 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-entrust__notice", /Aucune carte à confier\./
   end
 
-  test "the eleventh validation of a minute is throttled" do
+  test "the thirty-first validation of a minute is throttled" do
     settings = open_market!
     sign_in(@player)
 
     with_counting_rate_limit(Market::EntrustmentsController) do
-      11.times { post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: "" } }
+      31.times { post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: "" } }
     end
 
     assert_redirected_to new_market_entrustment_path(locale: :en)

@@ -6,7 +6,7 @@ module Market
     SELECTION_SEPARATOR = ",".freeze
     SELECTION_PAIR = /\A(?<ref>[^:,=\s]+:\d+)=(?<copies>\d+)\z/
 
-    throttle_player to: 10, only: :create, path: -> { new_market_entrustment_path }, alert: "market.entrustments.create.throttled"
+    throttle_player to: 30, only: :create, path: -> { new_market_entrustment_path }, alert: "market.entrustments.create.throttled"
 
     def new
       authorize %i[market entrustment], :new?
