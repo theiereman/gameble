@@ -1,7 +1,7 @@
 module DeckEditorHelper
   DECK_EDITOR_ACTIONS = {
     "deck-name" => { rename: :rename },
-    "deck-coverage" => { gap: :chooseGap, fill: :fill },
+    "deck-coverage" => { gap: :chooseGap },
     "deck-slots" => { remove: :removeSlot },
     "deck-collection" => { choose: :choose, move: :move, sort: :sortBy, filter: :filterBy }
   }.freeze

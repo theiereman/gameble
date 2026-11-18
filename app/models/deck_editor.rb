@@ -25,7 +25,7 @@ class DeckEditor
 
   def count = slotted.size
 
-  def coverage = @coverage ||= Game::DeckCoverage.new(@player, @deck)
+  def coverage = @coverage ||= Game::DeckCoverage.new(@deck)
 
   def in_deck?(entry) = deck_refs.include?(entry.ref)
 

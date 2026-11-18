@@ -3948,7 +3948,6 @@ fr:
         heading: "Couverture"
         gap: "Manque"
         gap_label: "%{call}, manque, trier la collection"
-        fill: "Compléter les manques"
         short:
           popularity:
             high: "Populaire"
@@ -3995,10 +3994,6 @@ fr:
         save_failed: "Enregistrement impossible, réessayez."
         coverage_covered: "%{call}, %{best}"
         sorted: "Collection triée : %{call}"
-        filled:
-          zero: "Aucune carte à ajouter, %{total} sur 12"
-          one: "%{count} carte ajoutée, %{total} sur 12"
-          other: "%{count} cartes ajoutées, %{total} sur 12"
     holding:
       tag: "Dans un deck"
       names: "Dans : %{decks}"

@@ -25,8 +25,4 @@ export default class DeckCoverageController extends Controller<HTMLElement> {
     const cell = event.target.closest<HTMLElement>("[data-deck-coverage-target~='cell']")
     if (cell?.dataset.call) this.dispatch("gap", { detail: { call: cell.dataset.call } })
   }
-
-  fill(event: Event): void {
-    if (event.target instanceof Element && event.target.closest("button")) this.dispatch("fill")
-  }
 }

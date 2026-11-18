@@ -20,7 +20,7 @@ class DeckCardsController < ApplicationController
 
       result = operation.new.call(player: current_player, token: params[:token], card_season_id:)
       answer_change(result, operation) do |placed|
-        { slot: placed.slot, count: placed.count, coverage: helpers.deck_coverage_json(Game::DeckCoverage.new(current_player, deck)) }
+        { slot: placed.slot, count: placed.count, coverage: helpers.deck_coverage_json(Game::DeckCoverage.new(deck)) }
       end
     end
 end

@@ -111,7 +111,6 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
       assert_select ".deck-coverage__value[hidden]"
       assert_select ".deck-coverage__gap:not([hidden]) .button--secondary[aria-label=?]", "La plus ancienne, manque, trier la collection", text: "Manque"
     end
-    assert_select ".deck-coverage__fill .button--secondary", "Compléter les manques"
     assert_select "select", 0
     assert_select ".deck-collection .sort__button", /\ATri : Par titre\z/
     assert_select ".deck-collection .sort__current", "Par titre"

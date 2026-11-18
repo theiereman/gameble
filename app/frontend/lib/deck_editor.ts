@@ -1,5 +1,5 @@
 import { ALL_TRUMPS, BY_TITLE, sortRefs, visibleRefs, type Percentiles } from "./deck_collection_order"
-import { coverageOf, placementsOf, type CoverageCell } from "./deck_editor_answers"
+import { coverageOf, type CoverageCell } from "./deck_editor_answers"
 import { nextIndex } from "./grid_keys"
 import { t, type Template, type Vars } from "./i18n"
 
@@ -26,14 +26,12 @@ export type Change =
   | { kind: "rename"; name: string }
   | { kind: "add"; ref: string; slot: number }
   | { kind: "remove"; ref: string; slot: number }
-  | { kind: "fill" }
 
 export type Notice =
   | { kind: "added" | "removed"; ref: string; count: number }
   | { kind: "full" | "same_game" | "save_failed" }
   | { kind: "unavailable"; reason: Exclude<Availability, "available"> }
   | { kind: "refused"; message: string }
-  | { kind: "filled"; count: number; total: number }
   | { kind: "sorted"; call: string }
 
 export type DeckState = {
@@ -79,7 +77,6 @@ export type DeckStrings = {
   notYetRanked: string
   noFreeCopy: string
   coverageCovered: string
-  filled: Template
   sorted: string
   calls: Readonly<Record<string, string>>
 }
@@ -193,10 +190,6 @@ export function filterBy(state: DeckState, trump: string): DeckState {
   return state.active !== null && visible.includes(state.active) ? next : { ...next, active: visible[0] ?? null }
 }
 
-export function fill(state: DeckState): DeckState {
-  return { ...state, pending: queued(state, { kind: "fill" }) }
-}
-
 export function nextToSend(state: DeckState): Change | null {
   return state.pending[0] ?? null
 }
@@ -205,7 +198,6 @@ export function requestFor(state: DeckState, change: Change, createUrl: string):
   if (change.kind === "create") return { url: createUrl, method: "POST", body: { name: change.name } }
   if (state.url === null) return null
   if (change.kind === "rename") return { url: state.url, method: "PATCH", body: { name: change.name } }
-  if (change.kind === "fill") return { url: `${state.url}/fill`, method: "POST", body: {} }
   return { url: `${state.url}/cards`, method: change.kind === "add" ? "POST" : "DELETE", body: { ref: change.ref } }
 }
 
@@ -218,7 +210,6 @@ export function saved(state: DeckState, body: Saved): DeckState {
   const next = { ...state, pending: rest, coverage: coverageOf(body.coverage) ?? state.coverage }
   if (head.kind === "add") return { ...next, slots: placedAt(state.slots, head.ref, body.slot) }
   if (head.kind === "remove") return next
-  if (head.kind === "fill") return filledBy(next, body)
   const savedName = body.name ?? state.savedName
   const named = { ...next, savedName, name: renamedLater(rest) ? state.name : savedName }
   return head.kind === "create" ? { ...named, token: body.token ?? null, url: body.url ?? null } : named
@@ -231,23 +222,6 @@ function placedAt(slots: readonly (string | null)[], ref: string, slot: unknown)
   swapped[from] = slots[slot - 1] ?? null
   swapped[slot - 1] = ref
   return swapped
-}
-
-function filledBy(state: DeckState, body: Saved): DeckState {
-  const placements = placementsOf(body.slots)
-  const slots = placements.reduce((current, { slot, ref }) => placedByFill(current, slot, ref), state.slots)
-  const next = { ...state, slots }
-  const total = typeof body.count === "number" ? body.count : countOf(next)
-  return noticed(next, { kind: "filled", count: placements.length, total })
-}
-
-function placedByFill(slots: readonly (string | null)[], slot: number, ref: string): readonly (string | null)[] {
-  if (slot < 1 || slot > SLOT_COUNT) return slots
-  if (slots.includes(ref)) return placedAt(slots, ref, slot)
-  const occupant = slots[slot - 1] ?? null
-  const next = withSlot(slots, slot, ref)
-  const free = next.indexOf(null)
-  return occupant === null || free === -1 ? next : withSlot(next, free + 1, occupant)
 }
 
 export function failed(state: DeckState): DeckState {
@@ -340,13 +314,11 @@ export function noticeText(state: DeckState, strings: DeckStrings): string {
     save_failed: strings.saveFailed,
     unavailable: "reason" in notice && notice.reason === "unranked" ? strings.notYetRanked : strings.noFreeCopy,
     refused: "message" in notice ? notice.message : "",
-    filled: strings.filled,
     sorted: strings.sorted,
   }[notice.kind]
   const card = "ref" in notice ? (state.entries[notice.ref]?.title ?? "") : ""
   const call = "call" in notice ? (strings.calls[notice.call] ?? notice.call) : ""
   const vars: Vars = { card, call }
   if ("count" in notice) vars.count = notice.count
-  if ("total" in notice) vars.total = notice.total
   return t(template, vars)
 }

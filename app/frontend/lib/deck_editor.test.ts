@@ -6,7 +6,6 @@ import {
   collectionView,
   countOf,
   failed,
-  fill,
   filterBy,
   focusAfterRemoval,
   move,
@@ -40,11 +39,6 @@ const STRINGS: DeckStrings = {
   notYetRanked: "This card gets its stats on Monday.",
   noFreeCopy: "All your copies of this card are reserved.",
   coverageCovered: "%{call}, %{best}",
-  filled: {
-    zero: "No card to add, %{total} of 12",
-    one: "%{count} card added, %{total} of 12",
-    other: "%{count} cards added, %{total} of 12",
-  },
   sorted: "Collection sorted: %{call}",
   calls: { "release-low": "Oldest", "popularity-high": "Most popular" },
 }
@@ -323,74 +317,6 @@ describe("sort and trump filter", () => {
     expect(move(state, "ArrowDown", 1)).toBe(state)
     expect(move(state, "Home", 1).active).toBe("older:1")
     expect([...collectionView(state).entries.values()].filter((view) => view.tabbable)).toHaveLength(1)
-  })
-})
-
-describe("filling the gaps", () => {
-  it("queues the fill, creating a new deck first, and sends it to the deck's fill address", () => {
-    let state = fill(fresh())
-    expect(state.pending).toEqual([{ kind: "create", name: null }, { kind: "fill" }])
-
-    state = saved(state, { token: "T".repeat(24), url: "/en/duels/decks/T", name: "Deck 1" })
-    expect(requestFor(state, nextToSend(state)!, "/en/duels/decks")).toEqual({
-      url: "/en/duels/decks/T/fill",
-      method: "POST",
-      body: {},
-    })
-  })
-
-  it("puts the returned cards in their slots, keeps the coverage answered and says how many were added", () => {
-    const coverage = [{ call: "popularity-high", best: 95, gap: false }]
-    let state = fill(saved_deck(["game-0:1"]))
-    state = saved(state, {
-      slots: [
-        { slot: 2, ref: "game-4:1" },
-        { slot: 3, ref: "game-5:1" },
-      ],
-      count: 3,
-      coverage,
-    })
-
-    expect(state.slots.slice(0, 4)).toEqual(["game-0:1", "game-4:1", "game-5:1", null])
-    expect(state.coverage).toEqual(coverage)
-    expect(state.pending).toEqual([])
-    expect(noticeText(state, STRINGS)).toBe("2 cards added, 3 of 12")
-  })
-
-  it("says when there was nothing to add, and keeps the coverage when an answer has none", () => {
-    const coverage = [{ call: "popularity-high", best: null, gap: true }]
-    let state = saved(choose(saved_deck(), "game-0:1"), { slot: 1, count: 1, coverage })
-    state = saved(fill(state), { slots: [], count: 1 })
-
-    expect(state.coverage).toEqual(coverage)
-    expect(noticeText(state, STRINGS)).toBe("No card to add, 1 of 12")
-  })
-
-  it("moves a card chosen while the fill was on its way out of a slot the fill took", () => {
-    let state = choose(fill(saved_deck()), "game-7:1")
-    expect(state.slots[0]).toBe("game-7:1")
-
-    state = saved(state, { slots: [{ slot: 1, ref: "game-4:1" }], count: 1 })
-
-    expect(state.slots.slice(0, 2)).toEqual(["game-4:1", "game-7:1"])
-  })
-
-  it("takes back a refused card from the slot the fill moved it to", () => {
-    let state = saved(choose(fill(saved_deck()), "game-7:1"), { slots: [{ slot: 1, ref: "game-4:1" }], count: 1 })
-
-    state = refused(state, "no_free_copy", "All your copies of this card are reserved.")
-
-    expect(state.slots.slice(0, 2)).toEqual(["game-4:1", null])
-    expect(state.pending).toEqual([])
-  })
-
-  it("on a refused fill, changes no slot and posts the refusal", () => {
-    const before = fill(saved_deck(["game-0:1"]))
-    const state = refused(before, "no_free_copy", "All your copies of this card are reserved.")
-
-    expect(state.slots).toEqual(before.slots)
-    expect(state.pending).toEqual([])
-    expect(noticeText(state, STRINGS)).toBe("All your copies of this card are reserved.")
   })
 })
 

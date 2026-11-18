@@ -104,7 +104,7 @@ class DeckEditorTest < ApplicationSystemTestCase
     assert_focused(ref_of(@cards.second))
   end
 
-  test "a gap in the coverage sorts the collection by its call, the fill completes the deck, and a card that moved shows its arrow" do
+  test "a gap in the coverage sorts the collection by its call, and a card that moved shows its arrow" do
     [ *@cards, @second_edition ].each { set_percentiles(it) }
     set_percentiles(@cards.first, popularity: 62, weekly: { popularity: 55 })
     oldest = @cards[5]
@@ -121,14 +121,5 @@ class DeckEditorTest < ApplicationSystemTestCase
     assert_selector ".deck-collection .sort__current", text: /\AOldest\z/i
     assert_selector ".deck-collection .sort__option[aria-current='true']", text: "Oldest", visible: :all
     eventually("the gap should keep the focus") { page.evaluate_script("document.activeElement.closest('[data-call]')?.dataset.call") == "release-low" }
-
-    click_on "Fill the gaps"
-    assert_status "9 cards added, 12 of 12"
-    assert_selector ".deck-editor__count", text: "12 / 12"
-    assert_no_selector ".deck-slots .deck-slot--empty"
-    assert_selector ".deck-coverage__cell[data-call='release-low'] .deck-coverage__number", text: "97"
-    assert_no_selector ".deck-coverage__cell[data-call='release-low'] .deck-coverage__gap"
-    eventually("the filled cards should be saved") { Game::DeckCard.count == 12 }
-    assert_includes Game::DeckSlots.call(deck).values, oldest
   end
 end

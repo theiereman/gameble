@@ -9,7 +9,6 @@ import {
   collectionView,
   countOf,
   failed,
-  fill,
   filterBy,
   focusAfterRemoval,
   move,
@@ -162,12 +161,6 @@ export default class DeckEditorController extends Controller<HTMLElement> {
   chooseGap({ detail: { call } }: Intent<{ call: string }>): void {
     if (!this.state) return
     this.apply(chooseGap(this.state, call))
-  }
-
-  fill(): void {
-    if (!this.state) return
-    this.apply(fill(this.state))
-    this.flush()
   }
 
   sortBy({ detail: { sort } }: Intent<{ sort: string }>): void {

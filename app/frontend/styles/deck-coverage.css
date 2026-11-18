@@ -70,14 +70,6 @@
   color: var(--color-on-accent);
 }
 
-.deck-coverage__fill {
-  display: flex;
-}
-
-.deck-coverage__fill .button {
-  margin: 0;
-}
-
 @media (max-width: 719px) {
   .deck-coverage__cells {
     grid-template-rows: none;

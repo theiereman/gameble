@@ -1680,7 +1680,6 @@ en:
     editor:
       collection: Your collection
       coverage:
-        fill: Fill the gaps
         gap: Gap
         gap_label: "%{call}, gap, sort the collection"
         heading: Coverage
@@ -1729,10 +1728,6 @@ en:
         count_hidden: "%{count} of 12"
         coverage_covered: "%{call}, %{best}"
         delete_title: Delete the deck "%{deck}"?
-        filled:
-          one: "%{count} card added, %{total} of 12"
-          other: "%{count} cards added, %{total} of 12"
-          zero: No card to add, %{total} of 12
         full: The deck is full.
         in_deck: In the deck
         in_deck_suffix: ", in the deck"
