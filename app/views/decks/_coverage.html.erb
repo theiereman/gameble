@@ -5,8 +5,11 @@
     <h3 class="deck-coverage__heading"><%= t("decks.editor.coverage.advantages") %></h3>
     <ul class="deck-coverage__list" role="status">
       <% coverage.calls.each do |call| %>
-        <%= tag.li t("decks.editor.coverage.many", cards: deck_call_cards(call)), class: "deck-coverage__line", hidden: !call.many?,
-              data: { deck_coverage_target: "advantage", call: call.key, cards: deck_call_cards(call) } %>
+        <%= tag.li class: "deck-coverage__line", hidden: !call.many?,
+              data: { deck_coverage_target: "advantage", call: call.key, cards: deck_call_cards(call) } do %>
+          <span class="deck-coverage__stat"><%= t("duel_stats.short.#{call.stat}") %></span>
+          <%= t("decks.editor.coverage.many", cards: deck_call_cards(call)) %>
+        <% end %>
       <% end %>
     </ul>
     <%= tag.p t("decks.editor.coverage.no_advantage"), class: "deck-coverage__none", hidden: coverage.calls.any?(&:many?), data: { deck_coverage_target: "noAdvantage" } %>
@@ -16,6 +19,7 @@
     <ul class="deck-coverage__list">
       <% coverage.calls.each do |call| %>
         <%= tag.li class: "deck-coverage__line", hidden: !call.gap?, data: { deck_coverage_target: "drawback", call: call.key } do %>
+          <span class="deck-coverage__stat"><%= t("duel_stats.short.#{call.stat}") %></span>
           <%= tag.button t("decks.editor.coverage.lacking", cards: deck_call_cards(call)), type: "button", class: "deck-coverage__gap",
                 aria: { label: t("decks.editor.coverage.gap_label", cards: deck_call_cards(call)) }, data: { action: "deck-coverage#choose" } %>
         <% end %>
