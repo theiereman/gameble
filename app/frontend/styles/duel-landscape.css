@@ -90,6 +90,10 @@
     z-index: 2;
   }
 
+  .duel-forfeit .button {
+    margin: 0;
+  }
+
   .duel-live:has(> .duel-deck):not([hidden]) {
     grid-template-columns: 280px minmax(0, 1fr) minmax(0, 1fr) 280px;
     grid-template-rows: minmax(0, 1fr);

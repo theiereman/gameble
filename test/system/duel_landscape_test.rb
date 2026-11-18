@@ -82,7 +82,7 @@ class DuelLandscapeTest < ApplicationSystemTestCase
 
     header = metrics(".duel-header")
     middle = (header[:top] + header[:bottom]) / 2
-    %w[.duel-forfeit .alpha-banner].each do |selector|
+    [ ".duel-forfeit .button", ".alpha-banner" ].each do |selector|
       box = metrics(selector)
       assert_in_delta middle, (box[:top] + box[:bottom]) / 2, 1, "#{selector} against the header #{header.inspect}, itself #{box.inspect}"
     end
