@@ -74,6 +74,8 @@ module DeckEditorHelper
 
   def deck_call_label(call) = t("duel_stats.directions.#{call.stat}.#{call.direction}")
 
+  def deck_call_badge(call) = "#{t("duel_stats.short.#{call.stat}")} #{t("decks.editor.coverage.directions.#{call.direction}")}"
+
   def deck_call_cards(call) = t("decks.editor.coverage.cards.#{call.stat}.#{call.direction}")
 
   def deck_sort_options

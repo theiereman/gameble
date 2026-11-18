@@ -3963,8 +3963,8 @@ fr:
       coverage:
         advantages: "Avantages"
         drawbacks: "Inconvénients"
-        many: "Beaucoup de cartes"
-        lacking: "Manque de cartes"
+        many: "Beaucoup de %{cards}"
+        lacking: "Manque de %{cards}"
         directions:
           high: "haute"
           low: "basse"

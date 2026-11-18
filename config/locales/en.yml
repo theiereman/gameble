@@ -1718,8 +1718,8 @@ en:
           high: high
           low: low
         gap_label: "Lacks %{cards}, sort the collection"
-        lacking: Lacks cards
-        many: Lots of cards
+        lacking: Lacks %{cards}
+        many: Lots of %{cards}
         no_advantage: None yet
         none: Nothing missing
       delete: Delete the deck
