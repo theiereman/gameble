@@ -103,6 +103,7 @@ check_discord_memberships: &check_discord_memberships
   class: Game::CheckDiscordMembershipsJob
   queue: default
   schedule: every hour
+
 # Every card's duel profile is recomputed as the week starts.
 compute_duel_stats: &compute_duel_stats
   class: Game::ComputeDuelStatsJob

@@ -203,6 +203,6 @@ module Game
         opponent_automatic: round[:"#{theirs}_automatic"])
     end
 
-    private_class_method :markers, :duel_row, :duel_round, :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :reactions, :set_refs, :trades, :custom_sets, :steam_library, :goals, :decks, :duels
+    private_class_method :duel_row, :duel_round, :markers, :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :reactions, :set_refs, :trades, :custom_sets, :steam_library, :goals, :decks, :duels
   end
 end
