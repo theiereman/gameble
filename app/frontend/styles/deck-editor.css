@@ -120,11 +120,11 @@
   gap: var(--space-5);
 }
 
-/* ---- Slots: six columns of two ---- */
+/* ---- Slots: four columns of three tiles, each a card with its stat bars ---- */
 
 .deck-slots__list {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
@@ -138,13 +138,12 @@
 }
 
 .deck-slot {
-  position: relative;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: var(--space-2);
   width: 100%;
-  aspect-ratio: 460 / 215;
-  padding: 0;
-  overflow: hidden;
+  padding: var(--space-2);
+  box-sizing: border-box;
   background: var(--color-panel-sunken);
   border: 0;
   box-shadow: inset 0 0 0 1px var(--color-line);
@@ -155,27 +154,28 @@
 }
 
 .deck-slot--empty {
+  min-height: 210px;
   box-shadow: none;
   outline: 1px dashed var(--color-dim);
   outline-offset: -1px;
   cursor: default;
 }
 
+.deck-slot__cover {
+  display: block;
+  aspect-ratio: 460 / 215;
+  overflow: hidden;
+}
+
 .deck-slot__art {
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 .deck-slot__name {
-  position: relative;
-  box-sizing: border-box;
-  width: 100%;
-  padding: var(--space-1) var(--space-2);
   overflow: hidden;
-  background: var(--color-panel-sunken);
   font: var(--font-card-meta);
   letter-spacing: var(--tracking-card-meta);
   text-overflow: ellipsis;
@@ -211,7 +211,7 @@ button.deck-slot:focus-visible {
     inset 0 0 0 var(--space-unit) var(--color-accent);
 }
 
-/* ---- Collection: the tools, then the tiles (deck-entry.css) ---- */
+/* ---- Collection: the recommendations, the tools, then the tiles (deck-entry.css) ---- */
 
 .deck-collection {
   display: flex;
@@ -233,6 +233,32 @@ button.deck-slot:focus-visible {
   font: var(--font-body);
 }
 
+.deck-editor__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.deck-editor__legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  list-style: none;
+}
+
+.deck-recommendations {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.deck-recommendations[hidden],
 .deck-collection__empty[hidden],
 .deck-collection__more[hidden] {
   display: none;
@@ -291,18 +317,15 @@ button.deck-slot:focus-visible {
 
 @media (min-width: 1180px) {
   .deck-editor__deck {
-    position: sticky;
-    top: calc(var(--topbar-height) + var(--space-2));
-    z-index: 3;
     display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(220px, 1fr);
+    grid-template-columns: minmax(0, 3fr) minmax(240px, 1fr);
     align-items: start;
   }
 }
 
 @media (max-width: 719px) {
   .deck-slots__list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .deck-collection__tools .sort {

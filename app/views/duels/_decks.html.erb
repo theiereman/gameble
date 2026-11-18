@@ -5,18 +5,20 @@
     <span aria-hidden="true"><%= t("duels.decks.heading") %> · <%= t("duels.decks.count", count: decks.count) %></span>
     <span class="visually-hidden"><%= t("duels.decks.heading_spoken", count: decks.count) %></span>
   </h2>
-  <% if decks.rows.any? %>
-    <ul class="duel-decks__list">
-      <% decks.rows.each do |row| %>
-        <li class="duel-decks__item"><%= render "duels/deck_row", row: %></li>
-      <% end %>
-    </ul>
-  <% end %>
-  <% if decks.room_left? %>
-    <div class="duel-decks__new">
-      <%= render ButtonComponent.new(variant: :link, href: new_deck_path) do %><%= t("duels.decks.new") %><% end %>
-    </div>
-  <% else %>
+  <ul class="duel-decks__list">
+    <% decks.rows.each do |row| %>
+      <li class="duel-decks__item"><%= render "duels/deck_row", row: %></li>
+    <% end %>
+    <% if decks.room_left? %>
+      <li class="duel-decks__item">
+        <%= link_to new_deck_path, class: "deck-new" do %>
+          <span class="deck-new__plus" aria-hidden="true">+</span>
+          <span class="deck-new__label"><%= t("duels.decks.new") %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <% unless decks.room_left? %>
     <p class="duel-decks__full"><%= Game::CreateDeck.failure_message(:too_many_decks) %></p>
   <% end %>
 <% end %>

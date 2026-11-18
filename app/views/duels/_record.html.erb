@@ -1,8 +1,21 @@
 <%# locals: (record:) %>
 <%= render PanelComponent.new(tag: :section, class: "duel-record", aria: { label: t("duels.record.label") }) do %>
-  <p class="duel-record__line">
+  <p class="duel-record__line visually-hidden">
     <%= t("duels.record.line_html", wins: duel_record_figure(:wins, record.wins), losses: duel_record_figure(:losses, record.losses),
           draws: duel_record_figure(:draws, record.draws)) %>
   </p>
+  <h2 class="duel-lobby__heading" aria-hidden="true"><%= t("duels.record.label") %></h2>
+  <dl class="duel-record__stats" aria-hidden="true">
+    <% { wins: record.wins, losses: record.losses, draws: record.draws }.each do |kind, count| %>
+      <div class="duel-record__stat" data-kind="<%= kind %>">
+        <dd class="duel-record__count"><%= count %></dd>
+        <dt class="duel-record__kind"><%= t("duels.record.kinds.#{kind}") %></dt>
+      </div>
+    <% end %>
+  </dl>
+  <div class="duel-record__rate" aria-hidden="true">
+    <%= tag.progress class: "duel-record__bar", max: 100, value: duel_win_rate(record) %>
+    <span class="duel-record__percent"><%= t("duels.record.rate", percent: duel_win_rate(record)) %></span>
+  </div>
   <%= render ButtonComponent.new(variant: :link, size: :small, href: how_it_works_path(anchor: "how-it-works-duels")) do %><%= t("duels.record.rules") %><% end %>
 <% end %>

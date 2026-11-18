@@ -56,10 +56,10 @@ class DuelRecordSystemTest < ApplicationSystemTestCase
     assert_selector ".profile-figure", text: /Duel draws\s*0/i
 
     visit duels_path(locale: :en)
-    assert_selector ".duel-record__line", text: "Duels: 1 win, 1 loss, 0 draws"
+    assert_selector ".duel-record__line", text: "Duels: 1 win, 1 loss, 0 draws", visible: :all
     assert_selector ".duel-history__row", count: 2
     assert_selector ".duel-history__item:first-child", text: "Loss against Hugo"
-    assert_operator left_of(".duel-history"), :<, left_of(".duels__main")
+    assert_operator top_of(".duel-history"), :>, top_of(".duel-record")
 
     resize_to(*PHONE)
     assert_operator top_of(".duel-history"), :>, top_of(".duel-record")

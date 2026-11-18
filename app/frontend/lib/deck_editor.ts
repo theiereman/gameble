@@ -1,5 +1,7 @@
-import { ALL_TRUMPS, BY_TITLE, sortRefs, visibleRefs, type Percentiles } from "./deck_collection_order"
+import { ALL_TRUMPS, BY_POPULARITY, sortRefs, visibleRefs, type Percentiles } from "./deck_collection_order"
 import { coverageOf, type CoverageCell } from "./deck_editor_answers"
+import { barsOf, type Bar } from "./deck_stats"
+import { recommendedRefs } from "./deck_recommendations"
 import { nextIndex } from "./grid_keys"
 import { t, type Template, type Vars } from "./i18n"
 
@@ -86,7 +88,14 @@ export type DeckStrings = {
   calls: Readonly<Record<string, string>>
 }
 
-export type SlotView = { ref: string; title: string; image: string; label: string; moves: string } | null
+export type SlotView = {
+  ref: string
+  title: string
+  image: string
+  label: string
+  moves: string
+  bars: Bar[]
+} | null
 
 export type EntryView = { inDeck: boolean; tabbable: boolean; hidden: boolean }
 
@@ -95,6 +104,7 @@ export type CollectionView = {
   trump: string
   remaining: number
   matches: number
+  recommended: readonly string[]
   entries: ReadonlyMap<string, EntryView>
 }
 
@@ -108,9 +118,10 @@ type Start = {
   name: string
   slots: readonly (string | null)[]
   entries: readonly Entry[]
+  coverage?: unknown
 }
 
-export function start({ token, url, name, slots, entries }: Start): DeckState {
+export function start({ token, url, name, slots, entries, coverage }: Start): DeckState {
   const filled = Array.from({ length: SLOT_COUNT }, (_, index) => slots[index] || null)
   return {
     token: token || null,
@@ -120,11 +131,11 @@ export function start({ token, url, name, slots, entries }: Start): DeckState {
     slots: filled,
     entries: Object.fromEntries(entries.map((entry) => [entry.ref, entry])),
     order: entries.map((entry) => entry.ref),
-    sort: BY_TITLE,
+    sort: BY_POPULARITY,
     trump: ALL_TRUMPS,
     query: "",
     shown: PAGE_SIZE,
-    coverage: null,
+    coverage: coverageOf(coverage),
     pending: [],
     active: entries[0]?.ref ?? null,
     notice: null,
@@ -315,6 +326,7 @@ export function slotsView(state: DeckState, strings: DeckStrings): SlotView[] {
       image: entry.image,
       label: [t(strings.removeSlot, { card: entry.title }), entry.movesSentence].filter(Boolean).join(". "),
       moves: entry.movesText,
+      bars: barsOf(entry.percentiles, entry.trump),
     }
   })
 }
@@ -333,6 +345,7 @@ export function collectionView(state: DeckState): CollectionView {
     trump: state.trump,
     remaining: Math.max(filteredOrder(state).length - state.shown, 0),
     matches: filteredOrder(state).length,
+    recommended: recommendedRefs(state),
     entries,
   }
 }

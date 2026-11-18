@@ -76,7 +76,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
     "deleteForm",
     "deleteTitle",
   ]
-  static values = { token: String, name: String, createUrl: String, deckUrl: String, strings: Object }
+  static values = { token: String, name: String, createUrl: String, deckUrl: String, strings: Object, coverage: Array }
   static outlets = ["deck-name", "deck-coverage", "deck-slots", "deck-collection"]
 
   declare readonly entryTargets: HTMLElement[]
@@ -94,6 +94,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
   declare readonly createUrlValue: string
   declare readonly deckUrlValue: string
   declare readonly stringsValue: DeckStrings
+  declare readonly coverageValue: unknown
   declare readonly hasDeckNameOutlet: boolean
   declare readonly deckNameOutlet: DeckNameController
   declare readonly hasDeckCoverageOutlet: boolean
@@ -115,6 +116,7 @@ export default class DeckEditorController extends Controller<HTMLElement> {
       name: this.nameValue,
       slots: this.slotTargets.map((slot) => slot.dataset.ref || null),
       entries: this.entryTargets.map(entryFrom),
+      coverage: this.coverageValue,
     })
     this.announced = 0
     this.render()

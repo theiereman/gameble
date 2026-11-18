@@ -19,7 +19,7 @@ class Game::DeckCoverageTest < ActiveSupport::TestCase
 
   def call_in(deck, key) = coverage(deck).calls.find { it.key == key }
 
-  def call_at(best) = Game::DeckCoverage::Call.new(stat: :popularity, direction: "high", best:)
+  def call_at(best, good: 0) = Game::DeckCoverage::Call.new(stat: :popularity, direction: "high", best:, good:)
 
   # Covers every call but rating-low and release-high, each left at 50.
   def deck_missing_rating_low_and_release_high(first, second)
@@ -50,6 +50,7 @@ class Game::DeckCoverageTest < ActiveSupport::TestCase
     assert call_in(deck, "rating-high").gap?
     assert_equal [ 99, 99, 0, nil ], [ call_at(100).shown, call_at(BigDecimal("99.6")).shown, call_at(BigDecimal("0.2")).shown, call_at(nil).shown ]
     assert call_at(nil).gap?
+    assert_equal [ false, true ], [ call_at(95, good: 2).many?, call_at(95, good: 3).many? ]
   end
 
   test "an empty deck, or no deck yet, has the ten calls in stat order, each a gap with no best" do

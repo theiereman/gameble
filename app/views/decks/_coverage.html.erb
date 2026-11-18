@@ -1,19 +1,26 @@
 <%# locals: (coverage:) %>
 <section class="deck-coverage" aria-labelledby="deck-coverage-heading" data-controller="deck-coverage">
-  <h2 id="deck-coverage-heading" class="deck-coverage__heading">
-    <%= t("decks.editor.coverage.heading") %> · <span data-deck-coverage-target="count"><%= coverage.calls.count(&:gap?) %></span>
-  </h2>
-  <ul class="deck-coverage__cells">
-    <% coverage.calls.each do |call| %>
-      <% label = deck_call_label(call) %>
-      <%= tag.li class: "deck-coverage__cell", hidden: !call.gap?, data: { deck_coverage_target: "cell", call: call.key } do %>
-        <%= tag.button type: "button", class: "deck-coverage__gap", aria: { label: t("decks.editor.coverage.gap_label", call: label) },
-              data: { action: "deck-coverage#choose" } do %>
-          <span class="deck-coverage__name"><%= deck_call_short(call) %></span>
-          <span class="deck-coverage__best" aria-hidden="true" data-deck-coverage-target="best"><%= call.shown %></span>
+  <h2 id="deck-coverage-heading" class="visually-hidden"><%= t("decks.editor.coverage.advantages") %>, <%= t("decks.editor.coverage.drawbacks") %></h2>
+  <div class="deck-coverage__group deck-coverage__group--advantages">
+    <h3 class="deck-coverage__heading"><%= t("decks.editor.coverage.advantages") %></h3>
+    <ul class="deck-coverage__list" role="status">
+      <% coverage.calls.each do |call| %>
+        <%= tag.li t("decks.editor.coverage.many", cards: deck_call_cards(call)), class: "deck-coverage__line", hidden: !call.many?,
+              data: { deck_coverage_target: "advantage", call: call.key, cards: deck_call_cards(call) } %>
+      <% end %>
+    </ul>
+    <%= tag.p t("decks.editor.coverage.no_advantage"), class: "deck-coverage__none", hidden: coverage.calls.any?(&:many?), data: { deck_coverage_target: "noAdvantage" } %>
+  </div>
+  <div class="deck-coverage__group deck-coverage__group--drawbacks">
+    <h3 class="deck-coverage__heading"><%= t("decks.editor.coverage.drawbacks") %></h3>
+    <ul class="deck-coverage__list">
+      <% coverage.calls.each do |call| %>
+        <%= tag.li class: "deck-coverage__line", hidden: !call.gap?, data: { deck_coverage_target: "drawback", call: call.key } do %>
+          <%= tag.button t("decks.editor.coverage.lacking", cards: deck_call_cards(call)), type: "button", class: "deck-coverage__gap",
+                aria: { label: t("decks.editor.coverage.gap_label", cards: deck_call_cards(call)) }, data: { action: "deck-coverage#choose" } %>
         <% end %>
       <% end %>
-    <% end %>
-  </ul>
-  <%= tag.p t("decks.editor.coverage.none"), class: "deck-coverage__none", hidden: coverage.calls.any?(&:gap?), data: { deck_coverage_target: "none" } %>
+    </ul>
+    <%= tag.p t("decks.editor.coverage.none"), class: "deck-coverage__none", hidden: coverage.calls.any?(&:gap?), data: { deck_coverage_target: "noDrawback" } %>
+  </div>
 </section>

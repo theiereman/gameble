@@ -5,10 +5,23 @@ import { columnsOf } from "../lib/grid_keys"
 
 export type MoveIntent = { key: string; columns: number }
 
+function recommendation(ref: string, source: HTMLLIElement): HTMLLIElement {
+  const item = source.cloneNode(true) as HTMLLIElement
+  item.hidden = false
+  item.dataset.ref = ref
+  const button = item.querySelector<HTMLElement>(".deck-entry__toggle")
+  if (button) {
+    button.dataset.deckCollectionTarget = "pick"
+    delete button.dataset.deckEditorTarget
+    button.tabIndex = 0
+  }
+  return item
+}
+
 const sortOf = (option: HTMLAnchorElement): string => new URL(option.href).searchParams.get("sort") ?? ""
 
 export default class DeckCollectionController extends Controller<HTMLElement> {
-  static targets = ["empty", "entry", "list", "more", "sortOption", "trump"]
+  static targets = ["empty", "entry", "list", "more", "pick", "recommendations", "recommended", "sortOption", "trump"]
 
   declare readonly entryTargets: HTMLElement[]
   declare readonly hasListTarget: boolean
@@ -17,22 +30,27 @@ export default class DeckCollectionController extends Controller<HTMLElement> {
   declare readonly trumpTargets: HTMLInputElement[]
   declare readonly hasEmptyTarget: boolean
   declare readonly emptyTarget: HTMLElement
+  declare readonly pickTargets: HTMLElement[]
+  declare readonly hasRecommendedTarget: boolean
+  declare readonly recommendedTarget: HTMLElement
+  declare readonly hasRecommendationsTarget: boolean
+  declare readonly recommendationsTarget: HTMLElement
   declare readonly hasMoreTarget: boolean
   declare readonly moreTarget: HTMLElement
 
-  render({ sort, trump, remaining, matches, entries }: CollectionView, strings: DeckStrings): void {
+  render({ sort, trump, remaining, matches, recommended, entries }: CollectionView, strings: DeckStrings): void {
     this.reorder([...entries.keys()])
-    for (const entry of this.entryTargets) {
+    this.showRecommended(recommended)
+    for (const entry of [...this.entryTargets, ...this.pickTargets]) {
       const state = entries.get(entry.dataset.ref ?? "")
       if (!state) continue
-      writeHidden(entry.closest("li"), state.hidden)
-      writeAttribute(entry, "tabindex", state.tabbable ? "0" : "-1")
+      if (!entry.matches("[data-deck-collection-target~='pick']")) {
+        writeHidden(entry.closest("li"), state.hidden)
+        writeAttribute(entry, "tabindex", state.tabbable ? "0" : "-1")
+      }
       writeAttribute(entry, "aria-pressed", String(state.inDeck))
       writeAttribute(entry, "aria-label", `${entry.dataset.label ?? ""}${state.inDeck ? strings.inDeckSuffix : ""}`)
-      writeText(
-        entry.querySelector("[data-deck-collection-target~='action']"),
-        state.inDeck ? strings.inDeck : strings.add,
-      )
+      writeText(entry.querySelector(".deck-entry__action"), state.inDeck ? strings.inDeck : strings.add)
     }
     for (const option of this.sortOptionTargets) {
       const current = sortOf(option) === sort
@@ -82,6 +100,19 @@ export default class DeckCollectionController extends Controller<HTMLElement> {
     const detail: MoveIntent = { key: event.key, columns: columnsOf(this.firstRowTops()) }
     const sent = this.dispatch("move", { detail })
     if (sent.defaultPrevented) event.preventDefault()
+  }
+
+  private showRecommended(refs: readonly string[]): void {
+    if (!this.hasRecommendedTarget) return
+    if (this.hasRecommendationsTarget) writeHidden(this.recommendationsTarget, refs.length === 0)
+    const shown = Array.from(this.recommendedTarget.children).map((item) => (item as HTMLElement).dataset.ref ?? "")
+    if (shown.join() === refs.join()) return
+    const sources = new Map(this.entryTargets.map((entry) => [entry.dataset.ref ?? "", entry.closest("li")]))
+    const items = refs.flatMap((ref) => {
+      const source = sources.get(ref)
+      return source ? [recommendation(ref, source)] : []
+    })
+    this.recommendedTarget.replaceChildren(...items)
   }
 
   private reorder(order: readonly string[]): void {

@@ -35,7 +35,7 @@ class DuelsTest < ApplicationSystemTestCase
     assert_selector "h2#duel-decks-heading", text: "MY DECKS · 2 / 5"
     assert_selector ".deck-row__name", count: 2
     assert_equal [ "Vieux briscards", "Brouillon" ], all(".deck-row__name").map(&:text)
-    assert_selector "a.button--link", text: "+ NEW DECK"
+    assert_selector "a.deck-new", text: "NEW DECK"
     assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: "DUELS"
 
     find("a.deck-row", text: "Vieux briscards").click

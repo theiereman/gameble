@@ -1,4 +1,5 @@
 export const BY_TITLE = "title"
+export const BY_POPULARITY = "popularity-high"
 export const ALL_TRUMPS = "all"
 
 export type Percentiles = Readonly<Record<string, number | null>>
@@ -20,11 +21,14 @@ export function sortRefs(entries: Entries, order: readonly string[], sort: strin
     const entry = entries[ref]
     return { ref, index, value: entry ? callValue(entry.percentiles, sort) : null }
   })
+  const known = (ref: string): number => callValue(entries[ref]?.percentiles ?? {}, BY_POPULARITY) ?? -1
   ranked.sort((a, b) => {
-    if (a.value === b.value) return a.index - b.index
-    if (a.value === null) return 1
-    if (b.value === null) return -1
-    return b.value - a.value
+    if (a.value !== b.value) {
+      if (a.value === null) return 1
+      if (b.value === null) return -1
+      return b.value - a.value
+    }
+    return known(b.ref) - known(a.ref) || a.index - b.index
   })
   return ranked.map(({ ref }) => ref)
 }

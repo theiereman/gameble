@@ -2,16 +2,20 @@
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
 <% content_for :back_button, true %>
-<section class="duels" aria-labelledby="duels-heading" data-controller="live-refresh" data-live-refresh-signal-value="duels-updated">
-  <h1 id="duels-heading" class="duels__title"><%= t(".title") %></h1>
-  <%= render "duels/lobby", lobby: @lobby %>
-  <% unless @lobby.closed? %>
-    <%= render "duels/online", lobby: @lobby %>
-  <% end %>
-  <div class="duels__main">
-    <%= render "duels/decks", decks: @decks, landing: @landing %>
-    <%= render "duels/record", record: @history.record %>
+<section class="duels page page--wide" aria-labelledby="duels-heading" data-controller="live-refresh" data-live-refresh-signal-value="duels-updated">
+  <h1 id="duels-heading" class="visually-hidden"><%= t(".title") %></h1>
+  <div class="duels__grid">
+    <div class="duels__side">
+      <%= render "duels/lobby", lobby: @lobby %>
+      <% unless @lobby.closed? %>
+        <%= render "duels/online", lobby: @lobby %>
+      <% end %>
+    </div>
+    <div class="duels__main">
+      <%= render "duels/decks", decks: @decks, landing: @landing %>
+      <%= render "duels/record", record: @history.record %>
+      <%= render "duels/history", rows: @history.rows %>
+    </div>
   </div>
-  <%= render "duels/history", rows: @history.rows %>
   <%= render "duels/sheet", sheet: @sheet, lobby: @lobby %>
 </section>

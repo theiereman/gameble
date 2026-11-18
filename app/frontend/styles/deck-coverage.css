@@ -1,54 +1,75 @@
-/* ---- What the deck still misses: one row per call whose best card stays under
-   the gap line, each a button that sorts the collection by that call. ---- */
+/* ---- The deck's live verdict beside its slots: the advantages in green and
+   the drawbacks in red, each a sentence; a drawback is a button that sorts the
+   collection by what it lacks. ---- */
 
 .deck-coverage {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-5);
   min-width: 0;
+}
+
+.deck-coverage__group {
+  --verdict-colour: var(--color-lime);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.deck-coverage__group--drawbacks {
+  --verdict-colour: var(--color-alert);
 }
 
 .deck-coverage__heading {
   margin: 0;
-  color: var(--color-accent);
+  color: var(--verdict-colour);
   font: var(--font-kicker);
   letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
 }
 
-.deck-coverage__cells {
+.deck-coverage__list {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  flex-direction: column;
+  gap: var(--space-1);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.deck-coverage__cell[hidden],
+.deck-coverage__line,
+.deck-coverage__none {
+  margin: 0;
+  color: var(--verdict-colour);
+  font: var(--font-body);
+}
+
+.deck-coverage__line::before {
+  content: "• ";
+}
+
+.deck-coverage__line[hidden],
 .deck-coverage__none[hidden] {
   display: none;
 }
 
+.deck-coverage__none {
+  color: var(--color-muted);
+}
+
 .deck-coverage__gap {
-  display: inline-flex;
-  gap: var(--space-2);
-  min-height: var(--space-touch-min);
-  padding: 0 var(--space-3);
-  box-sizing: border-box;
-  align-items: center;
-  background: var(--color-panel-sunken);
+  padding: 0;
+  background: none;
   border: 0;
-  box-shadow: inset 0 0 0 1px var(--color-alert);
-  color: var(--color-alert);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
 }
 
 .deck-coverage__gap:hover {
-  background: var(--color-alert);
-  color: var(--color-on-alert);
+  text-decoration: underline;
 }
 
 .deck-coverage__gap:focus-visible {
@@ -56,19 +77,4 @@
   box-shadow:
     var(--focus-ring-gap),
     inset 0 0 0 var(--space-unit) var(--color-accent);
-}
-
-.deck-coverage__best {
-  color: var(--color-muted);
-  font: var(--font-number);
-}
-
-.deck-coverage__gap:hover .deck-coverage__best {
-  color: inherit;
-}
-
-.deck-coverage__none {
-  margin: 0;
-  color: var(--color-lime);
-  font: var(--font-body);
 }

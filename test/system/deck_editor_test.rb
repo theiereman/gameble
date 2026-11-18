@@ -9,6 +9,8 @@ class DeckEditorTest < ApplicationSystemTestCase
   include SteamSignIn
   include Decks
 
+  LIST = "[data-deck-collection-target='list']".freeze
+
   setup do
     @player = accounts_players(:player)
     @cards = ranked_cards(@player, 13, titles: Array.new(13) { format("Game %02d", it + 1) })
@@ -24,7 +26,7 @@ class DeckEditorTest < ApplicationSystemTestCase
     assert_signed_in
   end
 
-  def entry(card_season_id) = find(".deck-entry__toggle[data-ref='#{ref_of(card_season_id)}']")
+  def entry(card_season_id) = find("#{LIST} .deck-entry__toggle[data-ref='#{ref_of(card_season_id)}']")
 
   def assert_focused(ref)
     eventually("#{ref} should have the focus") { page.evaluate_script("document.activeElement.dataset.ref") == ref }
@@ -55,7 +57,7 @@ class DeckEditorTest < ApplicationSystemTestCase
     assert_status "This game is already in the deck."
     entry(@cards.last).click
     assert_status "The deck is full."
-    assert_selector ".deck-entry__toggle[data-ref='#{ref_of(@cards.last)}'][aria-pressed=false]"
+    assert_selector "#{LIST} .deck-entry__toggle[data-ref='#{ref_of(@cards.last)}'][aria-pressed=false]"
 
     find("button.deck-slot[aria-label='Remove Game 01 from the deck']").click
     assert_selector ".deck-slots__slot:first-child .deck-slot--empty"
@@ -76,9 +78,9 @@ class DeckEditorTest < ApplicationSystemTestCase
     eventually("the deck list's heading should have the focus") { page.evaluate_script("document.activeElement.id") == "duel-decks-heading" }
 
     visit new_deck_path(locale: :en)
-    assert_no_selector ".deck-entry__reserved"
-    assert_no_selector ".deck-entry__toggle[aria-disabled=true]"
-    assert_selector ".deck-entry__toggle[aria-pressed=false]", count: 14
+    assert_no_selector "#{LIST} .deck-entry__reserved"
+    assert_no_selector "#{LIST} .deck-entry__toggle[aria-disabled=true]"
+    assert_selector "#{LIST} .deck-entry__toggle[aria-pressed=false]", count: 14
     assert_equal 0, Game::Holding.where(player_id: @player.id).sum(:reserved)
   end
 
@@ -86,16 +88,16 @@ class DeckEditorTest < ApplicationSystemTestCase
     sign_in(@player)
     visit new_deck_path(locale: :en)
 
-    assert_selector ".deck-entry__toggle[tabindex='0']", count: 1
+    assert_selector "#{LIST} .deck-entry__toggle[tabindex='0']", count: 1
     entry(@cards.first).send_keys(:right)
     assert_focused(ref_of(@second_edition))
     page.send_keys(:right)
     assert_focused(ref_of(@cards.second))
-    assert_selector ".deck-entry__toggle[tabindex='0']", count: 1
+    assert_selector "#{LIST} .deck-entry__toggle[tabindex='0']", count: 1
 
     page.send_keys(:enter)
     assert_status "Game 02 added, 1 of 12"
-    assert_selector ".deck-entry__toggle[data-ref='#{ref_of(@cards.second)}'][aria-pressed=true]"
+    assert_selector "#{LIST} .deck-entry__toggle[data-ref='#{ref_of(@cards.second)}'][aria-pressed=true]"
     assert_focused(ref_of(@cards.second))
     assert_match(/, in the deck\z/, entry(@cards.second)["aria-label"])
 
@@ -115,9 +117,9 @@ class DeckEditorTest < ApplicationSystemTestCase
     visit deck_path(locale: :en, token: deck.token)
 
     assert_selector ".deck-slots__slot:first-child .deck-slot__moves", text: "▲ Pop."
-    find(".deck-coverage__cell[data-call='release-low'] .deck-coverage__gap").click
+    find(".deck-coverage__line[data-call='release-low'] .deck-coverage__gap").click
     assert_status "Collection sorted: Oldest"
-    assert_selector ".deck-collection__list > li:first-child .deck-entry__toggle[data-ref='#{ref_of(oldest)}']"
+    assert_selector "#{LIST} > li:first-child .deck-entry__toggle[data-ref='#{ref_of(oldest)}']"
     assert_selector ".deck-collection .sort__current", text: /\AOldest\z/i
     assert_selector ".deck-collection .sort__option[aria-current='true']", text: "Oldest", visible: :all
     eventually("the gap should keep the focus") { page.evaluate_script("document.activeElement.closest('[data-call]')?.dataset.call") == "release-low" }
@@ -128,13 +130,14 @@ class DeckEditorTest < ApplicationSystemTestCase
     sign_in(@player)
     visit deck_path(locale: :en, token: Game::CreateDeck.new.call(player: @player).value!.token)
 
-    assert_selector ".deck-entry:not([hidden])", count: 24
+    assert_selector "#{LIST} .deck-entry:not([hidden])", count: 24
+    assert_selector "[data-deck-collection-target='recommended'] .deck-entry", count: 12
     click_on "Show more cards"
-    assert_selector ".deck-entry:not([hidden])", count: 28
+    assert_selector "#{LIST} .deck-entry:not([hidden])", count: 28
     assert_no_selector ".deck-collection__more:not([hidden])"
 
     fill_in "deck-search", with: "extra 01"
-    assert_selector ".deck-entry:not([hidden])", count: 1
+    assert_selector "#{LIST} .deck-entry:not([hidden])", count: 1
     fill_in "deck-search", with: "zzzz"
     assert_selector ".deck-collection__empty", text: "No card matches."
     assert_equal 14, extra.size

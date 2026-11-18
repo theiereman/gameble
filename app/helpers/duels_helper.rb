@@ -106,6 +106,11 @@ module DuelsHelper
     t("duels.record.#{kind}_html", count:, figure: tag.span(count, class: "duel-record__figure"))
   end
 
+  def duel_win_rate(record)
+    total = record.wins + record.losses + record.draws
+    total.zero? ? 0 : (record.wins * 100.0 / total).round
+  end
+
   def duel_result_line(row)
     t("duels.board.result.#{row.outcome}_html", name: duel_player_name(row.opponent), score: row.score, other_score: row.other_score)
   end

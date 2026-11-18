@@ -1,6 +1,6 @@
-/* ---- A card's five duel stats as bars: the card's stronger side of each
-   stat, a ▲ or ▼ for which side, and a tier colour (strong from 90, good from
-   75); the trump row is brightest. ---- */
+/* ---- A card's five duel stats as bars: the bar is the percentile itself, full
+   for a high stat and empty for a low one, in five tiers from red (the lowest)
+   through grey (neutral) to green (the highest); the trump row is brightest. ---- */
 
 .stat-bars {
   display: flex;
@@ -15,7 +15,7 @@
   --tier-colour: var(--color-dim);
 
   display: grid;
-  grid-template-columns: 56px 12px minmax(0, 1fr) 24px;
+  grid-template-columns: 52px minmax(0, 1fr) 24px;
   align-items: center;
   gap: var(--space-2);
   color: var(--color-muted);
@@ -23,24 +23,32 @@
   letter-spacing: var(--tracking-label);
 }
 
-.stat-bars__row[data-tier="good"] {
-  --tier-colour: var(--color-accent);
+.stat-bars__row[data-tier="highest"] {
+  --tier-colour: var(--color-lime);
 }
 
-.stat-bars__row[data-tier="strong"] {
-  --tier-colour: var(--color-lime);
+.stat-bars__row[data-tier="high"] {
+  --tier-colour: color-mix(in srgb, var(--color-lime) 55%, var(--color-dim));
+}
+
+.stat-bars__row[data-tier="low"] {
+  --tier-colour: color-mix(in srgb, var(--color-live-red-hi) 55%, var(--color-dim));
+}
+
+.stat-bars__row[data-tier="lowest"] {
+  --tier-colour: var(--color-live-red-hi);
+}
+
+.stat-bars__row[data-tier="mid"] .stat-bars__value {
+  color: var(--color-muted);
 }
 
 .stat-bars__row--trump {
   color: var(--color-text-max);
 }
 
-.stat-bars__side,
 .stat-bars__value {
   color: var(--tier-colour);
-}
-
-.stat-bars__value {
   text-align: right;
 }
 

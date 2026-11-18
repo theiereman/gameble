@@ -1,20 +1,24 @@
-/* ---- The Duels screen: the player's decks, each a row with its name and
-   its twelve covers in slot order. ---- */
+/* ---- The Duels screen: a side column (challenge, friends online) beside the
+   main column (the player's decks as tiles with a visible "New deck" tile, the
+   record as figures and a win-rate bar, the last duels as coloured tiles). ---- */
 
-.duels {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  width: 100%;
-  margin: 0 auto;
+.duels__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-stack-page);
+  align-items: start;
 }
 
-.duels__title {
-  margin: 0;
-  color: var(--color-accent);
-  font: var(--font-kicker);
-  letter-spacing: var(--tracking-kicker);
-  text-transform: uppercase;
+.duels__side,
+.duels__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-page);
+  min-width: 0;
+}
+
+.duel-sheet-host {
+  display: contents;
 }
 
 .duel-decks {
@@ -25,7 +29,7 @@
 
 .duel-decks__heading {
   margin: 0;
-  color: var(--color-muted);
+  color: var(--color-accent);
   font: var(--font-kicker);
   letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
@@ -33,6 +37,7 @@
 
 .duel-decks__list {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-4);
   margin: 0;
   padding: 0;
@@ -50,7 +55,8 @@
   font: var(--font-body);
 }
 
-.deck-row {
+.deck-row,
+.deck-new {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -59,21 +65,50 @@
   min-height: var(--space-touch-min);
   padding: var(--space-4);
   box-sizing: border-box;
-  background: var(--color-panel);
-  box-shadow: var(--panel-border);
   color: var(--color-text);
   text-decoration: none;
+}
+
+.deck-row {
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
 }
 
 .deck-row:hover {
   box-shadow: inset 0 0 0 2px var(--color-accent);
 }
 
-.deck-row:focus-visible {
+.deck-row:focus-visible,
+.deck-new:focus-visible {
   outline: 0;
   box-shadow:
     var(--focus-ring-gap),
     inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.deck-new {
+  align-items: center;
+  justify-content: center;
+  background: var(--color-panel-sunken);
+  outline: 2px dashed var(--color-accent);
+  outline-offset: calc(-1 * var(--space-2));
+  color: var(--color-accent);
+}
+
+.deck-new:hover {
+  background: var(--color-panel-raised);
+  color: var(--color-accent-hi);
+}
+
+.deck-new__plus {
+  font: var(--font-count-large-phone);
+  line-height: 1;
+}
+
+.deck-new__label {
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
 }
 
 .deck-row__head {
@@ -87,7 +122,7 @@
 .deck-row__name {
   min-width: 0;
   overflow: hidden;
-  color: var(--color-text);
+  color: var(--color-text-bright);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-overflow: ellipsis;
@@ -97,15 +132,15 @@
 .deck-row__count {
   flex: none;
   padding: var(--space-1) var(--space-3);
-  box-shadow: inset 0 0 0 1px var(--color-dim);
-  color: var(--color-muted);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+  color: var(--color-text-bright);
   font: var(--font-number);
   letter-spacing: var(--tracking-number);
 }
 
 .deck-row__covers {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-2);
 }
 
@@ -131,42 +166,107 @@
   object-fit: cover;
 }
 
-.duels__main,
+/* ---- The record: three figures, the win-rate bar ---- */
+
 .duel-record,
 .duel-history {
   display: flex;
   flex-direction: column;
-}
-
-.duels__main {
-  gap: var(--space-5);
-  min-width: 0;
+  gap: var(--space-4);
 }
 
 .duel-record {
   align-items: flex-start;
-  gap: var(--space-3);
 }
 
-.duel-record__line {
+.duel-record__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  width: 100%;
   margin: 0;
-  color: var(--color-text);
-  font: var(--font-body);
 }
 
-.duel-record__figure {
-  color: var(--color-text-max);
+.duel-record__stat {
+  --kind-colour: var(--color-muted);
+
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 2px 0 var(--kind-colour);
+}
+
+.duel-record__stat[data-kind="wins"] {
+  --kind-colour: var(--color-lime);
+}
+
+.duel-record__stat[data-kind="losses"] {
+  --kind-colour: var(--color-alert);
+}
+
+.duel-record__count {
+  margin: 0;
+  color: var(--kind-colour);
   font: var(--font-count-large-phone);
   letter-spacing: var(--tracking-count-large);
 }
 
-.duel-history {
-  gap: var(--space-4);
+.duel-record__kind {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
 }
 
-.duel-history__list {
+.duel-record__figure {
+  color: var(--color-text-max);
+}
+
+.duel-record__rate {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.duel-record__bar {
+  flex: 1;
+  height: 12px;
+  border: 0;
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+  color: var(--color-lime);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.duel-record__bar::-webkit-progress-bar {
+  background: var(--color-panel-raised);
+}
+
+.duel-record__bar::-webkit-progress-value {
+  background: var(--color-lime);
+}
+
+.duel-record__bar::-moz-progress-bar {
+  background: var(--color-lime);
+}
+
+.duel-record__percent {
+  flex: none;
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+/* ---- The last duels: one coloured tile each, its score and opponent ---- */
+
+.duel-history__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
@@ -174,17 +274,50 @@
 }
 
 .duel-history__row {
-  display: flex;
-  align-items: center;
-  min-height: var(--space-touch-min);
+  display: block;
+  height: 100%;
   color: var(--color-text);
-  font: var(--font-body);
   text-decoration: none;
 }
 
-.duel-history__row:hover {
-  color: var(--color-text-bright);
-  text-decoration: underline;
+.duel-history__face {
+  --outcome-colour: var(--color-muted);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: var(--space-touch-min);
+  padding: var(--space-2) var(--space-3);
+  box-sizing: border-box;
+  height: 100%;
+  background: var(--color-panel-sunken);
+  box-shadow: inset 3px 0 0 var(--outcome-colour);
+}
+
+.duel-history__face[data-outcome="win"] {
+  --outcome-colour: var(--color-lime);
+}
+
+.duel-history__face[data-outcome="loss"] {
+  --outcome-colour: var(--color-alert);
+}
+
+.duel-history__score {
+  color: var(--outcome-colour);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+.duel-history__name {
+  overflow: hidden;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-history__row:hover .duel-history__face {
+  background: var(--color-panel-raised);
 }
 
 .duel-history__row:focus-visible {
@@ -194,45 +327,12 @@
     inset 0 0 0 var(--space-unit) var(--color-accent);
 }
 
-@media (min-width: 720px) {
-  .deck-row__covers {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-}
-
 @media (min-width: 1180px) {
-  .duels {
-    display: grid;
-    grid-template-columns: 400px minmax(0, 1fr);
-    grid-template-rows: auto auto auto 1fr;
-    align-items: start;
-    max-width: var(--space-landing-content-max);
-  }
-
-  .duels__title {
-    grid-column: 1 / -1;
-  }
-
-  .duel-lobby,
-  .duel-online,
-  .duel-history {
-    grid-column: 1;
-  }
-
-  .duels__main {
-    grid-column: 2;
-    grid-row: 2 / span 3;
-  }
-
-  .duel-sheet-host {
-    display: contents;
-  }
-
-  .duel-decks__list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .duels__grid {
+    grid-template-columns: 360px minmax(0, 1fr);
   }
 
   .deck-row__covers {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }

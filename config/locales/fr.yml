@@ -3940,7 +3940,11 @@ fr:
       name_label: "Nom du deck"
       slots: "Emplacements"
       empty_slot: "Emplacement vide"
-      collection: "Votre collection"
+      collection: "Toutes vos cartes"
+      legend:
+        bars: "Les barres montrent où se place une carte parmi toutes les cartes : vert pour le plus haut, rouge pour le plus bas, gris entre les deux. Les deux extrêmes gagnent un duel."
+        moves: "▲ ▼ sous une carte : son rang dans cette stat a monté ou baissé depuis lundi."
+      recommendations: "Recommandations"
       more: "Voir plus de cartes"
       no_match: "Aucune carte ne correspond."
       search:
@@ -3950,25 +3954,29 @@ fr:
       no_stats: "Stats lundi"
       trump: "%{trump} · %{stat}"
       coverage:
-        heading: "Il manque"
+        advantages: "Avantages"
+        drawbacks: "Inconvénients"
+        many: "Beaucoup de %{cards}"
+        lacking: "Manque de %{cards}"
+        gap_label: "Manque de %{cards}, trier la collection"
+        no_advantage: "Aucun pour l'instant"
         none: "Rien ne manque"
-        gap_label: "%{call}, manque, trier la collection"
-        short:
+        cards:
           popularity:
-            high: "Populaire"
-            low: "Confid."
+            high: "cartes populaires"
+            low: "cartes peu connues"
           rating:
-            high: "Mieux notée"
-            low: "Moins notée"
+            high: "cartes bien notées"
+            low: "cartes mal notées"
           release:
-            high: "Récente"
-            low: "Ancienne"
+            high: "cartes récentes"
+            low: "cartes anciennes"
           discovery:
-            high: "Découv. tôt"
-            low: "Découv. tard"
+            high: "cartes découvertes tôt"
+            low: "cartes découvertes tard"
           circulation:
-            high: "Répandue"
-            low: "Introuvable"
+            high: "cartes répandues"
+            low: "cartes introuvables"
       sort:
         label: "Trier"
         by_title: "Par titre"
@@ -4106,7 +4114,7 @@ fr:
       heading: "Mes decks"
       count: "%{count} / 5"
       heading_spoken: "Mes decks, %{count} sur 5"
-      new: "+ Nouveau deck"
+      new: "Nouveau deck"
       complete:
         zero: ", %{count} carte"
         one: ", %{count} carte"
@@ -4116,6 +4124,11 @@ fr:
       heading: "Derniers duels"
     record:
       label: "Record de duels"
+      kinds:
+        wins: "Victoires"
+        losses: "Défaites"
+        draws: "Égalités"
+      rate: "%{percent} % de victoires"
       line_html: "Duels : %{wins}, %{losses}, %{draws}"
       wins_html:
         zero: "%{figure} victoire"

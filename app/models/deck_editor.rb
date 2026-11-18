@@ -16,7 +16,7 @@ class DeckEditor
   end
 
   def entries
-    @entries ||= by_card_season.values.sort_by { [ it.title.downcase, it.season_number ] }
+    @entries ||= by_card_season.values.sort_by { [ -(it.percentiles[:popularity] || -1), it.title.downcase, it.season_number ] }
   end
 
   def slots

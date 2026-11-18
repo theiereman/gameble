@@ -45,8 +45,8 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
       assert_select "[aria-hidden=true]", "Mes decks · 0 / 5"
       assert_select ".visually-hidden", "Mes decks, 0 sur 5"
     end
-    assert_select ".duel-decks__list", 0
-    assert_select "a.button.button--link[href='/fr/duels/decks/new']", "+ Nouveau deck"
+    assert_select ".duel-decks__list .deck-row", 0
+    assert_select "a.deck-new[href='/fr/duels/decks/new'] .deck-new__label", "Nouveau deck"
     assert_select ".duel-decks__full", 0
     assert_select ".duel-decks[data-row-focus-landing-value]", 0
   end
@@ -72,7 +72,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_equal 12, rows.first.css("img.deck-row__art[alt=''][loading=lazy]").size
     assert_equal [ 9, 3 ], [ rows.last.css("img.deck-row__art").size, rows.last.css(".deck-row__cover--empty").size ]
-    assert_select "a.button--link[href='/fr/duels/decks/new']", 1
+    assert_select "a.deck-new[href='/fr/duels/decks/new']", 1
   end
 
   test "a filled slot whose card cannot be shown is drawn as an empty cell, still counted" do

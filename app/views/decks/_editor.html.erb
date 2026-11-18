@@ -19,7 +19,13 @@
   </div>
   <%= render PanelComponent.new(class: "deck-editor__deck") do %>
     <%= render "decks/slots", editor: editor %>
-    <%= render "decks/coverage", coverage: editor.coverage %>
+    <div class="deck-editor__side">
+      <%= render "decks/coverage", coverage: editor.coverage %>
+      <ul class="deck-editor__legend">
+        <li><%= t("decks.editor.legend.bars") %></li>
+        <li><%= t("decks.editor.legend.moves") %></li>
+      </ul>
+    </div>
   <% end %>
   <p class="deck-editor__status" role="status" data-deck-editor-target="status"></p>
   <%= render "decks/collection", editor: editor %>

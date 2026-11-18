@@ -6,7 +6,10 @@
       <% rows.each do |row| %>
         <li class="duel-history__item">
           <%= link_to duel_path(token: row.token), class: "duel-history__row" do %>
-            <span aria-hidden="true"><%= duel_result_line(row) %></span>
+            <span class="duel-history__face" data-outcome="<%= row.outcome %>" aria-hidden="true">
+              <span class="duel-history__score"><%= row.score %>–<%= row.other_score %></span>
+              <span class="duel-history__name"><%= duel_player_name(row.opponent) %></span>
+            </span>
             <span class="visually-hidden"><%= duel_result_line_spoken(row) %></span>
           <% end %>
         </li>

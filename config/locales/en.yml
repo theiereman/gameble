@@ -1678,32 +1678,40 @@ en:
     deleted: Deck deleted.
     throttled: Too many changes in a minute. Try again in a moment.
     editor:
-      collection: Your collection
+      collection: All your cards
+      legend:
+        bars: "Bars show where a card stands among all cards: green is the highest, red the lowest, grey in between. Either end wins a duel."
+        moves: "▲ ▼ under a card: its rank in that stat has moved up or down since Monday."
+      recommendations: Recommendations
       more: Show more cards
       no_match: No card matches.
       search:
         label: Search your cards
         placeholder: Search a card…
       coverage:
-        gap_label: "%{call}, missing, sort the collection"
-        heading: Missing
-        none: Nothing missing
-        short:
+        advantages: Advantages
+        cards:
           circulation:
-            high: Widespread
-            low: Hard to find
+            high: widespread cards
+            low: hard-to-find cards
           discovery:
-            high: Found first
-            low: Found last
+            high: cards found early
+            low: cards found late
           popularity:
-            high: Popular
-            low: Obscure
+            high: popular cards
+            low: obscure cards
           rating:
-            high: Best rated
-            low: Worst rated
+            high: well-rated cards
+            low: poorly rated cards
           release:
-            high: Newest
-            low: Oldest
+            high: recent cards
+            low: old cards
+        drawbacks: Drawbacks
+        gap_label: "Lacks %{cards}, sort the collection"
+        lacking: Lacks %{cards}
+        many: Lots of %{cards}
+        no_advantage: None yet
+        none: Nothing missing
       delete: Delete the deck
       delete_dialog:
         cancel: Cancel
@@ -1910,7 +1918,7 @@ en:
       draft: ", draft, %{count} of %{total}"
       heading: My decks
       heading_spoken: My decks, %{count} of 5
-      new: "+ New deck"
+      new: New deck
     history:
       heading: Recent duels
     lobby:
@@ -1939,11 +1947,16 @@ en:
       draws_html:
         one: "%{figure} draw"
         other: "%{figure} draws"
+      kinds:
+        draws: Draws
+        losses: Losses
+        wins: Wins
       label: Duel record
       line_html: "Duels: %{wins}, %{losses}, %{draws}"
       losses_html:
         one: "%{figure} loss"
         other: "%{figure} losses"
+      rate: "%{percent}% won"
       rules: Duel rules
       wins_html:
         one: "%{figure} win"

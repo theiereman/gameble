@@ -24,6 +24,7 @@ import {
   type DeckStrings,
   type Entry,
 } from "./deck_editor"
+import { recommendedRefs } from "./deck_recommendations"
 
 const STRINGS: DeckStrings = {
   add: "Add",
@@ -262,7 +263,9 @@ describe("views", () => {
       image: "https://images.test/game-0:1.jpg",
       label: "Remove game-0 from the deck",
       moves: "",
+      bars: expect.arrayContaining([{ stat: "popularity", value: 50, tier: "mid", trump: true }]),
     })
+    expect(view[0]?.bars).toHaveLength(5)
     expect(view.slice(1).every((slot) => slot === null)).toBe(true)
     expect(view).toHaveLength(12)
   })
@@ -338,6 +341,47 @@ describe("paging the collection", () => {
 
     expect(shown(sortBy(state, "release-low"))).toBe(24)
     expect(shown(filterBy(state, "rating"))).toBe(0)
+  })
+})
+
+describe("recommendations", () => {
+  const withRelease = (ref: string, release: number, game = ref.split(":")[0]) =>
+    entry(ref, { game, percentiles: { popularity: 50, rating: 50, release, discovery: 50, circulation: 50 } })
+  const gap = (call: string) => ({ call, best: null, gap: true, many: false })
+  const covered = (call: string) => ({ call, best: 95, gap: false, many: false })
+
+  it("takes the cards strongest in what the deck lacks, one game once, never one already placed or unavailable", () => {
+    const entries = [
+      withRelease("a:1", 99),
+      withRelease("b:1", 5),
+      withRelease("c:1", 60),
+      withRelease("a:2", 98, "a"),
+      entry("d:1", { availability: "reserved", percentiles: { release: 100 } }),
+    ]
+    const base = start({
+      token: "T".repeat(24),
+      url: "/en/duels/decks/T",
+      name: "x",
+      slots: ["c:1"],
+      entries,
+      coverage: [gap("release-high"), gap("release-low"), covered("rating-high")],
+    })
+
+    expect(recommendedRefs(base)).toEqual(["a:1", "b:1"])
+  })
+
+  it("recommends nothing once the deck is full", () => {
+    const entries = Array.from({ length: 13 }, (_, index) => withRelease(`g${index}:1`, 50))
+    const full = start({
+      token: "T".repeat(24),
+      url: "/en/duels/decks/T",
+      name: "x",
+      slots: entries.slice(0, 12).map((each) => each.ref),
+      entries,
+      coverage: [gap("release-high")],
+    })
+
+    expect(recommendedRefs(full)).toEqual([])
   })
 })
 

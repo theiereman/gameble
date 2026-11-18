@@ -101,20 +101,20 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     get deck_path(locale: :fr, token: deck.token)
 
     assert_select "meta[name=turbo-cache-control][content=no-cache]"
-    assert_select ".deck-coverage__cell", 10
-    assert_select ".deck-coverage__cell[data-call=popularity-high][hidden]"
-    assert_select ".deck-coverage__cell[data-call=release-low]:not([hidden])" do
-      assert_select ".deck-coverage__name", "Ancienne"
-      assert_select "button.deck-coverage__gap[aria-label=?]", "La plus ancienne, manque, trier la collection"
+    assert_select ".deck-coverage__group--advantages .deck-coverage__line", 10
+    assert_select ".deck-coverage__group--advantages .deck-coverage__line:not([hidden])", 0
+    assert_select ".deck-coverage__group--advantages .deck-coverage__none:not([hidden])", "Aucun pour l'instant"
+    assert_select ".deck-coverage__group--drawbacks .deck-coverage__line[data-call=popularity-high][hidden]"
+    assert_select ".deck-coverage__group--drawbacks .deck-coverage__line[data-call=release-low]:not([hidden])" do
+      assert_select "button.deck-coverage__gap[aria-label=?]", "Manque de cartes anciennes, trier la collection", text: "Manque de cartes anciennes"
     end
-    assert_select ".deck-coverage__none[hidden]", 1
     assert_select "input.deck-collection__search[type=search][aria-label=?]", "Rechercher dans vos cartes"
     assert_select ".deck-entry .stat-bars .stat-bars__row", minimum: 5
     assert_select "select", 0
-    assert_select ".deck-collection .sort__button", /\ATri : Par titre\z/
-    assert_select ".deck-collection .sort__current", "Par titre"
+    assert_select ".deck-collection .sort__button", /\ATri : La plus populaire\z/
+    assert_select ".deck-collection .sort__current", "La plus populaire"
     assert_select ".deck-collection .sort__option", 11
-    assert_select ".deck-collection .sort__option[aria-current=true]", "Par titre"
+    assert_select ".deck-collection .sort__option[aria-current=true]", "La plus populaire"
     assert_select ".deck-collection .sort__option[href=?]", "#{deck_path(locale: :fr, token: deck.token)}?sort=release-low", text: "La plus ancienne"
     assert_select "fieldset.deck-collection__trumps legend.visually-hidden", "Atout"
     assert_equal %w[Toutes Popularité Note Sortie Découverte Circulation], css_select(".deck-collection__trumps .filter-chip__text").map(&:text)
@@ -161,8 +161,8 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "slot" => 1, "count" => 1 }, response.parsed_body.except("coverage"))
     coverage = response.parsed_body["coverage"]
     assert_equal 10, coverage.size
-    assert_equal [ { "call" => "popularity-high", "best" => 95, "gap" => false }, { "call" => "popularity-low", "best" => 5, "gap" => true },
-      { "call" => "rating-high", "best" => 50, "gap" => true } ], coverage.first(3)
+    assert_equal [ { "call" => "popularity-high", "best" => 95, "gap" => false, "many" => false }, { "call" => "popularity-low", "best" => 5, "gap" => true, "many" => false },
+      { "call" => "rating-high", "best" => 50, "gap" => true, "many" => false } ], coverage.first(3)
 
     delete deck_cards_path(locale: :en, token: deck.token), params: { ref: ref_of(card) }, **json
     assert_equal({ "slot" => 1, "count" => 0 }, response.parsed_body.except("coverage"))

@@ -11,7 +11,8 @@ module DeckEditorHelper
     { controller: "deck-editor", action: screen_actions("deck-editor", DECK_EDITOR_ACTIONS),
       deck_editor_token_value: deck&.token.to_s, deck_editor_name_value: deck&.name.to_s,
       deck_editor_create_url_value: decks_path, deck_editor_deck_url_value: deck ? deck_path(token: deck.token) : "",
-      deck_editor_strings_value: deck_editor_strings }
+      deck_editor_strings_value: deck_editor_strings,
+      deck_editor_coverage_value: deck_coverage_json(editor.coverage) }
       .merge(screen_outlets("deck-editor", DECK_EDITOR_ACTIONS.keys))
   end
 
@@ -21,21 +22,24 @@ module DeckEditorHelper
       moves_text: deck_moves_text(entry), moves_sentence: deck_moves_sentence(entry) }
   end
 
-  StatBar = Data.define(:stat, :side, :strength, :tier, :trump)
+  StatBar = Data.define(:stat, :value, :tier, :trump)
 
   def deck_entry_bars(entry)
     Game::DuelStat::STATS.filter_map do |stat|
       percentile = entry.percentiles[stat] or next
-      side = percentile >= 50 ? "high" : "low"
-      strength = (side == "high" ? percentile : 100 - percentile).round.clamp(0, 99)
-      StatBar.new(stat:, side:, strength:, tier: deck_strength_tier(strength), trump: entry.trump_stat == stat)
+      value = percentile.round.clamp(0, 99)
+      StatBar.new(stat:, value:, tier: deck_stat_tier(value), trump: entry.trump_stat == stat)
     end
   end
 
-  def deck_strength_tier(strength)
-    if strength >= 90 then "strong"
-    elsif strength >= 75 then "good"
-    else "weak"
+  def deck_blank_bars = Game::DuelStat::STATS.map { StatBar.new(stat: it, value: 0, tier: "mid", trump: false) }
+
+  def deck_stat_tier(value)
+    if value >= 90 then "highest"
+    elsif value >= 70 then "high"
+    elsif value <= 10 then "lowest"
+    elsif value <= 30 then "low"
+    else "mid"
     end
   end
 
@@ -72,12 +76,12 @@ module DeckEditorHelper
   end
 
   def deck_coverage_json(coverage)
-    coverage.calls.map { { call: it.key, best: it.shown, gap: it.gap? } }
+    coverage.calls.map { { call: it.key, best: it.shown, gap: it.gap?, many: it.many? } }
   end
 
   def deck_call_label(call) = t("duel_stats.directions.#{call.stat}.#{call.direction}")
 
-  def deck_call_short(call) = t("decks.editor.coverage.short.#{call.stat}.#{call.direction}")
+  def deck_call_cards(call) = t("decks.editor.coverage.cards.#{call.stat}.#{call.direction}")
 
   def deck_sort_options
     calls = Game::DeckCoverage::CALLS.map { |stat, direction| [ t("duel_stats.directions.#{stat}.#{direction}"), Game::DeckCoverage.key(stat, direction) ] }
@@ -85,7 +89,7 @@ module DeckEditorHelper
   end
 
   def deck_sort_links
-    deck_sort_options.map { |label, key| { label:, href: "#{request.path}?sort=#{key}", current: key == "title" } }
+    deck_sort_options.map { |label, key| { label:, href: "#{request.path}?sort=#{key}", current: key == "popularity-high" } }
   end
 
   def deck_trump_options
