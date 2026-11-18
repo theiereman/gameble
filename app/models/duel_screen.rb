@@ -8,7 +8,7 @@ class DuelScreen
     def answer_card = called ? theirs : mine
   end
 
-  Rematch = Data.define(:friend_token, :deck_token, :unavailable)
+  Rematch = Data.define(:friend_token, :deck_token, :unavailable, :practice)
 
   attr_reader :view
 
@@ -102,9 +102,10 @@ class DuelScreen
 
   def rematch
     return unless finished? && viewer
+    return Rematch.new(friend_token: nil, deck_token: @seat.deck_token, unavailable: nil, practice: true) if @duel.practice
 
     row = opponent && Game::ReachableFriends.call(viewer).find { it.player.id == opponent.id }
-    Rematch.new(friend_token: opponent&.token, deck_token: @seat.deck_token, unavailable: row ? (:in_duel if row.in_duel) : :offline)
+    Rematch.new(friend_token: opponent&.token, deck_token: @seat.deck_token, unavailable: row ? (:in_duel if row.in_duel) : :offline, practice: false)
   end
 
   private

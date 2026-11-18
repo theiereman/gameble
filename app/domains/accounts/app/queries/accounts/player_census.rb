@@ -6,7 +6,7 @@ module Accounts
 
     def self.call(now:)
       since = now - RECENT_WINDOW
-      total, joined, active = Player.where(deleted_at: nil).pick(
+      total, joined, active = Player.where(deleted_at: nil, bot_of_id: nil).pick(
         Arel.sql("COUNT(*)"),
         counted_since("created_at", since),
         counted_since("last_seen_at", since)

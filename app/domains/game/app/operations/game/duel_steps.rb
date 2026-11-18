@@ -116,6 +116,7 @@ module Game
     def schedule(duel, move_number, seconds)
       at = seconds.from_now
       DuelDeadlineJob.set(wait_until: at + DuelClock::JOB_DELAY).perform_later(duel.token, move_number)
+      PracticeBotJob.set(wait: PracticeBot.thinking_time).perform_later(duel.token, move_number) if duel.practice
       at
     end
 

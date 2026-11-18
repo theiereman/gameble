@@ -18,6 +18,21 @@ class DuelMovesControllerTest < ActionDispatch::IntegrationTest
 
   def challenge = Game::ChallengeFriend.new.call(player: @lea, friend: @hugo, deck_token: deck_token_of(@lea)).value!
 
+  test "a practice duel opens the duel against the bot, and a second one while it lasts comes back with the refusal" do
+    sign_in(@lea)
+
+    post duel_practice_path(locale: :en), params: { deck: deck_token_of(@lea) }
+
+    duel = Game::Duel.sole
+    assert duel.practice
+    assert_redirected_to duel_path(locale: :en, token: duel.token)
+
+    post duel_practice_path(locale: :en), params: { deck: deck_token_of(@lea) }
+
+    assert_redirected_to duels_path(locale: :en)
+    assert_equal Game::StartPracticeDuel.failure_message(:duel_in_progress), flash[:alert]
+  end
+
   test "a challenge leads back to Duels, and a second one comes back with the refusal" do
     sign_in(@lea)
 

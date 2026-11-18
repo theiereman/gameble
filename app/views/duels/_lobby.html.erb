@@ -1,4 +1,4 @@
-<%# locals: (lobby:) %>
+<%# locals: (lobby:, sheet:) %>
 <%= render PanelComponent.new(tag: :section, class: "duel-lobby", aria: { label: t("duels.sheet.title") }) do %>
   <% if (seated = lobby.seated) %>
     <div id="duel-seated" class="duel-lobby__block">
@@ -11,4 +11,11 @@
     </div>
   <% end %>
   <%= render ButtonComponent.new(opens: "duel-sheet") do %><%= t("duels.sheet.open") %><% end %>
+  <% if sheet.practice_deck_token %>
+    <%= form_with url: duel_practice_path, method: :post, authenticity_token: false, class: "duel-lobby__practice" do %>
+      <%= hidden_field_tag :deck, sheet.practice_deck_token, id: nil %>
+      <%= render ButtonComponent.new(type: :submit, variant: :secondary) do %><%= t("duels.lobby.practice") %><% end %>
+      <p class="duel-lobby__line duel-lobby__line--muted"><%= t("duels.lobby.practice_hint") %></p>
+    <% end %>
+  <% end %>
 <% end %>

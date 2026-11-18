@@ -1,5 +1,5 @@
 class DuelMovesController < ApplicationController
-  throttle_player to: 60, only: %i[challenge accept decline cancel announce answer], path: -> { duels_path }, alert: "duels.throttled"
+  throttle_player to: 60, only: %i[challenge practice accept decline cancel announce answer], path: -> { duels_path }, alert: "duels.throttled"
 
   def challenge
     authorize :duel, :challenge?, policy_class: DuelPolicy
@@ -8,6 +8,14 @@ class DuelMovesController < ApplicationController
     return friend_gone(params[:friend]) if %i[friend_unavailable friend_busy].include?(result.failure)
 
     settled(Game::ChallengeFriend, result, duels_path(friend: params[:friend]), failed_to: duels_path)
+  end
+
+  def practice
+    authorize :duel, :practice?, policy_class: DuelPolicy
+    result = Game::StartPracticeDuel.new.call(player: current_player, deck_token: params[:deck])
+    return redirect_refused(Game::StartPracticeDuel, result, duels_path) if result.failure?
+
+    redirect_to duel_path(token: result.value!.token), status: :see_other
   end
 
   def accept

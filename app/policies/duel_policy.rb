@@ -1,6 +1,7 @@
 class DuelPolicy < ApplicationPolicy
   def show? = player?
   def challenge? = player?
+  def practice? = player?
 
   def play? = seated?
   def accept? = seated?

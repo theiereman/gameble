@@ -34,7 +34,7 @@ module Game
 
     def self.duel_seats(player, now)
       resuming = DuelInProgress.call(player)
-      finished = DuelSeat.joins(:duel).includes(duel: :seats).where(player_id: player.id, game_duels: { state: "finished" })
+      finished = DuelSeat.joins(:duel).includes(duel: :seats).where(player_id: player.id, game_duels: { state: "finished", practice: false })
         .where(game_duels: { ended_at: (now - FINISHED_FOR).. }).order("game_duels.ended_at DESC").limit(PER_KIND)
       [ *resuming, *finished ]
     end

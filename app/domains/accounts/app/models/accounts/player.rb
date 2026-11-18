@@ -38,6 +38,8 @@ module Accounts
       player.is_a?(Player) && player.persisted? && player.staff? && !player.removed?
     end
 
+    def bot? = bot_of_id.present?
+
     def banned?
       banned_at.present?
     end

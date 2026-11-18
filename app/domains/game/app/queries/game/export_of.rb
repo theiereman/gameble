@@ -181,7 +181,7 @@ module Game
     end
 
     def self.duels(player)
-      seats = DuelSeat.where(player_id: player.id).joins(:duel).where(game_duels: { state: "finished" }).includes(duel: :rounds)
+      seats = DuelSeat.where(player_id: player.id).joins(:duel).where(game_duels: { state: "finished", practice: false }).includes(duel: :rounds)
         .order("game_duels.ended_at", :id)
       seats.map { |seat| duel_row(seat.duel, seat.role) }
     end

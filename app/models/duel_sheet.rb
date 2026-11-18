@@ -19,6 +19,10 @@ class DuelSheet
     end
   end
 
+  def practice_deck_token
+    deck_choices.find { it.selected && !it.draft? }&.token unless @lobby.seated || @lobby.received
+  end
+
   def complete_deck? = deck_choices.any? { !it.draft? }
 
   def friend_choices

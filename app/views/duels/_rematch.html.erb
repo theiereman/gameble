@@ -3,7 +3,12 @@
   <% name = duel_plain_name(screen.opponent) %>
   <% reason = { offline: t("duels.board.rematch_offline", name:), in_duel: t("duels.board.rematch_in_duel") }[rematch.unavailable] %>
   <div class="duel-rematch">
-    <% if reason %>
+    <% if rematch.practice %>
+      <%= form_with url: duel_practice_path, method: :post, authenticity_token: false do %>
+        <%= hidden_field_tag :deck, rematch.deck_token, id: nil %>
+        <%= render ButtonComponent.new(type: :submit) do %><%= t("duels.board.rematch") %><% end %>
+      <% end %>
+    <% elsif reason %>
       <%= render ButtonComponent.new(type: :button, aria_disabled: true, aria_label: t("duels.board.rematch_name", name:), describedby: "duel-rematch-reason") do %><%= t("duels.board.rematch") %><% end %>
       <p id="duel-rematch-reason" class="duel-rematch__reason"><%= reason %></p>
     <% else %>

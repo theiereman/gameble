@@ -1,12 +1,14 @@
 require "application_system_test_case"
 require_relative "../support/steam_sign_in"
 require_relative "../support/market"
+require_relative "../support/live_duels"
 
 # The DUELS tab and the trades tab's two sub-tabs, at phone width: Duels lists the player's decks and opens their
 # editor, the trades tab opens the sub-tab last used, a visitor keeps two tabs; on desktop, menu 03 and 04.
 class DuelsTest < ApplicationSystemTestCase
   include SteamSignIn
   include MarketSettings
+  include LiveDuels
 
   PHONE = [ 390, 844 ].freeze
 
@@ -33,6 +35,20 @@ class DuelsTest < ApplicationSystemTestCase
     assert_selector ".duel-tutorial__heading", text: "HOW A DUEL WORKS"
     find(".duel-tutorial .hub-fold").click
     assert_selector ".duel-tutorial__step", count: 4
+  end
+
+  test "a player with a complete deck trains against the bot, which plays its own moves" do
+    complete_deck(@player, "Lea")
+    complete_deck(accounts_players(:moderator), "Catalog")
+    sign_in(@player)
+    visit duels_path(locale: :en)
+
+    click_button "Train against the bot"
+
+    assert_selector ".duel-board__opponent", text: "Bot"
+    duel = Game::Duel.sole
+    assert duel.practice
+    assert_current_path duel_path(locale: :en, token: duel.token)
   end
 
   test "on a phone, DUELS lists the decks and opens one's editor, which leads back to Duels" do

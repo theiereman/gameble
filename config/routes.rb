@@ -97,6 +97,7 @@ Rails.application.routes.draw do
     delete "duels/decks/:token/cards" => "deck_cards#destroy", constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # A challenge to a friend, and a duel by its token: its screen, the acceptance and each call and answer.
     post "duels/challenges" => "duel_moves#challenge", as: :duel_challenges
+    post "duels/practice" => "duel_moves#practice", as: :duel_practice
     get "duels/:token" => "duels#play", as: :duel, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "duels/:token/acceptance" => "duel_moves#accept", as: :duel_acceptance, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "duels/:token/refusal" => "duel_moves#decline", as: :duel_refusal, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }

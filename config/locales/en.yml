@@ -1956,6 +1956,8 @@ en:
       deck: Your deck
       friend: Friend
       in_progress_html: "Duel in progress against %{name}."
+      practice: "Train against the bot"
+      practice_hint: "Training only: it counts for nothing and gives no capsule."
       received_html: "%{name} challenges you to a duel."
       resume: Resume
       resume_label: "Resume the duel against %{name}"
@@ -2010,17 +2012,17 @@ en:
       heading: How a duel works
       steps:
         call:
-          text: Lock a card, pick a stat and High or Low. The most extreme cards win, whichever way.
-          title: Call a stat
+          text: "Play a card from your hand, face up. In secret, pick one of its stats and High or Low: that is your call."
+          title: Show a card, hide a stat
         challenge:
-          text: Choose a deck and a friend who is online. A duel is 10 rounds, with a hand of 3 cards.
+          text: "Choose a deck and a friend who is online. Both decks are face up; only the 3 cards in each hand stay hidden."
           title: Challenge a friend
         deck:
           text: Pick 12 cards you own. Each card is a Steam game with five stats.
           title: Build a deck
         win:
-          text: Your friend answers with a card. The better one in the called direction scores a point. Most points after 10 rounds wins.
-          title: Win rounds
+          text: "Your friend plays a card without knowing your call. Then it is revealed: on High the higher value scores the point, on Low the lower one. After 10 rounds, most points wins."
+          title: Answer in the dark
   errors:
     accounts:
       incomplete_release_note: "A ready note needs its title and its text in both languages."
@@ -3799,7 +3801,7 @@ en:
       duels:
         capsule: 'The first win of the UTC day gives a duel capsule of %{cards} cards, in your special reserve, unless the game played one of your moves. Further wins, losses and draws give nothing. Its odds:'
         decks: 'A deck holds exactly %{cards} cards you own, a game at most once, and you can keep up to %{decks} decks. A card in a deck blocks one copy of its edition: that copy cannot be traded, sold or entrusted until you take the card out of every deck that holds it. Your other copies stay free.'
-        round: 'A duel is %{rounds} rounds. Each player holds a hand of %{hand} cards, which serves both to call and to answer, and draws one card after each round. The caller locks a card from their hand, a stat and a direction; their card turns face up while the call stays hidden. The other player answers with a card from their hand. The better percentile in the called direction wins the round; equal percentiles compare the exact value; if those are equal too, nobody scores. Each player calls each stat once.'
+        round: 'A duel is %{rounds} rounds. Both decks are face up; only which cards are in a hand stays hidden. Each player holds a hand of %{hand} cards, which serves both to call and to answer, and draws one card after each round. The caller locks a card from their hand, a stat and a direction; their card turns face up while the call stays hidden. The other player answers with a card from their hand. The better percentile in the called direction wins the round; equal percentiles compare the exact value; if those are equal too, nobody scores. Each player calls each stat once.'
         stats: 'Every card is measured on %{number} stats: %{names}. Each is a percentile, the share of the ranked cards the card beats, computed when a season is published and every Monday at midnight UTC. A card''s trump is its most extreme stat, in either direction.'
         ties: 'One point per round won; the higher score wins the duel. Equal scores go to the larger margin, the percentile points by which a player''s won rounds were won. Still equal, the duel is a draw.'
         timers: 'You have %{accept} seconds to accept a challenge, %{call} seconds to call and %{answer} seconds to answer. When time is up, or %{absence} seconds after a player''s connection drops, the game plays their move for them: a caller''s strongest card on its most extreme stat among those left, an answerer''s card strongest on the shown card''s most extreme stat. Moves played that way are marked in the duel, and no duel is won by forfeit.'

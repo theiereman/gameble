@@ -1,7 +1,7 @@
 module Game
   module DuelAchievementMetrics
     FINISHED_DUEL = "game_duels AS duel JOIN game_duel_seats AS seat ON seat.duel_id = duel.id".freeze
-    OWN_FINISHED_DUELS = "#{FINISHED_DUEL} WHERE duel.state = 'finished' AND seat.player_id = :player_id".freeze
+    OWN_FINISHED_DUELS = "#{FINISHED_DUEL} WHERE duel.state = 'finished' AND NOT duel.practice AND seat.player_id = :player_id".freeze
     OWN_WINS = "#{OWN_FINISHED_DUELS} AND duel.result = seat.role".freeze
 
     OWN_SCORE = "CASE seat.role WHEN 'challenger' THEN duel.challenger_score ELSE duel.opponent_score END".freeze
@@ -10,12 +10,12 @@ module Game
     OPPONENTS_SQL = <<~SQL.squish.freeze
       SELECT COUNT(DISTINCT COALESCE(other.player_id::text, 'deleted')) FROM #{FINISHED_DUEL}
         JOIN game_duel_seats AS other ON other.duel_id = duel.id AND other.role <> seat.role
-       WHERE duel.state = 'finished' AND seat.player_id = :player_id
+       WHERE duel.state = 'finished' AND NOT duel.practice AND seat.player_id = :player_id
     SQL
 
     ROUNDS_WON_BY_OWN_MOVE = <<~SQL.squish.freeze
       game_duel_rounds AS round
-        JOIN game_duels AS duel ON duel.id = round.duel_id AND duel.state = 'finished'
+        JOIN game_duels AS duel ON duel.id = round.duel_id AND duel.state = 'finished' AND NOT duel.practice
         JOIN game_duel_seats AS seat ON seat.duel_id = duel.id AND seat.role = round.winner
        WHERE seat.player_id = :player_id
          AND NOT (CASE WHEN round.caller = seat.role THEN round.caller_automatic ELSE round.answer_automatic END)

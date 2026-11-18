@@ -631,7 +631,7 @@ fr:
         title: "Les duels"
         decks: "Un deck compte exactement %{cards} cartes que vous possédez, un jeu au plus une fois, et vous pouvez garder jusqu'à %{decks} decks. Une carte dans un deck bloque un exemplaire de son édition : cet exemplaire ne peut être ni échangé, ni vendu, ni confié tant que vous ne retirez pas la carte de tous les decks qui la contiennent. Vos autres exemplaires restent libres."
         stats: "Chaque carte est mesurée sur %{number} stats : %{names}. Chacune est un centile, la part des cartes classées que la carte bat, calculé à la publication d'une saison puis chaque lundi à minuit UTC. L'atout d'une carte est sa stat la plus extrême, dans un sens ou dans l'autre."
-        round: "Un duel compte %{rounds} manches. Chaque joueur tient une main de %{hand} cartes, qui sert à annoncer comme à répondre, et pioche une carte après chaque manche. Celui qui annonce verrouille une carte de sa main, une stat et un sens ; sa carte se retourne et l'annonce reste cachée. L'autre joueur répond avec une carte de sa main. Le meilleur centile dans le sens annoncé gagne la manche ; à centiles égaux, on compare la valeur exacte ; si elle est égale aussi, personne ne marque. Chaque joueur annonce chaque stat une fois."
+        round: "Un duel compte %{rounds} manches. Les decks sont visibles des deux côtés : seules les cartes de la main restent cachées. Chaque joueur tient une main de %{hand} cartes, qui sert à annoncer comme à répondre, et pioche une carte après chaque manche. Celui qui annonce verrouille une carte de sa main, une stat et un sens ; sa carte se retourne et l'annonce reste cachée. L'autre joueur répond avec une carte de sa main. Le meilleur centile dans le sens annoncé gagne la manche ; à centiles égaux, on compare la valeur exacte ; si elle est égale aussi, personne ne marque. Chaque joueur annonce chaque stat une fois."
         ties: "Un point par manche gagnée ; le plus haut score gagne le duel. À score égal, l'écart le plus grand l'emporte : les points de centile par lesquels les manches d'un joueur ont été gagnées. Si l'écart est égal aussi, le duel est une égalité."
         timers: "Vous avez %{accept} secondes pour accepter un défi, %{call} secondes pour annoncer et %{answer} secondes pour répondre. Quand le temps est écoulé, ou %{absence} secondes après la coupure de la connexion d'un joueur, le jeu joue son coup : pour celui qui annonce, sa carte la plus forte sur sa stat la plus extrême parmi celles qui restent ; pour celui qui répond, sa carte la plus forte sur la stat la plus extrême de la carte montrée. Un coup joué ainsi est signalé dans le duel, et aucun duel ne se gagne par forfait."
         capsule: "La première victoire du jour UTC donne une capsule de duel de %{cards} cartes, dans votre réserve spéciale, sauf si le jeu a joué un de vos coups. Les autres victoires, les défaites et les égalités ne donnent rien. Ses probabilités :"
@@ -4131,13 +4131,13 @@ fr:
           text: "Choisissez 12 cartes que vous possédez. Chaque carte est un jeu Steam avec cinq stats."
         challenge:
           title: "Défiez un ami"
-          text: "Choisissez un deck et un ami en ligne. Un duel dure 10 manches, avec une main de 3 cartes."
+          text: "Choisissez un deck et un ami en ligne. Les decks sont visibles des deux côtés ; seules les 3 cartes de la main restent cachées."
         call:
-          title: "Annoncez une stat"
-          text: "Posez une carte, choisissez une stat et Haut ou Bas. Les cartes les plus extrêmes gagnent, dans un sens comme dans l'autre."
+          title: "Une carte visible, une stat cachée"
+          text: "Jouez une carte de votre main, face visible. En secret, choisissez une de ses stats et Haut ou Bas : c'est votre annonce."
         win:
-          title: "Gagnez des manches"
-          text: "Votre ami répond avec une carte. La meilleure dans le sens annoncé marque un point. Le plus de points après 10 manches l'emporte."
+          title: "Répondez à l'aveugle"
+          text: "Votre ami joue une carte sans connaître votre annonce. Elle est ensuite révélée : en Haut, la plus haute valeur marque le point ; en Bas, la plus basse. Après 10 manches, le plus de points l'emporte."
     challenge:
       button: "Défier"
       button_in_duel: "Défier en duel"
@@ -4197,6 +4197,8 @@ fr:
       received_html: "%{name} vous défie en duel."
       waiting_html: "En attente de la réponse de %{name}…"
       in_progress_html: "Duel en cours contre %{name}."
+      practice: "S'entraîner contre le bot"
+      practice_hint: "Entraînement seulement : il ne compte pour rien et ne donne pas de capsule."
     online:
       add_friends: "Ajouter des amis"
       heading: "En ligne · %{count}"
