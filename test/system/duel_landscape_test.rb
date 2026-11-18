@@ -60,4 +60,31 @@ class DuelLandscapeTest < ApplicationSystemTestCase
     assert_no_selector ".alpha-banner__warning"
     assert_no_selector ".duel-past"
   end
+
+  test "the card picked for the call shows a gauge per stat and no written value" do
+    resize_viewport_to(*LANDSCAPE)
+    sign_in(@lea)
+    visit duel_path(locale: :en, token: @duel.token)
+    assert_selector "#duel-board[data-move-number='1']"
+
+    first("#duel-my-deck .duel-deck__card--in-hand .duel-deck__body").click
+
+    assert_selector ".duel-call__card:not([hidden]) .duel-call__stat .stat-bars__bar", count: 5
+    assert_no_selector ".duel-call__card:not([hidden]) .duel-call__value"
+    page.save_screenshot(ENV["DUEL_LANDSCAPE_SHOT"]) if ENV["DUEL_LANDSCAPE_SHOT"]
+  end
+
+  test "the forfeit button and the alpha tag are centred on the header's height" do
+    resize_viewport_to(*LANDSCAPE)
+    sign_in(@lea)
+    visit duel_path(locale: :en, token: @duel.token)
+    assert_selector "#duel-board[data-move-number='1']"
+
+    header = metrics(".duel-header")
+    middle = (header[:top] + header[:bottom]) / 2
+    %w[.duel-forfeit .alpha-banner].each do |selector|
+      box = metrics(selector)
+      assert_in_delta middle, (box[:top] + box[:bottom]) / 2, 1, "#{selector} against the header #{header.inspect}, itself #{box.inspect}"
+    end
+  end
 end

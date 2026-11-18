@@ -13,6 +13,8 @@
   }
 
   .duel.page {
+    --duel-header-height: 4.5rem;
+
     position: relative;
     max-width: none;
     gap: var(--space-3);
@@ -20,8 +22,9 @@
 
   .alpha-banner {
     position: absolute;
-    top: var(--space-2);
+    top: calc(var(--duel-header-height) / 2 + var(--space-3));
     right: var(--space-4);
+    transform: translateY(-50%);
     z-index: 2;
     padding: 0;
     background: none;
@@ -41,6 +44,8 @@
   }
 
   .duel-header {
+    box-sizing: border-box;
+    height: var(--duel-header-height);
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
@@ -79,8 +84,9 @@
 
   .duel-forfeit {
     position: absolute;
-    top: var(--space-2);
+    top: calc(var(--duel-header-height) / 2 + var(--space-3));
     right: 6rem;
+    transform: translateY(-50%);
     z-index: 2;
   }
 
@@ -145,7 +151,8 @@
   }
 
   .duel-call__stat .stat-bars__bar {
-    display: none;
+    flex: 1;
+    min-width: 0;
   }
 
   .duel-call__name {
@@ -159,14 +166,7 @@
   }
 
   .duel-call__value {
-    flex: 1;
-    font-size: 0.625rem;
-    letter-spacing: 0;
-    min-width: 0;
-    overflow: hidden;
-    text-align: right;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: none;
   }
 
   .duel-table__slot .duel-face,
