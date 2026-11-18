@@ -23,7 +23,7 @@
 
 .deck-coverage__heading {
   margin: 0;
-  color: var(--verdict-colour);
+  color: var(--color-accent);
   font: var(--font-kicker);
   letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;

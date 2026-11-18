@@ -81,7 +81,7 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     get deck_path(locale: :en, token: deck.token)
 
     assert_response :success
-    assert_select ".deck-slots__slot:first-child button.deck-slot__remove[aria-label=?]", "Remove Quake from the deck"
+    assert_select ".deck-slots__slot:first-child .deck-slot__remove button[aria-label=?]", "Remove Quake from the deck"
     assert_select ".deck-entry__toggle[aria-pressed=true][aria-label=?]", "Quake, S#{Catalog::Season.maximum(:number)}, Trump · #{trump_of(card)}, in the deck"
     assert_select "#deck-name[value=?]", "Vieux briscards"
     assert_select ".deck-editor__delete:not([hidden])"
@@ -121,11 +121,11 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert_select "input.filter-chip__box[type=radio][name=trump][value=all][checked]"
     assert_select ".deck-slots__slot:first-child" do
       assert_select ".deck-slot__moves[aria-hidden=true]", "▲ Pop. ▼ Sortie"
-      assert_select "button.deck-slot__remove[aria-label=?]",
+      assert_select ".deck-slot__remove button[aria-label=?]",
         "Retirer Quake du deck. Popularité en hausse\u202F: 62, contre 55 lundi dernier. Sortie en baisse\u202F: 30, contre 40 lundi dernier"
     end
     assert_select ".deck-slots__slot:nth-child(2) .deck-slot__moves", ""
-    assert_select ".deck-slots__slot:nth-child(2) button.deck-slot__remove[aria-label=?]", "Retirer Myst du deck"
+    assert_select ".deck-slots__slot:nth-child(2) .deck-slot__remove button[aria-label=?]", "Retirer Myst du deck"
     entry = css_select(".deck-entry__toggle[data-ref='#{ref_of(moved)}']").sole
     assert_equal({ "popularity" => 62.0, "rating" => 50.0, "release" => 30.0, "discovery" => 50.0, "circulation" => 50.0 }, JSON.parse(entry["data-percentiles"]))
     assert_equal [ "release", "▲ Pop. ▼ Sortie" ], [ entry["data-trump"], entry["data-moves-text"] ]

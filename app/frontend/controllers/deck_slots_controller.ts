@@ -132,7 +132,7 @@ export default class DeckSlotsController extends Controller<HTMLElement> {
   private showActions(filled: HTMLElement): void {
     writeHidden(filled.querySelector<HTMLElement>(".deck-slot__actions"), false)
     filled.querySelector(".deck-slot")?.setAttribute("aria-expanded", "true")
-    filled.querySelector<HTMLElement>(".deck-slot__remove")?.focus()
+    filled.querySelector<HTMLElement>(".deck-slot__remove button")?.focus()
   }
 
   private closeActions(): void {
@@ -151,7 +151,7 @@ export default class DeckSlotsController extends Controller<HTMLElement> {
     const filled = cloneFirstElement<HTMLElement>(this.filledTemplateTarget)
     const button = filled?.querySelector(".deck-slot")
     if (!filled || !button) return null
-    writeAttribute(filled.querySelector(".deck-slot__remove") ?? button, "aria-label", label)
+    writeAttribute(filled.querySelector(".deck-slot__remove button") ?? button, "aria-label", label)
     button.querySelector(".deck-slot__card")?.replaceChildren(...this.cardOf(ref))
     writeText(filled.querySelector(".deck-slot__moves"), moves)
     return filled

@@ -5,10 +5,12 @@
     <span class="deck-slot__card"><%= render("decks/card", entry:) if entry %></span>
   <% end %>
   <span class="deck-slot__actions" hidden>
-    <% opener = bottom_sheet_opener("deck-card-info") %>
-    <%= tag.a t("decks.editor.info.open"), **opener.merge(data: opener[:data].merge(action: "deck-slots#fillInfo")), class: "deck-slot__info" %>
-    <%= tag.button t("decks.editor.strings.remove"), type: "button", class: "deck-slot__remove",
-          aria: { label: (deck_slot_label(entry) if entry) }, data: { action: "deck-slots#remove" } %>
+    <span class="deck-slot__info" data-action="click->deck-slots#fillInfo">
+      <%= render(ButtonComponent.new(variant: :secondary, size: :small, opens: "deck-card-info")) { t("decks.editor.info.open") } %>
+    </span>
+    <span class="deck-slot__remove" data-action="click->deck-slots#remove">
+      <%= render(ButtonComponent.new(variant: :danger, size: :small, aria_label: (deck_slot_label(entry) if entry))) { t("decks.editor.strings.remove") } %>
+    </span>
   </span>
   <span class="deck-slot__moves" aria-hidden="true"><%= deck_moves_text(entry) %></span>
 </span>

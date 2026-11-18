@@ -385,7 +385,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".duel-record .duel-record__line", "Duels: 1 win, 1 loss, 0 draws"
     assert_select ".duel-record .duel-record__figure", 3
-    assert_select ".duel-tutorial a.button.button--link[href='/en/how-it-works#how-it-works-duels']", "Duel rules"
+    assert_select ".duel-record a.button.button--link[href='/en/how-it-works#how-it-works-duels']", "Duel rules"
     assert_select "h2#duel-history-heading", "Recent duels"
     names = css_select(".duel-history__row .visually-hidden").map(&:text)
     assert_equal [ "Loss against Hugo, 4 to 6", "Win against Hugo, 6 to 4" ], names
@@ -395,7 +395,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     get duels_path(locale: :fr)
 
     assert_select ".duel-record__line", "Duels : 1 victoire, 1 défaite, 0 égalité"
-    assert_select ".duel-tutorial a.button--link", "Règles du duel"
+    assert_select ".duel-record a.button--link", "Règles du duel"
     assert_select ".duel-history__row .visually-hidden", "Défaite contre Hugo, 4 à 6"
   end
 

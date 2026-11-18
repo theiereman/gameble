@@ -23,6 +23,18 @@ class DuelsTest < ApplicationSystemTestCase
 
   def tab(name) = find(".tab-bar a.tab-bar__tab", text: name.upcase)
 
+  test "the tutorial is open for a player who never duelled and folds under its title bar" do
+    sign_in(@player)
+    visit duels_path(locale: :en)
+
+    assert_selector ".duel-tutorial__step", count: 4
+    find(".duel-tutorial .hub-fold").click
+    assert_no_selector ".duel-tutorial__step"
+    assert_selector ".duel-tutorial__heading", text: "HOW A DUEL WORKS"
+    find(".duel-tutorial .hub-fold").click
+    assert_selector ".duel-tutorial__step", count: 4
+  end
+
   test "on a phone, DUELS lists the decks and opens one's editor, which leads back to Duels" do
     first = Game::CreateDeck.new.call(player: @player, name: "Vieux briscards").value!
     Game::CreateDeck.new.call(player: @player, name: "Brouillon").value!

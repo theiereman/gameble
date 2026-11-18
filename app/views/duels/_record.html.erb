@@ -17,4 +17,5 @@
     <%= tag.progress class: "duel-record__bar", max: 100, value: duel_win_rate(record) %>
     <span class="duel-record__percent"><%= t("duels.record.rate", percent: duel_win_rate(record)) %></span>
   </div>
+  <%= render ButtonComponent.new(variant: :link, size: :small, href: how_it_works_path(anchor: "how-it-works-duels")) do %><%= t("duels.record.rules") %><% end %>
 <% end %>

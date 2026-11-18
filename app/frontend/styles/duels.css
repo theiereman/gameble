@@ -9,12 +9,6 @@
   align-items: start;
 }
 
-.duels {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-stack-page);
-}
-
 .duels__side,
 .duels__main {
   display: flex;

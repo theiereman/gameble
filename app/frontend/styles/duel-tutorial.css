@@ -1,48 +1,37 @@
 /* ---- "How a duel works": four numbered steps, each with a small pixel
-   illustration, in a panel that opens by default for a player who never
-   duelled and folds to its title otherwise. ---- */
+   illustration, in a panel folded like the hub's done panels (hub-done.css):
+   open for a player who never duelled, folded to its title bar otherwise. ---- */
 
 .duel-tutorial {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) calc(12px + var(--space-3) + 10px);
+  grid-template-rows: minmax(var(--space-touch-min), auto);
+  align-content: start;
+  align-items: center;
+  gap: var(--space-5) var(--space-4);
+  padding-top: var(--space-unit);
 }
 
 .duel-tutorial > .button {
-  align-self: flex-start;
+  grid-column: 1 / -1;
+  justify-self: start;
 }
 
-.duel-tutorial__summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  list-style: none;
-  cursor: pointer;
+.duel-tutorial:has(> .hub-fold[aria-expanded="false"]) {
+  row-gap: 0;
+  padding-bottom: 0;
 }
 
-.duel-tutorial__summary::-webkit-details-marker {
+.duel-tutorial:has(> .hub-fold[aria-expanded="false"]) > :not(.hub-fold, .duel-tutorial__heading) {
   display: none;
 }
 
-.duel-tutorial__summary::after {
-  content: "▾";
-  color: var(--color-accent);
-}
-
-.duel-tutorial__details[open] > .duel-tutorial__summary::after {
-  content: "▴";
-}
-
-.duel-tutorial__summary:focus-visible {
-  outline: 0;
-  box-shadow:
-    var(--focus-ring-gap),
-    inset 0 0 0 var(--space-unit) var(--color-accent);
-}
-
 .duel-tutorial__heading {
+  z-index: 1;
+  grid-row: 1;
+  grid-column: 1;
   margin: 0;
+  pointer-events: none;
   color: var(--color-accent);
   font: var(--font-kicker);
   letter-spacing: var(--tracking-kicker);
@@ -53,7 +42,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-5);
-  margin: var(--space-5) 0 0;
+  grid-column: 1 / -1;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -157,20 +147,20 @@
   font: var(--font-label);
 }
 
-.t-text--big {
-  font-size: 16px;
-}
-
 .t-text--lime {
   fill: var(--color-lime);
-  font-size: 20px;
+  font: var(--font-number);
 }
 
 .t-text--muted {
   fill: var(--color-muted);
-  font-size: 20px;
+  font: var(--font-number);
 }
 
 .t-text--dark {
   fill: var(--color-panel-sunken);
+}
+
+.t-text--big {
+  font: var(--font-number);
 }

@@ -60,11 +60,11 @@ class DeckEditorTest < ApplicationSystemTestCase
     assert_selector "#{LIST} .deck-entry__toggle[data-ref='#{ref_of(@cards.last)}'][aria-pressed=false]"
 
     find(".deck-slots__slot:first-child button.deck-slot").click
-    assert_selector ".deck-slot__remove", count: 1
+    assert_selector ".deck-slot__remove button", count: 1
     find("#deck-search").click
-    assert_no_selector ".deck-slot__remove"
+    assert_no_selector ".deck-slot__remove button"
     find(".deck-slots__slot:first-child button.deck-slot").click
-    find("button.deck-slot__remove[aria-label='Remove Game 01 from the deck']").click
+    find(".deck-slot__remove button[aria-label='Remove Game 01 from the deck']").click
     assert_selector ".deck-slots__slot:first-child .deck-slot--empty"
     assert_selector ".deck-editor__count", text: "11 / 12"
     eventually("the next filled slot should take the focus") { page.evaluate_script("document.activeElement.closest('li')?.dataset.ref") == ref_of(@cards.second) }

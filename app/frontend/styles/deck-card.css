@@ -40,7 +40,7 @@
   grid-template-columns: 64px minmax(0, 1fr) 30px;
   gap: var(--space-3);
   color: var(--color-text);
-  font-size: 0.8125rem;
+  font: var(--font-body-small);
 }
 
 .deck-card .stat-bars__name {
@@ -54,7 +54,7 @@
 }
 
 .deck-card .stat-bars__value {
-  font-size: 0.9375rem;
+  font: var(--font-number);
 }
 
 .deck-card__detail {
@@ -76,7 +76,7 @@
   .deck-card .stat-bars__row {
     grid-template-columns: 48px minmax(0, 1fr) 24px;
     gap: var(--space-2);
-    font-size: 0.6875rem;
+    font: var(--font-card-meta-xl);
   }
 
   .deck-card .stat-bars__bar {
@@ -84,7 +84,7 @@
   }
 
   .deck-card .stat-bars__value {
-    font-size: 0.8125rem;
+    font: var(--font-body-small);
   }
 }
 

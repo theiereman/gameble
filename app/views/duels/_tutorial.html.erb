@@ -1,21 +1,20 @@
 <%# locals: (open:) %>
-<%= render PanelComponent.new(tag: :section, class: "duel-tutorial", aria: { labelledby: "duel-tutorial-heading" }) do %>
-  <details class="duel-tutorial__details"<%= " open" if open %>>
-    <summary class="duel-tutorial__summary">
-      <h2 id="duel-tutorial-heading" class="duel-tutorial__heading"><%= t("duels.tutorial.heading") %></h2>
-    </summary>
-    <ol class="duel-tutorial__steps">
-      <% %w[deck challenge call win].each_with_index do |step, index| %>
-        <li class="duel-tutorial__step">
-          <div class="duel-tutorial__art">
-            <%= render "duels/tutorial/#{step}" %>
-            <span class="duel-tutorial__number" aria-hidden="true"><%= index + 1 %></span>
-          </div>
-          <h3 class="duel-tutorial__title"><%= t("duels.tutorial.steps.#{step}.title") %></h3>
-          <p class="duel-tutorial__text"><%= t("duels.tutorial.steps.#{step}.text") %></p>
-        </li>
-      <% end %>
-    </ol>
-  </details>
+<%= render PanelComponent.new(tag: :section, brackets: true, class: "duel-tutorial", aria: { labelledby: "duel-tutorial-heading" }) do %>
+  <button type="button" class="hub-fold" aria-expanded="<%= open %>" data-controller="hub-fold" data-action="hub-fold#toggle">
+    <span class="visually-hidden"><%= t("pages.home.fold", title: t("duels.tutorial.heading")) %></span><%= pixel_icon("arrow-small-right", class: "hub-fold__chevron") %>
+  </button>
+  <h2 id="duel-tutorial-heading" class="duel-tutorial__heading"><%= t("duels.tutorial.heading") %></h2>
+  <ol class="duel-tutorial__steps">
+    <% %w[deck challenge call win].each_with_index do |step, index| %>
+      <li class="duel-tutorial__step">
+        <div class="duel-tutorial__art">
+          <%= render "duels/tutorial/#{step}" %>
+          <span class="duel-tutorial__number" aria-hidden="true"><%= index + 1 %></span>
+        </div>
+        <h3 class="duel-tutorial__title"><%= t("duels.tutorial.steps.#{step}.title") %></h3>
+        <p class="duel-tutorial__text"><%= t("duels.tutorial.steps.#{step}.text") %></p>
+      </li>
+    <% end %>
+  </ol>
   <%= render ButtonComponent.new(variant: :link, size: :small, href: how_it_works_path(anchor: "how-it-works-duels")) do %><%= t("duels.record.rules") %><% end %>
 <% end %>
