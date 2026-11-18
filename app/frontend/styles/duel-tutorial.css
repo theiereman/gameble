@@ -79,7 +79,8 @@
   height: var(--space-6);
   background: var(--color-accent);
   color: var(--color-panel-sunken);
-  font: var(--font-number);
+  font: var(--font-body-small);
+  line-height: 1;
 }
 
 .duel-tutorial__title {
