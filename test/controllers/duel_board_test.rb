@@ -62,7 +62,7 @@ class DuelBoardTest < ActionDispatch::IntegrationTest
     spent = rows.select { it["class"].include?("duel-call__row--called") }
     assert_equal [ called ], spent.map { it["data-duel-stat"] }
     assert_equal 0, spent.sole.css("button").size
-    assert_equal 8, (rows - spent).sum { it.css("button").size }
+    assert_equal 8, (rows.to_a - spent).sum { it.css("button").size }
   end
 
   test "the answerer sees the caller's card face up with its five values and a hidden call, and no stat or direction" do
@@ -89,6 +89,7 @@ class DuelBoardTest < ActionDispatch::IntegrationTest
   end
 
   test "a round answered a moment ago is shown face up with its outcome on the table, and not any more after five seconds" do
+    Game::Duel.where(id: @duel.id).update_all(first_caller: "opponent")
     play_round(@duel)
 
     visit_as(@lea)
