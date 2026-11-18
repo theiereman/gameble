@@ -1,0 +1,24 @@
+<%# locals: (screen:, card:) %>
+<div class="duel-call__card" data-duel-card="<%= screen.position(card) %>" hidden>
+  <% Game::DuelStat::STATS.each do |stat| %>
+    <% open = screen.stat_open?(stat) %>
+    <% level = (duel_card_profile(card, stat).percentile || 0).round %>
+    <div class="<%= class_names("duel-call__row", "duel-call__row--called": !open) %>" data-duel-stat="<%= stat %>">
+      <% if open %>
+        <% Game::DuelStat::DIRECTIONS.reverse_each do |direction| %>
+          <%= tag.button type: :button, class: "duel-call__side duel-call__side--#{direction}",
+                data: { duel_pick: "#{stat}:#{direction}", action: "click->duel#pick" },
+                title: duel_direction(stat, direction), aria: { pressed: false, label: duel_direction(stat, direction) } do %>
+            <span aria-hidden="true"><%= direction == :high ? "▲" : "▼" %></span>
+          <% end %>
+        <% end %>
+      <% end %>
+      <div class="duel-call__stat" data-tier="<%= deck_stat_tier(level) %>">
+        <span class="duel-call__name"><%= t("duel_stats.names.#{stat}") %></span>
+        <%= tag.progress class: "stat-bars__bar", max: 100, value: level %>
+        <span class="duel-call__value"><%= duel_card_value(card, stat) %></span>
+        <span class="visually-hidden"><%= duel_stat_label(card, stat, open:) %></span>
+      </div>
+    </div>
+  <% end %>
+</div>

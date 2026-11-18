@@ -1,5 +1,5 @@
 export const GUARD_MS = 400
-export const REVEAL_MS = 3000
+export const REVEAL_MS = 5000
 export const RETRY_MS = 2000
 
 export type Field = "card" | "stat" | "direction"
@@ -73,6 +73,11 @@ export function choose(state: DuelState, field: Field, value: string, blocked = 
   if (blocked || state.sending || state[field] === value) return state
   const chosen = { ...state, [field]: value }
   return field === "stat" ? { ...chosen, direction: null } : chosen
+}
+
+export function picked(state: DuelState, stat: string, direction: string, blocked = false): DuelState {
+  if (blocked || state.sending) return state
+  return choose(choose(state, "stat", stat), "direction", direction)
 }
 
 export function cleared(state: DuelState): DuelState {

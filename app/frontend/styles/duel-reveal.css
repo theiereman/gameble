@@ -203,14 +203,14 @@
   animation: duel-fade 200ms ease-out 400ms backwards;
 }
 
-.duel-hand__card[data-drawn] {
+.duel-deck__card[data-drawn] {
   animation: duel-draw 200ms ease-out;
 }
 
 html[data-motion="reduced"] .duel-table__slot .duel-face,
 html[data-motion="reduced"] .duel-reveal__card .duel-face,
 html[data-motion="reduced"] .duel-reveal__outcome,
-html[data-motion="reduced"] .duel-hand__card[data-drawn] {
+html[data-motion="reduced"] .duel-deck__card[data-drawn] {
   animation: none;
 }
 
@@ -218,7 +218,7 @@ html[data-motion="reduced"] .duel-hand__card[data-drawn] {
   html:not([data-motion="full"]) .duel-table__slot .duel-face,
   html:not([data-motion="full"]) .duel-reveal__card .duel-face,
   html:not([data-motion="full"]) .duel-reveal__outcome,
-  html:not([data-motion="full"]) .duel-hand__card[data-drawn] {
+  html:not([data-motion="full"]) .duel-deck__card[data-drawn] {
     animation: none;
   }
 }

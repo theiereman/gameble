@@ -32,34 +32,37 @@ class DuelBoardTest < ActionDispatch::IntegrationTest
     Game::Duel.find(@duel.id)
   end
 
-  test "the caller's hand, stat and direction are three radio groups, the stat sets and the direction sets hidden until chosen" do
+  test "the caller picks a card of the hand in the deck list, and the call is five always-open stat rows of a lowest and a highest side" do
     visit_as(@lea)
 
     form = css_select("form#duel-call").first
-    assert_equal [ "Your hand", "Stat", "Direction" ], form.css("fieldset > legend").map { it.text.strip }
-    assert_equal 3, form.css("input[name=card]").size
-    assert_equal 15, form.css("input[name=stat]").size
-    assert_equal 10, form.css("input[name=direction]").size
-    assert form.css("input[name=stat], input[name=direction]").all? { it["disabled"] }
-    assert form.css("[data-duel-card], [data-duel-stat], [data-duel-group]").all? { it["hidden"] }
+    assert_equal 0, form.css("fieldset").size
+    assert_equal 3, css_select("#duel-my-deck input[name=card][form=duel-call]").size
+    sets = css_select("#duel-my-deck [data-duel-card]")
+    buttons = css_select("#duel-my-deck button[data-duel-pick]")
+    assert_equal 30, buttons.size
+    assert_equal Game::DuelStat::STATS.flat_map { [ "#{it}:low", "#{it}:high" ] }, sets.first.css("button[data-duel-pick]").map { it["data-duel-pick"] }
+    assert buttons.all? { it["aria-pressed"] == "false" && it["type"] == "button" }
+    assert_equal [ nil, nil ], form.css("input[type=hidden][name=stat], input[type=hidden][name=direction]").map { it["value"] }
+    assert sets.all? { it["hidden"] }
     assert_select "form#duel-call button[type=submit][aria-disabled=true]", "Call"
-    assert_select "form#duel-call input[name=stat] + .visually-hidden", text: /Release, Newer than 97% of cards, /
-    assert_select "form#duel-call input[name=stat] + .visually-hidden", text: /Popularity, More obscure than 80% of cards, /
+    assert_select "#duel-my-deck [data-duel-card] .visually-hidden", text: /Release, Newer than 97% of cards, /
+    assert_select "#duel-my-deck [data-duel-card] .visually-hidden", text: /Popularity, More obscure than 80% of cards, /
   end
 
-  test "a stat already called stays in its group, aria-disabled, its name ending already called" do
+  test "a stat already called keeps its row in the call, with no side to press" do
     play_round(@duel)
     play_round(@duel)
     called = Game::DuelRound.find_by!(duel_id: @duel.id, number: 1).stat
 
     visit_as(@lea)
 
-    stats = css_select("form#duel-call [data-duel-card]").first.css("label")
-    assert_equal 5, stats.size
-    blocked = stats.select { it.at_css("input")["aria-disabled"] == "true" }
-    assert_equal [ called ], blocked.map { it.at_css("input")["value"] }
-    assert_match(/, already called\z/, blocked.sole.at_css(".visually-hidden").text)
-    assert_equal "Already called", blocked.sole.at_css(".duel-option__note").text
+    rows = css_select("#duel-my-deck [data-duel-card]").first.css(".duel-call__row")
+    assert_equal Game::DuelStat::STATS.map(&:to_s), rows.map { it["data-duel-stat"] }
+    spent = rows.select { it["class"].include?("duel-call__row--called") }
+    assert_equal [ called ], spent.map { it["data-duel-stat"] }
+    assert_equal 0, spent.sole.css("button").size
+    assert_equal 8, (rows - spent).sum { it.css("button").size }
   end
 
   test "the answerer sees the caller's card face up with its five values and a hidden call, and no stat or direction" do
@@ -70,20 +73,22 @@ class DuelBoardTest < ActionDispatch::IntegrationTest
     visit_as(@hugo)
 
     assert_select "#duel-current-call h2.duel-table__call", "Hidden call"
-    assert_select "#duel-current-call .duel-table__value", 5
+    assert_select ".duel-table__slots[data-mirrored]"
+    assert_select "#duel-current-call .duel-table__value", 0
     assert_select "#duel-current-call .card__title", card_title(locked.caller_card_season_id)
-    assert_select "form#duel-answer input[name=card]", 3
+    assert_select "#duel-my-deck input[name=card][form=duel-answer]", 3
     assert_select "form#duel-answer input[name=stat], form#duel-answer input[name=direction]", 0
     assert_select "form#duel-answer button[type=submit][aria-disabled=true]", "Answer with this card"
     assert_not_includes response.body, words
     assert_select "#duel-board[data-announce='Léa has called. Their card: #{card_title(locked.caller_card_season_id)}.']"
 
     visit_as(@lea)
-    assert_select "#duel-current-call h2.duel-table__call", words
+    assert_select "#duel-current-call h2", 0
+    assert_select "#duel-current-call .stat-bars__row[data-called][data-stat=?]", locked.stat
     assert_select "#duel-board[data-announce]", 0
   end
 
-  test "a round answered a moment ago is shown face up with its outcome, the live board hidden, and not any more after ten seconds" do
+  test "a round answered a moment ago is shown face up with its outcome on the table, and not any more after five seconds" do
     play_round(@duel)
 
     visit_as(@lea)
@@ -93,13 +98,16 @@ class DuelBoardTest < ActionDispatch::IntegrationTest
       assert_select ".duel-reveal__outcome", text: /Won|Lost|Draw/
       assert_select "button[type=button]", "Next"
     end
-    assert_select "#duel-live[hidden]"
+    assert_select "#duel-live[data-revealing] #duel-table #duel-reveal"
 
-    travel 11.seconds do
+    travel 6.seconds do
       get duel_path(locale: :en, token: @duel.token)
       assert_select "#duel-reveal", 0
-      assert_select "#duel-live[hidden]", 0
-      assert_select "#duel-live #duel-hand"
+      assert_select "#duel-live[data-revealing]", 0
+      assert_select "#duel-live #duel-table form.duel-form"
+      assert_select "#duel-table .duel-past__round:not([hidden]) .duel-past__title", text: /Round 1 \/ 10/
+      assert_select "#duel-table .duel-past__round:not([hidden]) .stat-bars__row[data-called]", 2
+      assert_select "#duel-table .duel-past__round:not([hidden]) button[data-history-go][disabled]", 2
     end
   end
 

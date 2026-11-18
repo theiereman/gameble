@@ -45,7 +45,7 @@ class DuelsTest < ApplicationSystemTestCase
 
     click_button "Train against the bot"
 
-    assert_selector ".duel-board__opponent", text: "Bot"
+    assert_selector ".duel-board__opponent", text: /bot/i
     duel = Game::Duel.sole
     assert duel.practice
     assert_current_path duel_path(locale: :en, token: duel.token)

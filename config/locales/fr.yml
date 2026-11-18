@@ -4134,7 +4134,7 @@ fr:
           text: "Choisissez un deck et un ami en ligne. Les decks sont visibles des deux côtés ; seules les 3 cartes de la main restent cachées."
         call:
           title: "Une carte visible, une stat cachée"
-          text: "Jouez une carte de votre main, face visible. En secret, choisissez une de ses stats et Haut ou Bas : c'est votre annonce."
+          text: "Jouez une carte de votre main, face visible. En secret, choisissez une de ses stats et Haut ou Bas : c'est votre annonce. Chaque stat ne peut être annoncée qu'une seule fois par duel : choisir quand la dépenser fait partie de la stratégie."
         win:
           title: "Répondez à l'aveugle"
           text: "Votre ami joue une carte sans connaître votre annonce. Elle est ensuite révélée : en Haut, la plus haute valeur marque le point ; en Bas, la plus basse. Après 10 manches, le plus de points l'emporte."
@@ -4226,6 +4226,7 @@ fr:
       title: "Défier un ami"
     board:
       round: "Manche %{number} / 10"
+      select: "Sélectionner"
       round_spoken: "Manche %{number} sur 10"
       score_spoken: "%{score} à %{other_score}"
       margin: "écart"
@@ -4248,17 +4249,25 @@ fr:
         automatic_move: "Pas de capsule : un de vos coups a été joué automatiquement."
         already_won_today: "Capsule de duel déjà gagnée aujourd'hui."
       card_name: "%{title}, %{year}"
+      table: "Table"
+      previous: "Manche précédente"
+      next_round: "Manche suivante"
       their_deck: "Son deck"
+      slot:
+        call: "Annonce"
+        answer: "Réponse"
+      stage:
+        in_hand: "En main"
+        played: "Jouée"
+        to_play: "À jouer"
+      hint:
+        call: "Choisissez une carte, puis appuyez sur le côté de la stat que vous annoncez. Votre adversaire ne verra pas la stat."
+        answer: "Jouez une carte de votre main. Vous ne savez pas sur quelle stat elle sera jugée."
       my_deck: "Votre deck"
       played: "Joué"
-      hand: "Votre main"
-      stat: "Caractéristique"
-      direction: "Sens"
       next: "Suivante"
-      already_called: "Déjà annoncée"
       stat_called: "%{label}, déjà annoncée"
       stat_label: "%{name}, %{words}, %{value}"
-      calls_left: "Annonces restantes : %{stats}"
       directions_lowercase: true
       outcome:
         won: "Gagnée"

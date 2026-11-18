@@ -1,0 +1,30 @@
+<%# locals: (screen:) %>
+<% reveals = screen.reveals %>
+<% shown = screen.reveal ? reveals.size - 2 : reveals.size - 1 %>
+<section class="duel-past" aria-label="<%= t("duels.board.previous") %>">
+  <% reveals.each_with_index do |reveal, index| %>
+    <%= tag.div class: "duel-past__round", hidden: index != shown, data: { history_round: reveal.number } do %>
+      <div class="duel-past__nav">
+        <%= tag.button type: :button, class: "duel-past__step", disabled: index.zero?, aria: { label: t("duels.board.previous") },
+              data: { history_go: reveal.number - 1, action: "click->duel#history" } do %>‹<% end %>
+        <p class="duel-past__title">
+          <span class="duel-past__number"><%= t("duels.board.round", number: reveal.number) %></span>
+          <span><%= duel_direction(reveal.stat, reveal.direction) %> · <%= t("duels.board.outcome.#{reveal.outcome}") %></span>
+        </p>
+        <%= tag.button type: :button, class: "duel-past__step", disabled: index == reveals.size - 1, aria: { label: t("duels.board.next_round") },
+              data: { history_go: reveal.number + 1, action: "click->duel#history" } do %>›<% end %>
+      </div>
+      <p class="visually-hidden"><%= duel_round_line(screen, reveal) %></p>
+      <div class="duel-past__cards">
+        <% sides = [ [ t("duels.board.slot.call"), reveal.caller_card ], [ t("duels.board.slot.answer"), reveal.answer_card ] ] %>
+        <% (reveal.called ? sides : sides.reverse).each do |caption, card| %>
+          <div class="duel-past__card">
+            <p class="duel-table__caption" aria-hidden="true"><%= caption %></p>
+            <%= render "duels/face", screen: screen, card: card, called: [ reveal.stat ], direction: reveal.direction, spent: screen.spent_before(reveal) %>
+            <p class="duel-past__value" aria-hidden="true"><%= duel_card_value(card, reveal.stat) %></p>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</section>

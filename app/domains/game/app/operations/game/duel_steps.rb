@@ -114,7 +114,7 @@ module Game
     def invited_friend(seats, player) = seats[:opponent].player_id == player.id ? Success() : Failure(:not_your_move)
 
     def schedule(duel, move_number, seconds)
-      at = seconds.from_now
+      at = (duel.practice ? DuelClock::PRACTICE : seconds).from_now
       DuelDeadlineJob.set(wait_until: at + DuelClock::JOB_DELAY).perform_later(duel.token, move_number)
       PracticeBotJob.set(wait: PracticeBot.thinking_time).perform_later(duel.token, move_number) if duel.practice
       at

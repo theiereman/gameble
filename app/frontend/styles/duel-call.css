@@ -1,0 +1,299 @@
+/* ---- The call: the hand as three pictures to choose a card, then the chosen card's five stats, each between
+   a lowest and a highest side showing how strong the card is that way. One click on a side is the whole call. ---- */
+
+/* A card of the hand is chosen from the player's own deck list, whose other rows are greyed while it is the
+   player's turn. */
+.duel-deck--picking .duel-deck__card:not(.duel-deck__card--in-hand) {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.duel-deck--picking .duel-deck__card--in-hand {
+  cursor: pointer;
+}
+
+.duel-deck--picking .duel-deck__card--in-hand:hover {
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-accent) 60%, transparent);
+}
+
+.duel-deck--picking .duel-deck__card--in-hand:has(.duel-radio:checked) {
+  box-shadow: inset 0 0 0 3px var(--color-accent);
+}
+
+.duel-deck--picking .duel-deck__card--in-hand:has(.duel-radio:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.duel-deck__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.duel-call__card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: color-mix(in srgb, var(--color-panel-sunken) 88%, transparent);
+}
+
+@media (min-width: 720px) {
+  .duel-table__slot .duel-face,
+  .duel-table__slot .duel-table__place {
+    max-width: 220px;
+  }
+}
+
+.duel-call__row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  grid-template-areas: "low stat high";
+  gap: var(--space-3);
+}
+
+.duel-call__row--called {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "stat";
+  opacity: 0.35;
+}
+
+.duel-call__side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: var(--space-2);
+  font: var(--font-label);
+  border: 0;
+  background: var(--color-panel-raised);
+  box-shadow: var(--panel-soft-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.duel-call__side--low {
+  grid-area: low;
+}
+
+.duel-call__side--high {
+  grid-area: high;
+}
+
+.duel-call__side:hover:not([aria-disabled="true"]) {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.duel-call__side[aria-pressed="true"] {
+  background: var(--color-accent);
+  box-shadow: none;
+  color: var(--color-panel-sunken);
+}
+
+.duel-call__side:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.duel-call__stat {
+  --tier-colour: var(--color-dim);
+
+  grid-area: stat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 0;
+  text-align: center;
+}
+
+.duel-call__stat[data-tier="0"],
+.duel-call__stat[data-tier="1"],
+.duel-call__stat[data-tier="2"] {
+  --tier-colour: var(--color-alert);
+}
+
+.duel-call__stat[data-tier="3"],
+.duel-call__stat[data-tier="4"],
+.duel-call__stat[data-tier="5"],
+.duel-call__stat[data-tier="6"] {
+  --tier-colour: var(--color-accent);
+}
+
+.duel-call__stat[data-tier="7"],
+.duel-call__stat[data-tier="8"],
+.duel-call__stat[data-tier="9"] {
+  --tier-colour: var(--color-lime);
+}
+
+.duel-call__name {
+  color: var(--color-text-bright);
+  font: var(--font-body-small);
+}
+
+.duel-call__row[data-chosen] .duel-call__name {
+  color: var(--color-accent);
+}
+
+.duel-call__value {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+/* On a narrower screen the player's own list opens on the hand and leaves the cards already played out. */
+@media (max-width: 1179px) {
+  #duel-my-deck .duel-deck__card--in-hand {
+    order: -1;
+  }
+
+  #duel-my-deck .duel-deck__card--played {
+    display: none;
+  }
+}
+
+.duel-table__chosen {
+  display: flex;
+  justify-content: center;
+}
+
+.duel-table__place:has(.duel-table__chosen:not([hidden])) {
+  outline: none;
+}
+
+.duel-live > .duel-table {
+  order: 0;
+}
+
+.duel-live > #duel-my-deck {
+  order: 2;
+}
+
+.duel-live > #duel-their-deck {
+  order: 3;
+}
+
+/* The button that sends the move is the last row of the table's grid, under both slots. */
+.duel-table__slots > .button {
+  grid-column: 1 / -1;
+  grid-row: 5;
+}
+
+/* The reveal plays on the table: it takes the place of the two slots while it shows. */
+.duel-live[data-revealing] .duel-table__slots {
+  display: none;
+}
+
+.duel-past__round {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.duel-past__nav {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.duel-past__step {
+  min-height: 40px;
+  border: 0;
+  background: var(--color-panel-raised);
+  box-shadow: var(--panel-soft-border);
+  color: var(--color-text-bright);
+  font: var(--font-body-large-phone);
+  cursor: pointer;
+}
+
+.duel-past__step:disabled {
+  color: var(--color-dim);
+  cursor: default;
+}
+
+.duel-past__step:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.duel-past__title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.duel-past__number {
+  color: var(--color-accent);
+}
+
+.duel-past__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.duel-past__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.duel-past__value {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-body-small);
+}
+
+.duel-past .stat-bars__row[data-called],
+.duel-reveal .stat-bars__row[data-called],
+.duel-table__slot .stat-bars__row[data-called],
+.duel-table__chosen .stat-bars__row[data-picked] {
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  color: var(--color-text-max);
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+/* A stat the caller can no longer use this round fades on the cards of the table too. */
+.duel-face .stat-bars__row[data-spent] {
+  --tier-colour: var(--color-dim);
+
+  opacity: 0.35;
+}
+
+/* The side of the called stat, before its name: the highest or the lowest. */
+.stat-bars__row[data-direction="high"] .stat-bars__name::before {
+  content: "▲ ";
+}
+
+.stat-bars__row[data-direction="low"] .stat-bars__name::before {
+  content: "▼ ";
+}
+
+/* Whoever the caller is, the player's own card stands on the left, as the player's deck does. */
+.duel-table__slots[data-mirrored] .duel-table__slot--call {
+  order: 2;
+}
+
+/* The table is the booster's stage: the same lined floor and vignette, the cards dealt on it. */
+.duel-table {
+  position: relative;
+  isolation: isolate;
+  background: var(--stage-floor);
+  box-shadow:
+    var(--panel-border),
+    inset 0 0 80px var(--color-backdrop);
+}

@@ -1,9 +1,12 @@
+import { showLatestRound, showRound } from "../lib/duel_history"
+import { motionReduced } from "../lib/motion"
 import { Controller } from "@hotwired/stimulus"
 import {
   acceptsView,
   boardShown,
   choose,
   cleared,
+  picked,
   drawnCards,
   GUARD_MS,
   handShown,
@@ -27,6 +30,8 @@ import { focusTarget, handCards, renderChoices, submitButton } from "../lib/duel
 type StreamElement = Element & { templateContent?: DocumentFragment }
 
 const FIELDS: readonly string[] = ["card", "stat", "direction"]
+
+const LEAVE_MS = 280
 
 export default class extends Controller<HTMLElement> {
   static targets = ["board", "live", "reveal", "form", "status"]
@@ -74,6 +79,8 @@ export default class extends Controller<HTMLElement> {
     drawnCards(state, cards).forEach((token) =>
       hand.find((card) => card.dataset.card === token)?.setAttribute("data-drawn", ""),
     )
+    if (state.card === null && cards.length > 0 && this.hasFormTarget && this.formTarget.dataset.duelKind === "call")
+      state = choose(state, "card", cards[0] ?? "")
     this.state = handShown(state, cards)
 
     if (!first && board.dataset.announce && this.hasStatusTarget) this.statusTarget.textContent = board.dataset.announce
@@ -86,6 +93,20 @@ export default class extends Controller<HTMLElement> {
 
     const blocked = radio.getAttribute("aria-disabled") === "true"
     this.state = choose(this.state, radio.name as Field, radio.value, blocked)
+    this.refresh()
+  }
+
+  history(event: Event): void {
+    const go = (event.target as Element).closest<HTMLElement>("[data-history-go]")?.dataset.historyGo
+    if (go && this.hasBoardTarget) showRound(this.boardTarget, go)
+  }
+
+  pick(event: Event): void {
+    const button = (event.target as Element).closest<HTMLElement>("[data-duel-pick]")
+    const [stat, direction] = (button?.dataset.duelPick ?? "").split(":")
+    if (!this.state || !stat || !direction) return
+
+    this.state = picked(this.state, stat, direction, button?.getAttribute("aria-disabled") === "true")
     this.refresh()
   }
 
@@ -197,7 +218,7 @@ export default class extends Controller<HTMLElement> {
 
     const reveal = state.reveal
     if (this.hasRevealTarget) this.revealTarget.hidden = reveal === null
-    this.liveTarget.hidden = reveal !== null
+    this.liveTarget.toggleAttribute("data-revealing", reveal !== null)
     window.clearTimeout(this.revealTimer)
     if (reveal)
       this.revealTimer = window.setTimeout(() => this.dismissReveal(), Math.max(0, reveal.endsAt - performance.now()))
@@ -210,7 +231,22 @@ export default class extends Controller<HTMLElement> {
   private dismissReveal(): void {
     if (!this.state) return
 
+    const reveal = this.hasRevealTarget ? this.revealTarget : null
+    if (reveal && !reveal.hidden && !reveal.hasAttribute("data-leaving") && !motionReduced()) {
+      reveal.setAttribute("data-leaving", "")
+      window.clearTimeout(this.revealTimer)
+      this.revealTimer = window.setTimeout(() => this.settleReveal(), LEAVE_MS)
+      return
+    }
+
+    this.settleReveal()
+  }
+
+  private settleReveal(): void {
+    if (!this.state) return
+
     this.state = revealDismissed(this.state)
+    if (this.hasBoardTarget) showLatestRound(this.boardTarget)
     this.showBoard()
   }
 
@@ -224,7 +260,8 @@ export default class extends Controller<HTMLElement> {
     const before = this.state.activeSince
     this.state = withReadiness(
       this.state,
-      !this.liveTarget.hidden && ready(this.state, form.dataset.duelKind === "call" ? "call" : "answer"),
+      !this.liveTarget.hasAttribute("data-revealing") &&
+        ready(this.state, form.dataset.duelKind === "call" ? "call" : "answer"),
       performance.now(),
     )
 

@@ -19,6 +19,12 @@ module DuelsHelper
     Accounts::PersonaName.clean(player.persona_name) || t("shell.player.fallback_name")
   end
 
+  def duel_card_bars(card)
+    levels = Game::DuelStat::STATS.filter_map { |stat| (percentile = card.stat(stat).percentile) && [ stat, percentile.round.clamp(0, 99) ] }
+    trump = levels.max_by { |_, level| (level - 50).abs }&.first
+    levels.map { |stat, level| DeckEditorHelper::StatBar.new(stat:, value: level, tier: deck_stat_tier(level), trump: stat == trump) }
+  end
+
   def duel_card_profile(card, stat)
     held = card.stat(stat)
     Game::DuelProfiles::Stat.new(name: stat, value: held.value, percentile: held.percentile, median_distance: held.median_distance,

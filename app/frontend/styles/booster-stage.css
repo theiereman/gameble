@@ -4,12 +4,8 @@
  * first frame.
  */
 
-.booster__stage {
-  container-type: inline-size;
-  isolation: isolate;
-  overflow: hidden;
-  min-height: 480px;
-  background:
+:root {
+  --stage-floor:
     radial-gradient(
       ellipse 55% 45% at 50% 38%,
       color-mix(in srgb, var(--color-accent) 20%, transparent),
@@ -23,6 +19,14 @@
     linear-gradient(color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
     linear-gradient(90deg, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
     linear-gradient(180deg, var(--color-panel-raised), var(--color-backdrop));
+}
+
+.booster__stage {
+  container-type: inline-size;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 480px;
+  background: var(--stage-floor);
   box-shadow: var(--panel-soft-border);
 }
 

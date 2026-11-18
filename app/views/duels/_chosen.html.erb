@@ -1,0 +1,6 @@
+<%# locals: (screen:) %>
+<% screen.hand.each do |card| %>
+  <div class="duel-table__chosen" data-duel-card="<%= screen.position(card) %>" hidden>
+    <%= render "duels/face", screen: screen, card: card, spent: screen.spent_stats %>
+  </div>
+<% end %>

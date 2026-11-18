@@ -8,6 +8,7 @@ import {
   GUARD_MS,
   handShown,
   moveNumberFrom,
+  picked,
   ready,
   released,
   retryOpen,
@@ -61,6 +62,15 @@ describe("choices", () => {
     expect(complete).toMatchObject({ card: "2", stat: "release", direction: "low" })
     expect(choose(complete, "card", "3")).toMatchObject({ card: "3", stat: "release", direction: "low" })
     expect(choose(complete, "stat", "rating")).toMatchObject({ stat: "rating", direction: null })
+  })
+
+  it("picks a stat and its side at once, and refuses a blocked or a sending pick", () => {
+    const state = choose(startDuel(1), "card", "2")
+
+    expect(picked(state, "release", "low")).toMatchObject({ stat: "release", direction: "low" })
+    expect(picked(complete, "rating", "high")).toMatchObject({ stat: "rating", direction: "high" })
+    expect(picked(complete, "release", "high")).toMatchObject({ stat: "release", direction: "high" })
+    expect(picked(state, "release", "low", true)).toBe(state)
   })
 
   it("refuses a blocked choice", () => {

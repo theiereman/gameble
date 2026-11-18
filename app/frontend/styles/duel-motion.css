@@ -1,0 +1,210 @@
+/* ---- What moves on the duel screen. Every duration is scaled by --motion, which is 0 when the player asks for
+   reduced motion: the animations then end at once and the screen only shows its final state. ---- */
+
+.duel {
+  --motion: 1;
+}
+
+html[data-motion="reduced"] .duel {
+  --motion: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .duel {
+    --motion: 0;
+  }
+}
+
+@keyframes duel-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes duel-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-7));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes duel-unfold {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--space-4)));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes duel-strike {
+  from {
+    background-size: 0 2px;
+    color: var(--color-accent);
+  }
+
+  to {
+    background-size: 100% 2px;
+  }
+}
+
+@keyframes duel-burn {
+  from {
+    opacity: 1;
+    filter: grayscale(0);
+  }
+
+  to {
+    opacity: 0.5;
+    filter: grayscale(1);
+  }
+}
+
+@keyframes duel-win {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 var(--space-5) var(--color-lime));
+  }
+}
+
+@keyframes duel-lose {
+  to {
+    opacity: 0.55;
+    transform: scale(0.92);
+    filter: grayscale(0.7);
+  }
+}
+
+@keyframes duel-pulse {
+  50% {
+    box-shadow: 0 0 var(--space-5) var(--color-accent);
+  }
+}
+
+@keyframes duel-bump {
+  50% {
+    transform: scale(1.35);
+  }
+}
+
+@keyframes duel-leave {
+  to {
+    opacity: 0;
+    transform: translateY(calc(2 * var(--space-8))) scale(0.8);
+  }
+}
+
+/* The banner of whose turn it is lands on every move. */
+.duel-header__turn {
+  animation: duel-pop calc(320ms * var(--motion)) ease-out both;
+}
+
+/* A stat called in the round just played is struck out, and the card that carried it fades to grey once the
+   reveal has shown it. */
+.duel-deck__head-stat[data-fresh] {
+  background: linear-gradient(currentColor, currentColor) 0 50% / 100% 2px no-repeat;
+  text-decoration: none;
+  animation: duel-strike calc(450ms * var(--motion)) calc(900ms * var(--motion)) ease-out both;
+}
+
+.duel-deck__card--played[data-fresh] {
+  animation: duel-burn calc(600ms * var(--motion)) calc(1000ms * var(--motion)) ease-out both;
+}
+
+.duel-board__figure[data-fresh="won"],
+.duel-board__figure[data-fresh="lost"] {
+  display: inline-block;
+  animation: duel-bump calc(500ms * var(--motion)) calc(1100ms * var(--motion)) ease-out both;
+}
+
+.duel-board__figure[data-fresh="won"] {
+  color: var(--color-lime);
+}
+
+.duel-board__figure[data-fresh="lost"] {
+  color: var(--color-alert);
+}
+
+/* Choosing a card: its stats unfold and the called side pops; its face turns over in the slot
+   (duel-reveal.css). */
+.duel-deck--picking .duel-deck__card--in-hand {
+  transition: box-shadow calc(140ms * var(--motion));
+}
+
+.duel-call__card:not([hidden]) {
+  animation: duel-unfold calc(220ms * var(--motion)) ease-out both;
+}
+
+.duel-call__side {
+  transition:
+    background-color calc(140ms * var(--motion)),
+    transform calc(140ms * var(--motion));
+}
+
+.duel-call__side:active:not([aria-disabled="true"]) {
+  transform: scale(0.9);
+}
+
+.duel-call__side[aria-pressed="true"] {
+  animation: duel-pop calc(220ms * var(--motion)) ease-out both;
+}
+
+/* The round resolves on the table: the faces turn, the called stat pulses, the winner rises, the loser dims. */
+.duel-reveal__heading {
+  animation: duel-fade calc(300ms * var(--motion)) ease-out both;
+}
+
+.duel-reveal .stat-bars__row[data-called] {
+  animation: duel-pulse calc(700ms * var(--motion)) calc(300ms * var(--motion)) 2;
+}
+
+.duel-reveal__card[data-result="won"] {
+  animation: duel-win calc(600ms * var(--motion)) calc(800ms * var(--motion)) ease-out both;
+}
+
+.duel-reveal__card[data-result="lost"] {
+  animation: duel-lose calc(500ms * var(--motion)) calc(800ms * var(--motion)) ease-out both;
+}
+
+.duel-reveal__outcome {
+  animation: duel-pop calc(380ms * var(--motion)) calc(900ms * var(--motion)) ease-out both;
+}
+
+.duel-reveal[data-leaving] {
+  animation: duel-leave calc(280ms * var(--motion)) ease-in both;
+}
+
+/* Once the reveal is gone the round settles into the history, card after card. */
+.duel-past__card {
+  animation: duel-rise calc(320ms * var(--motion)) ease-out both;
+}
+
+.duel-past__card:nth-child(2) {
+  animation-delay: calc(90ms * var(--motion));
+}

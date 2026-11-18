@@ -1,10 +1,5 @@
-/* ---- The duel screen on a desktop window: it fills the window, the opponent's deck on the left and the player's on
-   the right, the table and the choices in the centre, the hand at the foot. The reveal and the result keep the phone
-   column. Four tracks, the middle two side by side for the stat and the direction. ---- */
-
-.duel-deck__name {
-  display: none;
-}
+/* ---- The duel screen on a desktop window: it fills the window, the player's deck on the left and the opponent's on
+   the right, each a list, the table and the call between them. The reveal and the result keep the phone column. ---- */
 
 @media (min-width: 1180px) {
   .duel.page,
@@ -12,7 +7,21 @@
     max-width: none;
   }
 
-  .duel-header,
+  .duel-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .duel-header__hint {
+    grid-column: 1;
+  }
+
+  .duel-board__score {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    min-width: 320px;
+  }
+
   .duel-reveal,
   .duel-result,
   .duel-board__line {
@@ -23,95 +32,46 @@
 
   .duel-live:has(> .duel-deck):not([hidden]) {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 240px)) minmax(0, 1fr);
-    column-gap: var(--space-6);
+    grid-template-columns: minmax(0, 360px) repeat(2, minmax(0, 1fr)) minmax(0, 360px);
+    column-gap: var(--space-7);
     align-items: start;
+    grid-template-rows: auto 1fr;
   }
 
-  .duel-live > .duel-hand,
-  .duel-live > .duel-hand > .duel-form {
-    display: contents;
-  }
-
-  #duel-their-deck,
-  #duel-my-deck {
-    grid-row: 1 / 4;
-  }
-
+  #duel-my-deck,
   #duel-their-deck {
+    grid-row: 1 / -1;
+    align-self: stretch;
+  }
+
+  #duel-my-deck {
     grid-column: 1;
   }
 
-  #duel-my-deck {
+  #duel-their-deck {
     grid-column: 4;
   }
 
   .duel-table {
     grid-column: 2 / 4;
-    grid-row: 1;
-    margin-bottom: var(--space-5);
-  }
-
-  .duel-form > [data-duel-group] {
-    grid-row: 2;
-    margin-bottom: var(--space-5);
-  }
-
-  .duel-form > [data-duel-group="stat"] {
-    grid-column: 2;
-  }
-
-  .duel-form > [data-duel-group="direction"] {
-    grid-column: 3;
-  }
-
-  .duel-form > .button {
-    grid-column: 2 / 4;
-    grid-row: 3;
-    margin-bottom: var(--space-5);
-  }
-
-  .duel-group--hand,
-  .duel-hand > .duel-hand__cards {
-    grid-column: 1 / -1;
-    grid-row: 4;
-    justify-self: center;
-    box-sizing: border-box;
-    width: min(100%, 560px);
-    padding-top: var(--space-4);
-  }
-
-  .duel-deck__cards {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-3);
-  }
-
-  .duel-deck__card {
+    grid-row: 1 / -1;
+    align-self: stretch;
     display: flex;
     flex-direction: column;
-    aspect-ratio: auto;
-    height: 74px;
+    gap: var(--space-6);
   }
 
-  .duel-deck__art {
-    position: static;
-    flex: 1 1 0;
-    min-height: 0;
+  .duel-table .duel-past {
+    margin-top: auto;
   }
 
-  .duel-deck__name {
-    display: block;
-    flex: none;
-    padding: var(--space-1) var(--space-2);
-    overflow: hidden;
-    background: var(--color-panel-sunken);
-    color: var(--color-text);
-    font: var(--font-card-meta);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  /* While a card of the hand unfolds its stats, every card that is not in the hand, played or still to come,
+     shrinks to its name to make room for it; the cards of the hand keep their height and their numbers. */
+  .duel-deck__cards:has(.duel-call__card:not([hidden])) > .duel-deck__card:not(.duel-deck__card--in-hand) {
+    padding-block: var(--space-1);
   }
 
-  .duel-hand__card:has(.duel-radio:checked) .duel-face {
-    transform: translateY(calc(-1 * var(--space-4)));
+  .duel-deck__cards:has(.duel-call__card:not([hidden])) > .duel-deck__card:not(.duel-deck__card--in-hand) .stat-bars {
+    display: none;
   }
 }

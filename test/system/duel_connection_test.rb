@@ -126,7 +126,7 @@ class DuelConnectionTest < ApplicationSystemTestCase
 
     using_session(:hugo) do
       assert_selector "#duel-board[data-move-number='6']"
-      find("#duel-answer label[data-card]", match: :first).click
+      find("#duel-my-deck [data-card] .duel-deck__body", match: :first).click
       refuse_moves(true)
       find("#duel-answer button[data-armed][aria-disabled=false]").click
       assert_selector "#duel-answer button", text: /sending…/i

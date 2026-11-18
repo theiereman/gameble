@@ -31,7 +31,7 @@ class DuelScreenTest < ActiveSupport::TestCase
     assert screen.stat_open?(:release)
   end
 
-  test "the last answered round is revealed for ten seconds, from each seat's side, then no more" do
+  test "the last answered round is revealed for five seconds, from each seat's side, then no more" do
     freeze_time do
       play_round(@duel)
       lea = screen_of(@lea).reveal
@@ -45,7 +45,7 @@ class DuelScreenTest < ActiveSupport::TestCase
       assert_equal lea.answer_card, lea.theirs
       assert_not_nil lea.stat
 
-      travel 9.seconds
+      travel 4.seconds
       assert screen_of(@lea).reveal
       travel 2.seconds
       assert_nil screen_of(@lea).reveal

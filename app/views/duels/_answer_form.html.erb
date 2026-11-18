@@ -1,9 +1,9 @@
 <%# locals: (screen:) %>
-<%= form_with url: duel_answers_path(token: screen.token), method: :post, id: "duel-answer", class: "duel-form", authenticity_token: false,
-      data: { duel_target: "form", duel_kind: "answer", duel_sending: t("duels.board.sending"),
+<%= form_with url: duel_answers_path(token: screen.token), method: :post, id: "duel-answer", class: "duel-form duel-table__slots", authenticity_token: false,
+      data: { mirrored: (true unless screen.caller_side?), duel_target: "form", duel_kind: "answer", duel_sending: t("duels.board.sending"),
         action: "click->duel#press keydown->duel#keydown keyup->duel#keyup turbo:fetch-request-error->duel#failed turbo:submit-end->duel#ended" } do %>
   <%= hidden_field_tag :move_number, screen.move_number, id: nil %>
   <%= hidden_field_tag :resent, 0, id: nil %>
-  <%= render "duels/hand_group", screen: screen %>
+  <%= yield %>
   <%= render ButtonComponent.new(type: :submit, aria_disabled: true) do %><%= t("duels.board.answer") %><% end %>
 <% end %>

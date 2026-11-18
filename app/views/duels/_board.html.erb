@@ -1,16 +1,14 @@
 <%# locals: (screen:) %>
 <%= tag.div id: "duel-board", class: "duel-board", data: { duel_target: "board", move_number: screen.move_number, announce: duel_announcement(screen) } do %>
   <%= render "duels/header", screen: screen %>
-  <% reveal = screen.reveal %>
-  <% if reveal %><%= render "duels/reveal", screen: screen, reveal: reveal %><% end %>
-  <%= tag.div id: "duel-live", class: "duel-live", hidden: reveal.present?, data: { duel_target: "live" } do %>
+  <%= tag.div id: "duel-live", class: "duel-live", data: { duel_target: "live", revealing: (true if screen.reveal) } do %>
     <% if screen.finished? %>
       <%= render "duels/result", screen: screen %>
     <% elsif screen.started? %>
-      <%= render "duels/deck", id: "duel-their-deck", heading: t("duels.board.their_deck"), screen: screen, side: screen.theirs, calls: true %>
       <%= render "duels/table", screen: screen %>
-      <%= render "duels/deck", id: "duel-my-deck", heading: t("duels.board.my_deck"), screen: screen, side: screen.mine, calls: false %>
-      <%= render "duels/hand", screen: screen %>
+      <%= render "duels/deck", id: "duel-my-deck", heading: t("duels.board.my_deck"), screen: screen, side: screen.mine, calls: false,
+        pick: { call: "duel-call", answer: "duel-answer" }[screen.turn] %>
+      <%= render "duels/deck", id: "duel-their-deck", heading: t("duels.board.their_deck"), screen: screen, side: screen.theirs, calls: true %>
     <% else %>
       <p class="duel-board__line"><%= duel_waiting(screen) %></p>
     <% end %>

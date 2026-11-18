@@ -3,8 +3,8 @@ require_relative "../support/steam_sign_in"
 require_relative "../support/live_duels"
 
 # Two friends in desktop windows: the Duels screen puts the challenge block in a 400px column beside the decks, and
-# the challenge opens as a centred dialog. The duel then fills the window, the opponent's deck on the left and the
-# player's on the right, the choices in the centre and the hand at the foot, the chosen card raised 12px.
+# the challenge opens as a centred dialog. The duel then fills the window, the player's deck on the left and the opponent's on the right, the table
+# and the call between them, the chosen card opening in place.
 class DuelDesktopTest < ApplicationSystemTestCase
   include ActiveJob::TestHelper
   include SteamSignIn
@@ -65,7 +65,7 @@ class DuelDesktopTest < ApplicationSystemTestCase
       eventually("the challenge column sits beside the decks") do
         column = box(".duel-lobby")
         decks = box(".duel-decks")
-        column[:width] == 400 && decks[:left] >= column[:right] && (decks[:top] - column[:top]).abs < 2
+        column[:width] == 360 && decks[:left] >= column[:right] && (decks[:top] - column[:top]).abs < 2
       end
 
       click_on "Challenge a friend"
@@ -75,7 +75,7 @@ class DuelDesktopTest < ApplicationSystemTestCase
       end
       eventually("the dialog is centred in the window") do
         dialog = box("#duel-sheet")
-        window = page.evaluate_script("({ width: innerWidth, height: innerHeight })")
+        window = page.evaluate_script("({ width: document.documentElement.clientWidth, height: document.documentElement.clientHeight })")
         (dialog[:left] + dialog[:width] / 2 - window["width"] / 2.0).abs < 2 && (dialog[:top] + dialog[:height] / 2 - window["height"] / 2.0).abs < 2
       end
       within("#duel-sheet") do
@@ -100,26 +100,22 @@ class DuelDesktopTest < ApplicationSystemTestCase
       visit duel_path(locale: :en, token: duel.token)
       assert_selector "#duel-board[data-move-number='1']"
       assert_selector "turbo-cable-stream-source[connected]", visible: :all
-      eventually("the opponent's deck is left of the player's, each a 3 × 4 grid of 74px cells") do
+      eventually("the player's deck is left of the opponent's, each a single list") do
         theirs = box("#duel-their-deck")
         mine = box("#duel-my-deck")
-        theirs[:right] <= mine[:left] && box("#duel-their-deck .duel-deck__card")[:height] == 74 && box("#duel-my-deck li:nth-child(4)")[:top] > box("#duel-my-deck li:nth-child(3)")[:top]
+        mine[:right] <= theirs[:left] && box("#duel-my-deck .duel-deck__card:nth-child(3)")[:top] > box("#duel-my-deck .duel-deck__card:nth-child(2)")[:top]
       end
       assert_selector "#duel-their-deck .duel-deck__name", text: "Hugo card A"
 
-      find("#duel-call label[data-card]", match: :first).click
-      eventually("the chosen card is raised 12px") do
-        raised = box("#duel-call label[data-card]:has(input:checked) .card")[:top]
-        resting = box("#duel-call label[data-card]:not(:has(input:checked)) .card")[:top]
-        resting - raised == 12
+      find("#duel-my-deck [data-card] .duel-deck__body", match: :first).click
+      assert_selector "#duel-my-deck [data-card]:has(input:checked)"
+      assert_selector "#duel-my-deck .duel-deck__card:not([data-card])", visible: :all
+      eventually("the chosen card stands in the call slot of the table, the button under both slots inside it") do
+        slot = box("#duel-table .duel-table__slot--call .duel-face")
+        button = box("#duel-call button[type=submit]")
+        slot[:height] > 0 && slot[:bottom] <= button[:top] && button[:bottom] <= box("#duel-table")[:bottom]
       end
-      find("#duel-call [data-duel-card]:not([hidden]) label", match: :first).click
-      eventually("the stats and the directions sit side by side") do
-        stats = box("#duel-call [data-duel-group=stat]")
-        directions = box("#duel-call [data-duel-group=direction]")
-        stats[:right] <= directions[:left] && (stats[:top] - directions[:top]).abs < 2 && box("#duel-call button")[:top] > stats[:bottom] && box("#duel-hand .duel-group--hand")[:top] > box("#duel-call button")[:bottom]
-      end
-      find("#duel-call [data-duel-stat]:not([hidden]) label", match: :first).click
+      find("#duel-my-deck [data-duel-pick]:not([aria-disabled=true])", match: :first).click
       press_when_armed("duel-call")
       assert_selector "#duel-board[data-move-number='2']"
     end
@@ -128,10 +124,10 @@ class DuelDesktopTest < ApplicationSystemTestCase
     using_session(:hugo) do
       visit duel_path(locale: :en, token: duel.token)
       assert_selector "#duel-board[data-move-number='2']"
-      find("#duel-answer label[data-card]", match: :first).click
+      find("#duel-my-deck [data-card] .duel-deck__body", match: :first).click
       press_when_armed("duel-answer")
       assert_selector "#duel-reveal-heading"
-      eventually("the reveal keeps the phone column") { box("#duel-reveal")[:width] <= 480 }
+      eventually("the reveal plays inside the table, the decks staying in view") { box("#duel-reveal")[:left] >= box("#duel-table")[:left] && box("#duel-my-deck")[:height] > 0 }
     end
   end
 end

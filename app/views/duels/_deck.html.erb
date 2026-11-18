@@ -1,20 +1,37 @@
-<%# locals: (id:, heading:, screen:, side:, calls:) %>
-<section id="<%= id %>" class="duel-deck" aria-labelledby="<%= id %>-heading">
+<%# locals: (id:, heading:, screen:, side:, calls:, pick: nil) %>
+<%= render PanelComponent.new(tag: :section, id:, class: class_names("duel-deck", "duel-deck--picking": pick), aria: { labelledby: "#{id}-heading" }) do %>
   <h2 id="<%= id %>-heading" class="duel-board__heading"><%= heading %></h2>
+  <% settled = screen.settled_round %>
+  <% mine_side = !calls %>
+  <% spent = screen.turn ? screen.spent_stats : Game::DuelStat::STATS - side.stats_left %>
+  <% fresh_stat = settled&.stat if settled && settled.called == mine_side %>
+  <% fresh_card = (mine_side ? settled.mine : settled.theirs) if settled %>
+  <p class="duel-deck__head" aria-hidden="true">
+    <% Game::DuelStat::STATS.each do |stat| %>
+      <%= tag.span t("duel_stats.short.#{stat}"), class: "duel-deck__head-stat", data: { called: spent.include?(stat) || nil, fresh: (true if stat == fresh_stat) } %>
+    <% end %>
+  </p>
   <ol class="duel-deck__cards">
     <% side.deck.each do |card| %>
-      <% played = screen.played?(side, card) %>
-      <li class="<%= class_names("duel-deck__card", "duel-deck__card--played": played) %>">
-        <span class="visually-hidden"><%= screen.title(card) %></span>
-        <% if (image = screen.card_view(card).image_url) %>
-          <%= tag.img src: image, alt: "", loading: "lazy", width: 92, height: 43, class: "duel-deck__art", aria: { hidden: true } %>
+      <% stage = screen.stage(card, own: !calls) %>
+      <% choosable = pick && stage == :in_hand %>
+      <%= tag.li class: "duel-deck__card duel-deck__card--#{stage.to_s.dasherize}", data: { card: (screen.position(card) if !calls && stage == :in_hand), fresh: (true if stage == :played && card.card_season_id == fresh_card&.card_season_id) } do %>
+        <%= content_tag(choosable ? :label : :div, class: "duel-deck__body") do %>
+          <% if choosable %>
+            <%= radio_button_tag :card, screen.position(card), false, id: nil, form: pick, class: "duel-radio", data: { action: "change->duel#choose" } %>
+          <% end %>
+          <span class="visually-hidden"><%= screen.title(card) %>, <%= t("duels.board.stage.#{stage}") %></span>
+          <span class="duel-deck__frame" aria-hidden="true">
+            <% if (image = screen.card_view(card).image_url) %>
+              <%= tag.img src: image, alt: "", loading: "lazy", width: 92, height: 43, class: "duel-deck__art" %>
+            <% end %>
+            <span class="duel-deck__name"><%= screen.title(card) %></span>
+            <span class="duel-deck__stage"><%= choosable ? t("duels.board.select") : t("duels.board.stage.#{stage}") %></span>
+          </span>
+          <%= render "decks/stat_bars", bars: duel_card_bars(card), called: spent %>
         <% end %>
-        <span class="duel-deck__name" aria-hidden="true"><%= screen.title(card) %></span>
-        <% if played %><span class="duel-deck__played"><%= t("duels.board.played") %></span><% end %>
-      </li>
+        <%= render "duels/call_rows", screen: screen, card: card if choosable && pick == "duel-call" %>
+      <% end %>
     <% end %>
   </ol>
-  <% if calls %>
-    <p class="duel-deck__calls"><%= t("duels.board.calls_left", stats: duel_stat_names(side.stats_left)) %></p>
-  <% end %>
-</section>
+<% end %>

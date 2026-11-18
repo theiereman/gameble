@@ -15,20 +15,18 @@ const BOARD = `
           <input type="hidden" name="resent" value="0" />
           <input type="radio" name="card" value="1" data-action="change->duel#choose" />
           <input type="radio" name="card" value="2" data-action="change->duel#choose" />
-          <fieldset data-duel-group="stat" hidden>
-            <div data-duel-card="1" hidden>
-              <input type="radio" name="stat" value="release" disabled data-action="change->duel#choose" />
-              <input type="radio" name="stat" value="rating" aria-disabled="true" disabled data-action="change->duel#choose" />
+          <input type="hidden" name="stat" value="" />
+          <input type="hidden" name="direction" value="" />
+          <fieldset data-duel-group="call">
+            <div data-duel-stat="release">
+              <button type="button" data-duel-pick="release:low" aria-pressed="false" data-action="click->duel#pick">Oldest</button>
+              <button type="button" data-duel-pick="release:high" aria-pressed="false" data-action="click->duel#pick">Newest</button>
+              <span data-duel-card="1" hidden>card 1</span>
+              <span data-duel-card="2" hidden>card 2</span>
             </div>
-            <div data-duel-card="2" hidden>
-              <input type="radio" name="stat" value="release" disabled data-action="change->duel#choose" />
-              <input type="radio" name="stat" value="rating" aria-disabled="true" disabled data-action="change->duel#choose" />
-            </div>
-          </fieldset>
-          <fieldset data-duel-group="direction" hidden>
-            <div data-duel-stat="release" hidden>
-              <input type="radio" name="direction" value="high" disabled data-action="change->duel#choose" />
-              <input type="radio" name="direction" value="low" disabled data-action="change->duel#choose" />
+            <div data-duel-stat="rating">
+              <button type="button" data-duel-pick="rating:low" aria-pressed="false" aria-disabled="true" data-action="click->duel#pick">Worst</button>
+              <button type="button" data-duel-pick="rating:high" aria-pressed="false" aria-disabled="true" data-action="click->duel#pick">Best</button>
             </div>
           </fieldset>
           <button type="submit" aria-disabled="true">Call</button>
@@ -60,7 +58,7 @@ describe("the duel screen", () => {
     vi.restoreAllMocks()
   })
 
-  const button = (): HTMLElement => document.querySelector("button")!
+  const button = (): HTMLElement => document.querySelector("button[type=submit]")!
   const radio = (name: string, value: string, scope: ParentNode = document): HTMLInputElement =>
     scope.querySelector(`input[name=${name}][value=${value}]`)!
 
@@ -69,10 +67,13 @@ describe("the duel screen", () => {
     input.dispatchEvent(new Event("change", { bubbles: true }))
   }
 
+  const side = (value: string): HTMLElement => document.querySelector(`[data-duel-pick='${value}']`)!
+  const field = (name: string): string =>
+    document.querySelector<HTMLInputElement>(`input[type=hidden][name=${name}]`)!.value
+
   function chooseAll(): void {
     pick(radio("card", "1"))
-    pick(radio("stat", "release", document.querySelector("[data-duel-card='1']")!))
-    pick(radio("direction", "high"))
+    side("release:high").click()
   }
 
   const escape = (): KeyboardEvent => {
@@ -81,31 +82,30 @@ describe("the duel screen", () => {
     return event
   }
 
-  it("opens the stats of the chosen card and the directions of the chosen stat, and keeps the button blocked until all three are chosen", () => {
-    expect(document.querySelector<HTMLElement>("[data-duel-group=stat]")!.hidden).toBe(true)
+  it("shows the chosen card's reading on every stat, and keeps the button blocked until a card, a stat and a side are chosen", () => {
+    expect(document.querySelector<HTMLElement>("[data-duel-card='1']")!.hidden).toBe(true)
 
     pick(radio("card", "1"))
-    expect(document.querySelector<HTMLElement>("[data-duel-group=stat]")!.hidden).toBe(false)
     expect(document.querySelector<HTMLElement>("[data-duel-card='1']")!.hidden).toBe(false)
     expect(document.querySelector<HTMLElement>("[data-duel-card='2']")!.hidden).toBe(true)
-    expect(document.querySelector<HTMLInputElement>("[data-duel-card='2'] input")!.disabled).toBe(true)
     expect(button().getAttribute("aria-disabled")).toBe("true")
 
-    pick(radio("stat", "release", document.querySelector("[data-duel-card='1']")!))
-    expect(document.querySelector<HTMLElement>("[data-duel-group=direction]")!.hidden).toBe(false)
-    expect(radio("direction", "high").disabled).toBe(false)
-
-    pick(radio("direction", "low"))
+    side("release:low").click()
+    expect(side("release:low").getAttribute("aria-pressed")).toBe("true")
+    expect(side("release:high").getAttribute("aria-pressed")).toBe("false")
+    expect([field("stat"), field("direction")]).toEqual(["release", "low"])
     expect(button().getAttribute("aria-disabled")).toBe("false")
+
+    side("release:high").click()
+    expect([field("stat"), field("direction")]).toEqual(["release", "high"])
   })
 
-  it("refuses a stat already called and shows the choices again", () => {
+  it("refuses a stat already called", () => {
     pick(radio("card", "1"))
-    const called = radio("stat", "rating", document.querySelector("[data-duel-card='1']")!)
-    pick(called)
+    side("rating:high").click()
 
-    expect(called.checked).toBe(false)
-    expect(document.querySelector<HTMLElement>("[data-duel-group=direction]")!.hidden).toBe(true)
+    expect(side("rating:high").getAttribute("aria-pressed")).toBe("false")
+    expect([field("stat"), field("direction")]).toEqual(["", ""])
   })
 
   it("fires nothing on a press, on Enter's keydown or on a release inside the guard, and fires on a release after it", () => {
@@ -121,7 +121,7 @@ describe("the duel screen", () => {
     now += GUARD_MS - 1
     button().click()
     expect(submit).not.toHaveBeenCalled()
-    expect(radio("direction", "high").checked).toBe(true)
+    expect(field("direction")).toBe("high")
 
     now += 1
     button().click()
@@ -149,15 +149,15 @@ describe("the duel screen", () => {
     vi.useRealTimers()
   })
 
-  it("clears the latest choice at each Escape, direction then stat then card, and does nothing once none is left", () => {
+  it("clears the latest choice at each Escape, side then stat then card, and does nothing once none is left", () => {
     chooseAll()
 
     expect(escape().defaultPrevented).toBe(true)
-    expect(radio("direction", "high").checked).toBe(false)
-    expect(radio("stat", "release", document.querySelector("[data-duel-card='1']")!).checked).toBe(true)
+    expect(field("direction")).toBe("")
+    expect(field("stat")).toBe("release")
 
     escape()
-    expect(radio("stat", "release", document.querySelector("[data-duel-card='1']")!).checked).toBe(false)
+    expect(field("stat")).toBe("")
     expect(radio("card", "1").checked).toBe(true)
 
     escape()
@@ -173,7 +173,7 @@ describe("the duel screen", () => {
     document.body.append(dialog)
 
     expect(escape().defaultPrevented).toBe(false)
-    expect(radio("direction", "high").checked).toBe(true)
+    expect(field("direction")).toBe("high")
   })
 
   it("reads Sending… on the button after a network failure and sends the same form again until a newer board arrives", () => {
@@ -190,10 +190,10 @@ describe("the duel screen", () => {
     vi.advanceTimersByTime(RETRY_MS)
     expect(submit).toHaveBeenCalledTimes(1)
     expect(document.querySelector<HTMLInputElement>("input[name=resent]")!.value).toBe("1")
-    expect(radio("direction", "high").checked).toBe(true)
+    expect(field("direction")).toBe("high")
 
-    pick(radio("direction", "low"))
-    expect(radio("direction", "high").checked).toBe(true)
+    side("release:low").click()
+    expect(field("direction")).toBe("high")
     vi.useRealTimers()
   })
 

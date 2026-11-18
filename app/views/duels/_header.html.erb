@@ -1,20 +1,29 @@
 <%# locals: (screen:) %>
-<header class="duel-header">
-  <p class="duel-board__opponent"><%= duel_player_name(screen.opponent) %></p>
+<%= render PanelComponent.new(tag: :header, brackets: true, class: class_names("duel-header", "duel-header--mine": screen.my_turn?)) do %>
   <% if screen.started? && !screen.finished? %>
     <h2 id="duel-round-heading" class="duel-header__round" tabindex="-1">
       <span class="duel-board__round" aria-hidden="true"><%= t("duels.board.round", number: screen.round) %></span>
       <span class="visually-hidden"><%= duel_round_spoken(screen) %></span>
       <span class="duel-header__turn"><%= duel_turn(screen) %></span>
     </h2>
-    <p class="duel-board__score">
-      <span class="duel-board__figure" aria-hidden="true"><%= screen.score %> – <%= screen.other_score %></span>
+    <% hint = { call: "duels.board.hint.call", answer: "duels.board.hint.answer" }[screen.turn] %>
+    <% if hint %><p class="duel-header__hint"><%= t(hint) %></p><% end %>
+  <% end %>
+  <p class="duel-board__score">
+    <span class="duel-board__side" aria-hidden="true"><%= t("duels.clock.you") %></span>
+    <% if screen.started? && !screen.finished? %>
+      <%= tag.span class: "duel-board__figure", aria: { hidden: true }, data: { fresh: (screen.settled_round&.outcome&.to_s) } do %><%= screen.score %> – <%= screen.other_score %><% end %>
       <span class="visually-hidden"><%= duel_score_spoken(screen) %></span>
+    <% else %>
+      <span aria-hidden="true">–</span>
+    <% end %>
+    <span class="duel-board__opponent"><%= duel_player_name(screen.opponent) %></span>
+    <% if screen.started? && !screen.finished? %>
       <span class="duel-board__margin" aria-hidden="true"><%= t("duels.board.margin") %> <%= duel_signed_margin(screen.margin_gap) %></span>
       <span class="visually-hidden"><%= t("duels.board.margin") %> <%= duel_margin_spoken(screen.margin_gap) %></span>
-    </p>
-  <% end %>
+    <% end %>
+  </p>
   <% if screen.clock? %>
     <%= render "duels/clock", name: duel_clock_name(screen), deadline: screen.deadline, server_time: screen.server_time %>
   <% end %>
-</header>
+<% end %>

@@ -1862,12 +1862,10 @@ en:
         low: Older than %{percent} of cards
   duels:
     board:
-      already_called: Already called
       answer: Answer with this card
       automatic: Move played automatically
       call: Call
       called_status: "%{name} has called. Their card: %{card}."
-      calls_left: "Calls left: %{stats}"
       capsule:
         already_won_today: Duel capsule already won today.
         automatic_move: 'No capsule: one of your moves was played automatically.'
@@ -1875,11 +1873,12 @@ en:
       card_name: "%{title}, %{year}"
       decided_on_margin: "Decided on margin: %{margin} percentile points"
       decided_on_value: decided on the exact value
-      direction: Direction
       directions_lowercase: false
       ended: This challenge has ended.
-      hand: Your hand
       hidden_call: Hidden call
+      hint:
+        answer: "Play one card from your hand. You do not know which stat it will be judged on."
+        call: "Pick a card, then press the side of the stat you call. Your friend will not see the stat."
       margin: margin
       margin_spoken:
         even: "%{points}"
@@ -1910,13 +1909,23 @@ en:
         lost: "Round %{number} lost: %{card}, %{value}, against %{other_card}, %{other_value}, %{direction}. %{score} to %{other_score}."
         won: "Round %{number} won: %{card}, %{value}, against %{other_card}, %{other_value}, %{direction}. %{score} to %{other_score}."
       round: "Round %{number} / 10"
+      select: "Select"
       round_line: "Round %{number}, %{name} calls %{direction}: %{card}, against %{other_card}. %{outcome}."
       round_spoken: "Round %{number} of 10"
       score_spoken: "%{score} to %{other_score}"
       sending: Sending…
-      stat: Stat
+      slot:
+        answer: Answer
+        call: Call
+      stage:
+        in_hand: In hand
+        played: Played
+        to_play: To play
       stat_called: "%{label}, already called"
       stat_label: "%{name}, %{words}, %{value}"
+      table: Table
+      previous: "Previous round"
+      next_round: "Next round"
       their_deck: Their deck
       turn:
         answer: Your answer
@@ -2012,7 +2021,7 @@ en:
       heading: How a duel works
       steps:
         call:
-          text: "Play a card from your hand, face up. In secret, pick one of its stats and High or Low: that is your call."
+          text: "Play a card from your hand, face up. In secret, pick one of its stats and High or Low: that is your call. Each stat can be called only once per duel, so when to spend it is part of the strategy."
           title: Show a card, hide a stat
         challenge:
           text: "Choose a deck and a friend who is online. Both decks are face up; only the 3 cards in each hand stay hidden."

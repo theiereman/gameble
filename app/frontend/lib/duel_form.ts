@@ -6,25 +6,36 @@ function radios(scope: ParentNode, name: string): HTMLInputElement[] {
   return Array.from(scope.querySelectorAll<HTMLInputElement>(`input[name="${name}"]`))
 }
 
-type SetKey = "duelCard" | "duelStat"
+function cardRadios(form: HTMLElement): HTMLInputElement[] {
+  return radios(form.ownerDocument, "card").filter((radio) => radio.form === form)
+}
 
-function showSets(group: HTMLElement | null, key: SetKey, active: string | null, chosen: string | null): void {
-  if (!group) return
-  group.hidden = active === null
-  group.querySelectorAll<HTMLElement>("[data-duel-card], [data-duel-stat]").forEach((set) => {
-    const open = set.dataset[key] === active
-    set.hidden = !open
-    set.querySelectorAll<HTMLInputElement>("input").forEach((radio) => {
-      radio.disabled = !open
-      radio.checked = open && radio.value === chosen
-    })
-  })
+function setValue(form: HTMLElement, name: string, value: string | null): void {
+  const field = form.querySelector<HTMLInputElement>(`input[type=hidden][name="${name}"]`)
+  if (field) field.value = value ?? ""
 }
 
 export function renderChoices(form: HTMLElement, choices: Choices): void {
-  radios(form, "card").forEach((radio) => (radio.checked = radio.value === choices.card))
-  showSets(form.querySelector<HTMLElement>("[data-duel-group=stat]"), "duelCard", choices.card, choices.stat)
-  showSets(form.querySelector<HTMLElement>("[data-duel-group=direction]"), "duelStat", choices.stat, choices.direction)
+  const page = form.ownerDocument
+  cardRadios(form).forEach((radio) => (radio.checked = radio.value === choices.card))
+  page.querySelectorAll<HTMLElement>("[data-duel-card]").forEach((set) => {
+    set.hidden = set.dataset.duelCard !== choices.card
+  })
+  page.querySelectorAll<HTMLElement>("[data-duel-pick]").forEach((button) => {
+    const [stat, direction] = (button.dataset.duelPick ?? "").split(":")
+    button.setAttribute("aria-pressed", String(stat === choices.stat && direction === choices.direction))
+  })
+  page.querySelectorAll<HTMLElement>("[data-duel-stat]").forEach((row) => {
+    row.toggleAttribute("data-chosen", row.dataset.duelStat === choices.stat)
+  })
+  page.querySelectorAll<HTMLElement>(".duel-table__chosen .stat-bars__row").forEach((row) => {
+    const picked = choices.direction !== null && row.dataset.stat === choices.stat
+    row.toggleAttribute("data-picked", picked)
+    if (picked && choices.direction) row.dataset.direction = choices.direction
+    else delete row.dataset.direction
+  })
+  setValue(form, "stat", choices.stat)
+  setValue(form, "direction", choices.direction)
 }
 
 export function submitButton(form: HTMLElement): HTMLElement | null {
@@ -32,7 +43,7 @@ export function submitButton(form: HTMLElement): HTMLElement | null {
 }
 
 export function handCards(board: HTMLElement): HTMLElement[] {
-  return Array.from(board.querySelectorAll<HTMLElement>("#duel-hand [data-card]"))
+  return Array.from(board.querySelectorAll<HTMLElement>("#duel-my-deck [data-card]"))
 }
 
 export function focusTarget(board: HTMLElement): HTMLElement | null {

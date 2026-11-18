@@ -2,14 +2,14 @@
 <%= tag.div id: "duel-reveal", class: "duel-reveal", data: { duel_target: "reveal", round: reveal.number, action: "click->duel#next" } do %>
   <h2 id="duel-reveal-heading" class="duel-reveal__heading" tabindex="-1"><%= duel_reveal(screen, reveal) %></h2>
   <div class="duel-reveal__cards">
-    <% [ [ reveal.caller_card, reveal.called ? reveal.mine_automatic : reveal.theirs_automatic ],
-         [ reveal.answer_card, reveal.called ? reveal.theirs_automatic : reveal.mine_automatic ] ].each do |card, automatic| %>
-      <div class="duel-reveal__card">
-        <%= render "duels/face", screen: screen, card: card %>
+    <% flipped = { won: :lost, lost: :won, drawn: :drawn } %>
+    <% [ [ reveal.mine, reveal.mine_automatic, reveal.outcome ], [ reveal.theirs, reveal.theirs_automatic, flipped.fetch(reveal.outcome) ] ].each do |card, automatic, result| %>
+      <%= tag.div class: "duel-reveal__card", data: { result: } do %>
+        <%= render "duels/face", screen: screen, card: card, called: [ reveal.stat ], direction: reveal.direction, spent: screen.spent_before(reveal) %>
         <p class="duel-reveal__words"><%= duel_card_words(card, reveal.stat) %></p>
         <p class="duel-reveal__value"><%= duel_card_value(card, reveal.stat) %></p>
         <% if automatic %><p class="duel-reveal__automatic"><%= t("duels.board.automatic") %></p><% end %>
-      </div>
+      <% end %>
     <% end %>
   </div>
   <p class="<%= class_names("duel-reveal__outcome", "duel-reveal__outcome--won": reveal.outcome == :won) %>">

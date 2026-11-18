@@ -50,16 +50,16 @@ class DuelStreamJobTest < ActiveSupport::TestCase
       %i[en fr].each { |locale| assert_equal 1, pushes(role, locale, "duel-board").size, "#{role} #{locale}" }
       english = board(role, :en)
       assert_equal "2", english.at_css("#duel-board")["data-move-number"]
-      hand = english.at_css("#duel-hand").text
-      assert_equal rules.hand(role.to_sym).size, english.css("#duel-hand [data-card]").size
+      hand = english.css("#duel-my-deck [data-card]").text
+      assert_equal rules.hand(role.to_sym).size, english.css("#duel-my-deck [data-card]").size
       assert_includes hand, "#{prefix(role)} card"
       assert_not_includes hand, "#{prefix(other_role(role))} card"
-      assert_equal 12, english.css("#duel-my-deck li").size
-      assert_equal 12, english.css("#duel-their-deck li").size
+      assert_equal 12, english.css("#duel-my-deck .duel-deck__card").size
+      assert_equal 12, english.css("#duel-their-deck .duel-deck__card").size
     end
     caller = rules.caller.to_s
     answerer = rules.answerer.to_s
-    assert_equal words, board(caller, :en).at_css("#duel-current-call h2").text.strip
+    assert_equal [ locked.stat ], board(caller, :en).css("#duel-current-call .stat-bars__row[data-called]").map { it["data-stat"] }
     assert_not_includes board(answerer, :en).text, words
     assert_equal "Hidden call", board(answerer, :en).at_css("#duel-current-call h2").text.strip
     assert_equal "Annonce cachée", board(answerer, :fr).at_css("#duel-current-call h2").text.strip
@@ -87,10 +87,9 @@ class DuelStreamJobTest < ActiveSupport::TestCase
 
     form = board("challenger", :en).at_css("form#duel-call")
     assert_equal "/en/duels/#{@duel.token}/calls", form["action"]
-    assert_equal rules.hand(:challenger).map { position_of(rules, :challenger, it).to_s }, form.css("input[name=card]").map { it["value"] }
-    assert_equal Game::DuelStat::STATS.map(&:to_s) * rules.hand(:challenger).size, form.css("input[name=stat]").map { it["value"] }
-    assert_equal %w[high low] * Game::DuelStat::STATS.size, form.css("input[name=direction]").map { it["value"] }
-    assert_equal [ "1", "0" ], form.css("input[type=hidden]").map { it["value"] }
+    assert_equal rules.hand(:challenger).map { position_of(rules, :challenger, it).to_s }, board("challenger", :en).css("#duel-my-deck input[name=card]").map { it["value"] }
+    assert_equal Game::DuelStat::STATS.flat_map { [ "#{it}:low", "#{it}:high" ] } * rules.hand(:challenger).size, board("challenger", :en).css("#duel-my-deck button[data-duel-pick]").map { it["data-duel-pick"] }
+    assert_equal [ "1", "0", nil, nil ], form.css("input[type=hidden]").map { it["value"] }
     assert_no_match(/style=/, board("challenger", :en).to_html)
   end
 

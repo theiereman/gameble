@@ -354,13 +354,12 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select "#duel-board .duel-board__figure[aria-hidden=true]", "0 – 0"
     assert_select "#duel-board .visually-hidden", "0 to 0"
-    assert_select "#duel-their-deck li", 12
-    assert_select "#duel-my-deck li", 12
-    assert_select "#duel-their-deck .duel-deck__calls", "Calls left: Popularity, Rating, Release, Discovery, Circulation"
-    hand = css_select("#duel-hand").text
+    assert_select "#duel-their-deck .duel-deck__card", 12
+    assert_select "#duel-my-deck .duel-deck__card", 12
+    hand = css_select("#duel-my-deck [data-card]").text
     rules.hand(:challenger).each { assert_includes hand, Catalog::CardText.where(card_id: card_of(it.card_season_id)).pick(:title) }
     assert_no_match(/Hugo card/, hand)
-    assert_select(rules.caller == :challenger ? "form#duel-call" : "#duel-hand ul li", minimum: 1)
+    assert_select(rules.caller == :challenger ? "form#duel-call" : "#duel-my-deck [data-card]", minimum: 1)
     assert_select "[style]", 0
     assert_select "#duel-board input[name=authenticity_token]", 0
   end

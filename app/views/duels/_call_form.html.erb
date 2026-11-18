@@ -1,43 +1,11 @@
 <%# locals: (screen:) %>
-<%= form_with url: duel_calls_path(token: screen.token), method: :post, id: "duel-call", class: "duel-form", authenticity_token: false,
-      data: { duel_target: "form", duel_kind: "call", duel_sending: t("duels.board.sending"),
+<%= form_with url: duel_calls_path(token: screen.token), method: :post, id: "duel-call", class: "duel-form duel-table__slots", authenticity_token: false,
+      data: { mirrored: (true unless screen.caller_side?), duel_target: "form", duel_kind: "call", duel_sending: t("duels.board.sending"),
         action: "click->duel#press keydown->duel#keydown keyup->duel#keyup turbo:fetch-request-error->duel#failed turbo:submit-end->duel#ended" } do %>
   <%= hidden_field_tag :move_number, screen.move_number, id: nil %>
   <%= hidden_field_tag :resent, 0, id: nil %>
-  <%= render "duels/hand_group", screen: screen %>
-  <fieldset class="duel-group" data-duel-group="stat" hidden>
-    <legend class="duel-group__legend"><%= t("duels.board.stat") %></legend>
-    <% screen.hand.each do |card| %>
-      <div class="duel-group__options" data-duel-card="<%= screen.position(card) %>" hidden>
-        <% Game::DuelStat::STATS.each do |stat| %>
-          <% open = screen.stat_open?(stat) %>
-          <label class="<%= class_names("duel-option", "duel-option--called": !open) %>">
-            <%= radio_button_tag :stat, stat, false, id: nil, disabled: true, class: "duel-radio", aria: { disabled: (true unless open) },
-                  data: { action: "change->duel#choose" } %>
-            <span class="visually-hidden"><%= duel_stat_label(card, stat, open:) %></span>
-            <span class="duel-option__face" aria-hidden="true">
-              <span class="duel-option__name"><%= t("duel_stats.names.#{stat}") %></span>
-              <span class="duel-option__words"><%= duel_card_words(card, stat) %></span>
-              <span class="duel-option__value"><%= duel_card_value(card, stat) %></span>
-              <% unless open %><span class="duel-option__note"><%= t("duels.board.already_called") %></span><% end %>
-            </span>
-          </label>
-        <% end %>
-      </div>
-    <% end %>
-  </fieldset>
-  <fieldset class="duel-group" data-duel-group="direction" hidden>
-    <legend class="duel-group__legend"><%= t("duels.board.direction") %></legend>
-    <% Game::DuelStat::STATS.each do |stat| %>
-      <div class="duel-group__options" data-duel-stat="<%= stat %>" hidden>
-        <% Game::DuelStat::DIRECTIONS.each do |direction| %>
-          <label class="duel-option">
-            <%= radio_button_tag :direction, direction, false, id: nil, disabled: true, class: "duel-radio", data: { action: "change->duel#choose" } %>
-            <span class="duel-option__face"><span class="duel-option__name"><%= duel_direction(stat, direction) %></span></span>
-          </label>
-        <% end %>
-      </div>
-    <% end %>
-  </fieldset>
+  <%= hidden_field_tag :stat, nil, id: nil %>
+  <%= hidden_field_tag :direction, nil, id: nil %>
+  <%= yield %>
   <%= render ButtonComponent.new(type: :submit, aria_disabled: true) do %><%= t("duels.board.call") %><% end %>
 <% end %>

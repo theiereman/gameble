@@ -5,6 +5,7 @@ module Game
     ANSWER = 45.seconds
     JOB_DELAY = 2.seconds
     ABSENCE = 60.seconds
+    PRACTICE = 30.minutes
 
     def initialize(duel, seats, rules = nil)
       @duel = duel

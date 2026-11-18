@@ -28,7 +28,8 @@ local: &local
   username: <%= ENV.fetch("DB_USER") { "postgres" } %>
   password: <%= ENV.fetch("DB_PASSWORD") { "postgres" } %>
 
-# Development runs Solid Queue, as production does, on its own queue database.
+# Development runs Solid Queue and Solid Cable, as production does, each on its own database: the jobs broadcast from
+# their own process, and a Postgres NOTIFY carries 8000 bytes at most, less than a duel board.
 development:
   primary:
     <<: *local
@@ -37,6 +38,10 @@ development:
     <<: *local
     database: gameble_development_queue
     migrations_paths: db/queue_migrate
+  cable:
+    <<: *local
+    database: gameble_development_cable
+    migrations_paths: db/cable_migrate
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

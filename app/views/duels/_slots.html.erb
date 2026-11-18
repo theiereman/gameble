@@ -1,0 +1,17 @@
+<%# locals: (screen:) %>
+<% if (call = screen.current_call) %>
+  <div id="duel-current-call" class="<%= class_names("duel-table__slot", "duel-table__slot--call", "duel-table__slot--hidden": call.stat.nil?) %>">
+    <p class="duel-table__caption" aria-hidden="true"><%= t("duels.board.slot.call") %></p>
+    <% if call.stat.nil? %><h2 class="duel-table__call"><%= t("duels.board.hidden_call") %></h2><% end %>
+    <%= render "duels/face", screen: screen, card: call.card, called: [ call.stat ].compact, direction: call.direction, spent: screen.spent_stats %>
+  </div>
+<% else %>
+  <div class="duel-table__slot duel-table__slot--call duel-table__slot--waiting">
+    <p class="duel-table__caption" aria-hidden="true"><%= t("duels.board.slot.call") %></p>
+    <div class="duel-table__place"><%= render "duels/chosen", screen: screen if screen.turn == :call %></div>
+  </div>
+<% end %>
+<div class="duel-table__slot duel-table__slot--waiting" aria-hidden="true">
+  <p class="duel-table__caption"><%= t("duels.board.slot.answer") %></p>
+  <div class="duel-table__place"><%= render "duels/chosen", screen: screen if screen.turn == :answer %></div>
+</div>

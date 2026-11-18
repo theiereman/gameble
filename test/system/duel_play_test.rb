@@ -61,14 +61,14 @@ class DuelPlayTest < ApplicationSystemTestCase
 
   def focused(id) = eventually("#{id} has the focus") { page.evaluate_script("document.activeElement.id") == id }
 
-  # The first round's reveal holds the outcome from the seat's own side and the focus, and hides the live board; it
+  # The first round's reveal holds the outcome from the seat's own side and the focus, and plays on the table; it
   # stays three seconds, so the check follows the board's arrival at once.
   def reveal_shown(role)
     round = rules_of(Game::Duel.find(@duel.id)).played_rounds.first
     expected = round.winner.nil? ? "drawn" : (round.winner == role ? "won" : "lost")
     assert_selector "#duel-reveal-heading", text: /\ARound 1 #{expected}: /
     focused "duel-reveal-heading"
-    assert_no_selector "#duel-live"
+    assert_selector "#duel-live[data-revealing]"
   end
 
   def press_when_armed(form)
@@ -79,22 +79,21 @@ class DuelPlayTest < ApplicationSystemTestCase
     open_duel_pages
 
     using_session(:lea) do
-      find("#duel-call label[data-card]", text: "Quake").click
-      find("#duel-call [data-duel-card]:not([hidden]) label", text: /\ARelease/).click
-      find("#duel-call [data-duel-stat='release']:not([hidden]) label", text: "Oldest").click
+      find("#duel-my-deck [data-card] .duel-deck__body", text: "Quake").click
+      find("#duel-my-deck [data-duel-pick='release:low']").click
       assert_selector "#duel-call button[aria-disabled=false]"
 
       3.times { find("body").send_keys(:escape) }
-      assert_no_selector "#duel-call input:checked", visible: :all
+      assert_no_selector "#duel-my-deck input:checked", visible: :all
+      assert_no_selector "#duel-my-deck [aria-pressed=true]"
       assert_selector "#duel-call button[aria-disabled=true]"
       assert_selector "#duel-call"
 
-      find("#duel-call label[data-card]", text: "Quake").click
-      find("#duel-call [data-duel-card]:not([hidden]) label", text: /\ARelease/).click
-      find("#duel-call [data-duel-stat='release']:not([hidden]) label", text: "Oldest").click
+      find("#duel-my-deck [data-card] .duel-deck__body", text: "Quake").click
+      find("#duel-my-deck [data-duel-pick='release:low']").click
       press_when_armed("duel-call")
       assert_selector "#duel-board[data-move-number='2']"
-      assert_selector "#duel-current-call h2", text: /oldest/i
+      assert_selector "#duel-current-call .stat-bars__row[data-stat=release][data-called]"
     end
     deliver
 
@@ -104,8 +103,8 @@ class DuelPlayTest < ApplicationSystemTestCase
       assert_selector "#duel-current-call h2", text: /hidden call/i
       assert_selector "#duel-status", text: "Léa has called. Their card: Quake.", visible: :all
       within("#duel-board") { assert_no_text(/oldest/i) }
-      assert_no_selector "#duel-hand", text: "Quake"
-      find("#duel-answer label[data-card]", match: :first).click
+      assert_no_selector "#duel-my-deck [data-card]", text: "Quake"
+      find("#duel-my-deck [data-card] .duel-deck__body", match: :first).click
       press_when_armed("duel-answer")
       assert_selector "#duel-board[data-move-number='3']"
       reveal_shown(:opponent)
@@ -116,7 +115,7 @@ class DuelPlayTest < ApplicationSystemTestCase
 
     using_session(:lea) do
       click_on "Next"
-      assert_selector "#duel-live"
+      assert_no_selector "#duel-live[data-revealing]"
       assert_no_selector "#duel-reveal"
       assert_selector ".duel-board__figure", text: "#{scores[:challenger]} – #{scores[:opponent]}"
       focused "duel-round-heading"
@@ -131,9 +130,8 @@ class DuelPlayTest < ApplicationSystemTestCase
     using_session(:lea) do
       assert_selector "#duel-board[data-move-number='5']"
       assert_selector "#duel-live"
-      find("#duel-call label[data-card]", match: :first).click
-      assert_selector "#duel-call [data-duel-card]:not([hidden]) .duel-option--called", text: "Already called"
-      assert_selector "#duel-call [data-duel-card]:not([hidden]) input[value=release][aria-disabled=true]", visible: :all
+      find("#duel-my-deck [data-card] .duel-deck__body", match: :first).click
+      assert_no_selector "#duel-my-deck [data-duel-pick^='release']", visible: :all
     end
   end
 

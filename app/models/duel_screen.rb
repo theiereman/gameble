@@ -1,5 +1,5 @@
 class DuelScreen
-  REVEAL_WINDOW = 10
+  REVEAL_WINDOW = 5
 
   Reveal = Data.define(:number, :outcome, :mine, :theirs, :called, :stat, :direction, :score, :other_score, :decided_on_value,
     :automatic, :mine_automatic, :theirs_automatic) do
@@ -49,7 +49,20 @@ class DuelScreen
     calling ? :their_answer : :answer
   end
 
-  def clock? = deadline.present? && (waiting? || turn.present?)
+  def practice? = @duel.practice
+
+  def clock? = !practice? && deadline.present? && (waiting? || turn.present?)
+
+  def stage(card, own:)
+    if played?(own ? mine : theirs, card) then :played
+    elsif own && hand.any? { it.card_season_id == card.card_season_id } then :in_hand
+    else :to_play
+    end
+  end
+
+  def caller_side? = view.caller == mine.role
+
+  def my_turn? = %i[call answer].include?(turn)
 
   def clock_mine? = waiting? ? !challenger? : %i[call answer].include?(turn)
 
@@ -82,6 +95,10 @@ class DuelScreen
 
   def stat_open?(stat) = mine.stats_left.include?(stat)
 
+  def spent_stats = Game::DuelStat::STATS - (caller_side? ? mine : theirs).stats_left
+
+  def spent_before(reveal) = reveals.select { it.number < reveal.number && it.called == reveal.called }.map(&:stat)
+
   def reveals
     @reveals ||= begin
       won = Hash.new(0)
@@ -90,6 +107,10 @@ class DuelScreen
         reveal_of(played, won)
       end
     end
+  end
+
+  def settled_round
+    reveals.last if reveals.any? && move_number == (2 * reveals.size) + 1
   end
 
   def reveal
