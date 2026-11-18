@@ -1,6 +1,6 @@
 /* ---- A card's five duel stats as bars: the bar is the percentile itself, full
    for a high stat and empty for a low one; green from the 70th percentile (an
-   asset), orange up to the 30th (a weakness), neutral grey in between; the
+   asset), orange up to the 30th (a weakness), neutral blue in between; the
    trump row is brightest. ---- */
 
 .stat-bars {
@@ -34,7 +34,7 @@
 .stat-bars__row[data-tier="4"],
 .stat-bars__row[data-tier="5"],
 .stat-bars__row[data-tier="6"] {
-  --tier-colour: var(--color-muted);
+  --tier-colour: var(--color-accent);
 }
 
 .stat-bars__row[data-tier="7"],
