@@ -21,10 +21,7 @@
     <%= render "decks/slots", editor: editor %>
     <div class="deck-editor__side">
       <%= render "decks/coverage", coverage: editor.coverage %>
-      <ul class="deck-editor__legend">
-        <li><%= t("decks.editor.legend.bars") %></li>
-        <li><%= t("decks.editor.legend.moves") %></li>
-      </ul>
+      <p class="deck-editor__legend"><%= t("decks.editor.legend") %></p>
     </div>
   <% end %>
   <p class="deck-editor__status" role="status" data-deck-editor-target="status"></p>

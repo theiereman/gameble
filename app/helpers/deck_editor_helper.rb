@@ -32,16 +32,9 @@ module DeckEditorHelper
     end
   end
 
-  def deck_blank_bars = Game::DuelStat::STATS.map { StatBar.new(stat: it, value: 0, tier: "mid", trump: false) }
+  def deck_blank_bars = Game::DuelStat::STATS.map { StatBar.new(stat: it, value: 0, tier: 0, trump: false) }
 
-  def deck_stat_tier(value)
-    if value >= 90 then "highest"
-    elsif value >= 70 then "high"
-    elsif value <= 10 then "lowest"
-    elsif value <= 30 then "low"
-    else "mid"
-    end
-  end
+  def deck_stat_tier(value) = (value / 10).clamp(0, 9)
 
   def deck_entry_label(entry)
     [ entry.title, SeasonMarkComponent.label(entry.season_number), deck_entry_detail(entry) ].join(", ")

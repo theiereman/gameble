@@ -3941,9 +3941,7 @@ fr:
       slots: "Emplacements"
       empty_slot: "Emplacement vide"
       collection: "Toutes vos cartes"
-      legend:
-        bars: "Les barres montrent où se place une carte parmi toutes les cartes : vert pour le plus haut, rouge pour le plus bas, gris entre les deux. Les deux extrêmes gagnent un duel."
-        moves: "▲ ▼ sous une carte : son rang dans cette stat a monté ou baissé depuis lundi."
+      legend: "▲ ▼ Stat en hausse ou en baisse cette semaine"
       recommendations: "Recommandations"
       more: "Voir plus de cartes"
       no_match: "Aucune carte ne correspond."

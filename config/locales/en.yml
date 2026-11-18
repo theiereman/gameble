@@ -1679,9 +1679,7 @@ en:
     throttled: Too many changes in a minute. Try again in a moment.
     editor:
       collection: All your cards
-      legend:
-        bars: "Bars show where a card stands among all cards: green is the highest, red the lowest, grey in between. Either end wins a duel."
-        moves: "▲ ▼ under a card: its rank in that stat has moved up or down since Monday."
+      legend: "▲ ▼ Stat up or down this week"
       recommendations: Recommendations
       more: Show more cards
       no_match: No card matches.

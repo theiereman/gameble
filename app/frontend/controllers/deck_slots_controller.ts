@@ -51,7 +51,7 @@ function drawBars(root: HTMLElement, bars: readonly Bar[]): void {
     const bar = bars.find((each) => each.stat === row.dataset.stat)
     writeHidden(row, !bar)
     if (!bar) continue
-    writeAttribute(row, "data-tier", bar.tier)
+    writeAttribute(row, "data-tier", String(bar.tier))
     row.classList.toggle("stat-bars__row--trump", bar.trump)
     writeText(row.querySelector(".stat-bars__value"), String(bar.value))
     row.querySelector("progress")?.setAttribute("value", String(bar.value))
