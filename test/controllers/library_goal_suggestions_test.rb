@@ -176,8 +176,9 @@ class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
     # total; the tab bar's trades and invitations waiting and the player's
     # avatar; the player's own sets, read once with their Steam library set,
     # and goals; with no goal, the sets suggested, their standings and the
-    # themes' names; and the market settings in force.
-    assert_equal 23, suggested_forty
+    # themes' names; the market settings in force; and the player's duels
+    # in progress for the tab bar.
+    assert_equal 24, suggested_forty
 
     add(kind: "theme", key: "theme-1")
     one = count_queries { get library_path(locale: :en) }

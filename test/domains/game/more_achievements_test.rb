@@ -77,7 +77,7 @@ class Game::MoreAchievementsTest < ActiveSupport::TestCase
       [ :funding_review, :support_opened, 1 ], [ :code_contribution, :code_contributions, 1 ],
       [ :profiles_viewed_1, :profiles_viewed, 1 ], [ :profiles_viewed_5, :profiles_viewed, 5 ], [ :profiles_viewed_20, :profiles_viewed, 20 ],
       [ :profile_visits_10, :profile_visits, 10 ], [ :profile_visits_50, :profile_visits, 50 ], [ :profile_visits_100, :profile_visits, 100 ],
-      [ :discord_member, :discord_member, 1 ] ], Game::Achievements::CATALOGUE.last(15).map { [ it.key, it.metric, it.threshold ] }
+      [ :discord_member, :discord_member, 1 ] ], Game::Achievements::CATALOGUE.drop(62).first(15).map { [ it.key, it.metric, it.threshold ] }
   end
 
   test "PiCoins held add the coins committed to bids to the available ones" do
