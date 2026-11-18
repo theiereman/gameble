@@ -7,6 +7,7 @@ import {
   countOf,
   failed,
   filterBy,
+  searchFor,
   focusAfterRemoval,
   move,
   nextToSend,
@@ -364,6 +365,23 @@ describe("recommendations", () => {
     })
 
     expect(recommendedRefs(base)).toEqual(["a:1", "b:1"])
+  })
+
+  it("recommends nothing once the player narrowed the collection by a lacking call, a trump or a search", () => {
+    const entries = [withRelease("a:1", 99), withRelease("b:1", 5), withRelease("c:1", 60)]
+    const base = start({
+      token: "T".repeat(24),
+      url: "/en/duels/decks/T",
+      name: "x",
+      slots: ["c:1"],
+      entries,
+      coverage: [gap("release-high"), gap("release-low")],
+    })
+
+    expect(recommendedRefs(base)).not.toEqual([])
+    expect(recommendedRefs(chooseGap(base, "release-low"))).toEqual([])
+    expect(recommendedRefs(searchFor(base, "a"))).toEqual([])
+    expect(recommendedRefs(filterBy(base, "release"))).toEqual([])
   })
 
   it("recommends nothing once the deck is full", () => {

@@ -1,12 +1,13 @@
-import { BY_POPULARITY, callValue, sortRefs } from "./deck_collection_order"
+import { ALL_TRUMPS, BY_POPULARITY, callValue, sortRefs } from "./deck_collection_order"
 import type { DeckState } from "./deck_editor"
 
 const RECOMMENDED = 12
 const KNOWN_FROM = 60
 
-/* The cards to try next: for each call the deck lacks, the strongest well-known cards, taken in turn. */
+/* The cards to try next, shown only while the collection is not narrowed: for each call the deck lacks, the strongest well-known cards, taken in turn. */
 export function recommendedRefs(state: DeckState): string[] {
-  if (!state.slots.includes(null)) return []
+  const narrowed = state.sort !== BY_POPULARITY || state.trump !== ALL_TRUMPS || state.query !== ""
+  if (narrowed || !state.slots.includes(null)) return []
   const placed = state.slots.filter((ref): ref is string => ref !== null)
   const games = new Set(placed.map((ref) => state.entries[ref]?.game))
   const open = state.order.filter((ref) => {

@@ -21,7 +21,7 @@
         <%= tag.li class: "deck-coverage__line", hidden: !call.gap?, data: { deck_coverage_target: "drawback", call: call.key } do %>
           <%= tag.button type: "button", class: "deck-coverage__gap",
                 aria: { label: t("decks.editor.coverage.gap_label", cards: deck_call_cards(call)) }, data: { action: "deck-coverage#choose" } do %>
-            <span class="deck-coverage__stat">− <%= deck_call_badge(call) %></span>
+            <span class="deck-coverage__stat"><%= deck_call_badge(call) %></span>
           <% end %>
         <% end %>
       <% end %>
