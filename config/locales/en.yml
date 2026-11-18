@@ -1713,7 +1713,7 @@ en:
           release:
             high: recent cards
             low: old cards
-        drawbacks: Drawbacks
+        drawbacks: Missing
         directions:
           high: high
           low: low
