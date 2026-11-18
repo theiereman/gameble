@@ -18,17 +18,22 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 var(--space-5) calc(var(--space-8) + var(--space-6));
+  padding: 0 var(--space-6) var(--space-5);
   background: linear-gradient(
     to bottom,
-    transparent 10%,
-    color-mix(in srgb, var(--color-panel-sunken) 88%, transparent) 50%
+    transparent 45%,
+    color-mix(in srgb, var(--color-panel-sunken) 80%, transparent) 100%
   );
   pointer-events: none;
 }
 
+.deck-card .card__line {
+  visibility: hidden;
+}
+
 .deck-card .stat-bars {
   gap: var(--space-2);
+  text-shadow: 0 1px 2px var(--color-panel-sunken);
 }
 
 .deck-card .stat-bars__row {
@@ -61,7 +66,7 @@
 
 @container (width < 170px) {
   .deck-card__overlay {
-    padding: 0 var(--space-4) calc(var(--space-7) + var(--space-6));
+    padding: 0 var(--space-4) var(--space-4);
   }
 
   .deck-card .stat-bars {
