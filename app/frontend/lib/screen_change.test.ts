@@ -26,6 +26,13 @@ describe("keepsFrame", () => {
     expect(keepsFrame("/en/trades/new", TRADE, desktop)).toBe(true)
   })
 
+  it("keeps the frame between the Market and Trades sub-tabs, on a phone too", () => {
+    expect(keepsFrame("/en/market", "/en/trades", phone)).toBe(true)
+    expect(keepsFrame("/fr/trades", "/fr/market/my-bids", desktop)).toBe(true)
+    expect(keepsFrame("/en/market/my-sales", "/en/market", phone)).toBe(true)
+    expect(keepsFrame("/en/market", "/en/market/exchange", phone)).toBe(false)
+  })
+
   it("on a phone, changes the screen between the list and a board, not between two boards", () => {
     expect(keepsFrame("/en/trades", TRADE, phone)).toBe(false)
     expect(keepsFrame(TRADE, "/en/trades", phone)).toBe(false)
