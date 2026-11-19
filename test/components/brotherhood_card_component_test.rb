@@ -19,14 +19,14 @@ class BrotherhoodCardComponentTest < ViewComponent::TestCase
     end
   end
 
-  test "a found card shows its face, its game and its pioneer's name as a link, and is named after them" do
+  test "a found card shows its face, its game and its pioneer's name, and is named after them" do
     lea = player(:player, persona_name: "Léa", visibility: "public")
     render_card(found: true, pioneer: lea)
 
     assert_selector "li.collection-slot.brotherhood-card > a.card-link[aria-label='Outer Wilds, Mobius Digital, 2019, Epic, discovered by Léa']" \
       "[href='/en/cards/outer-wilds/seasons/1?from=inventory&set_key=space&set_kind=theme'] > .card.card--grid:not(.card--not-owned)"
     assert_selector ".brotherhood-card__game[aria-hidden=true]", text: "Outer Wilds"
-    assert_selector ".brotherhood-card__pioneer a[href='/en/brothers/#{lea.token}']", text: "Léa"
+    assert_selector ".brotherhood-card__pioneer[aria-hidden=true]", text: "Léa"
     assert_no_selector ".brotherhood-card__badge"
   end
 

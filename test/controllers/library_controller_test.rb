@@ -1313,7 +1313,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       assert_select ".all-cards-tile__count", "0/300"
       assert_select ".all-cards-tile__fan", false
     end
-    assert_select ".set-entry__shortcuts > a.all-cards-tile[href='/fr/library/cards'] + a.all-cards-tile[href='/fr/library/sets']:last-child"
+    assert_select ".set-entry__shortcuts > a.all-cards-tile[href='/fr/library/cards'] + a.all-cards-tile[href='/fr/library/sets'] + a.all-cards-tile[href='/fr/inventory']:last-child"
     assert_select "section#goals + div.set-entry__shortcuts + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress'] + section.custom-sets"
     assert_select "#goals p.goals__empty", "Aucun objectif. Ouvrez l'album d'un set et marquez-le comme objectif."
     assert_select "#goals .goal-suggestions, #goals .goals__list", false

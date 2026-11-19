@@ -26,7 +26,7 @@ export default class extends Controller<HTMLElement> {
     if (this.hasSetsAllTarget) button?.setAttribute("aria-controls", this.setsAllTarget.id)
   }
 
-  scope(event: SubmitEvent): void {
+  chooseScope(event: SubmitEvent): void {
     const chosen = event.submitter instanceof HTMLButtonElement ? event.submitter : null
     if (!chosen || !this.chipTargets.includes(chosen)) return
 
@@ -67,6 +67,7 @@ export default class extends Controller<HTMLElement> {
   }
 
   private announce(frame: HTMLElement): void {
+    this.chipTargets.find((chip) => chip.getAttribute("aria-pressed") === "true")?.focus()
     const status = frame.querySelector<HTMLElement>("[data-grand-inventory-status]")?.textContent?.trim() ?? ""
     this.statusTarget.textContent = status
   }

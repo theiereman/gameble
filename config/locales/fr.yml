@@ -2932,9 +2932,9 @@ fr:
           one: "%{found} carte découverte sur %{total}"
           other: "%{found} cartes découvertes sur %{total}"
       rarity:
-        zero: "%{rarity} : %{found} découverte sur %{total}, voir ces cartes"
-        one: "%{rarity} : %{found} découverte sur %{total}, voir ces cartes"
-        other: "%{rarity} : %{found} découvertes sur %{total}, voir ces cartes"
+        zero: "%{rarity} : %{found} découverte sur %{total}, voir ces cartes"
+        one: "%{rarity} : %{found} découverte sur %{total}, voir ces cartes"
+        other: "%{rarity} : %{found} découvertes sur %{total}, voir ces cartes"
       rarity_total: "/ %{total}"
       pace:
         week_html:
@@ -2945,14 +2945,14 @@ fr:
           zero: "<b>%{number}</b> aujourd'hui"
           one: "<b>%{number}</b> aujourd'hui"
           other: "<b>%{number}</b> aujourd'hui"
-        latest_html: "Dernière : %{card}, par %{player}, %{age}"
+        latest_html: "Dernière : %{card}, par %{player}, %{age}"
       scopes:
         label: "Saisons du Grand Inventaire"
         all: "Toutes saisons"
         current: "Saison en cours"
         status:
-          all: "Toutes saisons : %{count}"
-          current: "Saison en cours : %{count}"
+          all: "Toutes saisons : %{count}"
+          current: "Saison en cours : %{count}"
       tabs:
         label: "Vues du Grand Inventaire"
         cards: "Cartes"

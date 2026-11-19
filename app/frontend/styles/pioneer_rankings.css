@@ -33,7 +33,9 @@
 
 .pioneer-row:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring-gap), inset 0 var(--space-unit) 0 0 var(--color-line-soft);
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 var(--space-unit) 0 0 var(--color-line-soft);
 }
 
 .pioneer-row__rank {
@@ -169,6 +171,8 @@
   }
 
   html:has(.pioneer-place):has(.tab-bar) {
-    scroll-padding-bottom: calc(var(--space-touch-min) + var(--space-7) + var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: calc(
+      var(--space-touch-min) + var(--space-7) + var(--tabbar-height) + env(safe-area-inset-bottom, 0px)
+    );
   }
 }

@@ -1,6 +1,6 @@
 <%# locals: (inventory:, view:) %>
 <%= form_with url: grand_inventory_path, method: :get, class: "grand-inventory__scopes",
-  data: { turbo_frame: "grand-inventory", turbo_action: "advance", action: "submit->grand-inventory#scope" } do %>
+  data: { turbo_frame: "grand-inventory", turbo_action: "advance", action: "submit->grand-inventory#chooseScope" } do %>
   <%= hidden_field_tag :view, view, id: nil, disabled: view == GrandInventoriesController::VIEWS.first, data: { grand_inventory_target: "viewField" } %>
   <div class="grand-inventory__chips" role="group" aria-label="<%= t("grand_inventories.show.scopes.label") %>">
     <% Game::GrandInventory::SCOPES.each do |scope| %>

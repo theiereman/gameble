@@ -22,7 +22,7 @@ class PioneerRankingTest < ApplicationSystemTestCase
 
   def discover(player, card_season_ids)
     now = Time.current
-    Game::FirstDiscovery.insert_all!(card_season_ids.map do |card_season_id|
+    Game::FirstDiscovery.insert_all!(Array(card_season_ids).map do |card_season_id|
       { card_season_id:, player_id: player.id, discovered_at: now, created_at: now, updated_at: now }
     end)
   end
@@ -35,7 +35,7 @@ class PioneerRankingTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
-    resize_to(1280, 700)
+    resize_to(1280, 800)
 
     visit pioneer_ranking_path(locale: :en)
 
@@ -48,7 +48,7 @@ class PioneerRankingTest < ApplicationSystemTestCase
 
     find("button.segmented__option[name=period][value=season]").click
 
-    assert_selector "button.segmented__option[name=period][value=season][aria-pressed=true]", text: "Total"
+    assert_selector "button.segmented__option[name=period][value=season][aria-pressed=true]", text: /\ATotal\z/i
     eventually("the pressed chip keeps focus") do
       evaluate_script("document.activeElement.matches('button[name=period][value=season][aria-pressed=true]')")
     end

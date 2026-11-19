@@ -6,7 +6,7 @@ import { serverTemplate } from "../lib/server_html"
 
 const GO_AND_FOCUS = "pioneer-ranking#go focusin->pioneer-ranking#barFocused focusout->pioneer-ranking#barLeft"
 
-type Watch =(entries: Array<Pick<IntersectionObserverEntry, "isIntersecting" | "target">>) => void
+type Watch = (entries: Array<Pick<IntersectionObserverEntry, "isIntersecting" | "target">>) => void
 
 describe("the viewer's place on the pioneer ranking", () => {
   let application: Application

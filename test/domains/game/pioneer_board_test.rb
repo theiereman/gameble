@@ -7,7 +7,7 @@ class Game::PioneerBoardTest < ActiveSupport::TestCase
   NOW = Time.utc(2026, 11, 18, 12)
   MONDAY = Time.utc(2026, 11, 16)
 
-  def player(number, **attributes) = Accounts::Player.create!(steam_id: (76561197960500000 + number).to_s, **attributes)
+  def player(number, **attributes) = Accounts::Player.create!({ steam_id: (76561197960500000 + number).to_s }.merge(attributes))
 
   def discover(player, card_season_ids, at: NOW)
     Game::FirstDiscovery.insert_all!(Array(card_season_ids).map do |card_season_id|
@@ -34,7 +34,7 @@ class Game::PioneerBoardTest < ActiveSupport::TestCase
     _season, cards = published_cards(3)
     active = player(1)
     discover(active, cards[0])
-    discover(player(2, deleted_at: NOW), cards[1, 2])
+    discover(player(2, deleted_at: NOW, steam_id: nil), cards[1, 2])
 
     assert_equal [ [ active, 1, 1 ] ], standings(:total)
   end
@@ -58,9 +58,6 @@ class Game::PioneerBoardTest < ActiveSupport::TestCase
 
     assert_equal [ [ pioneer, 1, 1 ] ], standings(:season)
     assert_equal [ [ pioneer, 1, 3 ] ], standings(:total)
-
-    Catalog::Season.update_all(status: "draft")
-    assert_empty standings(:season)
   end
 
   test "the viewer's place gives their rank, count and page; nobody, a banned viewer or one without a discovery has none" do

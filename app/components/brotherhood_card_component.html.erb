@@ -8,8 +8,6 @@
     <span class="brotherhood-card__pioneer brotherhood-card__pioneer--none" aria-hidden="true"><%= t("components.brotherhood_card.undiscovered") %></span>
   <% elsif mine? %>
     <span class="brotherhood-card__pioneer" aria-hidden="true"><%= t("components.brotherhood_card.you") %></span>
-  <% elsif pioneer_linked? %>
-    <span class="brotherhood-card__pioneer"><%= link_to pioneer_name, helpers.brother_path(token: pioneer.token) %></span>
   <% else %>
     <span class="brotherhood-card__pioneer" aria-hidden="true"><%= pioneer_name %></span>
   <% end %>

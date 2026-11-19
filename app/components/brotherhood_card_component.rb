@@ -31,6 +31,4 @@ class BrotherhoodCardComponent < ViewComponent::Base
 
       Accounts::PersonaName.clean(pioneer.persona_name) || t("shell.player.fallback_name")
     end
-
-    def pioneer_linked? = pioneer.present? && !pioneer.removed? && Game::Visibility.visible?(viewer, pioneer)
 end

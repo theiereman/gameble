@@ -62,7 +62,7 @@ class BrotherhoodSetsControllerTest < ActionDispatch::IntegrationTest
     assert_equal label(members[0], "discovered by Léa"), labels[0]
     assert_equal label(members[1], "to discover"), labels[1]
     assert_equal label(members[2], "discovered by anonymous"), labels[2]
-    assert_select ".brotherhood-card:nth-child(1) .brotherhood-card__pioneer a[href='/en/brothers/#{@lea.token}']", "Léa"
+    assert_select ".brotherhood-card:nth-child(1) .brotherhood-card__pioneer", "Léa"
     assert_select ".brotherhood-card:nth-child(3) .brotherhood-card__pioneer[aria-hidden=true]", "anonymous"
     assert_select ".brotherhood-card:nth-child(2) .brotherhood-card__pioneer[aria-hidden=true]", "To discover"
     context = { from: "inventory", set_key: "horror", set_kind: "theme" }.to_query
