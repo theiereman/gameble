@@ -177,8 +177,8 @@ class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
     # avatar; the player's own sets, read once with their Steam library set,
     # and goals; with no goal, the sets suggested, their standings and the
     # themes' names; the market settings in force; and the player's duels
-    # in progress for the tab bar.
-    assert_equal 25, suggested_forty
+    # in progress for the tab bar; the Grand Inventaire tile's found and total.
+    assert_equal 27, suggested_forty
 
     add(kind: "theme", key: "theme-1")
     one = count_queries { get library_path(locale: :en) }
