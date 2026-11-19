@@ -34,6 +34,8 @@ class Game::Market::EconomySeriesRarityPricesTest < ActiveSupport::TestCase
     assert_equal [ 1.5, nil, 1.6 ], prices.days_of_income[:epic].last(3)
     assert_equal [ nil, nil, nil ], prices.days_of_income[:common].last(3)
     assert_equal 1.6, prices.last_days_of_income(:epic)
+    assert_equal [ 15_000, 16_000, 16_000 ], prices.average_prices[:epic].last(3)
+    assert_equal 16_000, prices.last_average_price(:epic)
   end
 
   test "the index is 100 on the rarity's first day with a price, and its change runs from first to last price" do

@@ -27,7 +27,9 @@ module Game
       def self.rarity_prices(now: Time.current, through: now.utc.to_date - 1)
         days = days_through(through, DAYS)
         snapshots = DailySnapshot.where(day: days.first..days.last).index_by(&:day)
-        RarityPrices.of(days, Catalog::Rarity::TIERS.values.index_with { days_of_income(it, days, snapshots, nil).values })
+        rarities = Catalog::Rarity::TIERS.values
+        RarityPrices.of(days, rarities.index_with { days_of_income(it, days, snapshots, nil).values },
+          rarities.index_with { |rarity| days.map { snapshots[it]&.average_price(rarity) } })
       end
 
       def self.last_day = DailySnapshot.maximum(:day)

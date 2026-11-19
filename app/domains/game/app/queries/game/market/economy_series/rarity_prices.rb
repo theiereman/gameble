@@ -1,9 +1,9 @@
 module Game
   module Market
     module EconomySeries
-      RarityPrices = Data.define(:days, :days_of_income, :index) do
-        def self.of(days, days_of_income)
-          new(days:, days_of_income:, index: days_of_income.transform_values { indexed(it) })
+      RarityPrices = Data.define(:days, :days_of_income, :average_prices, :index) do
+        def self.of(days, days_of_income, average_prices)
+          new(days:, days_of_income:, average_prices:, index: days_of_income.transform_values { indexed(it) })
         end
 
         def self.indexed(values)
@@ -18,10 +18,12 @@ module Game
 
         def last_days_of_income(rarity) = days_of_income.fetch(rarity).compact.last
 
+        def last_average_price(rarity) = average_prices.fetch(rarity).compact.last
+
         def last_index(rarity) = index.fetch(rarity).compact.last
 
         def change_basis_points(rarity)
-          priced = days_of_income.fetch(rarity).compact
+          priced = average_prices.fetch(rarity).compact
           return if priced.size < 2 || !priced.first.positive?
 
           ((priced.last - priced.first) * 10_000 / priced.first).round

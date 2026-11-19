@@ -2685,7 +2685,7 @@ fr:
         purse_label: "Vos PiCoins"
       exchange:
         title: "LA BOURSE DE LA CONFRÉRIE"
-        window: "ce que coûte une carte, en jours de capsules · 90 j"
+        window: "ce que coûte une carte, en PiCoins · 90 j"
         open: "VOIR LA BOURSE"
         empty: "Les premiers cours paraissent au lendemain des premières ventes."
       mine:
@@ -3633,7 +3633,7 @@ fr:
         title: "INDICE DES PRIX"
       line: "Une carte se compte en jours de capsules, et cette mesure reste juste quand les PiCoins se multiplient."
       regular: "Joueur régulier : 40 à 50 capsules par jour, revenu médian des joueurs actifs."
-      subtitle: "prix moyen, en jours de capsules d'un joueur régulier"
+      subtitle: "prix moyen en PiCoins, avec sa valeur en jours de capsules d'un joueur régulier"
       tiles: "Prix de chaque rareté"
       tooltip: "%{series} : %{value}"
       window: "90 derniers jours"
@@ -3641,6 +3641,7 @@ fr:
       circulation:
         caption: "PiCoins en circulation à la fin de chaque jour"
         summary: "%{last} PiCoins en circulation le %{last_day}, contre %{first} le %{first_day}."
+      days_of_capsules_html: "≈ %{duration} de capsules"
         title: "PICOINS EN CIRCULATION"
       columns:
         balance: "Solde (PiCoins)"

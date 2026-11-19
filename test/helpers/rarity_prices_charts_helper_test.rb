@@ -9,22 +9,25 @@ class RarityPricesChartsHelperTest < ActionView::TestCase
   def prices(epic: [ 1.0, nil, 1.43 ], common: [ nil, nil, 0.25 ])
     days = [ Date.new(2026, 11, 7), Date.new(2026, 11, 8), Date.new(2026, 11, 9) ]
     of_income = { common:, uncommon: [ nil, nil, nil ], rare: [ nil, nil, nil ], epic:, legendary: [ nil, nil, nil ] }
-    Game::Market::EconomySeries::RarityPrices.of(days, of_income)
+    amounts = { common: [ nil, nil, 120 ], uncommon: [ nil, nil, nil ], rare: [ nil, nil, nil ], epic: [ 700, nil, 1_000 ], legendary: [ nil, nil, nil ] }
+    Game::Market::EconomySeries::RarityPrices.of(days, of_income, amounts)
   end
 
   def text(html) = Nokogiri::HTML5.fragment(html.to_s).at_css("[aria-hidden=true]")&.text || html.to_s
 
-  test "each rarity gets a tile with its price in days of capsules, its 90-day change and a sparkline from two points" do
+  test "each rarity gets a tile with its price in PiCoins and in days of capsules, its 90-day change and a sparkline from two points" do
     epic, common, uncommon = rarity_price_tiles(prices).values_at(3, 0, 1)
 
     assert_equal [ "Epic", 4 ], [ epic.name, epic.tier ]
-    assert_equal "1.4 d", text(epic.price)
-    assert_includes epic.change, "+43%"
+    assert_equal 1_000, epic.amount
+    assert_equal "1.4 d", text(epic.days)
+    assert_includes epic.change, "+42.9%"
     assert_includes epic.change, "in 90 d"
-    assert_equal({ epic: [ 1.0, nil, 1.43 ] }, epic.sparkline.series)
-    assert_equal "6 h 00", text(common.price)
+    assert_equal({ epic: [ 700, nil, 1_000 ] }, epic.sparkline.series)
+    assert_equal "6 h 00", text(common.days)
     assert_nil common.sparkline
-    assert_equal "—", text(uncommon.price)
+    assert_nil uncommon.amount
+    assert_nil uncommon.days
   end
 
   test "the index chart has one series and table column per rarity, its legend the shape, name and last value" do

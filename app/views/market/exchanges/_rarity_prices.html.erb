@@ -4,7 +4,8 @@
     <% rarity_price_tiles(prices).each do |tile| %>
       <li class="rarity-tile rarity-tile--<%= tile.rarity %>">
         <p class="rarity-tile__name"><%= pixel_icon("rarity-#{tile.tier}", class: "rarity-tile__icon") %><%= tile.name %></p>
-        <p class="rarity-tile__price"><%= tile.price %></p>
+        <p class="rarity-tile__price"><%= tile.amount ? render(PicoinAmountComponent.new(amount: tile.amount, compact: true)) : chart_missing %></p>
+        <% if tile.days %><p class="rarity-tile__days"><%= t("charts.rarity_prices.days_of_capsules_html", duration: tile.days) %></p><% end %>
         <p class="rarity-tile__change"><%= tile.change %></p>
         <% if tile.sparkline %>
           <%= render ChartComponent.new(drawing: tile.sparkline, id: "rarity-sparkline-#{tile.rarity}", size: :spark) %>

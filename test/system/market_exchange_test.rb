@@ -73,7 +73,7 @@ class MarketExchangeTest < ApplicationSystemTestCase
     within("[data-exchange-panel=rarity_prices]") do
       assert_selector "h2", text: "WHAT A CARD COSTS"
       assert_selector ".rarity-tiles > li", count: 5
-      assert_selector ".rarity-tile--epic", text: /\AEpic\s+1\.6 d\s+1\.6 days\s+\+38\.5%\s+plus 38\.5%\s+in 90 d\z/
+      assert_selector ".rarity-tile--epic", text: /\AEpic\s+16k\s+≈ 1\.6 d\s+1\.6 days\s+of capsules\s+\+38\.5%\s+plus 38\.5%\s+in 90 d\z/
       assert_selector ".rarity-tile--epic .chart--spark canvas[style*=height]"
       assert_no_selector ".rarity-tile--rare .chart--spark"
       assert_selector "#rarity-index canvas[style*=height]"

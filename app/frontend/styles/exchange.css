@@ -103,6 +103,11 @@
   font: var(--font-number);
 }
 
+.rarity-tile__days {
+  color: var(--color-muted);
+  font: var(--font-label);
+}
+
 .rarity-tile__change {
   color: var(--color-muted);
   font: var(--font-label);

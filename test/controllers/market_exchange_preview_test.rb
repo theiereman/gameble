@@ -42,7 +42,7 @@ class MarketExchangePreviewTest < ActionDispatch::IntegrationTest
     assert_select ".market-screen__chips a[href=?]", market_exchange_path(locale: :en), false
     assert_select "a.exchange-preview .exchange-preview__title", "THE BROTHERHOOD'S EXCHANGE"
     assert_select ".exchange-preview__rarity", 5
-    assert_select ".exchange-preview__rarity--epic .exchange-preview__price", text: /11 d/
+    assert_select ".exchange-preview__rarity--epic .exchange-preview__price", text: /11k/
     assert_select ".exchange-preview__rarity--epic .exchange-preview__change--up", text: /\+10%/
     assert_select ".exchange-preview__rarity--epic .chart--spark[aria-hidden=true]"
     assert_select ".exchange-preview__rarity--rare .exchange-preview__change--flat"

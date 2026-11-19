@@ -1,12 +1,12 @@
 module RarityPricesChartsHelper
   SPARKLINE_MINIMUM_POINTS = 2
 
-  Tile = Data.define(:rarity, :tier, :name, :price, :change, :sparkline)
+  Tile = Data.define(:rarity, :tier, :name, :amount, :days, :change, :sparkline)
 
   def rarity_price_tiles(prices)
     prices.rarities.map do |rarity|
       Tile.new(rarity:, tier: Catalog::Rarity::TIERS.key(rarity), name: rarity_name(rarity),
-        price: chart_duration(prices.last_days_of_income(rarity)), change: rarity_price_change(prices, rarity),
+        amount: prices.last_average_price(rarity), days: prices.last_days_of_income(rarity)&.then { chart_duration(it) }, change: rarity_price_change(prices, rarity),
         sparkline: rarity_sparkline_drawing(prices, rarity))
     end
   end
@@ -28,7 +28,7 @@ module RarityPricesChartsHelper
   end
 
   def rarity_sparkline_drawing(prices, rarity)
-    values = prices.days_of_income.fetch(rarity)
+    values = prices.average_prices.fetch(rarity)
     return if values.compact.size < SPARKLINE_MINIMUM_POINTS
 
     Charts::Drawing.new(kind: "sparkline", labels: chart_labels(prices.days), series: { rarity => values })

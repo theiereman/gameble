@@ -10,7 +10,7 @@
           <% rarity_price_tiles(preview.prices).each do |tile| %>
             <span class="exchange-preview__rarity exchange-preview__rarity--<%= tile.rarity %>">
               <span class="exchange-preview__name"><%= pixel_icon("rarity-#{tile.tier}", class: "exchange-preview__icon") %><%= tile.name %></span>
-              <span class="exchange-preview__price"><%= tile.price %></span>
+              <span class="exchange-preview__price"><%= tile.amount ? render(PicoinAmountComponent.new(amount: tile.amount, compact: true)) : chart_missing %></span>
               <%= exchange_preview_change(preview.prices, tile.rarity) %>
               <% if tile.sparkline %>
                 <%= render ChartComponent.new(drawing: tile.sparkline, id: "exchange-preview-sparkline-#{tile.rarity}", size: :spark) %>

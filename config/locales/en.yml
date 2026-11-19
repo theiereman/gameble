@@ -1548,6 +1548,7 @@ en:
     one_below: 1
     rarity_prices:
       change_html: "%{change} in 90 d"
+      days_of_capsules_html: "≈ %{duration} of capsules"
       columns:
         day: Day
       empty: No price yet.
@@ -1559,7 +1560,7 @@ en:
         title: PRICE INDEX
       line: A card is counted in days of capsules, and that measure stays fair when PiCoins multiply.
       regular: "Regular player: 40 to 50 capsules a day, the median income of active players."
-      subtitle: average price, in days of a regular player's capsules
+      subtitle: average price in PiCoins, with its worth in days of a regular player's capsules
       tiles: Price of each rarity
       tooltip: "%{series}: %{value}"
       window: Last 90 days
@@ -3607,7 +3608,7 @@ en:
         empty: The first prices show the day after the first sales.
         open: SEE THE EXCHANGE
         title: THE BROTHERHOOD'S EXCHANGE
-        window: what a card costs, in days of capsules · 90 d
+        window: what a card costs, in PiCoins · 90 d
       found_heading: LISTINGS FOUND
       heading: Market
       list_label: Listings
