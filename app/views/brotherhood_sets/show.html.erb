@@ -2,7 +2,6 @@
 <% seasons = ("current" if @current_season) %>
 <% complete = @total.positive? && @found >= @total %>
 <% context = { set_kind: @set.kind, set_key: @set.key, from: "inventory", seasons: }.compact %>
-<% strings = CardStrings.new %>
 <% content_for :back_button, true %>
 <% content_for :phone_back do %><%= phone_back_link t("brotherhood_sets.show.back"), grand_inventory_path(seasons:) %><% end %>
 <% content_for :screen_title, t("brotherhood_sets.show.screen") %>
@@ -31,9 +30,7 @@
     <% if @slots.any? %>
       <ol class="collection-grid collection-grid--fill set-album__grid brotherhood-set__grid" aria-label="<%= t("brotherhood_sets.show.slots") %>"
         data-controller="grid-keys" data-action="keydown->grid-keys#move focusin->grid-keys#remember">
-        <% @slots.each do |slot| %>
-          <%= render BrotherhoodCardComponent.new(card: slot.card, found: slot.found, pioneer: slot.pioneer, viewer: current_player, context:, strings:) %>
-        <% end %>
+        <%= render "grand_inventories/slots", slots: @slots, link: context %>
       </ol>
     <% else %>
       <p class="collection-grid__empty"><%= @pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>

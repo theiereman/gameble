@@ -204,6 +204,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_select "dialog#private-dialog[open]" do
       assert_select ".private-dialog__text", "Passer en privé annule votre échange en cours."
+      assert_select "#private-dialog-text .private-dialog__text", /Vos premières découvertes restent signées/
       assert_select "input[type=hidden][name=confirmed_trades][value=1]"
     end
     assert_nil flash[:notice]

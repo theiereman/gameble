@@ -2042,18 +2042,9 @@ fr:
       states:
         found: "Découvertes"
         all: "Tout"
-        undiscovered: "À découvrir"
+        missing: "À découvrir"
         mine: "Mes découvertes"
       join: "Rejoignez la Confrérie pour découvrir les cartes manquantes."
-  components:
-    brotherhood_card:
-      badge: "VOUS"
-      you: "Vous"
-      undiscovered: "À découvrir"
-      undiscovered_words: "à découvrir"
-      found_by: "découverte par %{name}"
-      found_by_you: "découverte par vous"
-      anonymous: "anonyme"
   bottom_sheet:
     close: "Fermer"
   boosters:
@@ -2922,7 +2913,6 @@ fr:
       heading: "Le Grand Inventaire"
       season: "Saison %{number} · %{name}"
       back: "Grand Inventaire"
-      visitor: "Rejoignez la Confrérie pour découvrir les cartes manquantes."
       empty: "Aucune carte découverte pour l'instant."
       everything_found: "La Confrérie a tout découvert."
       count:
@@ -2987,19 +2977,6 @@ fr:
       anonymous: "anonyme"
       you: "Vous"
       you_badge: "VOUS"
-    age:
-      minutes:
-        zero: "il y a %{count} min"
-        one: "il y a %{count} min"
-        other: "il y a %{count} min"
-      hours:
-        zero: "il y a %{count} h"
-        one: "il y a %{count} h"
-        other: "il y a %{count} h"
-      days:
-        zero: "il y a %{count} j"
-        one: "il y a %{count} j"
-        other: "il y a %{count} j"
   fortunes:
     gauge:
       you: "VOUS"

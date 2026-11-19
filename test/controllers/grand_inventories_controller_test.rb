@@ -1,10 +1,14 @@
 require "test_helper"
+require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
 # Le Grand Inventaire, open without an account: the fixture season's five
 # cards, each first found by the banned player long ago.
 class GrandInventoriesControllerTest < ActionDispatch::IntegrationTest
+  include GameSets
   include SteamSignIn
+
+  STREAM = { "Accept" => "text/vnd.turbo-stream.html" }.freeze
 
   setup do
     @player = accounts_players(:player)
@@ -38,7 +42,7 @@ class GrandInventoriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".grand-inventory-slot__badge", false
     assert_select "input[name='state[]'][value=mine]", false
     assert_select "input[name='state[]'][value=missing]"
-    assert_select ".grand-inventory__visitor", /Join the Brotherhood to discover the missing cards\./
+    assert_select ".pioneer-boards__visitor", count: 1, text: /Join the Brotherhood to discover the missing cards\./
     assert_select "nav.grand-inventory__tabs .tabs__tab--current[aria-current=page]", "Cards"
   end
 
@@ -51,7 +55,7 @@ class GrandInventoriesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Blue Depths, 2014, Rare, discovered by you", slot_labels.first
     assert_select "#collection-slots li:first-child .grand-inventory-slot__badge", "YOU"
     assert_select "#collection-slots li:first-child .grand-inventory-slot__pioneer", "You"
-    assert_select ".grand-inventory__visitor", false
+    assert_select ".pioneer-boards__visitor", false
     assert_select ".grand-inventory__pace a", "Blue Depths"
 
     get grand_inventory_path(locale: :en, state: %w[mine])
@@ -114,5 +118,47 @@ class GrandInventoriesControllerTest < ActionDispatch::IntegrationTest
     back = css_select(".top-bar__phone-back").sole
     assert_equal [ grand_inventory_path(locale: :en, seasons: "current"), "Great Inventory" ], [ back["href"], back.text.squish ]
     assert_select "a[href=?]", detail.(:common_card)
+  end
+
+  test "the pace counts the cards credited since Monday midnight UTC and since midnight UTC" do
+    now = Time.current.utc.next_occurring(:wednesday).change(hour: 12)
+    travel_to now
+    monday = now.beginning_of_week(:monday)
+    pioneer(:portal_one, @player, at: now.beginning_of_day)
+    pioneer(:common_card_one, @player, at: monday)
+    pioneer(:rare_card_one, @player, at: monday - 1.second)
+    game_first_discoveries(:legendary_card_one).destroy!
+
+    get grand_inventory_path(locale: :en)
+
+    assert_equal %w[2 1], css_select(".grand-inventory__pace b").map(&:text)
+  end
+
+  test "complete sets list the latest completed first, the others the fewest missing first, then the larger share" do
+    _season, cards = published_cards(6)
+    { "alpha" => cards[0, 2], "beta" => cards[2, 4], "gamma" => cards, "delta" => cards[2, 2], "epsilon" => [ cards[4] ] }
+      .each { |key, members| insert_set(members, {}, key:, season: Catalog::PublishedSeason.call) }
+    { 0 => 5.hours, 2 => 4.hours, 3 => 3.hours, 4 => 1.hour }.each do |index, age|
+      Game::FirstDiscovery.create!(card_season_id: cards[index], player_id: @player.id, discovered_at: age.ago)
+    end
+
+    get grand_inventory_path(locale: :en)
+
+    keys = css_select(".grand-inventory__sets-preview a.grand-inventory__set-row").map { it["href"].split("/").last }
+    assert_equal %w[epsilon delta beta alpha gamma], keys
+  end
+
+  test "the next page of the grid answers as a Turbo Stream: its cards keep the scope, then the status line and the pages" do
+    published_cards(61)
+
+    get grand_inventory_path(locale: :en, seasons: "current", page: 2), headers: STREAM
+
+    assert_response :success
+    assert_equal Mime[:turbo_stream], response.media_type
+    links = css_select("turbo-stream[action=append][target=collection-slots] template li a.card-link")
+    assert_equal 1, links.size
+    assert_includes links.sole["href"], { inventory: { seasons: "current" } }.to_query
+    assert_equal "Page 2 loaded", css_select("turbo-stream[action=update][target=collection-results-status] template").sole.text
+    assert_select "turbo-stream[action=replace][target=collection-pages] template nav#collection-pages [aria-current=page]", /2/
   end
 end

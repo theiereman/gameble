@@ -58,16 +58,18 @@ class Game::GrandInventoryTest < ActiveSupport::TestCase
     assert inventory.pioneer_of(catalog_cards(:portal)).player.removed?
   end
 
-  test "the latest discovery is the newest of a published card, the same in both scopes" do
+  test "the latest discovery and the pace follow the scope's pioneers: a new edition of a found card counts only in the current season" do
     publish_second_season
-    discovery(:rare_card_one).update!(discovered_at: 1.minute.from_now)
 
-    [ :all, :current ].each do |scope|
-      latest = Game::GrandInventory.new(seasons: scope).latest_discovery
-      assert_equal @player, latest.player, scope.to_s
-      assert_equal "portal", latest.card.id
-    end
-    assert_equal 1, Game::GrandInventory.new(seasons: :all).found_since(1.day.ago)
+    current = Game::GrandInventory.new(seasons: :current)
+    assert_equal @player, current.latest_discovery.player
+    assert_equal "portal", current.latest_discovery.card.id
+    assert_equal 1, current.found_since(1.day.ago)
+
+    all = Game::GrandInventory.new(seasons: :all)
+    assert_equal @banned, all.latest_discovery.player
+    assert_equal 0, all.found_since(1.day.ago)
+    assert_equal 2, all.found_since(3.weeks.ago)
   end
 
   test "with nothing discovered: nothing found, no latest discovery" do

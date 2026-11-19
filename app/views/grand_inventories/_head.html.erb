@@ -37,7 +37,7 @@
         · <%= t("grand_inventories.show.pace.latest_html",
           card: link_to(latest.card.title, card_season_path(slug: latest.card.id, number: latest.card.season_number)),
           player: render("grand_inventories/pioneer", player: latest.player),
-          age: tag.time(grand_inventory_age(latest.discovered_at), datetime: latest.discovered_at.utc.iso8601)) %>
+          age: tag.time(set_gained_ago(latest.discovered_at), datetime: latest.discovered_at.utc.iso8601)) %>
       <% end %>
     <% end %>
   </p>

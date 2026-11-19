@@ -229,15 +229,6 @@
   min-width: 0;
 }
 
-.grand-inventory__visitor {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4);
-  margin: 0;
-  color: var(--color-text);
-}
-
 .grand-inventory__cards {
   display: flex;
   flex-direction: column;
@@ -316,10 +307,6 @@
 
   .grand-inventory__pioneers {
     grid-column: span 2;
-  }
-
-  .grand-inventory__visitor {
-    order: 1;
   }
 
   .grand-inventory__cards {

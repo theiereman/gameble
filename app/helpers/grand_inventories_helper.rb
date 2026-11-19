@@ -27,12 +27,4 @@ module GrandInventoriesHelper
 
     Accounts::PersonaName.clean(player.persona_name) || t("shell.player.fallback_name")
   end
-
-  def grand_inventory_age(time, now: Time.current)
-    minutes = [ ((now - time) / 60).floor, 1 ].max
-    if minutes < 60 then t("grand_inventories.age.minutes", count: minutes)
-    elsif minutes < 24 * 60 then t("grand_inventories.age.hours", count: minutes / 60)
-    else t("grand_inventories.age.days", count: minutes / (24 * 60))
-    end
-  end
 end

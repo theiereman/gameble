@@ -56,15 +56,15 @@ class BrotherhoodSetsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "2/16", count
     assert_equal "2 cards discovered out of 16", value_text
     assert_select ".set-album__ticks, .set-row__tick, .set-album__actions, .set-album__stamp", false
-    assert_select ".brotherhood-set__grid > li.brotherhood-card", 16
+    assert_select ".brotherhood-set__grid > li.grand-inventory-slot", 16
     assert_select ".brotherhood-set__grid .card--not-owned", 14
-    assert_select ".brotherhood-card__badge, .collection-slot__copies, .collection-slot__new", false
+    assert_select ".grand-inventory-slot__badge, .collection-slot__copies, .collection-slot__new", false
     assert_equal label(members[0], "discovered by Léa"), labels[0]
     assert_equal label(members[1], "to discover"), labels[1]
     assert_equal label(members[2], "discovered by anonymous"), labels[2]
-    assert_select ".brotherhood-card:nth-child(1) .brotherhood-card__pioneer", "Léa"
-    assert_select ".brotherhood-card:nth-child(3) .brotherhood-card__pioneer[aria-hidden=true]", "anonymous"
-    assert_select ".brotherhood-card:nth-child(2) .brotherhood-card__pioneer[aria-hidden=true]", "To discover"
+    assert_select ".grand-inventory-slot:nth-child(1) .grand-inventory-slot__pioneer", "Léa"
+    assert_select ".grand-inventory-slot:nth-child(3) .grand-inventory-slot__pioneer", "anonymous"
+    assert_select ".grand-inventory-slot:nth-child(2) .grand-inventory-slot__pioneer", "To discover"
     context = { from: "inventory", set_key: "horror", set_kind: "theme" }.to_query
     assert_equal "/en/cards/#{slug(members[0])}/seasons/#{season.number}?#{context}",
       css_select(".brotherhood-set__grid > li > a.card-link").first["href"]
@@ -85,13 +85,13 @@ class BrotherhoodSetsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".brotherhood-set__grid > li", 1
-    assert_select ".brotherhood-card--mine .brotherhood-card__badge[aria-hidden=true]", "YOU"
-    assert_select ".brotherhood-card--mine .brotherhood-card__pioneer", "You"
+    assert_select ".grand-inventory-slot--mine .grand-inventory-slot__badge[aria-hidden=true]", "YOU"
+    assert_select ".grand-inventory-slot--mine .grand-inventory-slot__pioneer", "You"
     assert_equal [ label(members[3], "discovered by you") ], labels
     assert_select "[data-group=state] .filter-chip__box[value=mine][checked]"
     assert_select ".brotherhood-set__join", false
 
-    get brotherhood_set_path(locale: :en, kind: "theme", key: "horror", state: [ "undiscovered" ])
+    get brotherhood_set_path(locale: :en, kind: "theme", key: "horror", state: [ "missing" ])
 
     assert_select ".brotherhood-set__grid > li", 14
   end
@@ -133,6 +133,10 @@ class BrotherhoodSetsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".top-bar__phone-back[href='/en/inventory/theme/horror']", /Great Inventory/
     assert_select "a[href*='from=inventory'][href*='set_key=horror']"
+
+    get card_season_path(locale: :en, slug: slug(members[1]), number: season.number, set_kind: "theme", set_key: "horror", from: "inventory",
+      seasons: "current")
+    assert_select ".top-bar__phone-back[href='/en/inventory/theme/horror?seasons=current']"
   end
 
   test "an unknown set is not found" do

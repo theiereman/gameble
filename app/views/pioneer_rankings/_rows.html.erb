@@ -5,7 +5,7 @@
   <%= tag.li class: class_names("pioneer-row", "pioneer-row--mine": mine), **anchor do %>
     <span class="pioneer-row__rank"><%= pioneer_rank(row.rank) %></span>
     <span class="pioneer-row__who">
-      <%= render PlayerNameComponent.new(player: row.player, viewer:) %>
+      <%= render PlayerNameComponent.new(player: row.player, viewer:, friends: @friends) %>
       <% if mine %><span class="pioneer-row__you"><%= t("pioneer_rankings.you") %></span><% end %>
     </span>
     <span class="pioneer-row__count">

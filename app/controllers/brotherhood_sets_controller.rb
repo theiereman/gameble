@@ -2,8 +2,6 @@ class BrotherhoodSetsController < ApplicationController
   include PublicRead
   include Pagy::Method
 
-  Slot = Data.define(:card, :found, :pioneer)
-
   def show
     authorize :page, :show?
     album = published_album
@@ -26,17 +24,14 @@ class BrotherhoodSetsController < ApplicationController
 
     def shown_slots(album, inventory)
       views = Catalog::CardViews.call(album.members.map(&:first), locale: I18n.locale)
-      album.members.filter_map do |card_season_id, _card_id|
+      pioneers = inventory.pioneers_of(album.members.map(&:last))
+      album.members.filter_map do |card_season_id, card_id|
         card = views[card_season_id]
         next if card.nil? || !@filters.shows_card?(card)
 
-        slot = Slot.new(card:, found: inventory.found?(card), pioneer: inventory.pioneer_of(card))
-        slot if @filters.shows_discovery?(found: slot.found, mine: mine?(slot.pioneer))
+        pioneer = pioneers[card_id]
+        [ card, pioneer ] if @filters.shows_discovery?(found: pioneer.present?, mine: current_player.present? && pioneer&.player == current_player)
       end
-    end
-
-    def mine?(pioneer)
-      current_player.present? && pioneer&.player&.id == current_player.id
     end
 
     def page

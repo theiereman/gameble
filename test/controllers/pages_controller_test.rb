@@ -49,7 +49,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     }
   }.freeze
 
-  PLAYER_HUB_QUERIES = 36
+  PLAYER_HUB_QUERIES = 37
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -598,8 +598,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # achievements earned and the rewards waiting to be claimed, the trades
     # waiting (menu 03 and the Trades tab share one count), the invitations waiting
     # (the player menu's), the LIVE ticker's entries and the feed strip's
-    # (none here, so no players or cards), and the Flukeometer panel's standing,
-    # distribution, Privileged threshold and top three, and the market settings in force.
+    # (none here, so no players or cards), the Flukeometer panel's standing,
+    # distribution, Privileged threshold and top three, the market settings in force,
+    # and the Grand Inventaire panel (two counts, the latest discovery, its card and its pioneer).
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 

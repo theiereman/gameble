@@ -115,6 +115,7 @@ class ShellHelperTest < ActionView::TestCase
     end
     assert_equal({ hub: "page", booster: nil, sets: nil, trades: nil, duels: nil }, tabs_on("feeds", "show"))
     assert_equal "page", tabs_on("cards", "show")[:sets]
+    %w[grand_inventories pioneer_rankings brotherhood_sets].each { assert_equal "page", tabs_on(it, "show")[:sets], it }
     assert_equal "page", tabs_on("packs", "show")[:booster]
   end
 

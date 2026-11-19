@@ -20,14 +20,14 @@ class BrotherhoodSetTest < ApplicationSystemTestCase
     visit set_path
     assert_selector "#set-album-heading:focus"
     assert_selector ".brotherhood-set__grid > li", count: 6, visible: :all
-    assert_selector ".brotherhood-card__pioneer a", text: "Léa", visible: :all
+    assert_selector ".grand-inventory-slot__pioneer", text: "Léa", visible: :all
     header = find(".set-album__header").text
 
     find(".filters__summary").click
     find(".filter-chip__text", text: /\ATo discover\z/i).click
     assert_selector ".brotherhood-set__grid > li", count: 5, visible: :all
     assert_no_selector ".brotherhood-set__grid .card:not(.card--not-owned)", visible: :all
-    assert_selector "[data-group=state] .filter-chip__box[value=undiscovered]:focus", visible: :all
+    assert_selector "[data-group=state] .filter-chip__box[value=missing]:focus", visible: :all
     assert_equal header, find(".set-album__header").text
 
     find(".filters__clear").click

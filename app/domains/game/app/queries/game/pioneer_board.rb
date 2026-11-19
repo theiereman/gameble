@@ -44,18 +44,19 @@ module Game
     def self.of_period(period, now)
       case period
       when :week then FirstDiscovery.where(discovered_at: now.utc.beginning_of_week(:monday)..)
-      when :season then of_season(Catalog::PublishedSeason.call)
-      when :total then FirstDiscovery.all
+      when :season then credited(:current)
+      when :total then credited(:all)
       else raise ArgumentError, "unknown period #{period.inspect}"
       end
     end
 
-    def self.of_season(season)
+    def self.credited(scope)
+      season = Catalog::PublishedSeason.call
       return FirstDiscovery.none unless season
 
-      FirstDiscovery.where(card_season_id: Catalog::CardSeason.where(season_id: season.id).select(:id))
+      FirstDiscovery.from("(#{GrandInventory.discoveries_sql(scope, season)}) AS game_first_discoveries")
     end
 
-    private_class_method :of_period, :of_season
+    private_class_method :of_period, :credited
   end
 end

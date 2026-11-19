@@ -37,11 +37,17 @@ module Game
        GROUP BY members.set_id
     SQL
 
-    PUBLISHED_EDITION = <<~SQL.squish.freeze
-      JOIN catalog_card_seasons AS editions ON editions.id = game_first_discoveries.card_season_id
-      JOIN catalog_card_seasons AS published ON published.card_id = editions.card_id
-       AND published.season_id = ? AND published.rarity IS NOT NULL
+    LATEST = <<~SQL.squish.freeze
+      SELECT inventory.player_id, inventory.discovered_at, published.id
+        FROM (#{DISCOVERIES}) AS inventory
+        JOIN catalog_card_seasons AS published ON published.card_id = inventory.card_id AND published.season_id = :season_id
+       ORDER BY inventory.discovered_at DESC, inventory.card_id DESC
+       LIMIT 1
     SQL
+
+    def self.discoveries_sql(scope, season)
+      FirstDiscovery.sanitize_sql_array([ DISCOVERIES, { season_id: season&.id, all_seasons: scope == :all } ])
+    end
 
     def self.states(asked, viewer: nil)
       offered = viewer ? STATES : STATES - [ "mine" ]
@@ -60,9 +66,9 @@ module Game
       @locale = locale
     end
 
-    def total = cards.size
+    def total = @total ||= @cards ? cards.size : count_of(CARDS)
 
-    def found_count = found.size
+    def found_count = @found_count ||= @found ? found.size : count_of(DISCOVERIES)
 
     def found?(card) = found.key?(card_id_of(card))
 
@@ -83,16 +89,13 @@ module Game
     def latest_discovery
       return @latest_discovery if defined?(@latest_discovery)
 
-      player_id, discovered_at, card_season_id = published_discoveries.order(discovered_at: :desc, id: :desc)
-        .pick("game_first_discoveries.player_id", "game_first_discoveries.discovered_at", "published.id")
+      player_id, discovered_at, card_season_id = rows(LATEST).first
       @latest_discovery = card_season_id && Discovery.new(card: Catalog::CardViews.call([ card_season_id ], locale: @locale)[card_season_id],
         player: Accounts::Player.find_by(id: player_id), discovered_at:)
     end
 
     def found_since(time)
-      return 0 if season.nil?
-
-      published_discoveries.where(discovered_at: time..).count
+      count_of("SELECT * FROM (#{DISCOVERIES}) AS inventory WHERE inventory.discovered_at >= :time", time:)
     end
 
     def per_rarity
@@ -146,12 +149,10 @@ module Game
         @found ||= rows(DISCOVERIES).to_h { |card_id, player_id, discovered_at| [ card_id, [ player_id, discovered_at ] ] }
       end
 
-      def discoveries_sql
-        FirstDiscovery.sanitize_sql_array([ DISCOVERIES, { season_id: season&.id, all_seasons: scope == :all } ])
-      end
+      def discoveries_sql = self.class.discoveries_sql(scope, season)
 
-      def published_discoveries
-        FirstDiscovery.joins(FirstDiscovery.sanitize_sql_array([ PUBLISHED_EDITION, season&.id ]))
+      def count_of(sql, **binds)
+        rows("SELECT COUNT(*) FROM (#{sql}) AS counted", **binds).first || 0
       end
 
       def rows(sql, **binds)

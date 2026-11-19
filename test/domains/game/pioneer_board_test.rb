@@ -49,15 +49,18 @@ class Game::PioneerBoardTest < ActiveSupport::TestCase
     assert_equal [ [ pioneer, 1, 2 ] ], standings(:total)
   end
 
-  test "the season counts only the published season's editions, the total every edition" do
+  test "the season credits each card to its published edition's pioneer, the total to its earliest edition's pioneer" do
     _old, old_cards = published_cards(2)
-    _current, current_cards = published_cards(1)
-    pioneer = player(1)
-    discover(pioneer, old_cards)
-    discover(pioneer, current_cards)
+    earliest, later = player(1), player(2)
+    discover(earliest, old_cards, at: NOW - 1.day)
+    season = Catalog::Season.create!(status: :published, number: Catalog::Season.maximum(:number) + 1, published_at: Time.current)
+    rows = Catalog::CardSeason.where(id: old_cards).order(:id).pluck(:card_id).each_with_index.map do |card_id, index|
+      { card_id:, season_id: season.id, prestige_score: 0.5, rating: 90, rarity: 1, number: index + 1 }
+    end
+    discover(later, Catalog::CardSeason.insert_all!(rows, returning: :id).rows.flatten)
 
-    assert_equal [ [ pioneer, 1, 1 ] ], standings(:season)
-    assert_equal [ [ pioneer, 1, 3 ] ], standings(:total)
+    assert_equal [ [ later, 1, 2 ] ], standings(:season)
+    assert_equal [ [ earliest, 1, 2 ] ], standings(:total)
   end
 
   test "the viewer's place gives their rank, count and page; nobody, a banned viewer or one without a discovery has none" do

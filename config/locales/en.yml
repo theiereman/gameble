@@ -1343,18 +1343,9 @@ en:
       states:
         found: "Discovered"
         all: "All"
-        undiscovered: "To discover"
+        missing: "To discover"
         mine: "My discoveries"
       join: "Join the Brotherhood to discover the missing cards."
-  components:
-    brotherhood_card:
-      badge: "YOU"
-      you: "You"
-      undiscovered: "To discover"
-      undiscovered_words: "to discover"
-      found_by: "discovered by %{name}"
-      found_by_you: "discovered by you"
-      anonymous: "anonymous"
   bottom_sheet:
     close: Close
   card_backs:
@@ -2538,7 +2529,6 @@ en:
       heading: The Great Inventory
       season: "Season %{number} · %{name}"
       back: Great Inventory
-      visitor: Join the Brotherhood to discover the missing cards.
       empty: No card discovered yet.
       everything_found: The Brotherhood has discovered everything.
       count:
@@ -2603,19 +2593,6 @@ en:
       anonymous: anonymous
       you: You
       you_badge: YOU
-    age:
-      minutes:
-        zero: "%{count} min ago"
-        one: "%{count} min ago"
-        other: "%{count} min ago"
-      hours:
-        zero: "%{count} h ago"
-        one: "%{count} h ago"
-        other: "%{count} h ago"
-      days:
-        zero: "%{count} d ago"
-        one: "%{count} d ago"
-        other: "%{count} d ago"
   fortunes:
     gauge:
       crowd:

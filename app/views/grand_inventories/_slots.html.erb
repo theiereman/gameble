@@ -1,9 +1,9 @@
-<%# locals: (slots:, context:) %>
+<%# locals: (slots:, link:) %>
 <% strings = CardStrings.new %>
 <% slots.each do |card, discovery| %>
   <% mine = grand_inventory_mine?(discovery) %>
   <li class="<%= class_names("collection-slot grand-inventory-slot", "grand-inventory-slot--missing": discovery.nil?, "grand-inventory-slot--mine": mine) %>">
-    <%= link_to card_detail_path(card.id, card.season_number, inventory: context), class: "card-link", data: { turbo_prefetch: false },
+    <%= link_to card_detail_path(card.id, card.season_number, **link), class: "card-link", data: { turbo_prefetch: false },
       aria: { label: grand_inventory_card_label(card, discovery, strings) } do %>
       <%= render CardComponent.new(card:, size: :grid, owned: discovery.present?) %>
       <% if mine %><span class="grand-inventory-slot__badge" aria-hidden="true"><%= t("grand_inventories.card.you_badge") %></span><% end %>

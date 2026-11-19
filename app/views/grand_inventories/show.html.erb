@@ -14,12 +14,6 @@
       <div class="<%= class_names("tabs__panel grand-inventory__views", "grand-inventory__views--#{@view}") %>">
         <%= render "grand_inventories/sets", inventory: @inventory, complete: @complete_sets, closest: @closest_sets %>
         <div class="grand-inventory__pioneers" data-grand-inventory-view>
-          <% unless current_player %>
-            <p class="grand-inventory__visitor">
-              <span><%= t(".visitor") %></span>
-              <%= sign_in_button t("shell.top_bar.sign_in"), origin: request.path, class: "button button--primary button--small" %>
-            </p>
-          <% end %>
           <%= render "grand_inventories/pioneer_boards", inventory_scope: @inventory.scope, viewer: current_player %>
         </div>
         <%= render "grand_inventories/cards", inventory: @inventory %>

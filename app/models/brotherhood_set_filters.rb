@@ -1,5 +1,5 @@
 class BrotherhoodSetFilters < SetAlbumFilters
-  STATES = %w[found all undiscovered].freeze
+  STATES = %w[found all missing].freeze
   MINE = "mine".freeze
 
   def self.offered(signed_in:) = signed_in ? [ *STATES, MINE ] : STATES
@@ -11,7 +11,7 @@ class BrotherhoodSetFilters < SetAlbumFilters
 
   def shows_discovery?(found:, mine:)
     states.any? do |state|
-      state == Game::CollectionStates::DEFAULT || (state == "found" && found) || (state == "undiscovered" && !found) || (state == MINE && mine)
+      state == Game::CollectionStates::DEFAULT || (state == "found" && found) || (state == "missing" && !found) || (state == MINE && mine)
     end
   end
 end

@@ -83,3 +83,54 @@ describe("the viewer's place on the pioneer ranking", () => {
     expect(row().scrollIntoView).toHaveBeenCalledWith({ block: "center" })
   })
 })
+
+describe("the pioneer ranking after a chip or a streamed page", () => {
+  let application: Application
+
+  beforeEach(async () => {
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      callback(0)
+      return 1
+    })
+    vi.spyOn(history, "replaceState")
+    document.body.replaceChildren(
+      serverTemplate(`
+      <section data-controller="pioneer-ranking" data-action="turbo:frame-load->pioneer-ranking#reloaded">
+        <p data-pioneer-ranking-target="status" role="status"></p>
+        <div id="pioneer-ranking-results">
+          <form data-pioneer-ranking-reading="Season, your place: 4th">
+            <button name="period" value="season" aria-pressed="true" data-action="pioneer-ranking#chose">Season</button>
+          </form>
+        </div>
+      </section>`).content,
+    )
+    application = Application.start()
+    application.register("pioneer-ranking", PioneerRankingController)
+    await Promise.resolve()
+  })
+
+  afterEach(() => {
+    application.stop()
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  it("reads the new period in the status line and keeps focus on the pressed chip", () => {
+    const chip = document.querySelector<HTMLButtonElement>("button[name=period]")!
+    chip.click()
+    document.getElementById("pioneer-ranking-results")!.dispatchEvent(new Event("turbo:frame-load", { bubbles: true }))
+
+    expect(document.querySelector("[role=status]")!.textContent).toBe("Season, your place: 4th")
+    expect(document.activeElement).toBe(chip)
+  })
+
+  it("moves the address to a streamed page", async () => {
+    const marker = document.createElement("span")
+    marker.dataset.pioneerRankingTarget = "address"
+    marker.dataset.url = "/en/inventory/pioneers?page=2"
+    document.querySelector("[data-controller=pioneer-ranking]")!.append(marker)
+    await Promise.resolve()
+
+    expect(history.replaceState).toHaveBeenCalledWith(history.state, "", "/en/inventory/pioneers?page=2")
+  })
+})
