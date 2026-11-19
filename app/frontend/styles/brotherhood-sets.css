@@ -1,0 +1,68 @@
+/* ---- Grand Inventaire cards: the face, then the game and its pioneer ---- */
+
+.collection-grid--fill > .brotherhood-card {
+  aspect-ratio: auto;
+}
+
+.brotherhood-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.brotherhood-card__game,
+.brotherhood-card__pioneer {
+  overflow: hidden;
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brotherhood-card__game {
+  color: var(--color-text-bright);
+}
+
+.brotherhood-card__pioneer {
+  color: var(--color-text);
+}
+
+.brotherhood-card__pioneer--none {
+  color: var(--color-muted);
+}
+
+.brotherhood-card--mine .brotherhood-card__pioneer {
+  color: var(--color-gold);
+}
+
+/* "VOUS": a small gold box astride the card's top-right edge. */
+.brotherhood-card__badge {
+  position: absolute;
+  top: calc(var(--slot-bleed-top) - 7 * var(--space-1));
+  right: calc(var(--slot-bleed) - 3 * var(--space-1));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  background: var(--color-gold);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+  color: var(--color-on-gold);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-card-meta);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.brotherhood-set__join {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.brotherhood-set__join-text {
+  margin: 0;
+}

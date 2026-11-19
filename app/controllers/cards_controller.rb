@@ -180,7 +180,18 @@ class CardsController < ApplicationController
       key = params[:set_key]
       return unless kind.is_a?(String) && key.is_a?(String) && Catalog::SetKind::ALL.include?(kind)
 
-      set_browse(@detail.sets.find { it.kind == kind && it.key == key }, owner: album_owner)
+      set = @detail.sets.find { it.kind == kind && it.key == key }
+      params[:from] == "inventory" ? inventory_set_browse(set) : set_browse(set, owner: album_owner)
+    end
+
+    def inventory_set_browse(set)
+      seasons = "current" if params[:seasons] == "current"
+      browse = set_browse(set, scope: { from: "inventory", seasons: })
+      return if browse.nil?
+
+      page = ((browse.position - 1) / SetAlbumLoading::ALBUM_SIZE) + 1
+      path = brotherhood_set_path(kind: set.kind, key: set.key, seasons:, page: (page if page > 1))
+      browse.with(back: Back.new(label: t("brotherhood_sets.show.back"), path:))
     end
 
     def album_owner
@@ -232,13 +243,13 @@ class CardsController < ApplicationController
       @editions.find { |_, season_number, _| season_number == @detail.view.season_number } || @editions.first
     end
 
-    def set_browse(set, owner: nil)
+    def set_browse(set, owner: nil, scope: {})
       return if set.nil?
 
       place = Catalog::SetNeighbours.call(card_season_id: @detail.card_season_id, kind: set.kind, key: set.key, locale: I18n.locale)
       return if place.nil?
 
-      context = { set_kind: set.kind, set_key: set.key, brother: owner&.token }.compact
+      context = { set_kind: set.kind, set_key: set.key, brother: owner&.token, **scope }.compact
       path = ->(slug) { slug && helpers.card_detail_path(slug, @detail.view.season_number, context) }
       back = Back.new(label: t("cards.show.grid"), path: album_page_path(set, place.position, owner:)) if album_back?(owner)
       Browse.new(position: place.position, total: place.total, previous: path.(place.previous), next: path.(place.next), back:)

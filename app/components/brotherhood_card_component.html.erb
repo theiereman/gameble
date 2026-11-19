@@ -1,0 +1,16 @@
+<li class="<%= class_names("collection-slot brotherhood-card", "brotherhood-card--mine": mine?) %>">
+  <%= link_to path, class: "card-link", aria: { label: accessible_name }, data: { turbo_prefetch: false } do %><%= render CardComponent.new(card:, size: :grid, owned: found) %><% end %>
+  <% if mine? %>
+    <span class="brotherhood-card__badge" aria-hidden="true"><%= t("components.brotherhood_card.badge") %></span>
+  <% end %>
+  <span class="brotherhood-card__game" aria-hidden="true"><%= card.title %></span>
+  <% if !found %>
+    <span class="brotherhood-card__pioneer brotherhood-card__pioneer--none" aria-hidden="true"><%= t("components.brotherhood_card.undiscovered") %></span>
+  <% elsif mine? %>
+    <span class="brotherhood-card__pioneer" aria-hidden="true"><%= t("components.brotherhood_card.you") %></span>
+  <% elsif pioneer_linked? %>
+    <span class="brotherhood-card__pioneer"><%= link_to pioneer_name, helpers.brother_path(token: pioneer.token) %></span>
+  <% else %>
+    <span class="brotherhood-card__pioneer" aria-hidden="true"><%= pioneer_name %></span>
+  <% end %>
+</li>

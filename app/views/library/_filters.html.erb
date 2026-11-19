@@ -30,7 +30,7 @@
       </summary>
       <div class="filters__groups">
         <% if state_choices.any? %>
-          <%= render state_filter, state_choices:, states: %>
+          <%= render state_filter, state_choices:, states:, state_labels: local_assigns[:state_labels] %>
         <% end %>
         <% if goals.any? %>
           <%= render "library/goal_filter", goals:, goals_chosen: %>

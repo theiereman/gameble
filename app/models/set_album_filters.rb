@@ -1,15 +1,16 @@
 class SetAlbumFilters < Data.define(:states, :states_asked, :chosen_rarities, :query)
   STATES = %w[owned all missing].freeze
 
-  def self.from(params)
-    asked = Game::CollectionStates.sanitize(list(params, :state)) & STATES
+  def self.from(params) = build(params, Game::CollectionStates.sanitize(list(params, :state)) & STATES)
+
+  def self.build(params, asked)
     new(states: asked.any? ? asked : [ Game::CollectionStates::DEFAULT ], states_asked: asked.any?,
       chosen_rarities: Catalog::Rarity::TIERS.values.map(&:to_s) & list(params, :rarity),
       query: params[:q].to_s.strip.first(Catalog::CollectionGrid::MAX_QUERY))
   end
 
   def self.list(params, key) = Array.wrap(params[key]).grep(String)
-  private_class_method :list
+  private_class_method :build, :list
 
   def initialize(query:, **)
     @needle = SetSearch.normalize(query)

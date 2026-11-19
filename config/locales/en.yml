@@ -1326,6 +1326,35 @@ en:
   boosters:
     show:
       title: Capsule opening
+  brotherhood_sets:
+    show:
+      screen: "The Great Inventory"
+      title: "%{set} · The Great Inventory · Gameble"
+      back: "Great Inventory"
+      stamp: "Fully discovered"
+      progress:
+        zero: "%{found} cards discovered out of %{total}"
+        one: "%{found} card discovered out of %{total}"
+        other: "%{found} cards discovered out of %{total}"
+      slots: "Cards of the set"
+      search:
+        label: "Search the set's games by name"
+        placeholder: "Search a game"
+      states:
+        found: "Discovered"
+        all: "All"
+        undiscovered: "To discover"
+        mine: "My discoveries"
+      join: "Join the Brotherhood to discover the missing cards."
+  components:
+    brotherhood_card:
+      badge: "YOU"
+      you: "You"
+      undiscovered: "To discover"
+      undiscovered_words: "to discover"
+      found_by: "discovered by %{name}"
+      found_by_you: "discovered by you"
+      anonymous: "anonymous"
   bottom_sheet:
     close: Close
   card_backs:

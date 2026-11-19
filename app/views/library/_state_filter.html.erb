@@ -3,7 +3,7 @@
   <% state_choices.each do |state| %>
     <label class="filter-chip">
       <%= check_box_tag "state[]", state, states.include?(state), id: nil, class: "filter-chip__box" %>
-      <span class="filter-chip__text"><%= t("library.filters.states.#{state}") %></span>
+      <span class="filter-chip__text"><%= local_assigns[:state_labels] ? state_labels.fetch(state) : t("library.filters.states.#{state}") %></span>
     </label>
   <% end %>
 </fieldset>

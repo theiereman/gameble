@@ -1,0 +1,49 @@
+<% heading = SetLabel.for(@set) %>
+<% seasons = ("current" if @current_season) %>
+<% complete = @total.positive? && @found >= @total %>
+<% context = { set_kind: @set.kind, set_key: @set.key, from: "inventory", seasons: }.compact %>
+<% strings = CardStrings.new %>
+<% content_for :back_button, true %>
+<% content_for :phone_back do %><%= phone_back_link t("brotherhood_sets.show.back"), grand_inventory_path(seasons:) %><% end %>
+<% content_for :screen_title, t("brotherhood_sets.show.screen") %>
+<% content_for :title, t("brotherhood_sets.show.title", set: heading) %>
+<div class="set-album brotherhood-set">
+  <%= render PanelComponent.new(tag: :header, brackets: true, class: class_names("set-album__header", "set-album__header--complete": complete)) do %>
+    <div class="set-album__title">
+      <h1 id="set-album-heading" class="set-album__name" tabindex="-1" autofocus><%= heading %></h1>
+      <% if complete %>
+        <span class="set-album__stamp"><%= t("brotherhood_sets.show.stamp") %></span>
+      <% end %>
+      <span class="set-album__count" aria-hidden="true"><b><%= number_with_delimiter(@found) %></b>/<%= number_with_delimiter(@total) %></span>
+    </div>
+    <div class="set-album__track">
+      <progress class="set-row__bar set-album__bar" value="<%= [ @found, @total ].min %>" max="<%= [ @total, 1 ].max %>"
+        aria-labelledby="set-album-heading" aria-valuetext="<%= t("brotherhood_sets.show.progress", count: @found, found: number_with_delimiter(@found), total: number_with_delimiter(@total)) %>"></progress>
+    </div>
+  <% end %>
+  <%= render "library/filters", filters: @filters, state_choices: BrotherhoodSetFilters.offered(signed_in: current_player.present?),
+    state_labels: BrotherhoodSetFilters.offered(signed_in: true).index_with { t("brotherhood_sets.show.states.#{it}") },
+    states: @filters.states, states_asked: @filters.states_asked, query: @filters.query, hidden: { seasons: }.compact,
+    clear_path: brotherhood_set_path(kind: @set.kind, key: @set.key, seasons:), clear_action: "replace",
+    search_label: t("brotherhood_sets.show.search.label"), search_placeholder: t("brotherhood_sets.show.search.placeholder") %>
+  <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace" } do %>
+    <p class="visually-hidden" role="status"><%= t("library.grid.result", count: @pagy.count) %></p>
+    <% if @slots.any? %>
+      <ol class="collection-grid collection-grid--fill set-album__grid brotherhood-set__grid" aria-label="<%= t("brotherhood_sets.show.slots") %>"
+        data-controller="grid-keys" data-action="keydown->grid-keys#move focusin->grid-keys#remember">
+        <% @slots.each do |slot| %>
+          <%= render BrotherhoodCardComponent.new(card: slot.card, found: slot.found, pioneer: slot.pioneer, viewer: current_player, context:, strings:) %>
+        <% end %>
+      </ol>
+    <% else %>
+      <p class="collection-grid__empty"><%= @pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>
+    <% end %>
+    <%= render "library/pages", pagy: @pagy, empty: @slots.empty? %>
+  <% end %>
+  <% if current_player.nil? %>
+    <div class="brotherhood-set__join">
+      <p class="brotherhood-set__join-text"><%= t("brotherhood_sets.show.join") %></p>
+      <%= render SteamSignInComponent.new(origin: request.fullpath) %>
+    </div>
+  <% end %>
+</div>

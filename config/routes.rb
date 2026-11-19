@@ -115,6 +115,7 @@ Rails.application.routes.draw do
     delete "library/goals" => "goals#destroy"
     # One set's album, by kind and key, never by id.
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: Catalog::SetKind::PATTERN }
+    get "inventory/:kind/:key" => "brotherhood_sets#show", as: :brotherhood_set, constraints: { kind: Catalog::SetKind::PATTERN }
     # The collection's watermark: the page posts the latest gain it showed
     # as new.
     post "library/seen" => "collection_seen#create", as: :library_seen

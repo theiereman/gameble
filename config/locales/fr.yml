@@ -1962,6 +1962,35 @@ fr:
     unavailable:
       title: "Profil indisponible"
       body: "Ce profil n'est pas disponible. Le lien ne mène nulle part, ou son propriétaire ne le montre plus."
+  brotherhood_sets:
+    show:
+      screen: "Le Grand Inventaire"
+      title: "%{set} · Le Grand Inventaire · Gameble"
+      back: "Grand Inventaire"
+      stamp: "Entièrement découvert"
+      progress:
+        zero: "%{found} carte découverte sur %{total}"
+        one: "%{found} carte découverte sur %{total}"
+        other: "%{found} cartes découvertes sur %{total}"
+      slots: "Cartes du set"
+      search:
+        label: "Rechercher un jeu du set par son nom"
+        placeholder: "Rechercher un jeu"
+      states:
+        found: "Découvertes"
+        all: "Tout"
+        undiscovered: "À découvrir"
+        mine: "Mes découvertes"
+      join: "Rejoignez la Confrérie pour découvrir les cartes manquantes."
+  components:
+    brotherhood_card:
+      badge: "VOUS"
+      you: "Vous"
+      undiscovered: "À découvrir"
+      undiscovered_words: "à découvrir"
+      found_by: "découverte par %{name}"
+      found_by_you: "découverte par vous"
+      anonymous: "anonyme"
   bottom_sheet:
     close: "Fermer"
   boosters:

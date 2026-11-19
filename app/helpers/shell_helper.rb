@@ -42,6 +42,7 @@ module ShellHelper
     "library#sets" => :all_sets,
     "library#set" => :set,
     "custom_sets#show" => :set,
+    "brotherhood_sets" => :set,
     "custom_sets" => :sets,
     "cards" => :card,
     "boosters" => :booster,
