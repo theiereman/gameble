@@ -1,5 +1,5 @@
 <%# locals: (current:) %>
-<% if current_player && feature_enabled?(:duels) %>
+<% if current_player && (feature_enabled?(:duels) || hotwire_native_app?) %>
   <%= tag.nav class: "exchanges-tabs", aria: { label: t("exchanges.tabs.label") },
         data: { controller: "exchanges-tabs", exchanges_tabs_url_value: exchanges_tab_path, exchanges_tabs_current_value: current,
                 exchanges_tabs_kept_value: kept_exchanges_tab } do %>
