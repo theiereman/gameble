@@ -1,5 +1,5 @@
-# Production errors go to Sentry, and only errors: no tracing, no
-# profiling. Sentry starts only when SENTRY_DSN is set, so development and
+# Production errors go to Sentry, with a tenth of requests and jobs traced
+# for performance and no profiling. Sentry starts only when SENTRY_DSN is set, so development and
 # test send nothing. No personal data leaves: send_default_pii is off (no
 # request bodies, query strings, cookies or IP headers), and whatever request
 # data an event still carries is filtered by the app's filter_parameters. The
@@ -18,7 +18,7 @@ if ENV["SENTRY_DSN"].present?
     config.environment = SentryEnvironment.current
     config.release = ENV["KAMAL_VERSION"] if ENV["KAMAL_VERSION"].present?
     config.send_default_pii = false
-    config.traces_sample_rate = 0.0
+    config.traces_sample_rate = 0.1
     # Profiling stays off by leaving profiles_sample_rate unset (nil): any
     # number, even 0.0, makes Sentry warn that the stackprof gem is missing.
 
