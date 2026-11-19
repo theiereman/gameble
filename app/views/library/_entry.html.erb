@@ -3,6 +3,7 @@
   <div class="set-entry__shortcuts">
     <%= render "library/all_cards_tile", **all_cards %>
     <%= render "library/all_sets_tile", **all_sets %>
+    <%= render "library/grand_inventory_tile", inventory: grand_inventory %>
   </div>
   <%= turbo_frame_tag "set-entry-in-progress", src: in_progress_url, loading: :lazy, class: "set-entry__in-progress", target: "_top" do %>
     <p class="set-entry__loading"><%= t("library.entry.loading") %></p>

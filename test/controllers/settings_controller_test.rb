@@ -589,6 +589,21 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  {
+    "friends_only" => "Vos premières découvertes restent signées de votre nom dans le Grand Inventaire.",
+    "private" => "Vos premières découvertes restent signées de votre nom dans le Grand Inventaire.",
+    "public" => false
+  }.each do |visibility, note|
+    test "a #{visibility} profile #{note ? "is told" : "is not told"} its first discoveries stay signed" do
+      @player.update_columns(visibility:)
+      sign_in(@player)
+
+      get settings_path(locale: :fr)
+
+      assert_select summary, ".settings-summary__visibility + p.settings-summary__signed", note || false
+    end
+  end
+
   # The Steam library sync row
 
   def sign_in_without_steam

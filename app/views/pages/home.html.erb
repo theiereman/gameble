@@ -17,6 +17,7 @@
 
   <%= render "pages/showcase", card: @showcase, bank: @bank %>
   <div class="hub__aside">
+    <%= render "pages/grand_inventory_panel", inventory: @grand_inventory %>
     <%= render "pages/goal", goal: @goal, reward: @goal_reward, bank: @bank %>
     <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
     <% if @market_pulse %><%= render "pages/market_panel", pulse: @market_pulse, outbid: shell_outbid_count %><% end %>

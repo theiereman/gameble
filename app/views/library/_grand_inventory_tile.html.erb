@@ -1,0 +1,11 @@
+<%# locals: (inventory:) %>
+<% found = inventory.found_count %>
+<%= link_to grand_inventory_path, class: "all-cards-tile" do %>
+  <span class="all-cards-tile__summary">
+    <span class="all-cards-tile__title"><%= pixel_icon("achievement-ledger", class: "all-cards-tile__icon") %><%= t("library.entry.grand_inventory.title") %></span>
+    <span class="all-cards-tile__figures">
+      <span class="all-cards-tile__count"><%= number_with_delimiter(found) %><span class="all-cards-tile__total">/<%= number_with_delimiter(inventory.total) %></span></span>
+      <span class="all-cards-tile__unit"><%= t("library.entry.grand_inventory.unit", count: found) %></span>
+    </span>
+  </span>
+<% end %>

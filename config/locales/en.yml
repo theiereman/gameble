@@ -3015,6 +3015,8 @@ en:
           packs: Capsules opened today
           players: Active players this week
         feed: Activity feed
+        grand_inventory:
+          open: See the Great Inventory
         label: 04 · Live
         open_feed: Open the activity feed
         open_register: See The Flukeometer
@@ -3150,6 +3152,12 @@ en:
         one: 1 set found
         other: "%{count} sets found"
         zero: No set found
+      grand_inventory:
+        title: The Great Inventory
+        unit:
+          one: discovery
+          other: discoveries
+          zero: discoveries
       goals:
         album: Album
         count_html: "<b>%{count}</b> / %{max}"
@@ -3883,6 +3891,15 @@ en:
       goals:
         see_all: See all
         title: Goals in progress
+      grand_inventory:
+        empty: No card discovered yet.
+        latest_html: 'Latest discovery: %{card}, by %{player}, %{ago}'
+        open: See the Great Inventory
+        spoken:
+          one: "%{found} card discovered out of %{total}"
+          other: "%{found} cards discovered out of %{total}"
+          zero: "%{found} cards discovered out of %{total}"
+        title: The Great Inventory
       kicker:
         title: Command bridge
       live:
@@ -4732,6 +4749,8 @@ en:
           one: "%{count} card"
           other: "%{count} cards"
           zero: "%{count} cards"
+        grand_inventory:
+          signed: Your first discoveries stay signed with your name in the Great Inventory.
         title: Public profile
         visibility:
           friends_only: Visible to your friends only

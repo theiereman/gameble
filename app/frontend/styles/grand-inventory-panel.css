@@ -1,0 +1,48 @@
+.grand-inventory-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.grand-inventory-panel__frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.grand-inventory-panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.grand-inventory-panel__count {
+  color: var(--color-text-bright);
+  font: var(--font-number);
+}
+
+.grand-inventory-panel__latest {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-label);
+  overflow-wrap: anywhere;
+}
+
+.grand-inventory-panel__empty {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.grand-inventory-panel__open {
+  display: flex;
+  margin: 0;
+}
+
+@media (max-width: 719px) {
+  .grand-inventory-panel__open .button {
+    flex: 1;
+  }
+}

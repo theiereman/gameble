@@ -196,6 +196,8 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     assert_select "main a[href='#landing-open-source']", "Participer à l'écriture"
     assert_select "h2#landing-open-source[tabindex='-1']"
     assert_select "main .landing-live__links a.button--link[href='/fr/feed']", "Ouvrir le fil d'activité"
+    assert_select "main .landing-live__links a.button--link[href=?] + a.button--link[href=?]:last-child",
+      fortune_register_path(locale: :fr), grand_inventory_path(locale: :fr), "Voir le Grand Inventaire"
     assert_select "main .landing-live__links button", false
     assert_select "body > footer.landing-footer" do
       assert_select "a[href='/fr/how-it-works']", "Comment ça marche"

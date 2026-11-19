@@ -406,6 +406,15 @@ fr:
       goals:
         title: "Objectifs en cours"
         see_all: "Tout voir"
+      grand_inventory:
+        title: "Le Grand Inventaire"
+        spoken:
+          zero: "%{found} carte découverte sur %{total}"
+          one: "%{found} carte découverte sur %{total}"
+          other: "%{found} cartes découvertes sur %{total}"
+        latest_html: "Dernière découverte : %{card}, par %{player}, %{ago}"
+        empty: "Aucune carte découverte pour l'instant."
+        open: "Voir le Grand Inventaire"
       welcome:
         title: "Bienvenue sur Gameble"
         founders: "Autrefois bannis de la Terre, les jeux vidéo ont été sauvés grâce aux efforts de nos illustres fondateurs."
@@ -1559,6 +1568,12 @@ fr:
           zero: "set"
           one: "set"
           other: "sets"
+      grand_inventory:
+        title: "Le Grand Inventaire"
+        unit:
+          zero: "découverte"
+          one: "découverte"
+          other: "découvertes"
       loading: "Chargement des sets en cours…"
       found:
         zero: "Aucun set trouvé"
@@ -2223,6 +2238,8 @@ fr:
           friends_only: "Visible par vos amis seulement"
           private: "Profil privé : vous seul le voyez"
           private_short: "Vous seul le voyez"
+        grand_inventory:
+          signed: "Vos premières découvertes restent signées de votre nom dans le Grand Inventaire."
     private_dialog:
       title: "Passer en privé ?"
       text:
@@ -4011,6 +4028,8 @@ fr:
         empty: "Aucune activité pour l'instant."
         open_feed: "Ouvrir le fil d'activité"
         open_register: "Voir Le Chattomètre"
+        grand_inventory:
+          open: "Voir le Grand Inventaire"
         season: "Saison en cours"
         season_name: "Saison %{number} · %{name}"
         facts:

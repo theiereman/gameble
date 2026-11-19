@@ -22,6 +22,7 @@ class LibraryController < ApplicationController
     load_goals
     load_unique_cards
     load_latest_cards
+    @grand_inventory = Game::GrandInventory.new(seasons: :all)
   end
 
   def in_progress

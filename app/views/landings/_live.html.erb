@@ -20,6 +20,7 @@
       <p class="landing-live__links">
         <%= render ButtonComponent.new(variant: :link, href: feed_path) do %><%= t("landings.show.live.open_feed") %><% end %>
         <%= render ButtonComponent.new(variant: :link, href: fortune_register_path) do %><%= t("landings.show.live.open_register") %><% end %>
+        <%= render ButtonComponent.new(variant: :link, href: grand_inventory_path) do %><%= t("landings.show.live.grand_inventory.open") %><% end %>
       </p>
       <template data-live-feed-preview-target="source"><%= turbo_stream_from(*LiveStream.feed_streamables) %></template>
     <% end %>

@@ -40,7 +40,8 @@
 }
 
 .settings-summary__cards,
-.settings-summary__visibility {
+.settings-summary__visibility,
+.settings-summary__signed {
   margin: 0;
   color: var(--color-muted);
   font: var(--font-body-small);

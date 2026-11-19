@@ -1034,6 +1034,12 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       assert_select ".all-cards-tile__count", "5"
       assert_select ".all-cards-tile__unit", "sets"
     end
+    inventory = Game::GrandInventory.new(seasons: :all)
+    assert_select ".set-entry__shortcuts > a.all-cards-tile[href='/en/library/sets'] + a.all-cards-tile[href=?]:last-child", grand_inventory_path(locale: :en) do
+      assert_select ".all-cards-tile__title", "The Great Inventory"
+      assert_select ".all-cards-tile__count", "#{inventory.found_count}/#{inventory.total}"
+      assert_select ".all-cards-tile__unit", I18n.t("library.entry.grand_inventory.unit", count: inventory.found_count, locale: :en)
+    end
     assert_select ".set-entry > section#goals:first-child + div.set-entry__shortcuts + " \
       "turbo-frame#set-entry-in-progress.set-entry__in-progress[src='/en/library/in-progress'][loading=lazy][target=_top] + section.custom-sets"
     assert_select "turbo-frame#set-entry-in-progress p.set-entry__loading", "Loading the sets in progress…"

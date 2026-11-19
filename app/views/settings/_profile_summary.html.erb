@@ -17,4 +17,7 @@
       <%= t("settings.show.summary.visibility.#{visibility}") %>
     <% end %>
   </p>
+  <% if visibility.in?(%w[private friends_only]) %>
+    <p class="settings-summary__signed"><%= t("settings.show.summary.grand_inventory.signed") %></p>
+  <% end %>
 <% end %>
