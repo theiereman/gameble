@@ -88,7 +88,7 @@ class DuelRemovedPlayerTest < ApplicationSystemTestCase
     using_session(:lea) do
       assert_selector "#duel-board[data-move-number='8']"
       assert_text "An anonymous player has called"
-      assert_selector ".duel-board__opponent", text: "An anonymous player"
+      assert_selector ".duel-board__opponent", text: /\Aan anonymous player\z/i
     end
 
     play_out

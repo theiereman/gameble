@@ -4,10 +4,12 @@ import { showLatestRound, showRound } from "./duel_history"
 
 function rounds(): HTMLElement {
   const root = document.createElement("div")
-  root.innerHTML = `
-    <div data-history-round="1" hidden></div>
-    <div data-history-round="2" hidden></div>
-    <div data-history-round="3"></div>`
+  for (const number of ["1", "2", "3"]) {
+    const round = document.createElement("div")
+    round.dataset.historyRound = number
+    round.hidden = number !== "3"
+    root.append(round)
+  }
   return root
 }
 
