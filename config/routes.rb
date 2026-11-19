@@ -81,6 +81,8 @@ Rails.application.routes.draw do
     get "library/in-progress" => "library#in_progress", as: :library_in_progress
     get "library/cards" => "library#cards", as: :library_cards
     get "library/sets" => "library#sets", as: :library_sets
+    # The Brotherhood's collection, open without an account; seasons=current narrows it to the published season.
+    get "inventory" => "grand_inventories#show", as: :grand_inventory
     # The sets a player gathers themselves, by token; the editor's games
     # arrive page by page in a frame, searched and filtered.
     get "library/custom-sets/games" => "custom_sets#games", as: :custom_set_games

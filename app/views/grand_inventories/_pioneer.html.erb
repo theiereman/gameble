@@ -1,0 +1,8 @@
+<%# locals: (player:, you: false, linked: true) %>
+<% if player.nil? || player.removed? %>
+  <span class="player-name player-name--anonymous"><%= t("grand_inventories.card.anonymous") %></span>
+<% elsif you && player == current_player %>
+  <span class="grand-inventory__you"><%= t("grand_inventories.card.you") %></span>
+<% else %>
+  <%= render PlayerNameComponent.new(player:, viewer: current_player, friends: @friends, linked:) %>
+<% end %>

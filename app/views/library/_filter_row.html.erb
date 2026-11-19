@@ -21,7 +21,7 @@
       <% when :rarity %>
         <%= render "library/rarity_filter", chosen: filters.chosen_rarities, titled: true %>
       <% when :state %>
-        <%= render "library/state_filter", state_choices:, states:, titled: true %>
+        <%= render local_assigns.fetch(:state_filter, "library/state_filter"), state_choices:, states:, titled: true %>
       <% when :price %>
         <%= render "library/price_filter", price: %>
       <% when :more %>

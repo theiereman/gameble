@@ -1,0 +1,7 @@
+<% if @season %>
+  <% if @slots.any? %>
+    <%= turbo_stream.append "collection-slots", partial: "grand_inventories/slots", locals: { slots: @slots, context: @context } %>
+  <% end %>
+  <%= turbo_stream.update "collection-results-status", t("grand_inventories.cards.page_loaded", page: @pagy.page) %>
+  <%= turbo_stream.replace "collection-pages", partial: "library/pages", locals: { pagy: @pagy, empty: @slots.empty? } %>
+<% end %>

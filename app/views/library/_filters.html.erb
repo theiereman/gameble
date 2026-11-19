@@ -2,6 +2,7 @@
 <% goals = local_assigns.fetch(:goals, GoalMarks::NONE) %>
 <% goals_chosen = local_assigns.fetch(:goals_chosen, []) %>
 <% price = local_assigns[:price] %>
+<% state_filter = local_assigns.fetch(:state_filter, "library/state_filter") %>
 <% sets_offered = set_filter.present? && set_filter[:kinds].any? %>
 <% counts = collection_filter_counts(filters:, states:, states_asked:, goals: goals_chosen, price:) %>
 <% count = counts.values.sum %>
@@ -10,13 +11,16 @@
   action: "input->collection-filters#typed compositionend->collection-filters#typed change->collection-filters#changed " \
     "submit->collection-filters#submitted turbo:frame-load->collection-filters#setsLoaded turbo:frame-load@document->collection-filters#resultsLoaded"
 } do %>
+  <% local_assigns.fetch(:hidden, {}).each do |name, value| %>
+    <%= hidden_field_tag name, value, id: nil %>
+  <% end %>
   <div class="filters__search">
     <label class="visually-hidden" for="collection-search"><%= local_assigns.fetch(:search_label) { t("library.filters.search.label") } %></label>
     <%= search_field_tag "q", query, id: "collection-search", class: "filters__search-field", autocomplete: "off", maxlength: Catalog::CollectionGrid::MAX_QUERY,
       placeholder: local_assigns.fetch(:search_placeholder) { t("library.filters.search.placeholder") }, data: { collection_filters_target: "search" } %>
   </div>
   <% if local_assigns.fetch(:filter_row, false) %>
-    <%= render "library/filter_row", filters:, state_choices:, states:, goals:, goals_chosen:, set_filter:, sets_offered:, counts:, results_count:, price: %>
+    <%= render "library/filter_row", filters:, state_choices:, states:, goals:, goals_chosen:, set_filter:, sets_offered:, counts:, results_count:, price:, state_filter: %>
   <% else %>
     <details class="filters__zone" <%= "open" if count.positive? %>>
       <summary class="filters__summary">
@@ -26,7 +30,7 @@
       </summary>
       <div class="filters__groups">
         <% if state_choices.any? %>
-          <%= render "library/state_filter", state_choices:, states: %>
+          <%= render state_filter, state_choices:, states: %>
         <% end %>
         <% if goals.any? %>
           <%= render "library/goal_filter", goals:, goals_chosen: %>

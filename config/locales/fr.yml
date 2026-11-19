@@ -2822,6 +2822,90 @@ fr:
         open_card: "Voir la carte de %{name}"
         capsules: "Capsules"
         hidden: "–"
+  grand_inventories:
+    show:
+      title: "Le Grand Inventaire · Gameble"
+      heading: "Le Grand Inventaire"
+      season: "Saison %{number} · %{name}"
+      back: "Grand Inventaire"
+      visitor: "Rejoignez la Confrérie pour découvrir les cartes manquantes."
+      empty: "Aucune carte découverte pour l'instant."
+      everything_found: "La Confrérie a tout découvert."
+      count:
+        of: "/ %{total} cartes découvertes par la Confrérie"
+        spoken:
+          zero: "%{found} carte découverte sur %{total}"
+          one: "%{found} carte découverte sur %{total}"
+          other: "%{found} cartes découvertes sur %{total}"
+      rarity:
+        zero: "%{rarity} : %{found} découverte sur %{total}, voir ces cartes"
+        one: "%{rarity} : %{found} découverte sur %{total}, voir ces cartes"
+        other: "%{rarity} : %{found} découvertes sur %{total}, voir ces cartes"
+      rarity_total: "/ %{total}"
+      pace:
+        week_html:
+          zero: "<b>%{number}</b> cette semaine"
+          one: "<b>%{number}</b> cette semaine"
+          other: "<b>%{number}</b> cette semaine"
+        today_html:
+          zero: "<b>%{number}</b> aujourd'hui"
+          one: "<b>%{number}</b> aujourd'hui"
+          other: "<b>%{number}</b> aujourd'hui"
+        latest_html: "Dernière : %{card}, par %{player}, %{age}"
+      scopes:
+        label: "Saisons du Grand Inventaire"
+        all: "Toutes saisons"
+        current: "Saison en cours"
+        status:
+          all: "Toutes saisons : %{count}"
+          current: "Saison en cours : %{count}"
+      tabs:
+        label: "Vues du Grand Inventaire"
+        cards: "Cartes"
+        pioneers: "Pionniers"
+        sets: "Sets"
+    sets:
+      title: "Sets"
+      complete:
+        zero: "Aucun set entièrement découvert"
+        one: "1 set entièrement découvert"
+        other: "Entièrement découverts · %{number}"
+      closest: "Les plus proches"
+      done: "Découvert"
+      all: "Tout voir"
+      progress:
+        zero: "%{found} carte découverte sur %{total}"
+        one: "%{found} carte découverte sur %{total}"
+        other: "%{found} cartes découvertes sur %{total}"
+    cards:
+      title: "Cartes"
+      page_loaded: "Page %{page} chargée"
+      states:
+        found: "Découvertes"
+        all: "Tout"
+        missing: "À découvrir"
+        mine: "Mes découvertes"
+    card:
+      found: "%{card}, découverte par %{player}"
+      found_by_you: "%{card}, découverte par vous"
+      missing: "%{card}, à découvrir"
+      to_discover: "À découvrir"
+      anonymous: "anonyme"
+      you: "Vous"
+      you_badge: "VOUS"
+    age:
+      minutes:
+        zero: "il y a %{count} min"
+        one: "il y a %{count} min"
+        other: "il y a %{count} min"
+      hours:
+        zero: "il y a %{count} h"
+        one: "il y a %{count} h"
+        other: "il y a %{count} h"
+      days:
+        zero: "il y a %{count} j"
+        one: "il y a %{count} j"
+        other: "il y a %{count} j"
   fortunes:
     gauge:
       you: "VOUS"

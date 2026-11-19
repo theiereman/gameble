@@ -1,0 +1,13 @@
+<%# locals: (set_row:, seasons:) %>
+<% progress = set_row.progress %>
+<li>
+  <%= link_to brotherhood_set_path(kind: set_row.set.kind, key: set_row.set.key, seasons:), class: "grand-inventory__set-row" do %>
+    <span class="grand-inventory__set-name"><%= SetLabel.for(set_row.set) %></span>
+    <% if progress.complete? %>
+      <span class="grand-inventory__set-done"><%= t("grand_inventories.sets.done") %></span>
+    <% else %>
+      <span class="grand-inventory__set-count" aria-hidden="true"><%= number_with_delimiter(progress.found) %> / <%= number_with_delimiter(progress.total) %></span>
+      <span class="visually-hidden"><%= t("grand_inventories.sets.progress", count: progress.found, found: number_with_delimiter(progress.found), total: number_with_delimiter(progress.total)) %></span>
+    <% end %>
+  <% end %>
+</li>

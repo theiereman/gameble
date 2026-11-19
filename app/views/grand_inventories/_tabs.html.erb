@@ -1,0 +1,12 @@
+<%# locals: (inventory:, view:) %>
+<nav class="tabs grand-inventory__tabs" aria-label="<%= t("grand_inventories.show.tabs.label") %>">
+  <% GrandInventoriesController::VIEWS.each do |each_view| %>
+    <% if each_view == view %>
+      <span class="tabs__tab tabs__tab--current" aria-current="page"><%= t("grand_inventories.show.tabs.#{each_view}") %></span>
+    <% else %>
+      <%= link_to t("grand_inventories.show.tabs.#{each_view}"),
+        grand_inventory_path(seasons: grand_inventory_seasons(inventory), view: (each_view unless each_view == GrandInventoriesController::VIEWS.first)),
+        class: "tabs__tab", data: { turbo_frame: "grand-inventory", action: "grand-inventory#tab", grand_inventory_view_param: each_view } %>
+    <% end %>
+  <% end %>
+</nav>

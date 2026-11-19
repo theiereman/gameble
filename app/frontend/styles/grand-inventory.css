@@ -1,0 +1,380 @@
+/* Le Grand Inventaire: the scope chips, the head (count, gauge, a cell per
+   rarity, the pace line), then Sets and the pioneer boards side by side,
+   then the grid. On a phone the head stays above three tabs, one view at a
+   time. */
+
+.grand-inventory__scopes {
+  margin: 0;
+}
+
+.grand-inventory__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.grand-inventory__chip {
+  min-height: var(--space-chip-height);
+  padding: var(--space-1) var(--space-4);
+  border: 0;
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.grand-inventory__chip:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+  color: var(--color-text-max);
+}
+
+.grand-inventory__chip[aria-pressed="true"] {
+  background: var(--color-accent);
+  box-shadow: inset 0 calc(-2 * var(--space-unit)) 0 0 var(--color-line-deep);
+  color: var(--color-on-accent);
+}
+
+/* A pressed chip is not told by its colour alone: a check mark precedes it. */
+.grand-inventory__chip[aria-pressed="true"]::before {
+  content: "\2713" / "";
+  margin-right: var(--space-2);
+}
+
+.grand-inventory__chip:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.grand-inventory__frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-page);
+}
+
+.grand-inventory__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.grand-inventory__kicker,
+.grand-inventory__label {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.grand-inventory__count {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.grand-inventory__found {
+  color: var(--color-text-max);
+  font: var(--font-count-large);
+  letter-spacing: var(--tracking-count-large);
+}
+
+.grand-inventory__gauge {
+  max-width: 640px;
+}
+
+.grand-inventory__gauge .set-row__bar {
+  height: var(--space-4);
+}
+
+.grand-inventory__rarities {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grand-inventory__rarity {
+  --rarity-edge: var(--color-rarity-commune);
+
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "name name"
+    "found total";
+  align-items: baseline;
+  gap: 0 var(--space-2);
+  min-height: var(--space-touch-min);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel);
+  box-shadow: inset var(--space-2) 0 0 var(--rarity-edge);
+  text-decoration: none;
+}
+
+.grand-inventory__rarity--uncommon {
+  --rarity-edge: var(--color-rarity-peu-commune);
+}
+
+.grand-inventory__rarity--rare {
+  --rarity-edge: var(--color-rarity-rare);
+}
+
+.grand-inventory__rarity--epic {
+  --rarity-edge: var(--color-rarity-epique);
+}
+
+.grand-inventory__rarity--legendary {
+  --rarity-edge: var(--color-rarity-legendaire);
+}
+
+.grand-inventory__rarity-name {
+  grid-area: name;
+  color: var(--rarity-edge);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.grand-inventory__rarity-found {
+  grid-area: found;
+  color: var(--color-text-max);
+  font: var(--font-number);
+}
+
+.grand-inventory__rarity-total {
+  grid-area: total;
+  color: var(--color-muted);
+}
+
+.grand-inventory__rarity:hover .grand-inventory__rarity-name,
+.grand-inventory__rarity:focus-visible .grand-inventory__rarity-name {
+  text-decoration: underline;
+}
+
+.grand-inventory__pace {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.grand-inventory__pace b {
+  color: var(--color-lime);
+}
+
+.grand-inventory__title,
+.grand-inventory__section-title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.grand-inventory__sets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.grand-inventory__sets-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.grand-inventory__sets-preview[hidden],
+.grand-inventory__sets-all[hidden] {
+  display: none;
+}
+
+.grand-inventory__set-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grand-inventory__set-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-touch-min);
+  border-top: var(--space-unit) solid var(--color-line-soft);
+  color: var(--color-text-bright);
+}
+
+.grand-inventory__set-count {
+  color: var(--color-text-bright);
+  font: var(--font-number);
+}
+
+.grand-inventory__set-done {
+  color: var(--color-lime);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.grand-inventory__sets-toggle {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.grand-inventory__pioneers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.grand-inventory__visitor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  color: var(--color-text);
+}
+
+.grand-inventory__cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.grand-inventory-slot.collection-slot {
+  aspect-ratio: auto;
+}
+
+.grand-inventory-slot > .card-link {
+  position: relative;
+}
+
+.grand-inventory-slot__badge {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 2;
+  padding: 0 var(--space-2);
+  background: var(--color-gold);
+  color: var(--color-on-gold);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  pointer-events: none;
+}
+
+.grand-inventory-slot__lines {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-2);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.grand-inventory-slot__title {
+  overflow: hidden;
+  color: var(--color-text-bright);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grand-inventory-slot__pioneer {
+  overflow: hidden;
+  color: var(--color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grand-inventory-slot--missing .grand-inventory-slot__title,
+.grand-inventory-slot--missing .grand-inventory-slot__pioneer {
+  color: var(--color-muted);
+}
+
+.grand-inventory-slot--mine .grand-inventory-slot__pioneer,
+.grand-inventory__you {
+  color: var(--color-gold);
+}
+
+/* From 720px every view shows at once: Sets and the two boards in equal
+   thirds, then the grid; the phone tabs are gone. */
+@media (min-width: 720px) {
+  .grand-inventory__tabs {
+    display: none;
+  }
+
+  .grand-inventory__views.tabs__panel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .grand-inventory__pioneers {
+    grid-column: span 2;
+  }
+
+  .grand-inventory__visitor {
+    order: 1;
+  }
+
+  .grand-inventory__cards {
+    grid-column: 1 / -1;
+    margin-top: var(--space-stack-page);
+  }
+}
+
+@media (max-width: 719px) {
+  .grand-inventory__chip {
+    min-height: var(--space-chip-height-touch);
+  }
+
+  .grand-inventory__found {
+    font: var(--font-count-large-phone);
+    letter-spacing: var(--tracking-count-large-phone);
+  }
+
+  .grand-inventory__rarities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grand-inventory__frame > .tabs + .tabs__panel {
+    margin-top: calc(-1 * var(--space-stack-page));
+  }
+
+  .grand-inventory__views--cards > :not(.grand-inventory__cards),
+  .grand-inventory__views--pioneers > :not(.grand-inventory__pioneers),
+  .grand-inventory__views--sets > :not(.grand-inventory__sets) {
+    display: none;
+  }
+
+  /* The SETS tab holds the full list, its heading kept for screen readers only. */
+  .grand-inventory__views .grand-inventory__sets-preview,
+  .grand-inventory__views .grand-inventory__sets-toggle {
+    display: none;
+  }
+
+  .grand-inventory__views .grand-inventory__sets-all[hidden] {
+    display: block;
+  }
+
+  .grand-inventory__sets.panel {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .grand-inventory__title,
+  .grand-inventory__section-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

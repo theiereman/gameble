@@ -2503,6 +2503,90 @@ en:
           week: Active this week
         privileged: Privileged of %{total}
       title: The Flukeometer
+  grand_inventories:
+    show:
+      title: The Great Inventory · Gameble
+      heading: The Great Inventory
+      season: "Season %{number} · %{name}"
+      back: Great Inventory
+      visitor: Join the Brotherhood to discover the missing cards.
+      empty: No card discovered yet.
+      everything_found: The Brotherhood has discovered everything.
+      count:
+        of: "/ %{total} cards discovered by the Brotherhood"
+        spoken:
+          zero: "%{found} cards discovered of %{total}"
+          one: "%{found} card discovered of %{total}"
+          other: "%{found} cards discovered of %{total}"
+      rarity:
+        zero: "%{rarity}: %{found} discovered of %{total}, see these cards"
+        one: "%{rarity}: %{found} discovered of %{total}, see these cards"
+        other: "%{rarity}: %{found} discovered of %{total}, see these cards"
+      rarity_total: "/ %{total}"
+      pace:
+        week_html:
+          zero: "<b>%{number}</b> this week"
+          one: "<b>%{number}</b> this week"
+          other: "<b>%{number}</b> this week"
+        today_html:
+          zero: "<b>%{number}</b> today"
+          one: "<b>%{number}</b> today"
+          other: "<b>%{number}</b> today"
+        latest_html: "Latest: %{card}, by %{player}, %{age}"
+      scopes:
+        label: Great Inventory seasons
+        all: All seasons
+        current: Current season
+        status:
+          all: "All seasons: %{count}"
+          current: "Current season: %{count}"
+      tabs:
+        label: Great Inventory views
+        cards: Cards
+        pioneers: Pioneers
+        sets: Sets
+    sets:
+      title: Sets
+      complete:
+        zero: No set fully discovered
+        one: 1 set fully discovered
+        other: "Fully discovered · %{number}"
+      closest: Closest
+      done: Discovered
+      all: See all
+      progress:
+        zero: "%{found} cards discovered of %{total}"
+        one: "%{found} card discovered of %{total}"
+        other: "%{found} cards discovered of %{total}"
+    cards:
+      title: Cards
+      page_loaded: "Page %{page} loaded"
+      states:
+        found: Discovered
+        all: All
+        missing: To discover
+        mine: My discoveries
+    card:
+      found: "%{card}, discovered by %{player}"
+      found_by_you: "%{card}, discovered by you"
+      missing: "%{card}, to discover"
+      to_discover: To discover
+      anonymous: anonymous
+      you: You
+      you_badge: YOU
+    age:
+      minutes:
+        zero: "%{count} min ago"
+        one: "%{count} min ago"
+        other: "%{count} min ago"
+      hours:
+        zero: "%{count} h ago"
+        one: "%{count} h ago"
+        other: "%{count} h ago"
+      days:
+        zero: "%{count} d ago"
+        one: "%{count} d ago"
+        other: "%{count} d ago"
   fortunes:
     gauge:
       crowd:

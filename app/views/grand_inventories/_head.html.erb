@@ -1,0 +1,45 @@
+<%# locals: (inventory:, week_found:, today_found:, latest:) %>
+<% seasons = grand_inventory_seasons(inventory) %>
+<% bar_max = [ inventory.total, 1 ].max %>
+<% strings = CardStrings.new %>
+<header class="grand-inventory__head">
+  <p class="grand-inventory__kicker"><%= t("grand_inventories.show.season", number: inventory.season.number, name: SeasonTitle.call(inventory.season.name(I18n.locale))) %></p>
+  <p class="grand-inventory__count">
+    <span class="grand-inventory__found"><%= number_with_delimiter(inventory.found_count) %></span>
+    <span class="grand-inventory__of"><%= t("grand_inventories.show.count.of", total: number_with_delimiter(inventory.total)) %></span>
+  </p>
+  <div class="grand-inventory__gauge" role="img" aria-label="<%= grand_inventory_count_words(inventory) %>">
+    <progress class="set-row__bar" value="<%= [ inventory.found_count, bar_max ].min %>" max="<%= bar_max %>" aria-hidden="true"></progress>
+  </div>
+  <ul class="grand-inventory__rarities">
+    <% inventory.per_rarity.each do |rarity, (found, total)| %>
+      <li>
+        <%= link_to grand_inventory_path(seasons:, rarity: [ rarity ], anchor: "grand-inventory-cards"), class: "grand-inventory__rarity grand-inventory__rarity--#{rarity}",
+          aria: { label: t("grand_inventories.show.rarity", rarity: strings.rarity_name(rarity), count: found, found: number_with_delimiter(found), total: number_with_delimiter(total)) } do %>
+          <span class="grand-inventory__rarity-name"><%= strings.rarity_name(rarity) %></span>
+          <span class="grand-inventory__rarity-found"><%= number_with_delimiter(found) %></span>
+          <span class="grand-inventory__rarity-total"><%= t("grand_inventories.show.rarity_total", total: number_with_delimiter(total)) %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <p class="grand-inventory__pace">
+    <% if inventory.found_count.zero? %>
+      <%= t("grand_inventories.show.empty") %>
+    <% else %>
+      <% if inventory.found_count == inventory.total %>
+        <%= t("grand_inventories.show.everything_found") %>
+      <% else %>
+        <%= t("grand_inventories.show.pace.week_html", count: week_found, number: number_with_delimiter(week_found)) %> ·
+        <%= t("grand_inventories.show.pace.today_html", count: today_found, number: number_with_delimiter(today_found)) %>
+      <% end %>
+      <% if latest&.card %>
+        · <%= t("grand_inventories.show.pace.latest_html",
+          card: link_to(latest.card.title, card_season_path(slug: latest.card.id, number: latest.card.season_number)),
+          player: render("grand_inventories/pioneer", player: latest.player),
+          age: tag.time(grand_inventory_age(latest.discovered_at), datetime: latest.discovered_at.utc.iso8601)) %>
+      <% end %>
+    <% end %>
+  </p>
+  <span hidden data-grand-inventory-status><%= grand_inventory_scope_status(inventory) %></span>
+</header>

@@ -1,0 +1,22 @@
+<%# locals: (slots:, context:) %>
+<% strings = CardStrings.new %>
+<% slots.each do |card, discovery| %>
+  <% mine = grand_inventory_mine?(discovery) %>
+  <li class="<%= class_names("collection-slot grand-inventory-slot", "grand-inventory-slot--missing": discovery.nil?, "grand-inventory-slot--mine": mine) %>">
+    <%= link_to card_detail_path(card.id, card.season_number, inventory: context), class: "card-link", data: { turbo_prefetch: false },
+      aria: { label: grand_inventory_card_label(card, discovery, strings) } do %>
+      <%= render CardComponent.new(card:, size: :grid, owned: discovery.present?) %>
+      <% if mine %><span class="grand-inventory-slot__badge" aria-hidden="true"><%= t("grand_inventories.card.you_badge") %></span><% end %>
+    <% end %>
+    <span class="grand-inventory-slot__lines" aria-hidden="true">
+      <span class="grand-inventory-slot__title"><%= card.title %></span>
+      <span class="grand-inventory-slot__pioneer">
+        <% if discovery %>
+          <%= render "grand_inventories/pioneer", player: discovery.player, you: true, linked: false %>
+        <% else %>
+          <%= t("grand_inventories.card.to_discover") %>
+        <% end %>
+      </span>
+    </span>
+  </li>
+<% end %>

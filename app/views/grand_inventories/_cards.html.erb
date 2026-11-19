@@ -1,0 +1,22 @@
+<%# locals: (inventory:) %>
+<% seasons = grand_inventory_seasons(inventory) %>
+<% state_choices = current_player ? Game::GrandInventory::STATES : Game::GrandInventory::STATES - [ "mine" ] %>
+<section id="grand-inventory-cards" class="grand-inventory__cards" aria-labelledby="grand-inventory-cards-heading" data-grand-inventory-view>
+  <h2 id="grand-inventory-cards-heading" class="grand-inventory__section-title"><%= t("grand_inventories.cards.title") %></h2>
+  <%= render "library/filters", filters: @filters, state_choices:, states: @states, states_asked: @states_asked, query: @query,
+    clear_path: grand_inventory_path(seasons:), filter_row: true, results_count: @pagy.count, state_filter: "grand_inventories/state_filter",
+    hidden: { seasons: }.compact,
+    set_filter: { kinds: @set_kinds, kind: @set_kind, query: @set_query, options: @set_options, found: @set_found } %>
+  <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace", controller: "next-page", action: "focusout->next-page#focusLeft" } do %>
+    <p id="collection-results-status" class="visually-hidden" role="status"><%= t("library.grid.result", count: @pagy.count) %></p>
+    <% if @slots.empty? %>
+      <p class="collection-grid__empty"><%= @pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>
+    <% else %>
+      <ol id="collection-slots" class="collection-grid collection-grid--fill" aria-label="<%= t("grand_inventories.cards.title") %>"
+        data-controller="grid-keys" data-action="keydown->grid-keys#move focusin->grid-keys#remember">
+        <%= render "grand_inventories/slots", slots: @slots, context: @context %>
+      </ol>
+    <% end %>
+    <%= render "library/pages", pagy: @pagy, empty: @slots.empty? %>
+  <% end %>
+</section>

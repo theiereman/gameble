@@ -2,6 +2,7 @@ class CardsController < ApplicationController
   include PublicRead
   include CardDetailLoading
   include CollectionGridLoading
+  include GrandInventoryGrid
   include CustomSetFaces
 
   Browse = Data.define(:position, :total, :previous, :next, :back)
@@ -17,7 +18,7 @@ class CardsController < ApplicationController
     @reserved = Game::ReservedCopies.call(current_player, card_ids: [ @detail.card_id ])[@detail.card_id] if @copies
     @share_url = share_url
     @share_image_token = CardShareImage.current_token(card_season_id: @detail.card_season_id, view: @detail.view, locale: I18n.locale)
-    named = pack_browse || grid_browse || trade_browse || custom_set_browse || named_set_browse
+    named = pack_browse || grid_browse || inventory_browse || trade_browse || custom_set_browse || named_set_browse
     profile = profile_browse || me_browse unless named
     @public = current_player.nil? && named.nil? && profile.nil?
     @live_strip = LiveStream.strip_items if @public
@@ -142,6 +143,23 @@ class CardsController < ApplicationController
       context = grid_context(source, seen:)
       back = Back.new(label: t("cards.show.grid"), path: grid_page_path(context, (index / GRID_SIZE) + 1))
       neighbours(ids, index, back:) { { grid: context } }
+    end
+
+    def inventory_browse
+      source = params[:inventory]
+      return unless source.is_a?(ActionController::Parameters)
+
+      inventory = Game::GrandInventory.new(seasons: inventory_scope(source))
+      return if inventory.season.nil?
+
+      ids = inventory_cards(inventory, inventory_filters(inventory, source), source).pluck(:id)
+      index = ids.index(@detail.card_season_id)
+      return if index.nil?
+
+      context = inventory_context(inventory, source)
+      page = (index / GRID_SIZE) + 1
+      back = Back.new(label: t("grand_inventories.show.back"), path: grand_inventory_path(**context, page: (page if page > 1)))
+      neighbours(ids, index, back:) { { inventory: context } }
     end
 
     def grid_page_path(context, page)

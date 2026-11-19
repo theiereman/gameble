@@ -1,0 +1,33 @@
+<%# locals: (inventory:, complete:, closest:) %>
+<% seasons = grand_inventory_seasons(inventory) %>
+<%= render PanelComponent.new(tag: :section, class: "grand-inventory__sets", aria: { labelledby: "grand-inventory-sets-heading" }, data: { grand_inventory_view: true }) do %>
+  <h2 id="grand-inventory-sets-heading" class="grand-inventory__title"><%= t("grand_inventories.sets.title") %></h2>
+  <div class="grand-inventory__sets-preview" data-grand-inventory-target="setsPreview">
+    <p class="grand-inventory__label"><%= t("grand_inventories.sets.complete", count: complete.size, number: number_with_delimiter(complete.size)) %></p>
+    <% if complete.any? %>
+      <ul class="grand-inventory__set-rows">
+        <% complete.first(2).each do |set_row| %>
+          <%= render "grand_inventories/set_row", set_row:, seasons: %>
+        <% end %>
+      </ul>
+    <% end %>
+    <% if closest.any? %>
+      <p class="grand-inventory__label"><%= t("grand_inventories.sets.closest") %></p>
+      <ul class="grand-inventory__set-rows">
+        <% closest.first(3).each do |set_row| %>
+          <%= render "grand_inventories/set_row", set_row:, seasons: %>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+  <ul id="grand-inventory-sets-all" class="grand-inventory__set-rows grand-inventory__sets-all" hidden data-grand-inventory-target="setsAll">
+    <% (complete + closest).each do |set_row| %>
+      <%= render "grand_inventories/set_row", set_row:, seasons: %>
+    <% end %>
+  </ul>
+  <% if complete.size > 2 || closest.size > 3 %>
+    <div class="grand-inventory__sets-toggle" data-grand-inventory-target="setsToggle" data-action="click->grand-inventory#toggleSets">
+      <%= render ButtonComponent.new(variant: :link) do %><%= t("grand_inventories.sets.all") %><% end %>
+    </div>
+  <% end %>
+<% end %>

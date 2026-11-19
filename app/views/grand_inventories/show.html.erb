@@ -1,0 +1,29 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".heading") %>
+<section class="grand-inventory page page--wide" aria-labelledby="grand-inventory-heading"
+  data-controller="grand-inventory" data-action="turbo:frame-load->grand-inventory#loaded">
+  <h1 id="grand-inventory-heading" class="visually-hidden"><%= t(".heading") %></h1>
+  <% if @season.nil? %>
+    <%= render PanelComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
+  <% else %>
+    <%= render "grand_inventories/scopes", inventory: @inventory, view: @view %>
+    <%= turbo_frame_tag "grand-inventory", class: "grand-inventory__frame", target: "_top", data: { turbo_action: "advance" } do %>
+      <%= render "grand_inventories/head", inventory: @inventory, week_found: @week_found, today_found: @today_found, latest: @latest %>
+      <%= render "grand_inventories/tabs", inventory: @inventory, view: @view %>
+      <div class="<%= class_names("tabs__panel grand-inventory__views", "grand-inventory__views--#{@view}") %>">
+        <%= render "grand_inventories/sets", inventory: @inventory, complete: @complete_sets, closest: @closest_sets %>
+        <div class="grand-inventory__pioneers" data-grand-inventory-view>
+          <% unless current_player %>
+            <p class="grand-inventory__visitor">
+              <span><%= t(".visitor") %></span>
+              <%= sign_in_button t("shell.top_bar.sign_in"), origin: request.path, class: "button button--primary button--small" %>
+            </p>
+          <% end %>
+          <%= render "grand_inventories/pioneer_boards", inventory_scope: @inventory.scope, viewer: current_player %>
+        </div>
+        <%= render "grand_inventories/cards", inventory: @inventory %>
+      </div>
+    <% end %>
+  <% end %>
+</section>
