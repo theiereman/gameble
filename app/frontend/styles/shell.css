@@ -31,6 +31,12 @@ html {
   text-size-adjust: 100%;
 }
 
+/* A double tap never zooms; zero specificity keeps a component's own touch-action. */
+html,
+:where(html) * {
+  touch-action: manipulation;
+}
+
 body {
   position: relative;
   min-height: 100vh;
