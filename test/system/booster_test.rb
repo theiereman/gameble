@@ -535,6 +535,7 @@ class BoosterTest < ApplicationSystemTestCase
   def assert_pile(count)
     assert_selector ".booster[data-layout=phone] .booster__pile .booster-card[data-dealt]", count:, wait: 10
     assert_selector "#booster[data-status=inventory]"
+    assert_focus phone_hit(1)
   end
 
   test "on a phone: a pile of large cards, one at a time, each revealed then stored by Store or a tap, the focus following" do
