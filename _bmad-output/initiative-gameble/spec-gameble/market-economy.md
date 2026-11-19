@@ -1,6 +1,6 @@
 # Market and economy
 
-Numbers and rules for CAP-29 to CAP-38. Every value is a starting setting editable from the back-office (CAP-35). Simulated evidence and the full reasoning are in `../forge-market-economy/`.
+Numbers and rules for CAP-29 to CAP-38 and CAP-44 to CAP-49. Every value is a starting setting editable from the back-office (CAP-35). Simulated evidence and the full reasoning are in `../forge-market-economy/` and `../forge-market-volume/`.
 
 ## Words
 
@@ -18,7 +18,7 @@ The Brotherhood announces and justifies each fee in its tone (`brotherhood-tone.
 
 ## Money
 
-PiCoins are minted only when a card is entrusted. Stamps and commissions are destroyed. Nothing else creates or destroys them, and the Brotherhood never injects any. Amounts are whole PiCoins, shown compact from 1,000 (12k), never with a euro sign. Every amount was divided by 100 on 2026-11-15, the market already open: balances, ledger, listings, bids and history were converted by a migration.
+PiCoins are minted only when a card is entrusted. Stamps, commissions and PiCoins spent in the shop (Archive cards, slots) are destroyed. Nothing else creates or destroys them, and the Brotherhood never injects any. Amounts are whole PiCoins, shown compact from 1,000 (12k), never with a euro sign. Every amount was divided by 100 on 2026-11-15, the market already open: balances, ledger, listings, bids and history were converted by a migration.
 
 ## Values by rarity
 
@@ -56,6 +56,33 @@ Worked example, starting at 200: a maximum of 300 leads at 200. A maximum of 250
 
 Per exact edition (game + season). Take the last 5 sales of the last 90 days, drop the highest and lowest, and average the rest. Under 3 sales, the price shows with a "few sales" mention. With no sale in 90 days, the card shows "sans vente" / "no sale". A typical price per rarity may also show as an indication (optional). Both the sale count and the window are settings.
 
+## Buy orders
+
+| Rule | Value |
+|---|---|
+| Target | A game, any edition; served by a copy whose rarity's minimum price the order's price reaches |
+| Copies per order | 1 |
+| Duration | 7 days |
+| Priority | Best price, then oldest |
+| Escrow | The order's price, held from placement, released at cancellation or expiry |
+| Cancellation | Free, at any time |
+| Direct sale to an order | Instant, no stamp, the usual commission |
+
+## The shop
+
+| Item | Price |
+|---|---|
+| An Archive card | A multiple of its rarity's entrustment value, to set (5x simulated); it must sit above a player's usual offer |
+| A goal beyond 5, a custom set beyond 5, a deck beyond 3 | To set |
+
+## Production evidence (2026-11-19, market open since 2026-11-13)
+
+- Cards changing hands a week: about 50 sold on the market, 1,100 moved by friend trades, 3,000 entrusted.
+- 4 bids per sold listing, 9 bidders: supply, not demand, is short. Players entrust about 70 times more cards than they list.
+- At the minimum price a sale nets about the entrustment value (Common 11.5 vs 10, Rare 50 vs 50); selling pays only above the floor.
+- 50,822 PiCoins sit idle (median wallet 965); before the shop they bought only market cards.
+- 56% of trade sides sit at the 4-card limit; 5 of 16 goal holders sit at 5 goals; no player is near 10 custom sets.
+
 ## Indicators
 
 | Indicator | Reads | Starting alert |
@@ -89,7 +116,7 @@ Every sale of an Epic or Legendary, and any sale at 10 times its rarity's minimu
 
 ## Alt-account signals
 
-Near-maximum capsule opening (about 144 a day is possible, a standard player opens 40 to 50), repeated one-way trades, sales outside market price between the same accounts, repeated minimum-price sales between the same two accounts, and bids on a listing from an account tied to its seller.
+Near-maximum capsule opening (about 144 a day is possible, a standard player opens 40 to 50), repeated one-way trades, sales outside market price between the same accounts, repeated minimum-price sales between the same two accounts, bids on a listing from an account tied to its seller, and direct sales to a high order from an account tied to the seller.
 
 ## Known limits
 
@@ -100,6 +127,11 @@ Near-maximum capsule opening (about 144 a day is possible, a standard player ope
 - A seller's alt can probe a leader's maximum in small steps; if it wins, the seller loses the commission and stamp.
 - Real-money resale of cards or PiCoins outside the game stays possible despite the terms; staff watch for it.
 - A beaten maximum can be deduced from the price and increment. Only the leader's maximum is secret, and a price capped at it shows it.
+- A direct sale pays no stamp, so an alt's high order moves money for the commission alone.
+- The wanted count (CAP-44) reveals other players' goals in aggregate. Accepted, since only a count shows.
+- A near-complete set missing a Légendaire flags it as wanted, though nobody has a spare.
+- The auction stamp stays charged at listing; charging it at sale (as EVE does) was considered and left unchanged.
+- No source measures orders, wanted counts or Archive resale at about 30 players.
 - Visible names let anyone follow a player's purchases and let friends avoid bidding against each other. Accepted.
 
 ## Rejected
@@ -117,3 +149,13 @@ Near-maximum capsule opening (about 144 a day is possible, a standard player ope
 | Welcome bonus | Barely helps newcomers, alt accounts farm it |
 | Seniority gate | Open to every player (author, 2026-11-09) |
 | Anonymous bidders | The author prefers visible rivalry |
+| The market absorbs all duplicates | 500 Common listings for 480 never bought |
+| Implicit demand only, orders later | The seller needs a firm price, not only a count |
+| An order sale settles instantly with no choice | Floor-price orders would capture supply below what bidders pay |
+| An order sale always opens an auction | The seller loses the instant sale that beats entrusting |
+| One order per edition | Goals count any edition, and fewer sellers could serve it |
+| An order bids automatically on open listings | Money held twice or moved silently |
+| Promoting the market tab first | A shop window in front of empty shelves |
+| Capsules bought for PiCoins | A safe price draws no buyers; a distinct capsule competes with duel capsules, resale or the market |
+| Cosmetics for PiCoins | The author keeps them earned through achievements |
+| Trade capacity for PiCoins | The one limit players hit, but it feeds the market's rival |

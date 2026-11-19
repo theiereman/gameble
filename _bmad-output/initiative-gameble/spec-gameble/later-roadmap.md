@@ -39,5 +39,6 @@ The market and its economy are now CAP-29 to CAP-38 of the spec, with their rule
 - **Living duel stats:** stats drawn from the Brotherhood's activity (entrusted copies, reactions and reposts, custom-set picks, trades, a card's duel win rate) were too sparse on 2026-11-14 (36 players). Remeasure at each new catalog season; a dense enough one may replace a Steam stat (`duel-rules.md`).
 - **Ranked and deferred duels (CAP-43, `duel-rules.md`):** after release 1.4's live friend duels are tested: a ranked queue among non-friends with an Elo rating, then deferred duels with a deadline per move.
 - **Duel extras:** decks shown on the profile, a solo practice duel, more than two players at once (#352).
+- **Past-season capsules for PiCoins (author, 2026-11-19):** "a very good idea", to forge on its own; it touches season carryover, and its price must exceed the contents' entrustment value.
 - **Delisted games:** manual curation, since the store API returns little for them.
 - **Native apps:** App Store and Play Store. Store review may object to third-party art and random rewards, and iOS sign-in rules may apply. Reassess then.

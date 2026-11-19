@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forge Report: Market Volume</title>
+<style>
+:root{--bg:#f6f1e7;--panel:#fffaf0;--ink:#2a241c;--muted:#6d6252;--line:#ddd2bd;--seal:#8f2f24;--accent:#6b4a12}
+@media (prefers-color-scheme:dark){:root{--bg:#191612;--panel:#231f19;--ink:#efe7d8;--muted:#b0a48f;--line:#40382b;--seal:#d4685a;--accent:#dcb56c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Georgia,"Times New Roman",serif}
+main{max-width:920px;margin:0 auto;padding:40px 16px 72px}
+header{display:flex;gap:28px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:24px}
+h1{font-size:2.1rem;line-height:1.15;margin:0 0 8px}
+h2{font-size:1.3rem;margin:40px 0 12px;color:var(--accent)}
+p{margin:0 0 12px}
+.kicker{font:600 .78rem/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.muted{color:var(--muted)}
+.seal{width:164px;height:164px;flex:none;color:var(--seal);transform:rotate(-8deg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.card h3{margin:0 0 4px;font-size:1rem}
+.card p{margin:0;font-size:.94rem}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.94rem}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{font:600 .78rem/1.3 ui-monospace,Menlo,monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+ul{padding-left:20px;margin:0}
+li{margin:0 0 8px}
+.stat{font:700 1.6rem/1.1 Georgia,serif;color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div>
+    <div class="kicker">BMad Forge · gameble · 2026-11-19</div>
+    <h1>Market volume</h1>
+    <p class="muted">Make the player market carry real volume against free, suggested friend trades and instant entrustment, so it can later be put forward over friend trades.</p>
+  </div>
+  <svg class="seal" viewBox="0 0 200 200" role="img" aria-label="Hardened seal">
+    <circle cx="100" cy="100" r="88" fill="currentColor" opacity=".14"/>
+    <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="5"/>
+    <circle cx="100" cy="100" r="66" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 5"/>
+    <text x="100" y="92" text-anchor="middle" font-family="Georgia,serif" font-size="25" font-weight="700" fill="currentColor" letter-spacing="2">HARDENED</text>
+    <text x="100" y="118" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="currentColor" letter-spacing="3">MARKET · 2026</text>
+  </svg>
+</header>
+
+<h2>What production showed</h2>
+<div class="grid">
+  <div class="card"><div class="stat">~50</div><p>cards sold a week on a six-day-old market, with 4 bids per sale on average</p></div>
+  <div class="card"><div class="stat">~1,100</div><p>cards moved a week by friend trades; 56% of trade sides sit at the 4-card limit</p></div>
+  <div class="card"><div class="stat">~3,000</div><p>cards entrusted a week. Supply goes to the Archives, because selling at the floor nets about the entrustment value</p></div>
+  <div class="card"><div class="stat">50,822</div><p>PiCoins idle in 20 wallets: money buys only market cards</p></div>
+</div>
+<p class="muted" style="margin-top:12px">Reframe: demand exists, and the market is short of sellers. It competes for supply with the Archives, not with friend trades, and only for the cards someone wants.</p>
+
+<h2>Locked decisions</h2>
+<ul>
+  <li><strong>Target:</strong> the cards someone wants. Bulk duplicates stay with the Archives.</li>
+  <li><strong>Wanted:</strong> missing from another player's goals, or from a set they lack 1 or 2 cards of. Counted across all players, with one definition for buyers and sellers.</li>
+  <li><strong>Seller table:</strong> the entrustment recap's "x players want it" opens one line per wanted card, prefilled: sell at the order's price, auction higher with a duration, or entrust anyway. One validation, and an "entrust them all" escape.</li>
+  <li><strong>Buy orders:</strong> on a game across all editions, served only by editions whose minimum the price clears. Money is held, best price is served first, 7 days. A direct sale is instant and pays no stamp; listing higher notifies the order's owner.</li>
+  <li><strong>Separation:</strong> orders never bid on their own. The order form shows open listings and buy-now; every listing form shows the best order.</li>
+  <li><strong>Order entry points:</strong> missing cards in sets and goals, the market's empty search, and a suggestion on the goal.</li>
+  <li><strong>Money matters:</strong> Archive resale joins this work, in the Brotherhood's shop and in market search results, priced well above players' offers as a ceiling; slots are bought in context at the limit; free up to 5 goals, 5 custom sets (a player holding 6 keeps them) and 3 decks; every slot beyond is bought with PiCoins.</li>
+  <li><strong>Tab:</strong> not the lever. It goes back to the duels forge (option E'). Read the market's share of cards changing hands four weeks after orders ship.</li>
+</ul>
+
+<h2>Rejected</h2>
+<div class="scroll"><table>
+  <tr><th>Option</th><th>Why</th></tr>
+  <tr><td>Market absorbs all duplicates</td><td>500 Common listings, 480 never bought</td></tr>
+  <tr><td>Order sale with no choice, or always an auction</td><td>Floor capture, or the instant sale that beats entrusting is lost</td></tr>
+  <tr><td>Order on one edition</td><td>Goals count any edition</td></tr>
+  <tr><td>Orders bidding automatically</td><td>Money held twice or moved silently</td></tr>
+  <tr><td>Promote the tab first</td><td>A shop window in front of empty shelves</td></tr>
+  <tr><td>Capsules for PiCoins</td><td>Safe means unwanted; distinct means competing with resale or the market</td></tr>
+  <tr><td>Cosmetics or trade capacity for PiCoins</td><td>Cosmetics stay earned; trade capacity feeds the rival channel</td></tr>
+</table></div>
+
+<h2>Weak points that survived</h2>
+<ul>
+  <li>Alt accounts can move money through direct sales for 10% commission; detection must cover them.</li>
+  <li>"N players want it" exposes goals in aggregate, accepted since only a count shows.</li>
+  <li>The auction stamp is still charged at listing, against the research's advice.</li>
+  <li>The "1 or 2 missing cards" share and the Legendaries nobody holds spare are untested.</li>
+  <li>No source measures any of this at about 30 players.</li>
+</ul>
+<p class="muted">To forge separately: capsules from past seasons bought with PiCoins.</p>
+
+<h2>Who pressure-tested it</h2>
+<div class="grid">
+  <div class="card"><h3>📊 Mary · Business Analyst</h3><p>"Demand exists; sellers are missing."</p></div>
+  <div class="card"><h3>🎨 Sally · UX Designer</h3><p>"Intercept the gesture players already make, and validate once."</p></div>
+  <div class="card"><h3>🏗️ Winston · System Architect</h3><p>"Rarity lives on the edition. Keep orders and bids apart."</p></div>
+  <div class="card"><h3>📋 John · Product Manager</h3><p>"A threshold without a date never decides anything."</p></div>
+  <div class="card"><h3>🧹 Karim · generated, nightly duplicate dumper</h3><p>"Tick 200, validate once, paid now. Beat that."</p></div>
+  <div class="card"><h3>🧩 Inès · generated, set completionist</h3><p>"I want the card, not that copy. Let me name my price."</p></div>
+</div>
+</main>
+</body>
+</html>

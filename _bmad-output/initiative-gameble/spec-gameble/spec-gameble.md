@@ -17,6 +17,7 @@ sources:
   - ../brief-gameble/addendum.md
   - ../forge-market-economy/forge-market-economy.md
   - ../forge-decks-and-matches/forge-decks-and-matches.md
+  - ../forge-market-volume/forge-market-volume.md
 ---
 
 > **Canonical contract.** This SPEC and the files in `companions:` are the complete, preservation-validated contract for what to build, test, and validate. Source documents listed in frontmatter are for traceability — consult them only if you need narrative rationale or prose color this contract intentionally omits.
@@ -226,15 +227,15 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-27**
   - **intent:** A player composes sets of their own from the cards they want and follows them like the game's sets.
   - **success:**
-    - A player creates, renames, edits and deletes custom sets: 3 to 50 games of the catalog each, owned or not, at most 10 per player (author, 2026-10-30).
+    - A player creates, renames, edits and deletes custom sets: 3 to 50 games of the catalog each, owned or not, 5 per player for free and more bought with PiCoins (CAP-49); the one player who held 6 keeps the sixth for free.
     - A custom set shows owned / total distinct cards and opens as an album with an empty slot naming each missing game; a copy counts whatever edition it was minted in.
     - It has no tiers: it shows owned / total and a gauge up to complete, and earns no reward: no title, back, celebration, feed line or seasonal allocation. The Steam library set has no tiers either (author, 2026-10-30).
     - Only its author sees a custom set or its name (author, 2026-10-30).
-    - A player with a Steam identity has one Steam library set, created automatically, with no action of theirs (author, 2026-10-30): the catalog games they own on Steam, with no size cap, synced with their library once a day. It is a special set, apart from the 10 custom sets: it cannot be an active goal (CAP-28) and never feeds trade suggestions (CAP-11). It grants no card. When Steam does not share the library (game details not public), the screen says so (author, 2026-10-30).
+    - A player with a Steam identity has one Steam library set, created automatically, with no action of theirs (author, 2026-10-30): the catalog games they own on Steam, with no size cap, synced with their library once a day. It is a special set, apart from the custom sets and their limit: it cannot be an active goal (CAP-28) and never feeds trade suggestions (CAP-11). It grants no card. When Steam does not share the library (game details not public), the screen says so (author, 2026-10-30).
 - **CAP-28**
   - **intent:** A player picks a few sets to aim at, and the game keeps their progress and missing cards in front of them.
   - **success:**
-    - A player holds up to five active goals at once, among the game's sets and their own custom sets, the Steam library set excepted, and changes them freely (#64, author, 2026-10-30). A goal keeps its place until removed: goals are not reordered; a goal whose set becomes complete leaves the goals by itself, freeing its place (author, 2026-10-30).
+    - A player holds five active goals at once for free, more bought with PiCoins (CAP-49), among the game's sets and their own custom sets, the Steam library set excepted, and changes them freely (#64, author, 2026-10-30). A goal keeps its place until removed: goals are not reordered; a goal whose set becomes complete leaves the goals by itself, freeing its place (author, 2026-10-30).
     - Each goal shows its progress, and every card of its set, owned or not, carries the goal's mark wherever the player's own cards show; another player never sees those marks (author, 2026-10-30).
     - The profile shows the player's goals on game sets, under its visibility (CAP-8); a goal on a custom set never shows there. The bridge shows no goals (author, 2026-10-30).
     - Goals never change draw odds nor guarantee a card: pack draws are the same with or without goals.
@@ -243,6 +244,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - Any unreserved copy can be entrusted, an only copy included, at the value of its minted rarity (`market-economy.md`). The PiCoins are minted by the 100-6-Tron.
     - The player selects several cards and validates one batch, with no per-card confirmation or warning. The recap flags only copies from Rare upward and never blocks.
+    - The recap sets wanted cards apart (CAP-45).
     - An entrusted card leaves the collection and is counted per card and edition in the Archives. It is never destroyed.
     - A batch beyond the daily cap entrusts what fits; the rest stays in the collection and the screen says so.
     - PiCoin amounts appear compact, with the balance split into available and committed.
@@ -254,6 +256,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - The seller picks one of three durations.
     - A listed copy is reserved: it cannot be traded or entrusted while the listing runs.
     - The seller can cancel only while no bid stands, and gets the copy back.
+    - The listing form shows the best eligible buy order (CAP-47).
 - **CAP-31**
   - **intent:** A player bids by stating the most they accept to pay, and never pays more than needed to win.
   - **success:**
@@ -299,6 +302,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** Staff spot accounts used to funnel cards or PiCoins to a main account.
   - **success:**
     - The back-office lists accounts matching the signals of `market-economy.md`, with the facts behind each.
+    - The signals cover direct sales to buy orders (CAP-47).
     - Detection places no limit on trades and no seniority gate. Staff decide, through the existing ban (CAP-15).
 - **CAP-38**
   - **intent:** A player or visitor sees whether PiCoins pile up and what each rarity costs in days of play.
@@ -318,7 +322,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-40**
   - **intent:** A player builds decks from their collection to duel with.
   - **success:**
-    - A player has up to 5 named decks of exactly 12 cards they own, a game at most once whatever its edition, with no rarity or theme constraint; a shorter deck is a draft and cannot duel.
+    - A player has 3 named decks for free, more bought with PiCoins (CAP-49), each of exactly 12 cards they own, a game at most once whatever its edition, with no rarity or theme constraint; a shorter deck is a draft and cannot duel.
     - A card in one or more decks blocks one copy of its edition, which cannot be traded, listed or entrusted until the card leaves every deck; those screens name the decks.
     - The editor sorts and filters the collection by stat and trump, and shows each deck card's change since the previous week.
 - **CAP-41**
@@ -344,16 +348,57 @@ gameble is an open-source passion project, and the game its author wants to play
     - The rating resets at each new catalog season; the profile keeps each season's final rank.
     - The ranking follows the Flukeometer's visibility rules and layout, on its own screen.
 
+- **CAP-44**
+  - **intent:** Sellers and buyers both see which cards another player is looking for, so the market carries those cards rather than the flow of duplicates.
+  - **success:**
+    - A card is wanted when it is missing from another player's goals (CAP-28), or from a set that player lacks only 1 or 2 cards of. Every player counts, not only friends.
+    - The same definition drives the buyer's "Voulue" tag and notices and the seller's count.
+    - A seller sees how many players want a card, never who.
+    - The market has a "your wanted cards" section listing the player's copies that others want.
+- **CAP-45**
+  - **intent:** A player entrusting cards sells the wanted ones in the same move instead of entrusting them by habit.
+  - **success:**
+    - The entrustment recap sets wanted cards apart ("x players want it"); the rest of the batch is entrusted at once.
+    - The notice opens a table, one line per wanted card: seekers, best order, average price (CAP-34) and entrustment value.
+    - Each line is prefilled with the likeliest choice: sell at the order's price, start an auction at a higher price with its duration, or entrust anyway. "Entrust them all anyway" is offered too.
+    - One validation applies the whole table.
+- **CAP-46**
+  - **intent:** A player states a firm price for a card they want, so a holder can sell it at once.
+  - **success:**
+    - An order targets a game across all its editions and is served only by copies whose rarity's minimum price it reaches; the form says which rarities the price reaches.
+    - The order's money is held from placement. Best price, then oldest, is served first. An order buys one copy, lasts 7 days and can be cancelled for free.
+    - Orders are placed from a missing card in a set or goal, from the market's empty search, and from a suggestion on the goal itself.
+    - The form first shows the game's open listings and offers buy-now when a buy-now is at or below the order's price; it proposes the Archives' offer (CAP-48) when the card is neither listed nor covered by an order.
+    - An order never bids on an auction.
+- **CAP-47**
+  - **intent:** A holder of a wanted card sells it to an order at its price, or asks more at auction.
+  - **success:**
+    - A direct sale to an order is instant, pays no stamp and pays the commission; it consumes the order.
+    - Listing higher opens an ordinary auction with its stamp (CAP-30), and the order's owner is notified; the order stays open until a direct sale consumes it.
+    - Every listing form shows the best eligible order.
+- **CAP-48**
+  - **intent:** PiCoins buy a specific card from the Archives' stock, at a price that caps the market without undercutting players.
+  - **success:**
+    - The Brotherhood's shop lists the Archives' stock per card and edition; a player buys one copy, which keeps its minted rarity and season.
+    - Archive offers also appear in market search results next to player listings.
+    - An Archive offer is priced at a multiple of the entrustment value (`market-economy.md`), well above a player's usual offer.
+- **CAP-49**
+  - **intent:** A player spends PiCoins on more room for goals, custom sets and decks, nothing that changes what they draw or win.
+  - **success:**
+    - Free: 5 goals, 5 custom sets, 3 decks. Each slot beyond is bought with PiCoins.
+    - At a limit the player is offered the next slot in context ("6th goal: X PiCoins"); slots may also be listed in the shop (CAP-48).
+    - A slot price follows `market-economy.md`.
 ## Constraints
 
 - **No real money**, anywhere: no purchases, no ads, no cash-out. PiCoins are never purchasable or withdrawable, and nothing touching capsules, PiCoins or auctions is ever sold.
 - **Before the market opens (legal):** the terms of use forbid real-money trading of cards and PiCoins, and the draw odds are published.
 - **Duels move nothing between players:** no card or PiCoin changes hands in a duel and duels never mint PiCoins; the duel capsule (CAP-42) is their only material reward.
+- **Neutral PiCoin spending:** PiCoins buy cards that already exist (market, orders, Archives) and capacity slots (CAP-49), never capsules or new cards, a duel advantage, trade capacity or cosmetics, which stay earned through achievements.
 - **Friend trades stay free:** no stamp, commission, floor or levy, ever.
-- **Money integrity:** entrustment is the only way PiCoins are created; only the stamp, the commission and a deleted account's balance destroy them. Every PiCoin movement is kept in a permanent record that balances can be rebuilt from. PiCoin amounts are integers. The 100-6-Tron is the Mint in code, since "bank" means the capsule reserve.
+- **Money integrity:** entrustment is the only way PiCoins are created; only the stamp, the commission, PiCoins spent in the shop (Archive cards and slots, CAP-48, CAP-49) and a deleted account's balance destroy them. Every PiCoin movement is kept in a permanent record that balances can be rebuilt from. PiCoin amounts are integers. The 100-6-Tron is the Mint in code, since "bank" means the capsule reserve.
 - **Market and personal data:** the export (CAP-14) includes a player's PiCoin history, listings and bids, and their decks and duel history. Deleting the account erases the name from the bid history and destroys its balance, and the money record stays without identity.
 - **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
-- **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release. CAP-29 to CAP-38 are the market release, built after that (V2). Release 1.4 ships CAP-39 to CAP-42, with live duels between friends only; CAP-43 and deferred duels follow in a later release.
+- **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release. CAP-29 to CAP-38 are the market release, built after that (V2). Release 1.4 ships CAP-39 to CAP-42, with live duels between friends only; CAP-43 and deferred duels follow in a later release. CAP-44 to CAP-49 (market volume) come after; their release order is set when the work is sliced.
 - **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap's milestones are created from the initiative's epics and curated by staff in the back-office, and the app uses JetBrains Mono.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports, and, for a player with a Steam identity, the catalog games of their library (CAP-27), covered by export and by account deletion.
 - **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "mission hebdo" / "weekly mission" for the weekly goal, so "objectif" / "goal" names only a player's goals (CAP-28) (author, 2026-10-30), and keeps "carte" / "card" (in the lore, an archive card: `lore.md`). The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal. The market's words are in `market-economy.md`; a player "confie" / "entrusts" a card (author, 2026-11-09). The interface never says "Top Trumps", a trademark; the spec's "Top Trump duel" is a working name.
@@ -401,6 +446,11 @@ gameble is an open-source passion project, and the game its author wants to play
 - Targeted capsules, or any odds shaped by a player's goals (#64).
 - Trade suggestions beyond friends (later, with privacy controls, `later-roadmap.md`).
 - Secret achievements (later, `later-roadmap.md`).
+- A market that absorbs every duplicate: unwanted Commons go to the Archives.
+- Orders that bid on auctions, or one order per edition.
+- Promoting the market to a main tab as a volume lever; the tab question belongs to the duel navigation work.
+- Capsules for PiCoins (past-season capsules are later, `later-roadmap.md`).
+- Seekers' names on a wanted card.
 - Custom sets seen by other players, and a Brotherhood sets page to publish and adopt them (later, `later-roadmap.md`).
 
 ## Success signal
@@ -408,6 +458,8 @@ gameble is an open-source passion project, and the game its author wants to play
 The author plays gameble every day for a month alongside at least 10 active players, not all of them friends, and sees their pulls and trades appear in the Brotherhood feed.
 
 For the market: 30 days after it opens, cards sell between players at every rarity, each balance matches the permanent money record, and the author can read from the back-office alone whether the prices hold their targets.
+
+For market volume: the market's weekly share of cards changing hands, sales / (sales + cards moved by friend trades), about 4% on 2026-11-19, is read four weeks after buy orders ship (CAP-46); the author sets no threshold and decides on that reading.
 
 For live duels (release 1.4): 30 days after release 1.4, at least 10 players have finished a live duel with no automatic move of theirs, and at least half of them duel again in a later week (author, 2026-11-14).
 
@@ -427,6 +479,9 @@ For live duels (release 1.4): 30 days after release 1.4, at least 10 players hav
 - An oversized entrustment batch entrusts the most valuable copies first, skipping a copy that does not fit so a cheaper one can (CAP-29).
 - Rarity minimums below Légendaire start at the no-loss floor (`market-economy.md`).
 - The day of the first-win duel capsule is the UTC day the duel ends, as for the daily bonus (CAP-42, CAP-16).
+- Every player's goals feed the wanted count, private players' and goals on custom sets included, since only a count shows (CAP-44).
+- An order whose price reaches no rarity's minimum is refused (CAP-46).
+- A bought slot is kept for good (CAP-49).
 
 ## Open Questions
 
@@ -435,3 +490,6 @@ For live duels (release 1.4): 30 days after release 1.4, at least 10 players hav
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier and the achievement backs of `achievements.md`, which goal and event backs ship, and does every successful weekly goal grant one?
 - **Preview image (CAP-9):** do Steam's terms allow its store art in a derived, stored image? The author checks before it ships.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
+- **Archive resale price (CAP-48):** which multiple of the entrustment value? 5x was simulated. At 5x a Légendaire costs 5,000, far below its 70,000 minimum, so it would undercut sellers.
+- **Slot prices (CAP-49):** what does each slot beyond the free ones cost? The median wallet is 965 PiCoins.
+- **Wanted definition (CAP-44):** the "1 or 2 missing cards" share is a guess; does it flood the seller's table (CAP-45) with cards that never sell?
