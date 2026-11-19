@@ -45,10 +45,6 @@ module Game
        LIMIT 1
     SQL
 
-    def self.discoveries_sql(scope, season)
-      FirstDiscovery.sanitize_sql_array([ DISCOVERIES, { season_id: season&.id, all_seasons: scope == :all } ])
-    end
-
     def self.states(asked, viewer: nil)
       offered = viewer ? STATES : STATES - [ "mine" ]
       chosen = offered & Array(asked).map(&:to_s)
@@ -122,7 +118,8 @@ module Game
     end
 
     def cards_in_order(relation, states:, viewer: nil)
-      relation = relation.joins("LEFT JOIN (#{discoveries_sql}) AS inventory ON inventory.card_id = catalog_card_seasons.card_id")
+      relation = relation.joins(FirstDiscovery.sanitize_sql_array([ "LEFT JOIN (#{DISCOVERIES}) AS inventory ON inventory.card_id = catalog_card_seasons.card_id",
+        { season_id: season&.id, all_seasons: scope == :all } ]))
       chosen = self.class.states(states, viewer:)
       relation = relation.where(chosen.map { "(#{state_condition(it, viewer)})" }.join(" OR ")) unless chosen.include?(DEFAULT_STATE)
       relation.reorder(Arel.sql("inventory.discovered_at DESC NULLS LAST"), :number, :id)
@@ -148,8 +145,6 @@ module Game
       def found
         @found ||= rows(DISCOVERIES).to_h { |card_id, player_id, discovered_at| [ card_id, [ player_id, discovered_at ] ] }
       end
-
-      def discoveries_sql = self.class.discoveries_sql(scope, season)
 
       def count_of(sql, **binds)
         rows("SELECT COUNT(*) FROM (#{sql}) AS counted", **binds).first || 0

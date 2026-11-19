@@ -54,7 +54,8 @@ module Game
       season = Catalog::PublishedSeason.call
       return FirstDiscovery.none unless season
 
-      FirstDiscovery.from("(#{GrandInventory.discoveries_sql(scope, season)}) AS game_first_discoveries")
+      FirstDiscovery.from(FirstDiscovery.sanitize_sql_array([ "(#{GrandInventory::DISCOVERIES}) AS game_first_discoveries",
+        { season_id: season.id, all_seasons: scope == :all } ]))
     end
 
     private_class_method :of_period, :credited
