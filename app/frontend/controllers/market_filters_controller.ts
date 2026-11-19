@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { reloadOnChange, SET_OPTIONS_FRAME, submitToFrame } from "../lib/collection_filters"
+import { PRICE_BOUNDS, reloadOnChange, reloadsSets, SET_OPTIONS_FRAME, submitToFrame } from "../lib/collection_filters"
 import { Debounce, summaryOf } from "../lib/set_search"
 
 export default class MarketFiltersController extends Controller<HTMLFormElement> {
@@ -11,16 +11,25 @@ export default class MarketFiltersController extends Controller<HTMLFormElement>
   declare readonly hasSetStatusTarget: boolean
 
   private readonly setsTyping = new Debounce()
+  // A bound changes as its field loses focus, often to the Apply button, whose own submit then cancels this one.
+  private readonly boundChange = new Debounce()
 
   disconnect(): void {
     this.setsTyping.cancel()
+    this.boundChange.cancel()
   }
 
   changed(event: Event): void {
     if (!(event.target instanceof HTMLInputElement)) return
     const reload = reloadOnChange(event.target)
-    if (reload === "grid") this.element.requestSubmit()
+    if (reload === "grid" && PRICE_BOUNDS.includes(event.target.name))
+      this.boundChange.call(() => this.element.requestSubmit())
+    else if (reload === "grid") this.element.requestSubmit()
     if (reload === "sets") this.submitSets()
+  }
+
+  submitted(event: SubmitEvent): void {
+    if (!reloadsSets(event.submitter)) this.boundChange.cancel()
   }
 
   typed(event: Event): void {

@@ -5,6 +5,7 @@ import {
   countsByGroup,
   groupNames,
   priceGroup,
+  PRICE_BOUNDS,
   PRICE_GROUP,
   reloadOnChange,
   reloadsSets,
@@ -76,7 +77,8 @@ export default class extends Controller<HTMLFormElement> {
       }
     }
     this.refresh()
-    this.submit()
+    if (PRICE_BOUNDS.includes(field.name)) this.submitUnlessAppliedMeanwhile()
+    else this.submit()
   }
 
   typed(event: Event): void {
@@ -114,6 +116,12 @@ export default class extends Controller<HTMLFormElement> {
 
     const results = document.getElementById(RESULTS_STATUS)?.textContent ?? ""
     for (const status of this.sheetStatusTargets) status.textContent = results
+  }
+
+  // A bound changes as its field loses focus, often to the Apply button, whose own submit then cancels this one.
+  private submitUnlessAppliedMeanwhile(): void {
+    window.clearTimeout(this.timer)
+    this.timer = window.setTimeout(() => this.submit(), TYPING_PAUSE_MS)
   }
 
   private submit(): void {

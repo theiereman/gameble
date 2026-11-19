@@ -1,7 +1,7 @@
 <%# locals: (filters:, options:, sort:, wanted_count: nil) %>
 <%= form_with url: market_path, method: :get, class: "filters market-filters", html: { role: "search" }, data: {
   controller: "market-filters",
-  action: "change->market-filters#changed input->market-filters#typed turbo:frame-load->market-filters#setsLoaded"
+  action: "change->market-filters#changed input->market-filters#typed submit->market-filters#submitted turbo:frame-load->market-filters#setsLoaded"
 } do %>
   <%= hidden_field_tag :sort, sort, id: nil %>
   <div class="filters__search">

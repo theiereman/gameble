@@ -35,9 +35,11 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
     visit market_path(locale: :en)
     find("summary", text: /filters/i).click
     find(".filter-chip", text: /\Arare\z/i).click
+    assert_current_path(/rarity%5B%5D=rare/)
     assert_selector ".listing-tile", count: 1
     assert_selector "details[open]"
     find(".filter-chip", text: /season 1/i).click
+    assert_current_path(/season%5B%5D=1/)
     assert_selector ".listing-tile", count: 1
     fill_in "max_price", with: "10000"
     find("button", text: /apply/i).click
