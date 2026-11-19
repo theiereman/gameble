@@ -25,67 +25,68 @@ class HubGrandInventoryPanelTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "the panel opens the hub's side column, before the weekly mission: the count, the gauge, and the see-more link outside its frame" do
+  test "the panel opens the hub's side column, before the weekly mission: its title leads to the screen, then the count and the gauge" do
     discover_latest(other)
 
     show_hub
 
     found, total = inventory.found_count, inventory.total
     assert_select ".hub__aside > section.grand-inventory-panel:first-child + #community-goal"
-    assert_select "section.grand-inventory-panel[aria-labelledby=grand-inventory-panel-title]" do
-      assert_select ".panel.grand-inventory-panel__frame h2#grand-inventory-panel-title.hub-section-title", "Le Grand Inventaire"
+    assert_select "section.panel.grand-inventory-panel.hub-linked[aria-labelledby=grand-inventory-panel-title]" do
+      assert_select "h2#grand-inventory-panel-title.hub-section-title a.hub-linked__link[href=?]", grand_inventory_path(locale: :fr), "Le Grand Inventaire"
       assert_select ".grand-inventory-panel__count[aria-hidden=true]", "#{found} / #{total}"
       assert_select ".visually-hidden", I18n.t("pages.home.grand_inventory.spoken", count: found, found:, total:, locale: :fr)
-      assert_select "progress.set-row__bar[value=?][max=?][aria-hidden=true]", found.to_s, total.to_s
-      assert_select "a[href=?]", grand_inventory_path(locale: :fr), 1
-      assert_select ".panel a.button--link", false
+      assert_select ".gauge[aria-hidden=true] .gauge__segment--lit", GaugeComponent.lit(found, total)
+      assert_select "a", 1
       assert_select ".card", false
       assert_select "[style]", false
     end
-    assert_select "section.grand-inventory-panel > p.grand-inventory-panel__open a.button--link[href=?]", grand_inventory_path(locale: :fr), "Voir le Grand Inventaire"
+    assert_select ".grand-inventory-panel__open", false
   end
 
-  test "the latest discovery by a public player names the card and links the player, with how long ago" do
-    explorer = other
-    discover_latest(explorer)
+  test "the latest discovery by a public player shows the game's art, its title, the player unlinked and how long ago" do
+    discover_latest(other)
     card = latest_card
 
     show_hub
 
-    assert_select ".grand-inventory-panel__latest", "Dernière découverte : #{card.title}, par Explorer, il y a 12 min"
-    assert_select ".grand-inventory-panel__latest a[href=?]", card_season_path(slug: card.id, number: card.season_number, locale: :fr), card.title
-    assert_select ".grand-inventory-panel__latest a.player-name--linked[href=?]", brother_path(token: explorer.token, locale: :fr), "Explorer"
+    assert_select ".grand-inventory-panel__latest" do
+      assert_select "img.grand-inventory-panel__thumb[src=?][alt='']", card.image_url
+      assert_select ".visually-hidden", "Dernière découverte :"
+      assert_select ".grand-inventory-panel__game", card.title
+      assert_select ".grand-inventory-panel__by", "par Explorer"
+      assert_select "time.grand-inventory-panel__age", "il y a 12 min"
+      assert_select "a", false
+    end
     assert_select ".grand-inventory-panel__empty", false
   end
 
-  test "a latest discoverer since banned reads as the anonymous name, without a profile link" do
+  test "a latest discoverer since banned reads as the anonymous name" do
     discover_latest(accounts_players(:banned))
 
     show_hub
 
-    assert_select ".grand-inventory-panel__latest .player-name--anonymous", "Un joueur anonyme"
-    assert_select ".grand-inventory-panel__latest a.player-name", false
+    assert_select ".grand-inventory-panel__by .player-name--anonymous", "Un joueur anonyme"
   end
 
   %i[friends_only private].each do |visibility|
-    test "a #{visibility} latest discoverer the viewer may not see is named without a link" do
+    test "a #{visibility} latest discoverer is named, as on every Grand Inventaire line" do
       discover_latest(other(visibility:))
 
       show_hub
 
-      assert_select ".grand-inventory-panel__latest span.player-name", "Explorer"
-      assert_select ".grand-inventory-panel__latest a.player-name", false
+      assert_select ".grand-inventory-panel__by span.player-name", "Explorer"
     end
   end
 
-  test "with nothing discovered yet the panel keeps its shape: a zero count and the empty line" do
+  test "with nothing discovered yet the panel keeps its shape: a zero count, an unlit gauge and the empty line" do
     Game::FirstDiscovery.delete_all
 
     show_hub
 
     total = inventory.total
     assert_select ".grand-inventory-panel__count", "0 / #{total}"
-    assert_select "progress.set-row__bar[value='0'][max=?]", [ total, 1 ].max.to_s
+    assert_select ".grand-inventory-panel .gauge__segment--lit", false
     assert_select ".grand-inventory-panel__empty", "Aucune carte découverte pour l'instant."
     assert_select ".grand-inventory-panel__latest", false
   end

@@ -3870,8 +3870,8 @@ en:
         title: Goals in progress
       grand_inventory:
         empty: No card discovered yet.
-        latest_html: 'Latest discovery: %{card}, by %{player}, %{ago}'
-        open: See the Great Inventory
+        latest: "Latest discovery:"
+        by_html: "by %{player}"
         spoken:
           one: "%{found} card discovered out of %{total}"
           other: "%{found} cards discovered out of %{total}"

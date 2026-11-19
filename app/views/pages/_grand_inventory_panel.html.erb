@@ -1,28 +1,27 @@
 <%# locals: (inventory:) %>
 <% found = inventory.found_count %>
 <% total = inventory.total %>
-<% bar_max = [ total, 1 ].max %>
 <% latest = inventory.latest_discovery %>
-<section class="grand-inventory-panel" aria-labelledby="grand-inventory-panel-title">
-  <%= render PanelComponent.new(class: "grand-inventory-panel__frame") do %>
-    <div class="grand-inventory-panel__head">
-      <h2 id="grand-inventory-panel-title" class="hub-section-title"><%= t("pages.home.grand_inventory.title") %></h2>
-      <span class="grand-inventory-panel__count" aria-hidden="true"><%= number_with_delimiter(found) %> / <%= number_with_delimiter(total) %></span>
-      <span class="visually-hidden"><%= t("pages.home.grand_inventory.spoken", count: found, found: number_with_delimiter(found), total: number_with_delimiter(total)) %></span>
-    </div>
-    <progress class="set-row__bar" value="<%= [ found, bar_max ].min %>" max="<%= bar_max %>" aria-hidden="true"></progress>
-    <% if latest %>
-      <p class="grand-inventory-panel__latest">
-        <%= t("pages.home.grand_inventory.latest_html",
-              card: link_to(latest.card.title, card_season_path(slug: latest.card.id, number: latest.card.season_number)),
-              player: render(PlayerNameComponent.new(player: latest.player, viewer: current_player)),
-              ago: set_gained_ago(latest.discovered_at)) %>
-      </p>
-    <% else %>
-      <p class="grand-inventory-panel__empty"><%= t("pages.home.grand_inventory.empty") %></p>
-    <% end %>
+<%= render PanelComponent.new(tag: :section, class: "grand-inventory-panel hub-linked", aria: { labelledby: "grand-inventory-panel-title" }) do %>
+  <div class="grand-inventory-panel__head">
+    <h2 id="grand-inventory-panel-title" class="hub-section-title">
+      <%= link_to grand_inventory_path, class: "hub-linked__link" do %><%= t("pages.home.grand_inventory.title") %><%= pixel_icon("arrow-small-right", class: "hub-linked__arrow") %><% end %>
+    </h2>
+    <span class="grand-inventory-panel__count" aria-hidden="true"><%= number_with_delimiter(found) %> / <%= number_with_delimiter(total) %></span>
+    <span class="visually-hidden"><%= t("pages.home.grand_inventory.spoken", count: found, found: number_with_delimiter(found), total: number_with_delimiter(total)) %></span>
+  </div>
+  <%= render GaugeComponent.new(lit: GaugeComponent.lit(found, total)) %>
+  <% if latest&.card %>
+    <p class="grand-inventory-panel__latest">
+      <img class="grand-inventory-panel__thumb" src="<%= latest.card.image_url %>" alt="" width="32" height="32" loading="lazy" decoding="async">
+      <span class="grand-inventory-panel__discovery">
+        <span class="visually-hidden"><%= t("pages.home.grand_inventory.latest") %></span>
+        <span class="grand-inventory-panel__game"><%= latest.card.title %></span>
+        <span class="grand-inventory-panel__by"><%= t("pages.home.grand_inventory.by_html", player: render(PlayerNameComponent.new(player: latest.player, viewer: current_player, linked: false))) %></span>
+      </span>
+      <time class="grand-inventory-panel__age" datetime="<%= latest.discovered_at.utc.iso8601 %>"><%= set_gained_ago(latest.discovered_at) %></time>
+    </p>
+  <% else %>
+    <p class="grand-inventory-panel__empty"><%= t("pages.home.grand_inventory.empty") %></p>
   <% end %>
-  <p class="grand-inventory-panel__open">
-    <%= render ButtonComponent.new(variant: :link, href: grand_inventory_path) do %><%= t("pages.home.grand_inventory.open") %><% end %>
-  </p>
-</section>
+<% end %>

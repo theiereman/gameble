@@ -412,9 +412,9 @@ fr:
           zero: "%{found} carte découverte sur %{total}"
           one: "%{found} carte découverte sur %{total}"
           other: "%{found} cartes découvertes sur %{total}"
-        latest_html: "Dernière découverte : %{card}, par %{player}, %{ago}"
+        latest: "Dernière découverte :"
+        by_html: "par %{player}"
         empty: "Aucune carte découverte pour l'instant."
-        open: "Voir le Grand Inventaire"
       welcome:
         title: "Bienvenue sur Gameble"
         founders: "Autrefois bannis de la Terre, les jeux vidéo ont été sauvés grâce aux efforts de nos illustres fondateurs."

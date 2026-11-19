@@ -1,14 +1,9 @@
+/* ---- Hub: Le Grand Inventaire, a linked panel like the market's ---- */
+
 .grand-inventory-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-}
-
-.grand-inventory-panel__frame {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
+  gap: var(--space-4);
 }
 
 .grand-inventory-panel__head {
@@ -20,29 +15,58 @@
 
 .grand-inventory-panel__count {
   color: var(--color-text-bright);
-  font: var(--font-number);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+  white-space: nowrap;
 }
 
 .grand-inventory-panel__latest {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
   margin: 0;
-  color: var(--color-text);
-  font: var(--font-label);
-  overflow-wrap: anywhere;
+  padding-top: var(--space-4);
+  border-top: var(--space-unit) solid var(--color-line-soft);
+  font: var(--font-body-small);
+}
+
+.grand-inventory-panel__thumb {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.grand-inventory-panel__discovery {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.grand-inventory-panel__game {
+  overflow: hidden;
+  color: var(--color-text-bright);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grand-inventory-panel__by {
+  overflow: hidden;
+  color: var(--color-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grand-inventory-panel__age {
+  flex: none;
+  align-self: flex-start;
+  margin-left: auto;
+  color: var(--color-muted);
 }
 
 .grand-inventory-panel__empty {
   margin: 0;
   color: var(--color-muted);
   font: var(--font-body-small);
-}
-
-.grand-inventory-panel__open {
-  display: flex;
-  margin: 0;
-}
-
-@media (max-width: 719px) {
-  .grand-inventory-panel__open .button {
-    flex: 1;
-  }
 }

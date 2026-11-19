@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hub Grand Inventaire panel</title>
+<style>
+@font-face{font-family:VT323;src:url(../../../../app/frontend/fonts/vt323-latin-400-normal.woff2)}
+@font-face{font-family:JB;src:url(../../../../app/frontend/fonts/jetbrains-mono-latin-400-normal.woff2)}
+@font-face{font-family:JB;font-weight:700;src:url(../../../../app/frontend/fonts/jetbrains-mono-latin-700-normal.woff2)}
+:root{
+  --backdrop:#05070a;--panel:#121a24;--sunken:#0e141b;--raised:#1b2838;
+  --line:#2a475e;--line-soft:#1f3346;--accent:#66c0f4;--accent-hi:#b5e2ff;
+  --text:#c7d5e0;--bright:#e6eef5;--max:#fff;--muted:#8f98a0;--gold:#f4c542;--on-gold:#1a1300;
+  --c:#8f98a0;--pc:#3fcf8e;--r:#66c0f4;--e:#b47cff;--l:#f4c542;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 64px;background:var(--backdrop);color:var(--text);font:14px/21px JB,monospace}
+h1{font:400 40px/44px VT323,monospace;color:var(--max);margin:0}
+.intro{color:var(--muted);max-width:900px;margin:6px 0 24px}
+.grid{display:flex;flex-wrap:wrap;gap:40px 32px;align-items:flex-start}
+figure{margin:0;width:424px;max-width:100%}
+figcaption{margin-bottom:12px}
+figcaption b{display:block;color:var(--gold);font:400 26px/30px VT323,monospace}
+figcaption span{display:block;color:var(--muted);font-size:12px;line-height:18px;min-height:72px}
+.stack{display:flex;flex-direction:column;gap:20px}
+
+/* shared hub pieces */
+.panel{background:var(--panel);box-shadow:inset 0 0 0 2px var(--line);padding:24px;position:relative}
+.kicker{margin:0;color:var(--accent);font:700 11px/normal JB,monospace;letter-spacing:1.5px;text-transform:uppercase}
+.linked{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none}
+.linked::after{content:"";position:absolute;inset:0}
+.arrow{width:0;height:0;border-left:6px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
+.panel.hover,.panel:has(.linked:hover){background:var(--raised)}
+.gauge{display:grid;grid-template-columns:repeat(24,1fr);gap:3px}
+.gauge i{height:12px;background:var(--line-soft)}
+.gauge i.on{background:var(--accent)}
+.gauge.thin i{height:6px}
+.muted{color:var(--muted)}
+.bright{color:var(--bright)}
+.num{font:700 18px/normal JB,monospace;color:var(--bright)}
+.small{font:700 12px/18px JB,monospace}
+.label{font:700 11px/16px JB,monospace;letter-spacing:.5px}
+a.inline{color:var(--bright);text-decoration:none;border-bottom:1px dotted var(--accent);position:relative;z-index:2}
+.thumb{width:32px;height:32px;flex:none;background:linear-gradient(135deg,#2a6f9a,#b47cff 60%,#f4c542);box-shadow:inset 0 0 0 2px var(--outline,#06090d)}
+
+/* reference: the mission panel underneath */
+.mission{padding:28px}
+.mission .head{display:flex;justify-content:space-between;align-items:baseline}
+.mission p{margin:12px 0}
+.brackets::before,.brackets::after{content:"";position:absolute;width:12px;height:12px;border:3px solid var(--accent)}
+.brackets::before{left:-6px;top:-6px;border-right:0;border-bottom:0}
+.brackets::after{right:-6px;bottom:-6px;border-left:0;border-top:0}
+
+/* 0 · today */
+.now .panel{padding:12px}
+.now .head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.now .bar{height:8px;background:var(--line-soft);box-shadow:inset 0 0 0 1px var(--line);margin:10px 0}
+.now .bar i{display:block;height:100%;width:71%;background:var(--accent)}
+.now .latest{margin:0;font:700 11px/16px JB,monospace;letter-spacing:.5px}
+.now .open{margin:12px 0 0;color:var(--muted);font:700 11px/normal JB,monospace;letter-spacing:1.5px;text-transform:uppercase}
+
+/* A · linked panel */
+.a .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.a .latest{margin:14px 0 0;display:grid;gap:2px}
+.a .latest .label{color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
+
+/* B · hero share */
+.b .head{margin-bottom:10px}
+.b .hero{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.b .pct{font:400 56px/44px VT323,monospace;color:var(--accent)}
+.b .of{display:grid}
+.b .row{display:flex;gap:12px;align-items:center;margin-top:16px;padding-top:14px;border-top:2px solid var(--line-soft)}
+.b .row .who{display:grid;min-width:0}
+.b .row .who .bright{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.b .row .ago{margin-left:auto;align-self:start;color:var(--muted)}
+
+/* C · rarity gauge */
+.c .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.c .rar{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.c .rar div{display:grid;gap:6px}
+.c .rar s{display:block;height:28px;background:var(--line-soft);position:relative;text-decoration:none}
+.c .rar s b{position:absolute;left:0;right:0;bottom:0}
+.c .rar span{font:700 10px/12px JB,monospace;letter-spacing:.5px;color:var(--muted);text-align:center}
+.c .latest{margin:14px 0 0}
+
+/* D · compact strip */
+.d .panel{padding:16px 20px}
+.d .top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px}
+.d .pct{font:700 14px/normal JB,monospace;color:var(--bright)}
+.d .tick{display:flex;align-items:center;gap:8px;margin-top:12px;white-space:nowrap;overflow:hidden}
+.d .chip{flex:none;padding:0 6px;background:var(--gold);color:var(--on-gold);font:700 10px/16px JB,monospace;letter-spacing:.5px}
+.d .tick .t{overflow:hidden;text-overflow:ellipsis}
+
+.phone figure{width:360px}
+.phone .panel{padding:16px}
+</style>
+</head>
+<body>
+<h1>Hub · Le Grand Inventaire panel</h1>
+<p class="intro">The panel today sits above the weekly mission with tighter padding, a thin bar unlike every other hub gauge, and its way in floating outside the frame. Each variant below is shown above the weekly mission at the hub column's width; hover a variant to see the whole panel as its link, like Marché and Le Chattomètre.</p>
+
+<div class="grid">
+
+<figure class="now">
+  <figcaption><b>0 · Today</b><span>For reference. 12px padding against 24–28px around it, a one-off bar, the count's size competing with the title, and "VOIR LE GRAND INVENTAIRE" left alone between two panels.</span></figcaption>
+  <div class="stack">
+    <div>
+      <div class="panel">
+        <div class="head"><p class="kicker">Le Grand Inventaire</p><span class="num" style="font-size:22px">8 837 / 12 389</span></div>
+        <div class="bar"><i></i></div>
+        <p class="latest">Dernière découverte : <a class="inline" href="#">Sky : Enfants de la Lumière</a>, par <a class="inline" href="#">Théièreman</a>, il y a 2 h</p>
+      </div>
+      <p class="open">Voir le Grand Inventaire</p>
+    </div>
+    <div class="panel mission brackets"><div class="head"><p class="kicker">Mission hebdo</p><span class="bright">36 / 500</span></div><p class="bright">Ouvrez 500 capsules cette semaine.</p><div class="gauge"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  </div>
+</figure>
+
+<figure class="a">
+  <figcaption><b>A · Linked panel</b><span>The hub's own pattern: the title with its arrow is the way in and the whole panel is the link, as for Marché. The segmented gauge of the mission, the count at the mission's size, and the latest discovery on two quiet lines. Nothing outside the frame.</span></figcaption>
+  <div class="stack">
+    <div class="panel">
+      <div class="head"><p class="kicker"><a class="linked" href="#">Le Grand Inventaire<span class="arrow"></span></a></p><span class="bright">8 837 / 12 389</span></div>
+      <div class="gauge"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="latest"><span class="label">Dernière découverte · il y a 2 h</span><span class="bright"><a class="inline" href="#">Sky : Enfants de la Lumière</a></span><span class="muted">par <a class="inline" href="#">Théièreman</a></span></p>
+    </div>
+    <div class="panel mission brackets"><div class="head"><p class="kicker">Mission hebdo</p><span class="bright">36 / 500</span></div><p class="bright">Ouvrez 500 capsules cette semaine.</p><div class="gauge"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  </div>
+</figure>
+
+<figure class="b">
+  <figcaption><b>B · Share in large</b><span>The Brotherhood's share as the panel's figure, in the display face like the Chattomètre's score, the exact count beside it. The latest discovery becomes a market-style row with the game's small capsule art, the pioneer under it.</span></figcaption>
+  <div class="stack">
+    <div class="panel">
+      <p class="kicker head"><a class="linked" href="#">Le Grand Inventaire<span class="arrow"></span></a></p>
+      <div class="hero"><span class="pct">71 %</span><span class="of"><span class="bright small">8 837 / 12 389</span><span class="muted small">cartes découvertes</span></span></div>
+      <div class="gauge"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="row"><span class="thumb"></span><span class="who"><span class="bright small">Sky : Enfants de la Lumière</span><span class="muted small">par Théièreman</span></span><span class="ago small">2 h</span></div>
+    </div>
+    <div class="panel mission brackets"><div class="head"><p class="kicker">Mission hebdo</p><span class="bright">36 / 500</span></div><p class="bright">Ouvrez 500 capsules cette semaine.</p><div class="gauge"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  </div>
+</figure>
+
+<figure class="c">
+  <figcaption><b>C · By rarity</b><span>The count with five small columns, one per rarity, filled to the share found, in the rarity colours. Says at a glance what is left to find (here: the Legendaries). Taller than A; the latest discovery stays one line.</span></figcaption>
+  <div class="stack">
+    <div class="panel">
+      <div class="head"><p class="kicker"><a class="linked" href="#">Le Grand Inventaire<span class="arrow"></span></a></p><span class="bright">8 837 / 12 389</span></div>
+      <div class="rar">
+        <div><s><b style="height:92%;background:var(--c)"></b></s><span>C 92%</span></div>
+        <div><s><b style="height:81%;background:var(--pc)"></b></s><span>PC 81%</span></div>
+        <div><s><b style="height:63%;background:var(--r)"></b></s><span>R 63%</span></div>
+        <div><s><b style="height:40%;background:var(--e)"></b></s><span>É 40%</span></div>
+        <div><s><b style="height:14%;background:var(--l)"></b></s><span>L 14%</span></div>
+      </div>
+      <p class="latest small muted">Dernière : <a class="inline" href="#">Sky : Enfants de la Lumière</a>, par <a class="inline" href="#">Théièreman</a>, il y a 2 h</p>
+    </div>
+    <div class="panel mission brackets"><div class="head"><p class="kicker">Mission hebdo</p><span class="bright">36 / 500</span></div><p class="bright">Ouvrez 500 capsules cette semaine.</p><div class="gauge"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  </div>
+</figure>
+
+<figure class="d">
+  <figcaption><b>D · Compact strip</b><span>The lowest: title, a thin segmented gauge and the share on one row, then the latest discovery as a ticker line with a gold NOUVEAU tag when under an hour old. Closest to "kept low"; the exact count moves to the screen.</span></figcaption>
+  <div class="stack">
+    <div class="panel">
+      <div class="top"><p class="kicker"><a class="linked" href="#">Grand Inventaire<span class="arrow"></span></a></p><div class="gauge thin"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="pct">71 %</span></div>
+      <div class="tick small"><span class="chip">NOUVEAU</span><span class="t"><span class="bright">Sky : Enfants de la Lumière</span> <span class="muted">· Théièreman · 2 h</span></span></div>
+    </div>
+    <div class="panel mission brackets"><div class="head"><p class="kicker">Mission hebdo</p><span class="bright">36 / 500</span></div><p class="bright">Ouvrez 500 capsules cette semaine.</p><div class="gauge"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  </div>
+</figure>
+
+<figure class="a b">
+  <figcaption><b>E · A's gauge with B's row</b><span>A's head and segmented gauge, the count at the mission's size; under a thin rule, B's latest-discovery row with the game's capsule art, the pioneer under the title and the age on the right. The whole panel is the way in.</span></figcaption>
+  <div class="stack">
+    <div class="panel">
+      <div class="head"><p class="kicker"><a class="linked" href="#">Le Grand Inventaire<span class="arrow"></span></a></p><span class="bright">8 837 / 12 389</span></div>
+      <div class="gauge"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="row"><span class="thumb"></span><span class="who"><span class="bright small">Sky : Enfants de la Lumière</span><span class="muted small">par Théièreman</span></span><span class="ago small">2 h</span></div>
+    </div>
+    <div class="panel mission brackets"><div class="head"><p class="kicker">Mission hebdo</p><span class="bright">36 / 500</span></div><p class="bright">Ouvrez 500 capsules cette semaine.</p><div class="gauge"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  </div>
+</figure>
+
+</div>
+</body>
+</html>
