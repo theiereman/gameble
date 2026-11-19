@@ -26,13 +26,13 @@ module BackOffice
 
       assert_redirected_to back_office_features_path(locale: :en)
       assert_equal "Duels is hidden from the players.", flash[:notice]
-      assert_not_includes Game::EnabledFeatures.call, "duels"
+      assert_not Game::FeatureFlag.find_by!(key: "duels").enabled
       get duels_path(locale: :en)
       assert_response :not_found
 
       patch back_office_feature_path(locale: :en, key: "duels"), params: { enabled: "1" }
 
-      assert_includes Game::EnabledFeatures.call, "duels"
+      assert Game::FeatureFlag.find_by!(key: "duels").enabled
       get duels_path(locale: :en)
       assert_response :success
     end
@@ -55,7 +55,7 @@ module BackOffice
       assert_response :forbidden
       patch back_office_feature_path(locale: :en, key: "duels"), params: { enabled: "0" }
       assert_response :forbidden
-      assert_includes Game::EnabledFeatures.call, "duels"
+      assert Game::FeatureFlag.find_by!(key: "duels").enabled
     end
   end
 end

@@ -7,8 +7,9 @@ module Game
     def self.call(player)
       unlocked = UnlockedAchievements.call(player)
       unclaimed = UnclaimedAchievements.keys(player)
-      progress = AchievementProgress.call(player, Achievements.metrics(Achievements.unearned(unlocked)))
-      Achievements::CATALOGUE.map do |achievement|
+      offered = Achievements.offered
+      progress = AchievementProgress.call(player, Achievements.metrics(Achievements.unearned(unlocked, offered)))
+      offered.map do |achievement|
         unlocked.include?(achievement.key) ? earned_tile(achievement, claimable: unclaimed.include?(achievement.key)) : unearned_tile(achievement, progress)
       end
     end
@@ -24,7 +25,9 @@ module Game
     private_class_method :unearned_tile
 
     def self.summary(player)
-      { earned: UnlockedAchievements.call(player).count { Achievements.find(it) }, total: Achievements::CATALOGUE.size }
+      offered = Achievements.offered
+      keys = Achievements.offered_keys(offered)
+      { earned: UnlockedAchievements.call(player).count { keys.include?(it.to_s) }, total: offered.size }
     end
   end
 end

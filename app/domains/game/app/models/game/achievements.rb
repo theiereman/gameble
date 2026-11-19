@@ -1,9 +1,14 @@
 module Game
   module Achievements
+    DUEL_METRICS = %i[duels_finished duels_won common_beats_legendary_rounds shutout_duels margin_wins distinct_duel_opponents
+      distinct_stats_won].freeze
+
     Achievement = Data.define(:key, :metric, :threshold) do
       def met?(progress)
         progress.fetch(metric) >= threshold
       end
+
+      def duel? = DUEL_METRICS.include?(metric)
     end
 
     CATALOGUE = [
@@ -102,8 +107,14 @@ module Game
       BY_KEY[key.to_s]
     end
 
-    def self.unearned(unlocked_keys)
-      CATALOGUE.reject { unlocked_keys.include?(it.key) }
+    def self.offered(features = EnabledFeatures.call)
+      features.include?("duels") ? CATALOGUE : CATALOGUE.reject(&:duel?)
+    end
+
+    def self.offered_keys(offered = self.offered) = offered.map { it.key.to_s }
+
+    def self.unearned(unlocked_keys, offered = self.offered)
+      offered.reject { unlocked_keys.include?(it.key) }
     end
 
     def self.metrics(achievements)

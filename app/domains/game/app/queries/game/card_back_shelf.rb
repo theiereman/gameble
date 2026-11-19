@@ -18,14 +18,20 @@ module Game
       earned = EarnedSetBacks.rows(player)
       seasons = CardBackSeasons.of(earned)
       tiers = latest_tiers(earned)
-      states = CardBacks::CATALOGUE.to_h { [ it.key, state(it, active:, unlocked: unlocks) ] }
+      backs = offered_backs
+      states = backs.to_h { [ it.key, state(it, active:, unlocked: unlocks) ] }
       progress = SetBackProgress.call(player, states.select { |_, state| state == :locked }.keys)
 
-      CardBacks::CATALOGUE.map do |back|
+      backs.map do |back|
         state = states.fetch(back.key)
         Row.new(back:, state:, season: (active_season if state == :active), seasons: seasons.fetch(back.key, []),
           unlocked_at: unlocks[back.key], tier: tiers[back.key], progress: progress[back.key], group: group(back))
       end
+    end
+
+    def self.offered_backs
+      achievements = Achievements.offered_keys
+      CardBacks::CATALOGUE.reject { it.unlock.kind == :achievement && !achievements.include?(it.unlock.target) }
     end
 
     def self.state(back, active:, unlocked:)
@@ -49,6 +55,6 @@ module Game
       end
     end
 
-    private_class_method :state, :group, :latest_tiers
+    private_class_method :offered_backs, :state, :group, :latest_tiers
   end
 end

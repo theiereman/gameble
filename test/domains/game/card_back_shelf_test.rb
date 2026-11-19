@@ -19,6 +19,14 @@ class Game::CardBackShelfTest < ActiveSupport::TestCase
     assert_equal [ :locked ], states.except(*Game::CardBacks::BASE_KEYS).values.uniq
   end
 
+  test "without duels the shelf leaves out the back a duel achievement unlocks" do
+    assert_includes shelf.map(&:key), "duelliste"
+
+    Game::SetFeatureFlag.new.call(player: accounts_players(:administrator), key: "duels", enabled: false).value!
+
+    assert_not_includes shelf.map(&:key), "duelliste"
+  end
+
   test "an unlocked back is offered and the chosen one is active" do
     Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
 

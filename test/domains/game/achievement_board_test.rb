@@ -25,6 +25,17 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
     assert_equal Game::Achievements::CATALOGUE.map(&:threshold), tiles.map(&:threshold)
   end
 
+  test "without duels the board, its summary and the earned count leave the duel achievements out" do
+    Game::SetFeatureFlag.new.call(player: accounts_players(:administrator), key: "duels", enabled: false).value!
+    unlock(:first_booster, :competitive_advantage_observed)
+    duel_keys = Game::Achievements::CATALOGUE.select(&:duel?).map(&:key)
+
+    assert_not_empty duel_keys
+    assert_empty Game::AchievementBoard.call(@player).map(&:key) & duel_keys
+    assert_equal({ earned: 1, total: Game::Achievements::CATALOGUE.size - duel_keys.size }, Game::AchievementBoard.summary(@player))
+    assert_equal 1, Game::EarnedAchievements.call(@player).count
+  end
+
   test "a visitor gets every tile unearned at zero, and a summary of nothing earned" do
     tiles = Game::AchievementBoard.call(nil)
 

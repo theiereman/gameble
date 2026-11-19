@@ -20,6 +20,7 @@ class Game::EarnedAchievementsTest < ActiveSupport::TestCase
     unlock("three_complete_sets", @now, player: accounts_players(:moderator))
 
     earned = nil
+    Game::EnabledFeatures.call
     assert_queries_count(1) { earned = Game::EarnedAchievements.call(@player) }
 
     assert_equal [ 6, Game::Achievements::CATALOGUE.size ], [ earned.count, earned.total ]
@@ -46,6 +47,7 @@ class Game::EarnedAchievementsTest < ActiveSupport::TestCase
   end
 
   test "nothing earned, without a query, for nil" do
+    Game::EnabledFeatures.call
     assert_queries_count(0) do
       assert_equal Game::EarnedAchievements::Earned.new(count: 0, total: total_achievements, latest: []), Game::EarnedAchievements.call(nil)
     end
