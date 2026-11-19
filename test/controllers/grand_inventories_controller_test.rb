@@ -100,6 +100,18 @@ class GrandInventoriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".grand-inventory__pace a.player-name", false
   end
 
+  test "a friends-only pioneer is linked for a signed-in friend" do
+    @player.update!(visibility: :friends_only)
+    pioneer(:portal_one, @player)
+    friend = accounts_players(:moderator)
+    Game::Friendship.create!(low_player_id: [ @player.id, friend.id ].min, high_player_id: [ @player.id, friend.id ].max)
+    sign_in(friend)
+
+    get grand_inventory_path(locale: :en)
+
+    assert_select ".grand-inventory__pace a.player-name", "Hugo"
+  end
+
   test "the phone tab chosen is kept in the address and marked current" do
     get grand_inventory_path(locale: :en, view: "sets")
 
@@ -160,5 +172,14 @@ class GrandInventoriesControllerTest < ActionDispatch::IntegrationTest
     assert_includes links.sole["href"], { inventory: { seasons: "current" } }.to_query
     assert_equal "Page 2 loaded", css_select("turbo-stream[action=update][target=collection-results-status] template").sole.text
     assert_select "turbo-stream[action=replace][target=collection-pages] template nav#collection-pages [aria-current=page]", /2/
+  end
+
+  test "a card past the first page of the grid goes back to its page" do
+    season, cards = published_cards(61)
+    last = Catalog::CardSeason.where(id: cards).order(:number, :id).last
+
+    get card_season_path(locale: :en, slug: last.card.slug, number: season.number, inventory: { seasons: "current" })
+
+    assert_equal grand_inventory_path(locale: :en, seasons: "current", page: 2), css_select(".top-bar__phone-back").sole["href"]
   end
 end
