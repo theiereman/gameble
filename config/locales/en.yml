@@ -4588,6 +4588,7 @@ en:
         label: Reduced motion
         'off': 'No'
         'on': 'Yes'
+        hint: A coloured glow around each card dealt from a capsule, by rarity.
         system: System
       session:
         label: Session

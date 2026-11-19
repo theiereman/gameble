@@ -2136,6 +2136,7 @@ fr:
         sync_now: "Synchroniser maintenant"
       session:
         label: "Session"
+        hint: "Une lueur colorée autour de chaque carte tirée d'une capsule, selon sa rareté."
         sign_out: "Se déconnecter"
       name:
         label: "Nom"

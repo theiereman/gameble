@@ -49,9 +49,12 @@
           <% end %>
 
           <li class="settings-row">
-            <p id="settings-rarity-aura" class="settings-row__label"><%= t(".rarity_aura.label") %></p>
+            <div class="settings-row__heading">
+              <p id="settings-rarity-aura" class="settings-row__label"><%= t(".rarity_aura.label") %></p>
+              <p id="settings-rarity-aura-hint" class="settings-row__hint"><%= t(".rarity_aura.hint") %></p>
+            </div>
             <%= form_with url: settings_rarity_aura_path, method: :patch, class: "settings-row__form", data: { turbo: false } do %>
-              <div class="segmented" role="group" aria-labelledby="settings-rarity-aura">
+              <div class="segmented" role="group" aria-labelledby="settings-rarity-aura" aria-describedby="settings-rarity-aura-hint">
                 <% { "on" => true, "off" => false }.each do |choice, value| %>
                   <%= tag.button t(".rarity_aura.#{choice}"), type: :submit, name: "rarity_aura", value: choice, class: "segmented__option",
                         aria: { pressed: (@rarity_aura == value).to_s } %>
