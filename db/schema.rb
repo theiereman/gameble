@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_18_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_19_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -607,7 +607,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_140000) do
     t.check_constraint "challenger_margin >= 0::numeric AND opponent_margin >= 0::numeric", name: "game_duels_margins_check"
     t.check_constraint "challenger_score >= 0 AND challenger_score <= 10 AND opponent_score >= 0 AND opponent_score <= 10 AND (challenger_score + opponent_score) <= 10", name: "game_duels_scores_check"
     t.check_constraint "first_caller::text = 'challenger'::text OR first_caller::text = 'opponent'::text", name: "game_duels_first_caller_check"
-    t.check_constraint "forfeited_by IS NULL OR state::text = 'finished'::text AND (forfeited_by::text = ANY (ARRAY['challenger'::character varying, 'opponent'::character varying]::text[]))", name: "game_duels_forfeited_by_check"
+    t.check_constraint "forfeited_by IS NULL OR state::text = 'finished'::text AND (forfeited_by::text = 'challenger'::text OR forfeited_by::text = 'opponent'::text)", name: "game_duels_forfeited_by_check"
     t.check_constraint "move_number >= 0", name: "game_duels_move_number_check"
     t.check_constraint "result::text = 'challenger'::text OR result::text = 'opponent'::text OR result::text = 'draw'::text", name: "game_duels_result_check"
     t.check_constraint "state::text = 'challenged'::text OR state::text = 'cancelled'::text OR state::text = 'refused'::text OR state::text = 'lapsed'::text OR state::text = 'active'::text OR state::text = 'finished'::text", name: "game_duels_state_check"
@@ -670,7 +670,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_140000) do
     t.datetime "updated_at", null: false
     t.index ["feed_entry_id", "kind"], name: "index_game_feed_reactions_on_feed_entry_id_and_kind"
     t.index ["player_id", "feed_entry_id"], name: "index_game_feed_reactions_on_player_id_and_feed_entry_id", unique: true
-    t.check_constraint "kind::text = ANY (ARRAY['thumb'::character varying, 'heart'::character varying, 'gg'::character varying, 'wow'::character varying, 'middle_finger'::character varying, 'poop'::character varying, 'want'::character varying]::text[])", name: "game_feed_reactions_kind_check"
+    t.check_constraint "kind::text = 'thumb'::text OR kind::text = 'heart'::text OR kind::text = 'gg'::text OR kind::text = 'wow'::text OR kind::text = 'middle_finger'::text OR kind::text = 'poop'::text OR kind::text = 'want'::text", name: "game_feed_reactions_kind_check"
   end
 
   create_table "game_first_discoveries", force: :cascade do |t|
