@@ -7,8 +7,8 @@ enum Tabs {
         let atRoot: Bool
     }
 
-    private static let paths = ["", "/booster", "/library", "/exchanges", "/duels"]
-    private static let roots = [[""], ["/booster"], ["/library"], ["/exchanges", "/trades", "/market"], ["/duels"]]
+    private static let paths = ["", "/booster", "/library", "/exchanges"]
+    private static let roots = [[""], ["/booster"], ["/library"], ["/exchanges", "/trades", "/market"]]
     private static let capsule = 1
     private static let trades = 3
 
@@ -30,8 +30,7 @@ enum Tabs {
             HotwireTab(title: Gameble.text("Bridge", "Pont"), image: UIImage(named: "tab-hub"), url: Gameble.url("")),
             HotwireTab(title: Gameble.text("Capsule", "Capsule"), image: UIImage(named: "tab-capsule"), url: Gameble.url("/booster")),
             HotwireTab(title: Gameble.text("Sets", "Sets"), image: UIImage(named: "tab-sets"), url: Gameble.url("/library")),
-            HotwireTab(title: Gameble.text("Trades", "Échanges"), image: UIImage(named: "tab-trades"), url: Gameble.url("/exchanges")),
-            HotwireTab(title: Gameble.text("Duels", "Duels"), image: UIImage(named: "tab-duels"), url: Gameble.url("/duels"))
+            HotwireTab(title: Gameble.text("Trades", "Échanges"), image: UIImage(named: "tab-trades"), url: Gameble.url("/exchanges"))
         ]
     }
 

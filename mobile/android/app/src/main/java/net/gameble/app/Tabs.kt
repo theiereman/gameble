@@ -9,14 +9,13 @@ import dev.hotwire.navigation.tabs.HotwireBottomTab
 object Tabs {
     class Destination(val tab: Int?, val atRoot: Boolean)
 
-    private val NAMES = listOf("hub", "capsule", "sets", "trades", "duels")
-    private val PATHS = listOf("", "/booster", "/library", "/exchanges", "/duels")
+    private val NAMES = listOf("hub", "capsule", "sets", "trades")
+    private val PATHS = listOf("", "/booster", "/library", "/exchanges")
     private val ROOTS = listOf(
         listOf(""),
         listOf("/booster"),
         listOf("/library"),
-        listOf("/exchanges", "/trades", "/market"),
-        listOf("/duels")
+        listOf("/exchanges", "/trades", "/market")
     )
     private const val CAPSULE = 1
     private const val TRADES = 3
@@ -35,8 +34,7 @@ object Tabs {
         tab(context, 0, R.string.tab_hub, R.drawable.ic_tab_hub, R.id.hub_host),
         tab(context, 1, R.string.tab_capsule, R.drawable.ic_tab_capsule, R.id.capsule_host),
         tab(context, 2, R.string.tab_sets, R.drawable.ic_tab_sets, R.id.sets_host),
-        tab(context, 3, R.string.tab_trades, R.drawable.ic_tab_trades, R.id.trades_host),
-        tab(context, 4, R.string.tab_duels, R.drawable.ic_tab_duels, R.id.duels_host)
+        tab(context, 3, R.string.tab_trades, R.drawable.ic_tab_trades, R.id.trades_host)
     )
 
     private fun tab(context: Context, index: Int, title: Int, icon: Int, host: Int) = HotwireBottomTab(
