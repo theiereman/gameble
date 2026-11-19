@@ -2,6 +2,7 @@
 <%= turbo_stream.replace "rarity-counter", partial: "shell/rarity_counter", locals: { counts: shell_tier_counts } %>
 <%= turbo_stream.update "player-menu-badge", partial: "shell/player_menu_badge", locals: { pending: shell_player_pending } %>
 <% if native_top_bar? %>
-  <%= turbo_stream.update "tab-trades-badge", partial: "shell/tab_trades_badge", locals: { waiting: shell_trades_waiting, outbid: shell_outbid_count } %>
+  <%= turbo_stream.update "tab-friend-trades-badge", partial: "shell/tab_friend_trades_badge", locals: { waiting: shell_trades_waiting } %>
+  <%= turbo_stream.update "tab-market-badge", partial: "shell/tab_market_badge", locals: { outbid: shell_outbid_count } %>
   <%= turbo_stream.update "player-menu-invitations-badge", partial: "pages/menu_invitations_badge", locals: { invitations: shell_invitations_waiting } %>
 <% end %>

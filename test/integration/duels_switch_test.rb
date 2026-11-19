@@ -27,11 +27,12 @@ class DuelsSwitchTest < ActionDispatch::IntegrationTest
     assert_select ".tab-bar a.tab-bar__tab[aria-current=page][href=?]", market_path(locale: :en)
   end
 
-  test "the native app, whose one Trades tab holds both, keeps the Market and Trades sub-tabs" do
+  test "the native app, whose Trades and Market are tabs of their own, gets their badges and no sub-tabs" do
     get market_path(locale: :en), headers: { "User-Agent" => "Hotwire Native iOS; bridge-components: [top-bar]" }
 
-    assert_select ".exchanges-tabs a[href=?]", trades_path(locale: :en)
-    assert_select ".exchanges-tabs a[href=?]", market_path(locale: :en)
+    assert_select ".native-tab-badges #tab-friend-trades-badge"
+    assert_select ".native-tab-badges #tab-market-badge"
+    assert_select ".exchanges-tabs", 0
   end
 
   test "every duel page answers not found" do

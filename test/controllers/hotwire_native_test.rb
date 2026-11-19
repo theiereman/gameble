@@ -51,18 +51,19 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the native bar carries the trades badge for its tab and the invitations for the older apps" do
+  test "the native bar carries the trades and market badges for their tabs and the invitations for the older apps" do
     Game::Invitation.create!(sender_id: accounts_players(:moderator).id, recipient_id: accounts_players(:player).id)
 
     get booster_path(locale: :en), headers: { "User-Agent" => APP_WITH_BAR }
 
     assert_select ".top-bar__end .native-tab-badges[hidden]" do
-      assert_select "#tab-trades-badge.stream-slot", 1
+      assert_select "#tab-friend-trades-badge.stream-slot", 1
+      assert_select "#tab-market-badge.stream-slot", 1
     end
     assert_select "#player-menu-invitations-badge.stream-slot .menu-item__badge", "1"
 
     get booster_path(locale: :en), headers: { "User-Agent" => APP }
-    assert_select ".native-tab-badges, #tab-trades-badge", 0
+    assert_select ".native-tab-badges, #tab-friend-trades-badge, #tab-market-badge", 0
   end
 
   test "with the native bar, the collection's progress moves from the bar to the top of the page" do
