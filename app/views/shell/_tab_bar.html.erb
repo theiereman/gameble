@@ -10,8 +10,12 @@
             <%= render "shell/tab_capsules_badge", bank: shell_bank %>
           <% elsif key == :duels %>
             <span id="tab-duels-badge" class="stream-slot"><%= render("shell/tab_duels_badge", count: shell_duels_in_progress) %></span>
-          <% elsif key == :trades %>
+          <% elsif key == :trades && feature_enabled?(:duels) %>
             <span id="tab-trades-badge" class="stream-slot"><%= render("shell/tab_trades_badge", waiting: shell_trades_waiting, outbid: shell_outbid_count) %></span>
+          <% elsif key == :trades %>
+            <span id="tab-friend-trades-badge" class="stream-slot"><%= render("shell/tab_friend_trades_badge", waiting: shell_trades_waiting) %></span>
+          <% elsif key == :market %>
+            <span id="tab-market-badge" class="stream-slot"><%= render("shell/tab_market_badge", outbid: shell_outbid_count) %></span>
           <% end %>
         <% end %>
       </li>

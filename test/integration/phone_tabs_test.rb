@@ -26,11 +26,11 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/fr/friends"
   end
 
-  test "the tabs read Bridge, Capsule, Sets, Commerce and Duels" do
+  test "the tabs read Bridge, Capsule, Sets, Trades and Duels" do
     get home_path(locale: :en)
 
     assert_equal %w[/en /en/booster /en/library /en/exchanges /en/duels], css_select(".tab-bar a.tab-bar__tab").pluck("href")
-    assert_equal %w[Bridge Capsule Sets Commerce Duels], css_select(".tab-bar .tab-bar__label").map(&:text)
+    assert_equal %w[Bridge Capsule Sets Trades Duels], css_select(".tab-bar .tab-bar__label").map(&:text)
     assert_select ".tab-bar a.tab-bar__tab[href='/en'][aria-current=page]"
   end
 

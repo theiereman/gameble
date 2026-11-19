@@ -183,7 +183,8 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
 
     english = received(@hugo, :en)
     assert_equal [ "market-updated" ], streams(english, "gameble-event").map { it["event"] }
-    assert_equal %w[menu-trades-badge tab-trades-badge subtab-friends-badge subtab-market-badge market-bids-badge], streams(english, "update").map { it["target"] }
+    assert_equal %w[menu-trades-badge tab-trades-badge subtab-friends-badge subtab-market-badge market-bids-badge
+      menu-friend-trades-badge tab-friend-trades-badge menu-market-badge tab-market-badge], streams(english, "update").map { it["target"] }
     assert_empty streams(english, "append")
   end
 

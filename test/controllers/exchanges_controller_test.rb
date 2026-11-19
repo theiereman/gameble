@@ -12,14 +12,14 @@ class ExchangesControllerTest < ActionDispatch::IntegrationTest
     @player = accounts_players(:player)
   end
 
-  def subtabs = css_select("nav.exchanges-tabs[aria-label='Commerce'] a.exchanges-tabs__tab")
+  def subtabs = css_select("nav.exchanges-tabs[aria-label='Échanges'] a.exchanges-tabs__tab")
 
-  test "the first time, the Commerce tab opens the market" do
+  test "the first time, the trades tab opens between friends" do
     sign_in(@player)
 
     get exchanges_path(locale: :fr)
 
-    assert_redirected_to market_path(locale: :fr)
+    assert_redirected_to trades_path(locale: :fr)
     assert_response :found
   end
 
@@ -38,18 +38,18 @@ class ExchangesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to market_path(locale: :fr)
   end
 
-  test "on the trades screen, the sub-tab bar names both sub-tabs, the current one a page, each replacing the screen" do
+  test "between friends, the sub-tab bar names both sub-tabs, the current one a page, each replacing the screen" do
     sign_in(@player)
 
     get trades_path(locale: :fr)
 
-    assert_equal [ "/fr/market", "/fr/trades" ], subtabs.pluck("href")
-    assert_equal [ "Marché", "Échanges" ], css_select(".exchanges-tabs__label").map(&:text)
-    assert_equal [ nil, "page" ], subtabs.pluck("aria-current")
+    assert_equal [ "/fr/trades", "/fr/market" ], subtabs.pluck("href")
+    assert_equal [ "Entre amis", "Marché" ], css_select(".exchanges-tabs__label").map(&:text)
+    assert_equal [ "page", nil ], subtabs.pluck("aria-current")
     assert_equal [ "replace", "replace" ], subtabs.map { it["data-turbo-action"] }
     assert_select ".exchanges-tabs__tab svg.pixel-icon[aria-hidden=true]", 2
     assert_select "nav.exchanges-tabs[data-controller=exchanges-tabs][data-exchanges-tabs-current-value=friends]" \
-      "[data-exchanges-tabs-kept-value=market][data-exchanges-tabs-url-value='/fr/exchanges/tab']"
+      "[data-exchanges-tabs-kept-value=friends][data-exchanges-tabs-url-value='/fr/exchanges/tab']"
     assert_select "#subtab-friends-badge.stream-slot", 1
     assert_select "#subtab-market-badge.stream-slot", 1
     assert_select ".exchanges-tabs__badge", 0
@@ -65,7 +65,7 @@ class ExchangesControllerTest < ActionDispatch::IntegrationTest
     [ market_path(locale: :fr), market_my_bids_path(locale: :fr), market_my_sales_path(locale: :fr) ].each do |path|
       get path
       assert_response :success
-      assert_equal [ "page", nil ], subtabs.pluck("aria-current"), path
+      assert_equal [ nil, "page" ], subtabs.pluck("aria-current"), path
       assert_select "turbo-frame#market-tab nav.exchanges-tabs", 0, path
       assert_select "nav.exchanges-tabs[data-exchanges-tabs-current-value=market][data-exchanges-tabs-kept-value=market]", 1, path
       assert_select ".tab-bar a.tab-bar__tab[href='/fr/exchanges'][aria-current=page]", 1, path
@@ -78,7 +78,7 @@ class ExchangesControllerTest < ActionDispatch::IntegrationTest
 
     get market_path(locale: :en)
 
-    assert_select "nav.exchanges-tabs[aria-label=Commerce]", 1
+    assert_select "nav.exchanges-tabs[aria-label=Trades]", 1
     assert_select "h1.market-teaser__title[tabindex='-1']"
   end
 

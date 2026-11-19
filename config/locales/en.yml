@@ -2344,11 +2344,11 @@ en:
         staged cards are thrown away: start a new import.'
   exchanges:
     tabs:
-      friends: Trades
+      friends: Between friends
       friends_waiting:
         one: ", %{number} trade waiting"
         other: ", %{number} trades waiting"
-      label: Commerce
+      label: Trades
       market: Market
       market_outbid:
         one: ", %{number} auction outbid"
@@ -3100,8 +3100,8 @@ en:
         missing: Missing
         new: New
         owned: Owned
-      title: Filters
         triplicates: 3+
+      title: Filters
     filter_row:
       more: More
       more_title: More filters
@@ -3252,8 +3252,8 @@ en:
         zero: No edition
         one: "%{number} edition"
         other: "%{number} editions"
-    exchanges:
       triples: 3+
+    exchanges:
       show:
         heading: The Brotherhood's Exchange
     bids:
@@ -3817,6 +3817,10 @@ en:
           one: "%{number} invitation waiting for your answer"
           other: "%{number} invitations waiting for your answer"
         label: Bridge menu
+        market: Market
+        market_outbid:
+          one: "%{number} auction outbid"
+          other: "%{number} auctions outbid"
         open_booster: Open a capsule
         reserve:
           one: "%{number} capsule in reserve"
@@ -3830,7 +3834,10 @@ en:
           one: "%{number} special capsule"
           other: "%{number} special capsules"
         support: Support
-        trades: Commerce
+        trades: Trades
+        trades_waiting:
+          one: "%{number} trade waiting for you"
+          other: "%{number} trades waiting for you"
       showcase:
         empty:
           open: Open a capsule
@@ -4581,6 +4588,7 @@ en:
       legal: Legal notice
       source_code: Source code
       rarity_aura:
+        hint: A coloured glow around each card dealt from a capsule, by rarity.
         label: Rarity aura
         'on': Shown
         'off': Hidden
@@ -4588,7 +4596,6 @@ en:
         label: Reduced motion
         'off': 'No'
         'on': 'Yes'
-        hint: A coloured glow around each card dealt from a capsule, by rarity.
         system: System
       session:
         label: Session
@@ -4840,9 +4847,16 @@ en:
       hub: Bridge
       label: Main navigation
       landing: Home
+      market: Market
+      market_outbid:
+        one: "%{number} auction outbid"
+        other: "%{number} auctions outbid"
       me: My profile
       sets: Sets
-      trades: Commerce
+      trades: Trades
+      trades_waiting:
+        one: "%{number} trade waiting for you"
+        other: "%{number} trades waiting for you"
     ticker:
       open: Open the activity feed
     toast:

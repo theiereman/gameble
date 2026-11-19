@@ -253,11 +253,11 @@ class ShellTest < ActionDispatch::IntegrationTest
     get library_path(locale: :fr)
 
     assert_select "nav.tab-bar[aria-label=?] ul.tab-bar__list > li.tab-bar__item", "Navigation principale", 5
-    assert_equal [ "Pont", "Capsule", "Sets", "Commerce", "Duels" ], css_select(".tab-bar__label").map(&:text)
+    assert_equal [ "Pont", "Capsule", "Sets", "Échanges", "Duels" ], css_select(".tab-bar__label").map(&:text)
     assert_select "a.tab-bar__tab[href='/fr']:not([aria-current])", /Pont/
     assert_select "a.tab-bar__tab[href='/fr/booster']:not([aria-current])", /Capsule/
     assert_select "a.tab-bar__tab[href='/fr/library'][aria-current=page]", /Sets/
-    assert_select "a.tab-bar__tab[href='/fr/exchanges']:not([aria-current])", /Commerce/
+    assert_select "a.tab-bar__tab[href='/fr/exchanges']:not([aria-current])", /Échanges/
     assert_select "a.tab-bar__tab[href='/fr/duels']:not([aria-current])", /Duels/
     assert_select "span.tab-bar__tab[aria-disabled=true], button.tab-bar__tab, .tab-bar__list--visitor", 0
     assert_select "nav.tab-bar[data-controller=navigation-lock]"

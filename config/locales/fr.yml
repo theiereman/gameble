@@ -269,7 +269,16 @@ fr:
         one: "%{number} capsule à ouvrir"
         other: "%{number} capsules à ouvrir"
       sets: "Sets"
-      trades: "Commerce"
+      trades: "Échanges"
+      trades_waiting:
+        zero: "%{number} échange en attente de vous"
+        one: "%{number} échange en attente de vous"
+        other: "%{number} échanges en attente de vous"
+      market: "Marché"
+      market_outbid:
+        zero: "%{number} enchère dépassée"
+        one: "%{number} enchère dépassée"
+        other: "%{number} enchères dépassées"
       duels: "Duels"
       me: "Mon profil"
       landing: "Accueil"
@@ -327,7 +336,16 @@ fr:
           zero: "%{owned} carte unique sur %{total}"
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
-        trades: "Commerce"
+        trades: "Échanges"
+        trades_waiting:
+          zero: "%{number} échange en attente de vous"
+          one: "%{number} échange en attente de vous"
+          other: "%{number} échanges en attente de vous"
+        market: "Marché"
+        market_outbid:
+          zero: "%{number} enchère dépassée"
+          one: "%{number} enchère dépassée"
+          other: "%{number} enchères dépassées"
         duels: "Duels"
         feed: "Fil d'activité"
         invitations_waiting:
@@ -2118,6 +2136,7 @@ fr:
         friends_only: "Amis uniquement"
         private: "Privé"
       rarity_aura:
+        hint: "Une lueur colorée autour de chaque carte tirée d'une capsule, selon sa rareté."
         label: "Aura de rareté"
         "on": "Affichés"
         "off": "Masqués"
@@ -2136,7 +2155,6 @@ fr:
         sync_now: "Synchroniser maintenant"
       session:
         label: "Session"
-        hint: "Une lueur colorée autour de chaque carte tirée d'une capsule, selon sa rareté."
         sign_out: "Se déconnecter"
       name:
         label: "Nom"
@@ -3623,6 +3641,7 @@ fr:
     one_below: 2
     rarity_prices:
       change_html: "%{change} en 90 j"
+      days_of_capsules_html: "≈ %{duration} de capsules"
       columns:
         day: "Jour"
       empty: "Aucun prix pour l'instant."
@@ -3642,7 +3661,6 @@ fr:
       circulation:
         caption: "PiCoins en circulation à la fin de chaque jour"
         summary: "%{last} PiCoins en circulation le %{last_day}, contre %{first} le %{first_day}."
-      days_of_capsules_html: "≈ %{duration} de capsules"
         title: "PICOINS EN CIRCULATION"
       columns:
         balance: "Solde (PiCoins)"
@@ -4361,8 +4379,8 @@ fr:
     throttled: "Trop de coups en une minute. Réessayez dans un instant."
   exchanges:
     tabs:
-      label: "Commerce"
-      friends: "Échanges"
+      label: "Échanges"
+      friends: "Entre amis"
       market: "Marché"
       friends_waiting:
         zero: ", %{number} échange en attente"

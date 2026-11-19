@@ -82,9 +82,17 @@ module ShellHelper
       [ :hub, "tab-hub", home_path, page_if((controller_path == "pages" && action_name == "home") || %w[feeds fortune_registers].include?(controller_path)) ],
       [ :booster, "tab-capsule", booster_path, page_if(%w[boosters packs].include?(controller_path)) ],
       [ :sets, "tab-sets", library_path, page_if(%w[library cards custom_sets].include?(controller_path)) ],
-      [ :trades, "tab-commerce", exchanges_path, exchanges_tab_current ],
-      ([ :duels, "tab-duels", duels_path, duels_tab_current ] if feature_enabled?(:duels))
-    ].compact
+      *(feature_enabled?(:duels) ? exchanges_and_duels_tabs : trades_and_market_tabs)
+    ]
+  end
+
+  def exchanges_and_duels_tabs
+    [ [ :trades, "tab-trades", exchanges_path, exchanges_tab_current ], [ :duels, "tab-duels", duels_path, duels_tab_current ] ]
+  end
+
+  def trades_and_market_tabs
+    [ [ :trades, "tab-trades", trades_path, page_if(controller_path == "trades") ],
+      [ :market, "tab-market", market_path, page_if(EXCHANGES_ROOTS.include?(controller_path)) ] ]
   end
 
   def visitor_tabs

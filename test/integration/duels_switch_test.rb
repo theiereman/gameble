@@ -11,14 +11,20 @@ class DuelsSwitchTest < ActionDispatch::IntegrationTest
     sign_in(@player)
   end
 
-  test "the phone tab bar has four tabs and the hub menu has no Duels entry, its other numbers closing the gap" do
+  test "the tab bar and the hub menu are production's: Trades and Market apart, no Duels, no sub-tabs" do
     get home_path(locale: :en)
 
-    assert_equal %w[Bridge Capsule Sets Commerce], css_select(".tab-bar__label").map(&:text)
+    assert_equal %w[Bridge Capsule Sets Trades Market], css_select(".tab-bar__label").map(&:text)
+    assert_select ".tab-bar a.tab-bar__tab[href=?]", trades_path(locale: :en)
+    assert_select ".tab-bar a.tab-bar__tab[href=?]", market_path(locale: :en)
     assert_select ".hub-menu a[href='#{duels_path(locale: :en)}']", 0
-    assert_select ".hub-menu a.menu-item[aria-keyshortcuts='4'][href='#{feed_path(locale: :en)}'] .menu-item__number", "04"
-    assert_select ".hub-menu a.menu-item[aria-keyshortcuts='5'][href='#{achievements_path(locale: :en)}'] .menu-item__number", "05"
-    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='6'] .menu-item__number", "06"
+    assert_select ".hub-menu a.menu-item[aria-keyshortcuts='3'][href='#{trades_path(locale: :en)}'] .menu-item__number", "03"
+    assert_select ".hub-menu a.menu-item[aria-keyshortcuts='4'][href='#{market_path(locale: :en)}'] .menu-item__number", "04"
+    assert_select ".hub-menu a.menu-item[aria-keyshortcuts='5'][href='#{feed_path(locale: :en)}'] .menu-item__number", "05"
+
+    get market_path(locale: :en)
+    assert_select ".exchanges-tabs", 0
+    assert_select ".tab-bar a.tab-bar__tab[aria-current=page][href=?]", market_path(locale: :en)
   end
 
   test "every duel page answers not found" do
