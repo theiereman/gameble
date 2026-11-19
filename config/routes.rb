@@ -119,6 +119,7 @@ Rails.application.routes.draw do
     # The collection's watermark: the page posts the latest gain it showed
     # as new.
     post "library/seen" => "collection_seen#create", as: :library_seen
+    get "inventory/pioneers" => "pioneer_rankings#show", as: :pioneer_ranking
 
     # A player's public profile, by their token (24 base58 characters, as
     # has_secure_token makes them, never an id): their sets, and one of

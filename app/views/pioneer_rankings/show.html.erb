@@ -1,0 +1,49 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<% period_label = t("pioneer_rankings.periods.#{@period}") %>
+<% reading = current_player ? t(".reading", period: period_label, place: @place ? pioneer_place_words(@place) : t("pioneer_rankings.boards.none.#{@period}")) : period_label %>
+<section class="pioneer-ranking page page--regular" aria-labelledby="pioneer-ranking-heading"
+         data-controller="pioneer-ranking" data-action="turbo:frame-load->pioneer-ranking#reloaded">
+  <h1 id="pioneer-ranking-heading" class="visually-hidden"><%= t(".title") %></h1>
+  <p id="pioneer-ranking-status" class="visually-hidden" role="status" data-pioneer-ranking-target="status"></p>
+  <%= turbo_frame_tag "pioneer-ranking-results", target: "_top", class: "pioneer-ranking__results",
+        data: { controller: "next-page", action: "focusout->next-page#focusLeft" } do %>
+    <div class="pioneer-ranking__chips">
+      <%= tag.form action: pioneer_ranking_path, method: :get, class: "segmented", role: "group", aria: { label: t("pioneer_rankings.scopes_label") },
+            data: { turbo_frame: "pioneer-ranking-results", turbo_action: "advance" } do %>
+        <%= hidden_field_tag :period, "season", id: nil if @choice == :season %>
+        <% %i[all current].each do |scope| %>
+          <%= tag.button t("pioneer_rankings.scopes.#{scope}"), type: :submit, class: "segmented__option", name: "seasons", value: scope,
+                aria: { pressed: (scope == @scope).to_s }, data: { action: "pioneer-ranking#chose" } %>
+        <% end %>
+      <% end %>
+      <%= tag.form action: pioneer_ranking_path, method: :get, class: "segmented", role: "group", aria: { label: t("pioneer_rankings.periods_label") },
+            data: { turbo_frame: "pioneer-ranking-results", turbo_action: "advance", pioneer_ranking_reading: reading } do %>
+        <%= hidden_field_tag :seasons, "current", id: nil if @scope == :current %>
+        <% %i[week season].each do |choice| %>
+          <%= tag.button t("pioneer_rankings.periods.#{Game::PioneerBoard.period_for(choice, @scope)}"), type: :submit, class: "segmented__option",
+                name: "period", value: choice, aria: { pressed: (choice == @choice).to_s }, data: { action: "pioneer-ranking#chose" } %>
+        <% end %>
+      <% end %>
+    </div>
+    <%= render "pioneer_rankings/place", place: @place, choice: @choice, scope: @scope if @place %>
+    <% if @pagy.count.positive? %>
+      <%= render PanelComponent.new(class: "pioneer-ranking__board") do %>
+        <ol id="pioneer-ranking-rows" class="pioneer-rows">
+          <%= render "pioneer_rankings/rows", rows: @rows, viewer: current_player %>
+        </ol>
+      <% end %>
+    <% else %>
+      <%= render PanelComponent.new(tag: :p, class: "pioneer-ranking__empty") do %><%= t("pioneer_rankings.boards.empty.#{@period}") %><% end %>
+    <% end %>
+    <%= tag.span id: "pioneer-ranking-address", hidden: true, data: { pioneer_ranking_target: "address", url: request.fullpath } %>
+    <%= render "library/pages", pagy: @pagy, empty: false, label: t(".pages_label") %>
+  <% end %>
+  <% unless current_player %>
+    <p class="pioneer-ranking__visitor">
+      <span><%= t("pioneer_rankings.visitor") %></span>
+      <%= sign_in_button t("shell.top_bar.sign_in"), origin: request.path, class: "button button--primary" %>
+    </p>
+  <% end %>
+</section>

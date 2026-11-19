@@ -1,0 +1,38 @@
+<%# locals: (inventory_scope:, viewer:) %>
+<div class="pioneer-boards">
+  <% pioneer_boards(inventory_scope, viewer).each do |board| %>
+    <% heading_id = "pioneer-board-#{board.period}" %>
+    <% choice = board.period == :week ? :week : :season %>
+    <% mine = viewer && board.rows.any? { it.player == viewer } %>
+    <%= render PanelComponent.new(tag: :section, class: "pioneer-board", aria: { labelledby: heading_id }) do %>
+      <h2 id="<%= heading_id %>" class="pioneer-board__title">
+        <%= t("pioneer_rankings.boards.title", period: t("pioneer_rankings.periods.#{board.period}")) %>
+      </h2>
+      <% if board.rows.empty? %>
+        <p class="pioneer-board__empty"><%= t("pioneer_rankings.boards.empty.#{board.period}") %></p>
+      <% else %>
+        <ol class="pioneer-rows">
+          <%= render "pioneer_rankings/rows", rows: board.rows, viewer:, anchored: false %>
+        </ol>
+        <% if board.place && !mine %>
+          <p class="pioneer-board__place">
+            <span aria-hidden="true"><%= pioneer_rank(board.place.rank) %> · <%= t("pioneer_rankings.you") %> · <%= number_with_delimiter(board.place.count) %></span>
+            <span class="visually-hidden"><%= pioneer_place_words(board.place) %></span>
+          </p>
+        <% elsif viewer && !board.place %>
+          <p class="pioneer-board__place pioneer-board__place--none"><%= t("pioneer_rankings.boards.none.#{board.period}") %></p>
+        <% end %>
+      <% end %>
+      <%= render ButtonComponent.new(variant: :link, href: pioneer_ranking_path(**pioneer_ranking_params(choice, inventory_scope)),
+            aria_label: t("pioneer_rankings.boards.see_all_label.#{board.period}")) do %>
+        <%= t("pioneer_rankings.boards.see_all") %>
+      <% end %>
+    <% end %>
+  <% end %>
+  <% unless viewer %>
+    <p class="pioneer-boards__visitor">
+      <span><%= t("pioneer_rankings.visitor") %></span>
+      <%= sign_in_button t("shell.top_bar.sign_in"), origin: request.path, class: "button button--primary" %>
+    </p>
+  <% end %>
+</div>

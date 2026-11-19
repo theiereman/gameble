@@ -1,0 +1,7 @@
+<%# locals: (place:, choice:, scope:) %>
+<div class="pioneer-place" data-pioneer-ranking-target="place">
+  <%= link_to t("pioneer_rankings.place_link", rank: pioneer_rank(place.rank), count: place.count),
+        pioneer_ranking_path(**pioneer_ranking_params(choice, scope), page: place.page, anchor: "pioneer-ranking-me"),
+        class: "pioneer-place__link",
+        data: { action: "pioneer-ranking#go focusin->pioneer-ranking#barFocused focusout->pioneer-ranking#barLeft" } %>
+</div>

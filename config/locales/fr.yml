@@ -1892,6 +1892,54 @@ fr:
       no_sale: "sans vente"
   picoin_amount:
     accessible: "%{amount} PiCoins"
+  pioneer_rankings:
+    boards:
+      empty:
+        season: "Aucune découverte cette saison pour l'instant."
+        total: "Aucune découverte pour l'instant."
+        week: "Aucune découverte cette semaine pour l'instant."
+      none:
+        season: "Aucune découverte cette saison."
+        total: "Aucune découverte à votre nom pour l'instant."
+        week: "Aucune découverte cette semaine."
+      see_all: "Voir tout le classement"
+      see_all_label:
+        season: "Voir tout le classement de la saison"
+        total: "Voir tout le classement depuis toujours"
+        week: "Voir tout le classement de la semaine"
+      title: "Pionniers · %{period}"
+    discoveries:
+      zero: "%{count} découverte"
+      one: "%{count} découverte"
+      other: "%{count} découvertes"
+    periods:
+      season: "Saison"
+      total: "Total"
+      week: "Semaine"
+    periods_label: "Période du classement"
+    place:
+      zero: "Votre place : %{rank}, %{count} découverte"
+      one: "Votre place : %{rank}, %{count} découverte"
+      other: "Votre place : %{rank}, %{count} découvertes"
+    place_link:
+      zero: "Votre place : %{rank}, %{count} découverte, aller à ma ligne"
+      one: "Votre place : %{rank}, %{count} découverte, aller à ma ligne"
+      other: "Votre place : %{rank}, %{count} découvertes, aller à ma ligne"
+    rank:
+      zero: "%{count}e"
+      one: "%{count}er"
+      other: "%{count}e"
+    scopes:
+      all: "Toutes saisons"
+      current: "Saison en cours"
+    scopes_label: "Saisons du Grand Inventaire"
+    show:
+      page_loaded: "Page %{page} chargée"
+      pages_label: "Pages du classement"
+      reading: "%{period}. %{place}"
+      title: "Classement des pionniers"
+    visitor: "Rejoignez la Confrérie pour découvrir les cartes manquantes."
+    you: "Vous"
   player_name:
     anonymous: "Un joueur anonyme"
   profile_avatars:

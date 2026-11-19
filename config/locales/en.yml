@@ -4492,6 +4492,50 @@ en:
         none: No title
   picoin_amount:
     accessible: "%{amount} PiCoins"
+  pioneer_rankings:
+    boards:
+      empty:
+        season: No discovery this season yet.
+        total: No discovery yet.
+        week: No discovery this week yet.
+      none:
+        season: No discovery this season.
+        total: No discovery to your name yet.
+        week: No discovery this week.
+      see_all: See the full ranking
+      see_all_label:
+        season: See the season's full ranking
+        total: See the all-time full ranking
+        week: See the week's full ranking
+      title: "Pioneers · %{period}"
+    discoveries:
+      one: "%{count} discovery"
+      other: "%{count} discoveries"
+    periods:
+      season: Season
+      total: Total
+      week: Week
+    periods_label: Ranking period
+    place:
+      one: "Your place: %{rank}, %{count} discovery"
+      other: "Your place: %{rank}, %{count} discoveries"
+    place_link:
+      one: "Your place: %{rank}, %{count} discovery, go to my row"
+      other: "Your place: %{rank}, %{count} discoveries, go to my row"
+    rank:
+      one: "#%{count}"
+      other: "#%{count}"
+    scopes:
+      all: All seasons
+      current: Current season
+    scopes_label: Great Inventory seasons
+    show:
+      page_loaded: Page %{page} loaded
+      pages_label: Ranking pages
+      reading: "%{period}. %{place}"
+      title: Pioneer ranking
+    visitor: Join the Brotherhood to discover the missing cards.
+    you: You
   player_name:
     anonymous: An anonymous player
   profile_avatars:

@@ -1,0 +1,8 @@
+<% if @rows.any? %>
+  <%= turbo_stream.append "pioneer-ranking-rows", partial: "pioneer_rankings/rows", locals: { rows: @rows, viewer: current_player } %>
+<% end %>
+<%= turbo_stream.update "pioneer-ranking-status", t(".page_loaded", page: @pagy.page) %>
+<%= turbo_stream.replace "collection-pages", partial: "library/pages", locals: { pagy: @pagy, empty: false, label: t(".pages_label") } %>
+<%= turbo_stream.replace "pioneer-ranking-address" do %>
+  <%= tag.span id: "pioneer-ranking-address", hidden: true, data: { pioneer_ranking_target: "address", url: request.fullpath } %>
+<% end %>
