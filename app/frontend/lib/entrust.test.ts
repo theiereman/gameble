@@ -107,9 +107,9 @@ describe("selecting every edition the filters keep", () => {
 
 describe("the filters' count", () => {
   it("counts the rarities and doubles, and a search alone still filters", () => {
-    expect(filterCount({ rarities: ["rare", "epic"], doubles: true })).toBe(3)
-    expect(filtering({ query: " x ", rarities: [], doubles: false })).toBe(true)
-    expect(filtering({ query: "  ", rarities: [], doubles: false })).toBe(false)
+    expect(filterCount({ rarities: ["rare", "epic"], doubles: true, triples: false })).toBe(3)
+    expect(filtering({ query: " x ", rarities: [], doubles: false, triples: false })).toBe(true)
+    expect(filtering({ query: "  ", rarities: [], doubles: false, triples: false })).toBe(false)
   })
 })
 

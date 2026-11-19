@@ -129,7 +129,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".report--fold summary .report__line", "5 cards · 2 duplicates"
     assert_select ".report--fold .report__row dt", "Unique cards"
 
-    assert_equal [ "Owned", "All", "Missing", "New", "Duplicates" ], css_select("[data-group=state] .filter-chip__text").map(&:text)
+    assert_equal [ "Owned", "All", "Missing", "New", "2+", "3+" ], css_select("[data-group=state] .filter-chip__text").map(&:text)
     assert_equal [ "All" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.at_css(".filter-chip__text").text }
     expected = cards.first(60).map do |id|
       case id

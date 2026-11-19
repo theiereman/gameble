@@ -3095,11 +3095,12 @@ en:
         label: Find a set
       states:
         all: All
-        duplicates: Duplicates
+        duplicates: 2+
         missing: Missing
         new: New
         owned: Owned
       title: Filters
+        triplicates: 3+
     filter_row:
       more: More
       more_title: More filters
@@ -3240,9 +3241,9 @@ en:
   market:
     copy_filters:
       clear_filters: Clear filters
-      doubles: Doubles
+      doubles: 2+
       filters_active: Active filters
-      filters_legend: Filter by rarity or by doubles
+      filters_legend: Filter by rarity or by number of copies
       no_match: No edition matches these filters.
       search_label: Search your editions
       search_placeholder: Search a game
@@ -3251,6 +3252,7 @@ en:
         one: "%{number} edition"
         other: "%{number} editions"
     exchanges:
+      triples: 3+
       show:
         heading: The Brotherhood's Exchange
     bids:

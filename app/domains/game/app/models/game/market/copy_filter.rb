@@ -1,7 +1,7 @@
 module Game
   module Market
-    # What a player narrows their free copies to: words of the title, rarities, and editions held twice or more.
-    class CopyFilter < Data.define(:query, :rarities, :doubles)
+    # What a player narrows their free copies to: words of the title, rarities, and editions held twice or more or three times or more.
+    class CopyFilter < Data.define(:query, :rarities, :doubles, :triples)
       MAX_QUERY = 100
       # Combining diacritical marks, left apart by NFD so a search ignores accents on both sides.
       MARKS = "[\u0300-\u036f]".freeze
@@ -9,12 +9,12 @@ module Game
 
       def self.none = new
 
-      def initialize(query: "", rarities: [], doubles: false)
+      def initialize(query: "", rarities: [], doubles: false, triples: false)
         super(query: query.to_s.strip.first(MAX_QUERY), rarities: Catalog::Rarity::TIERS.values.map(&:to_s) & Array(rarities).map(&:to_s),
-          doubles: doubles == true)
+          doubles: doubles == true, triples: triples == true)
       end
 
-      def count = rarities.size + (doubles ? 1 : 0)
+      def count = rarities.size + (doubles ? 1 : 0) + (triples ? 1 : 0)
 
       def narrowing? = count.positive? || query.present?
 
@@ -22,7 +22,7 @@ module Game
       def conditions
         [ ("AND (#{format(FOLDED, "localised.title")} LIKE :pattern OR #{format(FOLDED, "fallback.title")} LIKE :pattern)" if query.present?),
           ("AND catalog_card_seasons.rarity IN (:tiers)" if rarities.any?),
-          ("AND game_holdings.quantity >= 2" if doubles) ].compact.join(" ")
+          ("AND game_holdings.quantity >= 2" if doubles), ("AND game_holdings.quantity >= 3" if triples) ].compact.join(" ")
       end
 
       def binds
@@ -31,7 +31,7 @@ module Game
 
       def folded_query = query.unicode_normalize(:nfd).gsub(Regexp.new(MARKS), "").downcase
 
-      def to_params = { query:, rarities:, doubles: ("1" if doubles) }.compact
+      def to_params = { query:, rarities:, doubles: ("1" if doubles), triples: ("1" if triples) }.compact
     end
   end
 end

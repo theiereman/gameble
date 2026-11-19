@@ -13,7 +13,7 @@ module Market
         return Game::Market::CopyFilter.new(doubles: doubles_by_default) unless asked.respond_to?(:to_unsafe_h)
 
         Game::Market::CopyFilter.new(query: asked[:query].is_a?(String) ? asked[:query] : "", rarities: Array(asked[:rarities]).grep(String),
-          doubles: asked[:doubles].present?)
+          doubles: asked[:doubles].present?, triples: asked[:triples].present?)
       end
 
       # The page links carry the filter alone, whatever else a post sent.

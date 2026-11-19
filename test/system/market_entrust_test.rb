@@ -32,7 +32,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
   def assert_total(text) = assert_selector(".entrust-recap__total .picoin-amount__figure", text:)
 
-  def show_single_copies = find(".copy-filters .filter-chip__text", text: /doubles/i).click
+  def show_single_copies = find(".copy-filters .filter-chip__text", text: "2+").click
 
   test "a player ticks two editions, raises one and sees the total minted, and the collection holds fewer copies" do
     open_market!
@@ -322,7 +322,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     assert_selector ".entrust-cell", count: 2
     assert_no_selector ".entrust-cell--picked"
-    assert_unchecked_field "Doubles", visible: :all
+    assert_unchecked_field "2+", visible: :all
     assert_selector ".market-entrust__card-only"
   end
 
@@ -336,7 +336,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     assert_selector ".entrust-cell", count: 1
     assert_selector ".entrust-cell--picked", count: 1
-    assert_unchecked_field "Doubles", visible: :all
+    assert_unchecked_field "2+", visible: :all
   end
 
   test "the balance chip follows an entrustment and is absent before the opening and for a visitor" do

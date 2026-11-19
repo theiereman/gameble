@@ -117,8 +117,8 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     get new_market_entrustment_path(locale: :fr)
 
     assert_select ".copy-filters input[type=search][form=entrust-filter]"
-    assert_select ".copy-filters .filter-chip", 6
-    assert_select ".copy-filters .filter-chip__text", "Doublons"
+    assert_select ".copy-filters .filter-chip", 7
+    assert_select ".copy-filters .filter-chip__text", "2+"
     assert_select ".copy-filters input[data-copy-filters-target=doubles][checked]"
     assert_select ".copy-filters dialog, .copy-filters .bottom-sheet", false
     assert_select "form#entrust-filter[method=get][data-turbo-frame=entrust-results]"

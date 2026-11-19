@@ -52,6 +52,13 @@ class Game::CollectionStatesTest < ActiveSupport::TestCase
     assert_equal [ @b ], ids(%w[duplicates])
   end
 
+  test "triplicates is three free copies or more" do
+    assert_empty ids(%w[triplicates])
+
+    Game::Holding.where(player_id: @player.id, card_season_id: @b).update_all(quantity: 3)
+    assert_equal [ @b ], ids(%w[triplicates])
+  end
+
   test "new judged against a watermark given in place of the player's" do
     assert_equal [ @a, @b ], Game::CollectionStates.call(@player, @cards, states: %w[new], seen_up_to: 4.hours.ago).pluck(:id)
     assert_empty Game::CollectionStates.call(@player, @cards, states: %w[new], seen_up_to: Time.current).pluck(:id)

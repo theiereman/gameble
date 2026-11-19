@@ -1,13 +1,14 @@
 module Game
   module CollectionStates
-    STATES = %w[owned all missing new duplicates].freeze
+    STATES = %w[owned all missing new duplicates triplicates].freeze
     DEFAULT = "all"
 
     CONDITIONS = {
       "owned" => "held_games.card_id IS NOT NULL",
       "missing" => "held_games.card_id IS NULL",
       "new" => "held_games.fresh",
-      "duplicates" => "held_games.free_copies >= 2"
+      "duplicates" => "held_games.free_copies >= 2",
+      "triplicates" => "held_games.free_copies >= 3"
     }.freeze
 
     HELD_GAMES = <<~SQL.squish.freeze

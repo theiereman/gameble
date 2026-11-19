@@ -4,3 +4,4 @@
   <%= hidden_field_tag "filter[rarities][]", rarity, id: nil %>
 <% end %>
 <%= hidden_field_tag "filter[doubles]", "1", id: nil if filter.doubles %>
+<%= hidden_field_tag "filter[triples]", "1", id: nil if filter.triples %>

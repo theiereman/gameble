@@ -16,6 +16,7 @@ export type EntrustFilter = {
   query: string
   rarities: readonly Rarity[]
   doubles: boolean
+  triples: boolean
 }
 
 export type Layout = "wide" | "phone"
@@ -134,8 +135,12 @@ export function bump(state: EntrustState, ref: string, step: number): EntrustSta
   return current === undefined ? state : setCopies(state, ref, current + step)
 }
 
-export function filterCount({ rarities, doubles }: Pick<EntrustFilter, "rarities" | "doubles">): number {
-  return rarities.length + (doubles ? 1 : 0)
+export function filterCount({
+  rarities,
+  doubles,
+  triples,
+}: Pick<EntrustFilter, "rarities" | "doubles" | "triples">): number {
+  return rarities.length + (doubles ? 1 : 0) + (triples ? 1 : 0)
 }
 
 export function filtering(filter: EntrustFilter): boolean {

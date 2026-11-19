@@ -49,6 +49,7 @@ class Game::Market::EntrustableCopiesTest < ActiveSupport::TestCase
     assert_equal [ :rare, :common ], copies.(Game::Market::CopyFilter.new(rarities: %w[rare common mythic]))
     assert_equal [ :uncommon, :common ], copies.(Game::Market::CopyFilter.new(doubles: true))
     assert_equal 2, Game::Market::EntrustableCopies.count(@player, locale: :fr, filter: Game::Market::CopyFilter.new(doubles: true))
+    assert_equal [ :common ], copies.(Game::Market::CopyFilter.new(triples: true))
     assert_equal 3, Game::Market::EntrustableCopies.count(@player, locale: :fr)
   end
 

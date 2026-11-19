@@ -7,12 +7,13 @@ const TYPING_PAUSE_MS = 250
 
 // The filters of a grid of free copies: each change reloads the grid from the server through their GET form.
 export default class CopyFiltersController extends Controller<HTMLElement> {
-  static targets = ["search", "rarity", "doubles", "count", "number", "clear"]
+  static targets = ["search", "rarity", "doubles", "triples", "count", "number", "clear"]
   static values = { form: String }
 
   declare readonly searchTarget: HTMLInputElement
   declare readonly rarityTargets: HTMLInputElement[]
   declare readonly doublesTarget: HTMLInputElement
+  declare readonly triplesTarget: HTMLInputElement
   declare readonly countTarget: HTMLElement
   declare readonly numberTarget: HTMLElement
   declare readonly clearTarget: HTMLElement
@@ -54,7 +55,7 @@ export default class CopyFiltersController extends Controller<HTMLElement> {
 
   clear(): void {
     this.searchTarget.value = ""
-    for (const box of [...this.rarityTargets, this.doublesTarget]) box.checked = false
+    for (const box of [...this.rarityTargets, this.doublesTarget, this.triplesTarget]) box.checked = false
     this.refresh()
     this.submit()
     this.searchTarget.focus()
@@ -65,6 +66,7 @@ export default class CopyFiltersController extends Controller<HTMLElement> {
       query: this.searchTarget.value,
       rarities: this.rarityTargets.filter((box) => box.checked).map((box) => box.value as Rarity),
       doubles: this.doublesTarget.checked,
+      triples: this.triplesTarget.checked,
     }
   }
 
