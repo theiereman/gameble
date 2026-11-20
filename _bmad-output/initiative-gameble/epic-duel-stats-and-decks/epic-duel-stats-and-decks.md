@@ -80,3 +80,4 @@ Stats, decks and navigation only. No challenge, duel, presence, record, capsule 
 - Assumption: "Stats lundi" is the copy, as EXPERIENCE.md marks it `[ASSUMPTION]`; the author may change the words.
 - Open question: whether "+ NOUVEAU DECK" creates a deck at once under a default name or on its first save; entry 3 settles it when it starts.
 - High-risk checks: the migrations of entries 1, 3 and 6 by CI's schema drift job and the staging deploy; entry 1's deploy data step and entry 6's first Monday entry by the author on staging (Done when 1 and 4); entry 3's copy block by the author on staging with a trade and a listing (Done when 3).
+- Decision (2026-11-20): the ÉCHANGES sub-tab order and default of entry 3 are superseded by epic 45 entry 3: MARCHÉ first and the default, ENTRE AMIS kept for recent friend traders (change-duels-open-alpha).

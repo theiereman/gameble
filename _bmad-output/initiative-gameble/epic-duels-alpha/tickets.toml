@@ -1,0 +1,103 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Duels are open to every player, labelled ALPHA, with no switch"
+description = "Remove Game::FeatureFlag, SetFeatureFlag, FeatureFlagSet, EnabledFeatures, the FeatureGate concern, feature_enabled? and the back-office Features screen with its route, policy and tile, so every branch they gate keeps its duels side (ShellHelper#shell_tabs keeps exchanges_and_duels_tabs, the hub menu keeps menu_trades and menu_duels, the five require_feature controllers lose the gate, the Monday duel stats feed handler publishes) except Game::Achievements.offered, which keeps its switched-off side for good (the catalog without duel achievements, so no deploy backfill or grant reaches them; entry 2 relies on it), while the trades_and_market_tabs badge partials stay for the native badges and player streams (entry 3 owns them), add the ALPHA tag to the DUELS tab and menu 04 and the line Vos parties sont analysées pour équilibrer les règles. to the ALPHA banner in both locales, and drop the duel figures from the public and own profile's stats (public_profiles/_stats) with ProfileActivity's three duel columns; game_feature_flags stays in the schema, unread, for a later contract migration."
+verify = "A system test signs in a player with no switch set and sees the DUELS tab with ALPHA, opens Duels, reads the banner's new line, and sees no Duels figures on a friend's public profile; grep finds no feature_enabled?, FeatureFlag or require_feature in app/ and test/, duels_switch_test, set_feature_flag_test, features_controller_test, test/fixtures/game/feature_flags.yml and the switch set-up in earned_achievements_test, achievement_board_test and card_back_shelf_test are deleted or rewritten, and ReadOnlyRequestsTest and packwerk pass."
+covers = ["R1", "R2", "R3"]
+after = ["44.4"]
+hitl = false
+risk = "medium"
+references = ["design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, ALPHA banner, Duel record, Public profile", "design — _bmad-output/initiative-gameble/ux-gameble/DESIGN.md, Duels (ALPHA tag and banner)"]
+unknown = "Whether a test outside the files named sets the switch; a full grep for SetFeatureFlag and EnabledFeatures settles it."
+
+[[entry]]
+id = 2
+type = "story"
+title = "Duels grant no reward during the alpha"
+description = "The finishing move (AnswerRound's finish at round 10, which PlayAutomaticMove goes through) no longer calls DuelCapsule.award, GrantAchievementsJob no longer follows Game::DuelFinished, the Duelliste back is left out of the back picker (the ten duel achievements already leave the catalog through entry 1's Game::Achievements.offered), and the duel result loses CAPSULE DE DUEL GAGNÉE and its two refusal lines while keeping Envoyer un feedback; the duel pack kind, duel_day and its index, game_fortunes.duel_packs and the achievement keys stay untouched for the beta, and Comment ça marche's duels section drops the capsule."
+verify = "A system test plays a practice duel to a win and a live duel to a win with no automatic move, and finds no capsule in the special reserve, no achievement toast and no capsule line on either result; job and query tests show DuelFinished granting nothing, the Succès screen listing no duel achievement, and the back picker without Duelliste."
+covers = ["R4"]
+after = [1]
+hitl = false
+risk = "medium"
+references = ["architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-57", "spec — _bmad-output/initiative-gameble/spec-gameble/achievements.md, Duel achievements"]
+unknown = "Whether staff testing in production already granted a duel pack or achievement; none is removed, so a granted one stays as it is."
+
+[[entry]]
+id = 3
+type = "story"
+title = "ÉCHANGES opens on the market, friend traders keep their place, and the apps get DUELS back"
+description = "MARCHÉ becomes the first sub-tab of ÉCHANGES and Game::ExchangesTab::DEFAULT becomes market; an operation sets exchanges_tab to friends for every player with a friend trade accepted (game_trades.status accepted, closed_at) in the 30 days before it runs, skipping players who already stored a tab, behind a rake task the author runs once in production at release (entry 8), not a deploy step; the iOS and Android apps restore the DUELS tab with its badge and an ALPHA mark after ÉCHANGES, reversing the native and web sides of commits 30e6f4a0 and 6661f3b7 (native_top_bar.ts, shell/_native_tab_badges, top_bars/show.turbo_stream.erb, the market tab badge partials entry 1 left), and are built and launched on a simulator and an emulator."
+verify = "Operation tests cover a recent friend trader set to friends, an older one and a player with no trade left on the default, and a player who already chose market untouched; a system test shows a new player's ÉCHANGES opening on MARCHÉ with MARCHÉ first; hotwire_native_test and top_bars_controller_test pass with five tabs ending in DUELS; both apps build and show the five tabs (recorded in the plan)."
+covers = ["R5"]
+after = [2]
+hitl = true
+risk = "medium"
+references = ["design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Phone navigation, Échanges", "retrospective — _bmad-output/initiative-gameble/epic-duel-stats-and-decks/epic-duel-stats-and-decks-retrospective.md, F4 (native tab code never compiled)"]
+unknown = "How the ALPHA mark fits a native tab label on the smallest phones; the plan records what was drawn."
+
+[[entry]]
+id = 4
+type = "story"
+title = "The practice bot plays skilled with a named archetype deck"
+description = "A pure object in the game domain computes the bot's call and answer from DuelRules and DuelView.for the bot's seat only, reading both open decks, the struck cards and the shown card and choosing for the margin as the simulation's skilled player does, and PracticeBot builds the bot's deck at StartPracticeDuel as one archetype of duel-rules.md (coverage, single stat for each stat, two stats, trump sort, random), never the same as the player's previous practice duel, stored in a new game_duels.bot_archetype column (its own migration), its archetype definitions one object that entry 6 reuses to classify players' decks, and named under the opponent's name on the duel screen as Le bot joue un deck <archétype> in both locales."
+verify = "A seeded test plays several hundred practice duels between the skilled bot and the automatic move and asserts the bot wins clearly more than half; unit tests show the bot never reads the other seat's hand, call or draw order, each archetype builds a legal twelve-card deck from a test catalog, two consecutive practice duels get different archetypes, and a system test sees the archetype line on the duel screen."
+covers = ["R6", "R7"]
+after = [3]
+hitl = false
+risk = "high"
+references = ["spec — _bmad-output/initiative-gameble/spec-gameble/duel-rules.md, Practice duel", "simulation — _bmad-output/initiative-gameble/forge-decks-and-matches/simulation-2026-11-14.md, The model and its limits", "design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Practice duel"]
+unknown = "How strong the rewritten strategy is against the simulation's 72 to 88 % over automatic play (the plan records the measured rate); which stat pair the two-stats archetype uses; the fallback when the catalog lacks a 90+ card for a coverage direction; the French and English archetype names, absent from the copy deck."
+
+[[entry]]
+id = 5
+type = "story"
+title = "Each duel keeps its rules version, and the record counts the rules in force"
+description = "A DuelRules version constant, a game_duels.rules_version column added in its own migration as not null with default 1 (existing duels, staff tests, read as version 1) and set by AcceptChallenge and StartPracticeDuel, and Game::DuelRecord and the Duels screen's history counting only finished non-practice duels at the current version."
+verify = "Query tests show a duel at an older version left out of the record and the history, practice duels never counted, and new duels started at the current version; the migration tests pass and db/schema.rb is regenerated from the migrations."
+covers = ["R8"]
+after = [4]
+hitl = false
+risk = "low"
+references = ["architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-54, AD-57"]
+unknown = "Whether a duel forfeited mid-way (ForfeitDuel) counts in the record as built; it is left as it is."
+
+[[entry]]
+id = 6
+type = "story"
+title = "A back-office page shows how duels play, per rules version"
+description = "A back-office page with its tile, Pundit policy and both locales reads the duel tables per rules_version and shows, for live duels, duels finished, the first caller's win rate, the share decided on the margin, the share of automatic moves, the stats called and the win rate by deck recipe (each finished deck classified with entry 4's archetype definitions, a deck matching none read as other), and for practice duels the same figures in their own table by bot_archetype, never mixed into the recipe win rates."
+verify = "A controller test with fixture duels at two versions checks each figure on the page for one version, practice duels only in their table, a non-staff player refused, and the GET writing nothing."
+covers = ["R9"]
+after = [5]
+hitl = false
+risk = "medium"
+references = ["architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-57", "spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-51"]
+unknown = "How forfeited duels (forfeited_by) count in the win rates; the plan states the rule it applies."
+
+[[entry]]
+id = 7
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check, bundle exec packwerk check and the system tests of entries 1 to 6 pass."
+covers = []
+after = [1, 2, 3, 4, 5, 6]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 8
+type = "story"
+title = "The author ships the duels alpha in release 1.4.0"
+description = "HITL. The author lands the retros' pre-release items still open (the broadcast-level secrecy test over DuelStreamJob, the nil rating value in the rules test, a stale acceptor deck token refused inline without lapsing, epic 44's migrations timed on a production copy if not yet deployed), cuts a 1.4.0 candidate per RELEASING.md and, on staging with two accounts on a phone and a desktop, walks epics 42 and 43's Done when, epic 44's record and DERNIERS DUELS (no capsule or achievement), and this epic's: the ALPHA tag and banner, practice against two archetypes, ÉCHANGES on MARCHÉ for a new account and on ENTRE AMIS for a friend trader, the back-office page, a live duel refused, cancelled, lapsed, timed out, reloaded, dropped and with a banned opponent; then promotes the candidate, runs entry 3's ÉCHANGES backfill task once in production and checks its count, checks the duel stats computed at deploy, plays one duel in production, writes the release notes and publishes v1.4.0."
+verify = "The author confirms each Done when item of this epic and of epics 42 and 43 on staging, and in production a duel reaches its result, a practice duel names its archetype, and the release v1.4.0 is published."
+covers = ["R10"]
+after = [7]
+hitl = true
+risk = "high"
+unknown = "When the native apps with DUELS go to the stores; the author's choice of timing."
+references = ["retrospective — _bmad-output/initiative-gameble/epic-live-friend-duels/epic-live-friend-duels-retrospective.md, Action items A1 (F3), A2 to A4", "retrospective — _bmad-output/initiative-gameble/epic-duel-stats-and-decks/epic-duel-stats-and-decks-retrospective.md, Action items 2 and 9"]

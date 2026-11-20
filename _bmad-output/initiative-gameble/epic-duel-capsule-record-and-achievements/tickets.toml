@@ -43,14 +43,3 @@ covers = []
 after = [1, 2, 3]
 hitl = false
 risk = "low"
-
-[[entry]]
-id = 5
-type = "story"
-title = "The author ships release 1.4.0 to production"
-description = "HITL. The author cuts a candidate of 1.4.0 per RELEASING.md and, on staging with two accounts on a phone and a desktop, walks the Done when of epics 42 to 44: a card's DUEL block as a visitor and a player; a deck built, sorted and filled, a sixth deck and a second edition refused; a deck card named and freed on the trade board, Confier and Mettre en vente; ÉCHANGES with its sub-tabs; a challenge cancelled, refused, lapsed and accepted; a whole duel with a timer run out, a reload and a dropped connection; a banned test opponent's duel finishing anonyme; the duel capsule on the first win of the day and none on the second; the record, DERNIERS DUELS and the first duel achievements; the Monday feed entry once a Monday has passed. Then the author promotes the candidate, checks that production computed the duel stats at deploy and that a card's detail shows them, plays one duel between two accounts there, writes the release notes and lets the release v1.4.0 be published. Submitting the native apps with their DUELS tab to the stores is the author's choice of timing."
-verify = "The author confirms each Done when item of epics 42 to 44 on staging, and in production a card's detail shows its duel profile, a duel between two accounts reaches its result, and the release v1.4.0 is published."
-covers = ["R8"]
-after = [4]
-hitl = true
-risk = "high"

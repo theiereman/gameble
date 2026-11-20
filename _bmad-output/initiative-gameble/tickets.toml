@@ -340,3 +340,11 @@ slug = "epic-duel-capsule-record-and-achievements"
 title = "Duel capsule, record and achievements"
 covers = ["CAP-42", "CAP-17", "CAP-20"]
 after = [{ epic = 43, needs = "a finished duel with DuelFinished, automatic moves marked on rounds, the finishing move with removed players settled, the duel result screen, the desktop Duels screen" }]
+
+[[epic]]
+id = 45
+release = "1.4.0"
+slug = "epic-duels-alpha"
+title = "Duels open to every player as an alpha that tests the rules"
+covers = ["CAP-42", "CAP-50", "CAP-51"]
+after = [{ epic = 44, needs = "the record, the duel result and the rewards it built, which the alpha withholds" }]
