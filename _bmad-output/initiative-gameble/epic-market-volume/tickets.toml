@@ -73,6 +73,17 @@ risk = "high"
 unknown = "AD-61 assumption: an order row stores its rarities so a count by edition needs no join; and if the benchmark passes 200 ms p95, the Deferred question (delete only the credited games' goal rows on events that only raise holdings, or move the refresh to a job) goes to the author before the story goes on."
 
 [[entry]]
+id = 22
+type = "story"
+title = "The wanted refresh after an event runs in a job"
+description = "The WantedRefresh handler stops calling RefreshWanted inside the event's transaction: for every event it hears it enqueues after commit Game::Market::RefreshWantedJob once per player the event names (deduplicated while one is pending for that player, a removed player skipped), and the job runs Game::Market::RebuildWanted(player:), which takes the bank lock and calls RefreshWanted; ReleasePlayer's clear and the season and unban rebuilds stay as they are. Publishers of order, sale, purchase and slot events then need only the locks their own writes take. The pack-opening benchmark goes back under its 200 ms p95 on POST /packs."
+verify = "Handler tests: each heard event enqueues one job per named player after commit and none on rollback, a pending job is not doubled; a job test rebuilds the player's rows under the bank lock; the comparison test (table equals a fresh RefreshWanted) passes after draining jobs; bin/rails game:benchmark_open_pack reports POST p95 under 200 ms."
+covers = ["R11", "R25"]
+after = [6]
+hitl = false
+risk = "medium"
+
+[[entry]]
 id = 7
 type = "story"
 title = "A holder sells a copy to the best order from Mettre en vente"

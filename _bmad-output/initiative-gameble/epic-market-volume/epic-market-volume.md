@@ -102,3 +102,4 @@ The market's money paths, screens and back-office for CAP-44 to CAP-49, and the 
 - Waits on epic 40 because: the bell's market lines and their push, the sale feed entry, `DropPresenceJob`, the forfeit and the market export.
 - Waits on epic 41 because: the daily snapshot and `DailyFigures`, the health page, the alt signals and their pair ties.
 - Waits on epic 42 because: the deck limit in `CreateDeck` and the deck list, deck blocks named on the sale and entrust screens (decks touch the slots).
+- Decision (2026-11-20, author): the wanted refresh after an event moves to a job (entry 22, built right after entry 6): entry 6's inline refresh cost about 75 ms p95 on POST /packs (198 to 218 ms against 200).
