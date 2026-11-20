@@ -608,11 +608,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_193001) do
     t.datetime "updated_at", null: false
     t.boolean "practice", default: false, null: false
     t.string "forfeited_by"
+    t.string "bot_archetype"
+    t.integer "rules_version", default: 1, null: false
     t.index ["move_deadline_at"], name: "index_game_duels_on_move_deadline_at", where: "(((state)::text = 'challenged'::text) OR ((state)::text = 'active'::text))"
     t.index ["token"], name: "index_game_duels_on_token", unique: true
     t.check_constraint "(state::text = 'active'::text OR state::text = 'finished'::text) = (started_at IS NOT NULL AND first_caller IS NOT NULL AND challenger_cards IS NOT NULL AND opponent_cards IS NOT NULL AND challenger_draw_order IS NOT NULL AND opponent_draw_order IS NOT NULL)", name: "game_duels_started_check"
     t.check_constraint "(state::text = 'challenged'::text OR state::text = 'active'::text) = (ended_at IS NULL)", name: "game_duels_ended_check"
     t.check_constraint "(state::text = 'finished'::text) = (result IS NOT NULL)", name: "game_duels_finished_check"
+    t.check_constraint "bot_archetype IS NULL OR bot_archetype::text = 'coverage'::text OR bot_archetype::text = 'popularity'::text OR bot_archetype::text = 'rating'::text OR bot_archetype::text = 'release'::text OR bot_archetype::text = 'discovery'::text OR bot_archetype::text = 'circulation'::text OR bot_archetype::text = 'two_stats'::text OR bot_archetype::text = 'trumps'::text OR bot_archetype::text = 'random'::text", name: "game_duels_bot_archetype_check"
     t.check_constraint "capsule IS NULL OR state::text = 'finished'::text", name: "game_duels_capsule_finished_check"
     t.check_constraint "capsule::text = 'granted'::text OR capsule::text = 'automatic_move'::text OR capsule::text = 'already_won_today'::text", name: "game_duels_capsule_check"
     t.check_constraint "challenger_margin >= 0::numeric AND opponent_margin >= 0::numeric", name: "game_duels_margins_check"
