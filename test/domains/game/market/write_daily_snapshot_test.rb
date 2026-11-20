@@ -54,6 +54,19 @@ class Game::Market::WriteDailySnapshotTest < ActiveSupport::TestCase
     assert_equal @first, snapshot.day
   end
 
+  test "a purchase from the Archive and of a slot are destroyed, and the reconciliation balances" do
+    travel_to(@first.in_time_zone("UTC") + 12.hours) do
+      Game::Market::Ledger.post([ Game::Market::Ledger::Entry.new(player_id: @alice.id, kind: :mint, available_delta: 1_000, settings_id: @settings.id) ])
+      Game::Market::Ledger.post(%i[archive_purchase slot_purchase].map { Game::Market::Ledger::Entry.new(player_id: @alice.id, kind: it, available_delta: -150, settings_id: @settings.id) })
+    end
+    reconciliation = Game::Market::ReconcileWallets.call
+
+    assert reconciliation.balanced?
+    assert_equal 300, reconciliation.destroyed
+    assert_equal 300, Game::Market::DailyFigures.of(@first).destroyed
+    assert_equal 300, write(@first).destroyed_total
+  end
+
   test "the median ignores inactive players and zero earnings, and is null with none" do
     entry!(@alice, "mint", 5_000, @first)
     entry!(@bob, "mint", 9_000, @first)

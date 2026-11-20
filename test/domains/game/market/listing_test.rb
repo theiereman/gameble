@@ -44,7 +44,22 @@ class Game::Market::ListingTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::StatementInvalid) { ActiveRecord::Base.transaction(requires_new: true) { @listing.update_columns(leader_id: @player.id) } }
   end
 
+  test "a ledger entry cannot point at both a listing and an order" do
+    order = Game::Market::Order.create!(player: @player, card_id: catalog_cards(:common_card).id, settings: @settings, price: 100, expires_at: 7.days.from_now)
+
+    assert_raises(ActiveRecord::StatementInvalid) do
+      ActiveRecord::Base.transaction(requires_new: true) do
+        Game::Market::LedgerEntry.insert_all!([ { player_id: @player.id, kind: "hold", listing_id: @listing.id, order_id: order.id, settings_id: @settings.id,
+          created_at: Time.current } ])
+      end
+    end
+  end
+
   test "a ledger entry can only point at an existing listing" do
     assert_raises(ActiveRecord::InvalidForeignKey) { ActiveRecord::Base.transaction(requires_new: true) { Game::Market::LedgerEntry.insert_all!([ { player_id: @player.id, kind: "stamp", listing_id: 0, settings_id: @settings.id, created_at: Time.current } ]) } }
+  end
+
+  test "a ledger entry can only point at an existing order" do
+    assert_raises(ActiveRecord::InvalidForeignKey) { ActiveRecord::Base.transaction(requires_new: true) { Game::Market::LedgerEntry.insert_all!([ { player_id: @player.id, kind: "hold", order_id: 0, settings_id: @settings.id, created_at: Time.current } ]) } }
   end
 end

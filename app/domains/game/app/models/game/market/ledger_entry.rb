@@ -4,7 +4,8 @@ module Game
     class LedgerEntry < ApplicationRecord
       self.table_name = "game_market_ledger_entries"
 
-      KINDS = %w[mint stamp hold release purchase sale commission forfeit].freeze
+      KINDS = %w[mint stamp hold release purchase sale commission forfeit archive_purchase slot_purchase].freeze
+      DESTROYED_KINDS = %w[stamp commission forfeit archive_purchase slot_purchase].freeze
 
       def readonly? = persisted?
     end

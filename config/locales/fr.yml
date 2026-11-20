@@ -876,7 +876,7 @@ fr:
           threshold: "Alerte sous %{value}."
           title: "PiCoins détruits contre créés, 30 jours"
           todo: "Si la part reste sous son seuil, relevez un timbre pour que chaque vente détruise davantage."
-          what: "Sur les 30 derniers jours, les timbres, les commissions et les soldes confisqués ont détruit cette part des PiCoins que la confiance de cartes a créés."
+          what: "Sur les 30 derniers jours, les timbres, les commissions, les soldes confisqués et les achats à la Confrérie ont détruit cette part des PiCoins que la confiance de cartes a créés."
           why: "Quand on détruit moins qu'on ne crée, l'argent s'accumule dans les portefeuilles et les prix montent pour tous."
         picoins_per_player:
           threshold: "Alerte au-dessus de %{value}."
@@ -3834,7 +3834,7 @@ fr:
       words:
         balance: "Solde du jour : %{amount}"
         series:
-          destroyed: "Détruits (timbres et efforts)"
+          destroyed: "Détruits (timbres, efforts et achats à la Confrérie)"
           minted: "Frappés (cartes confiées)"
         tooltip: "%{series} : %{value}"
     show_table: "VOIR LE TABLEAU"

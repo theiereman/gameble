@@ -2,7 +2,6 @@ module Game
   module Market
     module DailyFigures
       ACTIVE_DAYS = 90
-      DESTROYING_KINDS = %w[stamp commission forfeit].freeze
       EARNING_KINDS = %w[mint sale commission].freeze
 
       Figures = Data.define(:created, :destroyed, :forfeited, :active_players, :median_daily_earnings, :top_share_basis_points)
@@ -13,7 +12,7 @@ module Game
         entries = LedgerEntry.where(created_at: period)
         Figures.new(
           created: entries.where(kind: "mint").sum(:available_delta),
-          destroyed: -entries.where(kind: DESTROYING_KINDS).sum(:available_delta),
+          destroyed: -entries.where(kind: LedgerEntry::DESTROYED_KINDS).sum(:available_delta),
           forfeited: -entries.where(kind: "forfeit").sum(:available_delta),
           active_players: active_players(period.end, ACTIVE_DAYS.days),
           median_daily_earnings: median_daily_earnings(entries, period),

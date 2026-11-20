@@ -45,6 +45,16 @@ module BackOffice
       assert_equal [ "The settings change" ], Accounts::Announcement.where(shown: true).pluck(:message_en)
     end
 
+    test "a save from a form without the order duration keeps the version's order duration" do
+      sign_in(accounts_players(:administrator))
+      @current = open_market!(first_opened_at: 2.days.ago, order_duration_days: 12)
+
+      post back_office_market_settings_path(locale: :en), params: { market_settings: settings_params(daily_cap: "13000")[:market_settings].except(:order_duration_days) }
+
+      assert_redirected_to back_office_market_path(locale: :en)
+      assert_equal [ 13_000, 12 ], Game::Market::CurrentSettings.call.values_at(:daily_cap, :order_duration_days)
+    end
+
     test "with the market open the form is present, a valid save succeeds and the opening section is absent" do
       sign_in(accounts_players(:administrator))
 

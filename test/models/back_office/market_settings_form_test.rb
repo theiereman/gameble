@@ -74,6 +74,16 @@ module BackOffice
       assert_equal "abc", candidate(income_days_target_rare: "abc")[:income_days_target_rare]
     end
 
+    test "a field the form does not submit keeps the version's value" do
+      @settings = open_market!(order_duration_days: 12)
+      submitted = Game::Market::SettingsRules::EDITABLE.excluding(:order_duration_days).index_with { MarketSettingsForm.from_settings(@settings).value_for(it) }
+
+      form = MarketSettingsForm.from_params(submitted, settings: @settings)
+
+      assert_equal 12, form.candidate[:order_duration_days]
+      assert_equal "12", form.value_for(:order_duration_days)
+    end
+
     test "the typed text and the token of a refused form are kept" do
       form = MarketSettingsForm.from_params({ commission_basis_points: "12,5", daily_cap: "abc", message_fr: "Bonjour", message_en: "Hello" },
         settings: @settings, token: "submitted").check

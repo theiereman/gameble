@@ -84,7 +84,8 @@ class Game::Market::SettingsRulesTest < ActiveSupport::TestCase
   {
     increment_basis_points: [ 100, 2_000 ], duration_short_hours: [ 1, 720 ], duration_long_hours: [ 1, 720 ], soft_close_seconds: [ 30, 900 ],
     average_sale_count: [ 3, 20 ], average_window_days: [ 7, 365 ], feed_threshold_multiple: [ 2, 100 ], unusual_maximum_multiple: [ 2, 20 ],
-    alert_destroyed_share_basis_points: [ 0, 10_000 ], alert_picoins_per_player: [ 1, 1_000_000_000_000 ], alert_top_share_basis_points: [ 1, 10_000 ]
+    alert_destroyed_share_basis_points: [ 0, 10_000 ], alert_picoins_per_player: [ 1, 1_000_000_000_000 ], alert_top_share_basis_points: [ 1, 10_000 ],
+    order_duration_days: [ 1, 30 ]
   }.each do |field, (low, high)|
     test "#{field} is accepted at #{low} and #{high} and refused beyond" do
       assert_nil code_of(field, field => low)

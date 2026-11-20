@@ -29,7 +29,7 @@ module BackOffice
 
     def self.from_params(params, settings:, token: settings&.token)
       params = params.to_h.symbolize_keys
-      new(settings:, token:, raw: Rules::EDITABLE.index_with { params[it] }, message_fr: params[:message_fr], message_en: params[:message_en])
+      new(settings:, token:, raw: params.slice(*Rules::EDITABLE), message_fr: params[:message_fr], message_en: params[:message_en])
     end
 
     def initialize(settings:, token:, raw: {}, message_fr: nil, message_en: nil)

@@ -10,9 +10,12 @@ class Game::Market::LedgerTest < ActiveSupport::TestCase
     @settings = open_market!
   end
 
-  def entry(player, kind, available: 0, committed: 0)
-    Game::Market::Ledger::Entry.new(player_id: player.id, kind:, available_delta: available, committed_delta: committed, settings_id: @settings.id)
+  def entry(player, kind, available: 0, committed: 0, order: nil)
+    Game::Market::Ledger::Entry.new(player_id: player.id, kind:, available_delta: available, committed_delta: committed, order_id: order&.id,
+      settings_id: @settings.id)
   end
+
+  def order!(player) = Game::Market::Order.create!(player:, card_id: catalog_cards(:common_card).id, settings: @settings, price: 300, expires_at: 7.days.from_now)
 
   def wallet(player) = Game::Market::Wallet.find_by(player_id: player.id)
 
@@ -43,6 +46,28 @@ class Game::Market::LedgerTest < ActiveSupport::TestCase
 
     assert_equal 0, Game::Market::LedgerEntry.count
     assert_nil wallet(@bob)
+  end
+
+  test "a purchase from the Archive or of a slot moves the wallet, and a hold can name its order" do
+    order = order!(@alice)
+    Game::Market::Ledger.post([ entry(@alice, :mint, available: 1_000) ])
+    Game::Market::Ledger.post([ entry(@alice, :archive_purchase, available: -200), entry(@alice, :slot_purchase, available: -100),
+                                entry(@alice, :hold, available: -300, committed: 300, order:) ])
+
+    assert_equal [ 400, 300 ], wallet(@alice).values_at(:available, :committed)
+    assert_equal order.id, Game::Market::LedgerEntry.find_by!(kind: "hold").order_id
+    assert_equal 4, Game::Market::LedgerEntry.count
+  end
+
+  test "a second hold of one order for one player is refused, another player's passes" do
+    order = order!(@alice)
+    Game::Market::Ledger.post([ entry(@alice, :mint, available: 1_000), entry(@bob, :mint, available: 1_000) ])
+    Game::Market::Ledger.post([ entry(@alice, :hold, available: -300, committed: 300, order:) ])
+
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      ActiveRecord::Base.transaction(requires_new: true) { Game::Market::Ledger.post([ entry(@alice, :hold, available: -300, committed: 300, order:) ]) }
+    end
+    assert_nothing_raised { Game::Market::Ledger.post([ entry(@bob, :hold, available: -300, committed: 300, order:) ]) }
   end
 
   test "an unknown kind is refused" do

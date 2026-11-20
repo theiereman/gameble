@@ -2,11 +2,11 @@ module Game
   module Market
     # The only writer of wallets and ledger entries. Call it once per transaction, after every other lock.
     module Ledger
-      Entry = Data.define(:player_id, :kind, :available_delta, :committed_delta, :listing_id, :settings_id) do
-        def initialize(player_id:, kind:, available_delta: 0, committed_delta: 0, listing_id: nil, settings_id:)
+      Entry = Data.define(:player_id, :kind, :available_delta, :committed_delta, :listing_id, :order_id, :settings_id) do
+        def initialize(player_id:, kind:, available_delta: 0, committed_delta: 0, listing_id: nil, order_id: nil, settings_id:)
           raise ArgumentError, "unknown ledger kind: #{kind.inspect}" unless LedgerEntry::KINDS.include?(kind.to_s)
 
-          super(kind: kind.to_s, player_id:, available_delta:, committed_delta:, listing_id:, settings_id:)
+          super(kind: kind.to_s, player_id:, available_delta:, committed_delta:, listing_id:, order_id:, settings_id:)
         end
       end
 

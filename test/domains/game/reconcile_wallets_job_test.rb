@@ -21,6 +21,7 @@ class Game::ReconcileWalletsJobTest < ActiveSupport::TestCase
     Game::Market::LedgerEntry.connection.execute("DELETE FROM game_market_ledger_entries")
     Game::Market::DailySnapshot.connection.execute("DELETE FROM game_market_daily_snapshots")
     clear_snapshot_events
+    Game::Market::Order.delete_all
     Game::Market::Wallet.delete_all
     Game::Market::Settings.connection.execute("DELETE FROM game_market_settings")
   end

@@ -18,6 +18,7 @@ class Game::Market::ReconcileWalletsTest < ActiveSupport::TestCase
 
   def clear
     Game::Market::LedgerEntry.connection.execute("DELETE FROM game_market_ledger_entries")
+    Game::Market::Order.delete_all
     Game::Market::Wallet.delete_all
     Game::Market::Settings.connection.execute("DELETE FROM game_market_settings")
   end
@@ -51,6 +52,16 @@ class Game::Market::ReconcileWalletsTest < ActiveSupport::TestCase
     assert_equal 15_000, result.minted
     assert_equal 650, result.destroyed
     assert_equal 14_350, result.circulation
+  end
+
+  test "a purchase from the Archive and of a slot count as destroyed" do
+    Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id)
+    post(entry(@alice, :archive_purchase, available: -300), entry(@alice, :slot_purchase, available: -200), entry(@alice, :stamp, available: -10))
+
+    result = reconcile
+
+    assert result.balanced?, result.inspect
+    assert_equal [ 1_000, 510, 490 ], [ result.minted, result.destroyed, result.circulation ]
   end
 
   test "a wallet changed outside the ledger is one difference naming the player and both sums" do

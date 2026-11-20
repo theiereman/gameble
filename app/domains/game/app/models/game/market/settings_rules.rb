@@ -27,7 +27,8 @@ module Game
         unusual_maximum_multiple: 2..20,
         alert_destroyed_share_basis_points: 0..10_000,
         alert_picoins_per_player: 1..1_000_000_000_000,
-        alert_top_share_basis_points: 1..10_000
+        alert_top_share_basis_points: 1..10_000,
+        order_duration_days: 1..30
       }.freeze
 
       OPTIONAL = (%i[alert_destroyed_share_basis_points alert_picoins_per_player alert_top_share_basis_points] + TARGETS).freeze

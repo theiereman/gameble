@@ -22,7 +22,7 @@ module Game
       TOTALS = <<~SQL.squish.freeze
         SELECT COALESCE(SUM(available_delta + committed_delta), 0) AS circulation,
                COALESCE(SUM(available_delta) FILTER (WHERE kind = 'mint'), 0) AS minted,
-               COALESCE(-SUM(available_delta) FILTER (WHERE kind IN ('stamp', 'commission', 'forfeit')), 0) AS destroyed
+               COALESCE(-SUM(available_delta) FILTER (WHERE kind IN (#{LedgerEntry::DESTROYED_KINDS.map { "'#{it}'" }.join(", ")})), 0) AS destroyed
         FROM game_market_ledger_entries
       SQL
 

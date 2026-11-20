@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_20_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_20_184008) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -597,14 +597,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_150000) do
     t.datetime "updated_at", null: false
     t.boolean "practice", default: false, null: false
     t.string "forfeited_by"
-    t.string "bot_archetype"
-    t.integer "rules_version", default: 1, null: false
     t.index ["move_deadline_at"], name: "index_game_duels_on_move_deadline_at", where: "(((state)::text = 'challenged'::text) OR ((state)::text = 'active'::text))"
     t.index ["token"], name: "index_game_duels_on_token", unique: true
     t.check_constraint "(state::text = 'active'::text OR state::text = 'finished'::text) = (started_at IS NOT NULL AND first_caller IS NOT NULL AND challenger_cards IS NOT NULL AND opponent_cards IS NOT NULL AND challenger_draw_order IS NOT NULL AND opponent_draw_order IS NOT NULL)", name: "game_duels_started_check"
     t.check_constraint "(state::text = 'challenged'::text OR state::text = 'active'::text) = (ended_at IS NULL)", name: "game_duels_ended_check"
     t.check_constraint "(state::text = 'finished'::text) = (result IS NOT NULL)", name: "game_duels_finished_check"
-    t.check_constraint "bot_archetype IS NULL OR bot_archetype::text = 'coverage'::text OR bot_archetype::text = 'popularity'::text OR bot_archetype::text = 'rating'::text OR bot_archetype::text = 'release'::text OR bot_archetype::text = 'discovery'::text OR bot_archetype::text = 'circulation'::text OR bot_archetype::text = 'two_stats'::text OR bot_archetype::text = 'trumps'::text OR bot_archetype::text = 'random'::text", name: "game_duels_bot_archetype_check"
     t.check_constraint "capsule IS NULL OR state::text = 'finished'::text", name: "game_duels_capsule_finished_check"
     t.check_constraint "capsule::text = 'granted'::text OR capsule::text = 'automatic_move'::text OR capsule::text = 'already_won_today'::text", name: "game_duels_capsule_check"
     t.check_constraint "challenger_margin >= 0::numeric AND opponent_margin >= 0::numeric", name: "game_duels_margins_check"
@@ -889,10 +886,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_150000) do
     t.bigint "listing_id"
     t.bigint "settings_id", null: false
     t.datetime "created_at", null: false
+    t.bigint "order_id"
     t.index ["listing_id", "player_id", "kind"], name: "index_game_market_ledger_entries_one_settlement", unique: true, where: "(((kind)::text = 'stamp'::text) OR ((kind)::text = 'purchase'::text) OR ((kind)::text = 'sale'::text) OR ((kind)::text = 'commission'::text))"
+    t.index ["order_id", "player_id", "kind"], name: "index_game_market_ledger_entries_one_order_entry", unique: true, where: "(order_id IS NOT NULL)"
     t.index ["player_id"], name: "index_game_market_ledger_entries_on_player_id"
     t.index ["settings_id"], name: "index_game_market_ledger_entries_on_settings_id"
-    t.check_constraint "kind::text ~ '^(mint|stamp|hold|release|purchase|sale|commission|forfeit)$'::text", name: "game_market_ledger_entries_kind_check"
+    t.check_constraint "kind::text ~ '^(mint|stamp|hold|release|purchase|sale|commission|forfeit|archive_purchase|slot_purchase)$'::text", name: "game_market_ledger_entries_kind_check"
+    t.check_constraint "listing_id IS NULL OR order_id IS NULL", name: "game_market_ledger_entries_one_subject_check"
   end
 
   create_table "game_market_listings", force: :cascade do |t|
@@ -935,6 +935,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_150000) do
     t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing", unique: true
     t.check_constraint "amount IS NULL OR amount >= 0", name: "game_market_notices_amount_check"
     t.check_constraint "kind::text ~ '^(outbid|won|sold|unsold|lead_voided|withdrawn|wanted)$'::text", name: "game_market_notices_kind_check"
+  end
+
+  create_table "game_market_orders", force: :cascade do |t|
+    t.string "token", null: false
+    t.bigint "player_id", null: false
+    t.bigint "card_id", null: false
+    t.bigint "settings_id", null: false
+    t.bigint "price", null: false
+    t.string "status", default: "open", null: false
+    t.datetime "expires_at", null: false
+    t.bigint "seller_id"
+    t.bigint "served_card_season_id"
+    t.datetime "served_at"
+    t.bigint "average_after_sale"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_id", "price", "created_at", "id"], name: "index_game_market_orders_open_best_price", order: { price: :desc }, where: "((status)::text = 'open'::text)"
+    t.index ["expires_at"], name: "index_game_market_orders_open_expires_at", where: "((status)::text = 'open'::text)"
+    t.index ["player_id", "card_id"], name: "index_game_market_orders_one_open_per_card", unique: true, where: "((status)::text = 'open'::text)"
+    t.index ["player_id"], name: "index_game_market_orders_on_player_id"
+    t.index ["served_card_season_id", "served_at"], name: "index_game_market_orders_served", where: "((status)::text = 'served'::text)"
+    t.index ["token"], name: "index_game_market_orders_on_token", unique: true
+    t.check_constraint "(seller_id IS NOT NULL) = (status::text = 'served'::text) AND (served_card_season_id IS NOT NULL) = (status::text = 'served'::text) AND (served_at IS NOT NULL) = (status::text = 'served'::text) AND (average_after_sale IS NOT NULL) = (status::text = 'served'::text)", name: "game_market_orders_served_check"
+    t.check_constraint "price > 0", name: "game_market_orders_price_check"
+    t.check_constraint "status::text ~ '^(open|served|expired|cancelled|withdrawn)$'::text", name: "game_market_orders_status_check"
   end
 
   create_table "game_market_settings", force: :cascade do |t|
@@ -981,6 +1006,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_150000) do
     t.bigint "author_id"
     t.bigint "replaces_id"
     t.datetime "created_at", null: false
+    t.integer "order_duration_days", default: 7, null: false
     t.index ["author_id"], name: "index_game_market_settings_on_author_id"
     t.index ["replaces_id"], name: "index_game_market_settings_on_replaces_id", unique: true
     t.index ["token"], name: "index_game_market_settings_on_token", unique: true
@@ -1301,6 +1327,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_150000) do
   add_foreign_key "game_market_edition_prices", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_market_ledger_entries", "accounts_players", column: "player_id"
   add_foreign_key "game_market_ledger_entries", "game_market_listings", column: "listing_id"
+  add_foreign_key "game_market_ledger_entries", "game_market_orders", column: "order_id"
   add_foreign_key "game_market_ledger_entries", "game_market_settings", column: "settings_id"
   add_foreign_key "game_market_listings", "accounts_players", column: "leader_id"
   add_foreign_key "game_market_listings", "accounts_players", column: "seller_id"
@@ -1309,6 +1336,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_150000) do
   add_foreign_key "game_market_notices", "accounts_players", column: "other_player_id"
   add_foreign_key "game_market_notices", "accounts_players", column: "player_id"
   add_foreign_key "game_market_notices", "game_market_listings", column: "listing_id"
+  add_foreign_key "game_market_orders", "accounts_players", column: "player_id"
+  add_foreign_key "game_market_orders", "accounts_players", column: "seller_id"
+  add_foreign_key "game_market_orders", "catalog_card_seasons", column: "served_card_season_id"
+  add_foreign_key "game_market_orders", "catalog_cards", column: "card_id"
+  add_foreign_key "game_market_orders", "game_market_settings", column: "settings_id"
   add_foreign_key "game_market_settings", "accounts_players", column: "author_id"
   add_foreign_key "game_market_settings", "game_market_settings", column: "replaces_id"
   add_foreign_key "game_market_wallets", "accounts_players", column: "player_id"
