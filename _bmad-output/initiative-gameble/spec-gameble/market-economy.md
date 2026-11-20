@@ -25,8 +25,9 @@ PiCoins are minted only when a card is entrusted. Stamps, commissions and PiCoin
 | | Common | Uncommon | Rare | Epic | Legendary |
 |---|---:|---:|---:|---:|---:|
 | Entrustment pays | 10 | 20 | 50 | 150 | 1,000 |
-| Listing stamp | 1 | 10 | 20 | 50 | 100 |
-| Minimum price | 13 | 34 | 78 | 223 | 70,000 |
+| Listing stamp | 2 | 20 | 40 | 100 | 50 |
+| Minimum price | 15 | 45 | 100 | 280 | 70,000 |
+| Archive price | 50 | 100 | 500 | 1,500 | not sold |
 | Target for a standard player | minutes | minutes | a few hours | 1 to 2 days | about 40 days |
 
 - The rarity is the one minted on the copy, whatever its edition.
@@ -76,12 +77,15 @@ Per exact edition (game + season); auction sales and direct sales to an order bo
 
 | Item | Price |
 |---|---|
-| An Archive card | A multiple of its rarity's entrustment value, to set (5x simulated); it must sit above a player's usual offer and never below the rarity's player minimum price |
-| A goal beyond 5, a custom set beyond 5, a deck beyond 3 | To set; bought in context only, never in the shop; ceilings 10 goals, 10 custom sets, 5 decks |
+| An Archive card | 5x its rarity's entrustment value for Common and Uncommon, 10x for Rare and Epic (Values by rarity); above a player's usual offer and never below the rarity's player minimum price. Légendaire not sold at launch; 140,000 (2x its minimum) if opened later |
+| Goals 6 to 10, custom sets 6 to 10 | 500, 1,000, 2,000, 3,000, 5,000; bought in context only, never in the shop |
+| Decks 4 and 5 | 1,000, 2,000; bought in context only |
 
 A rarity whose Archive price is not set is absent from the shop. There is no daily purchase limit. Staff keep which account entrusted each Archive copy; players never see it.
 
 ## Production evidence (2026-11-19, market open since 2026-11-13)
+
+The settings above are those production ran on 2026-11-19 (author, 2026-11-20). Shop and slot prices come from `../forge-market-volume/shop-pricing.md`.
 
 - Cards changing hands a week: about 50 sold on the market, 1,100 moved by friend trades, 3,000 entrusted.
 - 4 bids per sold listing, 9 bidders: supply, not demand, is short. Players entrust about 70 times more cards than they list.
@@ -93,7 +97,7 @@ A rarity whose Archive price is not set is absent from the shop. There is no dai
 
 | Indicator | Reads | Starting alert |
 |---|---|---|
-| PiCoins destroyed against created, 30 days | Whether money piles up | Below 40% (a guess; the simulated economy is on target at 56%) |
+| PiCoins destroyed against created, 30 days | Whether money piles up | Below 40% (a guess; the simulated economy is on target at 56%; production ran near 8% on 2026-11-19, so it fires from the shop's opening and reads as a signal, author 2026-11-20) |
 | PiCoins per active player, 90 days | Whether prices will rise for everyone | None at launch |
 | Prices in days of a standard player's income | Whether the targets above hold | None at launch |
 | Share of PiCoins held by the top 1% | Whether wealth concentrates | None at launch |
@@ -118,7 +122,7 @@ One change cannot more than double or halve a value, which guards against a typi
 
 ## Sales in the feed
 
-Every sale of an Epic or Legendary, and any sale at 10 times its rarity's minimum price or more: from 130 for a Common, 340 for an Uncommon, 780 for a Rare. A direct sale to an order follows the same rule; an Archive purchase never makes an entry.
+Every sale of an Epic or Legendary, and any sale at 10 times its rarity's minimum price or more: from 150 for a Common, 450 for an Uncommon, 1,000 for a Rare. A direct sale to an order follows the same rule; an Archive purchase never makes an entry.
 
 ## Alt-account signals
 

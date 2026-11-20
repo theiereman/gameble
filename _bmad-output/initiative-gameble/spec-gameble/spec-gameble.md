@@ -507,5 +507,3 @@ For the duels alpha (release 1.4): the author reads the back-office page of CAP-
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier and the achievement backs of `achievements.md`, which goal and event backs ship, and does every successful weekly goal grant one?
 - **Preview image (CAP-9):** do Steam's terms allow its store art in a derived, stored image? The author checks before it ships.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
-- **Archive resale price (CAP-48):** which multiple of the entrustment value? 5x was simulated. At 5x a Légendaire costs 5,000, far below its 70,000 minimum, so it would undercut sellers.
-- **Slot prices (CAP-49):** what does each slot beyond the free ones cost? The median wallet is 965 PiCoins.
