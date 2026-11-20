@@ -1,7 +1,7 @@
 module Game
   module ExchangesTab
     TABS = %w[friends market].freeze
-    DEFAULT = "friends".freeze
+    DEFAULT = "market".freeze
 
     def self.call(player)
       return DEFAULT if player.nil?

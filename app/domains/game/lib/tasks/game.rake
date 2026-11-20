@@ -78,4 +78,11 @@ namespace :game do
 
     puts "game:drop_friends_and_trades: no deleted or banned player has friends, invitations or open trades left"
   end
+
+  desc "Runs Game::BackfillExchangesTabs now: the friends tab kept for players with an accepted friend trade closed in the last 30 days and no stored tab; idempotent"
+  task backfill_exchanges_tabs: :environment do
+    players = Game::BackfillExchangesTabs.new.call.value!
+
+    puts "game:backfill_exchanges_tabs: #{players} player(s) now open the exchanges on the friends tab"
+  end
 end

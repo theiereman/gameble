@@ -17,10 +17,12 @@
     <color name="on_friends">#06090D</color>
     <color name="line">#2A475E</color>
     <color name="accent">#66C0F4</color>
+    <color name="on_accent">#0B1520</color>
     <color name="muted">#8F98A0</color>
     <color name="lime">#A4D007</color>
     <color name="lime_glow">#EAFF9A</color>
     <color name="lime_track">#22300D</color>
     <color name="gold">#F4C542</color>
+    <color name="on_gold">#120D05</color>
     <color name="outline">#06090D</color>
 </resources>

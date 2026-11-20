@@ -24,8 +24,8 @@ class TopBarsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "turbo-stream[action=replace][target=packs-chip] template"
     assert_select "turbo-stream[action=update][target=player-menu-badge] template"
-    assert_select "turbo-stream[action=update][target=tab-friend-trades-badge] template"
-    assert_select "turbo-stream[action=update][target=tab-market-badge] template"
+    assert_select "turbo-stream[action=update][target=tab-trades-badge] template"
+    assert_select "turbo-stream[action=update][target=tab-duels-badge] template"
     assert_select "turbo-stream[action=update][target=player-menu-invitations-badge] template"
   end
 
@@ -34,7 +34,7 @@ class TopBarsControllerTest < ActionDispatch::IntegrationTest
 
     get top_bar_path(locale: :en), as: :turbo_stream
 
-    assert_select "turbo-stream[target=tab-friend-trades-badge], turbo-stream[target=tab-market-badge], turbo-stream[target=player-menu-invitations-badge]", 0
+    assert_select "turbo-stream[target=tab-trades-badge], turbo-stream[target=tab-duels-badge], turbo-stream[target=player-menu-invitations-badge]", 0
   end
 
   test "a visitor is refused" do

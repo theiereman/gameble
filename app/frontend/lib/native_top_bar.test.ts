@@ -39,7 +39,7 @@ const state: TopBarState = {
   capsules: "10",
   friends: "",
   trades: "1",
-  market: "",
+  duels: "",
   avatar: "data:image/png;base64,AA",
 }
 
@@ -52,8 +52,8 @@ describe("readCounts", () => {
         "[data-bell-target=count]": { textContent: "12", hidden: false },
         "#player-menu-badge .player-chip__badge": { textContent: "4" },
         "#player-menu-invitations-badge .menu-item__badge": { textContent: "2" },
-        "#tab-friend-trades-badge .tab-bar__badge": { textContent: " 5 " },
-        "#tab-market-badge .tab-bar__badge": { textContent: "2" },
+        "#tab-trades-badge .tab-bar__badge": { textContent: " 5 " },
+        "#tab-duels-badge .tab-bar__badge": { textContent: "2" },
       }),
     )
 
@@ -65,7 +65,7 @@ describe("readCounts", () => {
       capsules: "1207",
       friends: "2",
       trades: "5",
-      market: "2",
+      duels: "2",
     })
   })
 
@@ -93,7 +93,7 @@ describe("readCounts", () => {
       capsules: "",
       friends: "",
       trades: "",
-      market: "",
+      duels: "",
     })
   })
 })

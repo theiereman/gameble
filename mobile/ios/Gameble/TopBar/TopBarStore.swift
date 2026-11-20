@@ -8,7 +8,7 @@ struct TopBarState: Codable, Equatable {
     var capsules = ""
     var friends = ""
     var trades = ""
-    var market = ""
+    var duels = ""
     var avatar = ""
 
     init() {}
@@ -24,7 +24,7 @@ struct TopBarState: Codable, Equatable {
         capsules = text(.capsules)
         friends = text(.friends)
         trades = text(.trades)
-        market = text(.market)
+        duels = text(.duels)
         avatar = text(.avatar)
     }
 }

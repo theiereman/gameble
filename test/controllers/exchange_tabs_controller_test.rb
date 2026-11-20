@@ -25,11 +25,11 @@ class ExchangeTabsControllerTest < ActionDispatch::IntegrationTest
   test "a player's sub-tab is kept: 204, no body" do
     sign_in(@player)
 
-    keep("market")
+    keep("friends")
 
     assert_response :no_content
     assert_empty response.body
-    assert_equal "market", kept
+    assert_equal "friends", kept
   end
 
   test "an unknown tab writes nothing: 422 unknown_tab" do

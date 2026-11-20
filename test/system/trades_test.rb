@@ -43,6 +43,7 @@ class TradesTest < ApplicationSystemTestCase
   test "on a desktop a player answers two trades and the badge falls" do
     from_lea = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
     propose(@max, @hugo, offer: { @depths => 1 }, request: { @portal => 1 })
+    Game::KeepExchangesTab.new.call(player: @hugo, tab: "friends").value!
     sign_in @hugo
 
     assert_selector ".hub-menu a.menu-item .menu-item__badge--alert", text: "2"

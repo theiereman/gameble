@@ -4,10 +4,6 @@
   <%= turbo_stream.update "subtab-friends-badge", partial: "exchanges/friends_badge", locals: { waiting: } %>
   <%= turbo_stream.update "subtab-market-badge", partial: "exchanges/market_badge", locals: { outbid: } %>
   <%= turbo_stream.update "market-bids-badge", partial: "markets/bids_badge", locals: { outbid: } %>
-  <%= turbo_stream.update "menu-friend-trades-badge", partial: "pages/menu_friend_trades_badge", locals: { waiting: } %>
-  <%= turbo_stream.update "tab-friend-trades-badge", partial: "shell/tab_friend_trades_badge", locals: { waiting: } %>
-  <%= turbo_stream.update "menu-market-badge", partial: "pages/menu_market_badge", locals: { outbid: } %>
-  <%= turbo_stream.update "tab-market-badge", partial: "shell/tab_market_badge", locals: { outbid: } %>
 <% end %>
 <% unless duels_active.nil? %>
   <%= turbo_stream.update "tab-duels-badge", partial: "shell/tab_duels_badge", locals: { count: duels_active } %>

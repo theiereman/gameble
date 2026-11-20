@@ -32,7 +32,7 @@ class HubTest < ApplicationSystemTestCase
     sign_in
 
     item("1").send_keys("3")
-    assert_current_path trades_path(locale: :en)
+    assert_current_path market_path(locale: :en)
 
     find(".top-bar__home").click
     item("3").send_keys("4")

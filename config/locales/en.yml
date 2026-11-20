@@ -3901,9 +3901,6 @@ en:
           one: "%{number} invitation waiting for your answer"
           other: "%{number} invitations waiting for your answer"
         label: Bridge menu
-        market_outbid:
-          one: "%{number} auction outbid"
-          other: "%{number} auctions outbid"
         open_booster: Open a capsule
         reserve:
           one: "%{number} capsule in reserve"
@@ -3918,9 +3915,6 @@ en:
           other: "%{number} special capsules"
         support: Support
         trades: Trades
-        trades_waiting:
-          one: "%{number} trade waiting for you"
-          other: "%{number} trades waiting for you"
       showcase:
         empty:
           open: Open a capsule
@@ -4971,15 +4965,9 @@ en:
       hub: Bridge
       label: Main navigation
       landing: Home
-      market_outbid:
-        one: "%{number} auction outbid"
-        other: "%{number} auctions outbid"
       me: My profile
       sets: Sets
       trades: Trades
-      trades_waiting:
-        one: "%{number} trade waiting for you"
-        other: "%{number} trades waiting for you"
     ticker:
       open: Open the activity feed
     toast:

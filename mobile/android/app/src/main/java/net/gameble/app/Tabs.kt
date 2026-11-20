@@ -9,18 +9,19 @@ import dev.hotwire.navigation.tabs.HotwireBottomTab
 object Tabs {
     class Destination(val tab: Int?, val atRoot: Boolean)
 
-    private val NAMES = listOf("hub", "capsule", "sets", "trades", "market")
-    private val PATHS = listOf("", "/booster", "/library", "/trades", "/market")
+    private val NAMES = listOf("hub", "capsule", "sets", "trades", "duels")
+    private val PATHS = listOf("", "/booster", "/library", "/exchanges", "/duels")
     private val ROOTS = listOf(
         listOf(""),
         listOf("/booster"),
         listOf("/library"),
-        listOf("/trades"),
-        listOf("/market")
+        listOf("/exchanges", "/trades", "/market"),
+        listOf("/duels")
     )
     private const val CAPSULE = 1
     private const val TRADES = 3
-    private const val MARKET = 4
+    private const val DUELS = 4
+    private const val ALPHA = "ALPHA"
     private val LOCALE = Regex("^/(en|fr)(?=[/?#]|$)")
 
     fun destination(path: String): Destination {
@@ -37,7 +38,7 @@ object Tabs {
         tab(context, 1, R.string.tab_capsule, R.drawable.ic_tab_capsule, R.id.capsule_host),
         tab(context, 2, R.string.tab_sets, R.drawable.ic_tab_sets, R.id.sets_host),
         tab(context, 3, R.string.tab_trades, R.drawable.ic_tab_trades, R.id.trades_host),
-        tab(context, 4, R.string.tab_market, R.drawable.ic_tab_market, R.id.market_host)
+        tab(context, 4, R.string.tab_duels, R.drawable.ic_tab_duels, R.id.duels_host)
     )
 
     private fun tab(context: Context, index: Int, title: Int, icon: Int, host: Int) = HotwireBottomTab(
@@ -49,7 +50,8 @@ object Tabs {
     fun showBadges(report: TopBarReport, bar: BottomNavigationView) {
         badge(bar, CAPSULE, report.capsules, R.color.primary, R.color.on_primary)
         badge(bar, TRADES, report.trades, R.color.alert, R.color.on_alert)
-        badge(bar, MARKET, report.market, R.color.alert, R.color.on_alert)
+        if (report.duels.isEmpty()) label(bar, DUELS, ALPHA, R.color.gold, R.color.on_gold)
+        else badge(bar, DUELS, report.duels, R.color.accent, R.color.on_accent)
     }
 
     private fun badge(bar: BottomNavigationView, index: Int, value: String, background: Int, text: Int) {
@@ -59,7 +61,18 @@ object Tabs {
         bar.getOrCreateBadge(item).apply {
             backgroundColor = ContextCompat.getColor(bar.context, background)
             badgeTextColor = ContextCompat.getColor(bar.context, text)
+            clearText()
             number = count
+        }
+    }
+
+    private fun label(bar: BottomNavigationView, index: Int, label: String, background: Int, text: Int) {
+        if (index >= bar.menu.size()) return
+        bar.getOrCreateBadge(bar.menu.getItem(index).itemId).apply {
+            backgroundColor = ContextCompat.getColor(bar.context, background)
+            badgeTextColor = ContextCompat.getColor(bar.context, text)
+            clearNumber()
+            setText(label)
         }
     }
 }

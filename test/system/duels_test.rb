@@ -73,32 +73,30 @@ class DuelsTest < ApplicationSystemTestCase
     assert_selector ".tab-bar a.tab-bar__tab[aria-current=true]", text: "DUELS"
   end
 
-  test "on a phone, the trades tab opens between friends, then the market once the player used it" do
+  test "on a phone, the trades tab opens the market, listed first, then between friends once the player used it" do
     open_market!(first_opened_at: 1.day.ago)
     sign_in(@player)
     resize_to(*PHONE)
 
     tab("Trades").click
 
-    assert_current_path trades_path(locale: :en)
-    assert_selector "nav.exchanges-tabs a.exchanges-tabs__tab[aria-current=page]", text: "BETWEEN FRIENDS"
-
-    find("nav.exchanges-tabs a.exchanges-tabs__tab", text: "MARKET").click
-
     assert_current_path market_path(locale: :en)
     assert_selector "nav.exchanges-tabs a.exchanges-tabs__tab[aria-current=page]", text: "MARKET"
-    eventually("the market's heading should have the focus") { page.evaluate_script("document.activeElement.id") == "market-screen-heading" }
-    eventually("the market should be kept") { Game::ExchangesTab.call(@player) == "market" }
+    assert_equal [ "MARKET", "BETWEEN FRIENDS" ], all("nav.exchanges-tabs .exchanges-tabs__label").map(&:text)
+
+    find("nav.exchanges-tabs a.exchanges-tabs__tab", text: "BETWEEN FRIENDS").click
+
+    assert_current_path trades_path(locale: :en)
+    assert_selector "nav.exchanges-tabs a.exchanges-tabs__tab[aria-current=page]", text: "BETWEEN FRIENDS"
+    eventually("the trades heading should have the focus") { page.evaluate_script("document.activeElement.id") == "trades-heading" }
+    eventually("between friends should be kept") { Game::ExchangesTab.call(@player) == "friends" }
 
     tab("Bridge").click
     assert_current_path home_path(locale: :en)
     tab("Trades").click
 
-    assert_current_path market_path(locale: :en)
+    assert_current_path trades_path(locale: :en)
     assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: "TRADES"
-
-    visit market_path(locale: :en)
-    assert_selector ".market-screen"
   end
 
   test "on a phone, a visitor keeps two tabs and the market shows no sub-tab bar" do

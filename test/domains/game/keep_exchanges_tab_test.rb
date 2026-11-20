@@ -15,39 +15,39 @@ class Game::KeepExchangesTabTest < ActiveSupport::TestCase
 
   def events = game_events(@player, Game::ExchangesTabKept)
 
-  test "between friends until the player keeps another sub-tab" do
+  test "the market until the player keeps another sub-tab" do
     assert_nil kept
-    assert_equal "friends", Game::ExchangesTab.call(@player)
-    assert_equal "friends", Game::ExchangesTab.call(nil)
+    assert_equal "market", Game::ExchangesTab.call(@player)
+    assert_equal "market", Game::ExchangesTab.call(nil)
   end
 
   test "a new sub-tab is stored and published once, with ids only" do
-    result = keep("market")
+    result = keep("friends")
 
     assert result.success?
-    assert_equal "market", result.value!
-    assert_equal "market", kept
-    assert_equal "market", Game::ExchangesTab.call(@player)
+    assert_equal "friends", result.value!
+    assert_equal "friends", kept
+    assert_equal "friends", Game::ExchangesTab.call(@player)
     assert_equal [ { player_id: @player.id } ], events.map(&:data)
 
-    assert keep("friends").success?
-    assert_equal "friends", Game::ExchangesTab.call(@player)
+    assert keep("market").success?
+    assert_equal "market", Game::ExchangesTab.call(@player)
     assert_equal 2, events.size
   end
 
   test "the sub-tab already kept writes nothing and publishes nothing" do
-    keep("market")
+    keep("friends")
 
     assert_no_changes -> { Game::PlayerState.find_by!(player_id: @player.id).updated_at } do
       assert_no_difference -> { Rails.configuration.event_store.read.count } do
-        assert_equal "market", keep("market").value!
+        assert_equal "friends", keep("friends").value!
       end
     end
   end
 
-  test "between friends is already kept the first time: nothing written" do
+  test "the market is already kept the first time: nothing written" do
     assert_no_difference -> { Rails.configuration.event_store.read.count } do
-      assert keep("friends").success?
+      assert keep("market").success?
     end
     assert_nil kept
   end
@@ -55,10 +55,10 @@ class Game::KeepExchangesTabTest < ActiveSupport::TestCase
   test "a player without a state row gets one with the season markers" do
     Game::PlayerState.where(player_id: @player.id).delete_all
 
-    assert keep("market").success?
+    assert keep("friends").success?
 
     state = Game::PlayerState.find_by!(player_id: @player.id)
-    assert_equal "market", state.exchanges_tab
+    assert_equal "friends", state.exchanges_tab
     assert_equal Game::PlayerState.markers_at_published_season.stringify_keys,
       state.attributes.slice("allocation_received_season", "allocation_seen_season")
   end

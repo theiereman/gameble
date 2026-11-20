@@ -270,14 +270,6 @@ fr:
         other: "%{number} capsules à ouvrir"
       sets: "Sets"
       trades: "Échanges"
-      trades_waiting:
-        zero: "%{number} échange en attente de vous"
-        one: "%{number} échange en attente de vous"
-        other: "%{number} échanges en attente de vous"
-      market_outbid:
-        zero: "%{number} enchère dépassée"
-        one: "%{number} enchère dépassée"
-        other: "%{number} enchères dépassées"
       duels: "Duels"
       me: "Mon profil"
       landing: "Accueil"
@@ -336,14 +328,6 @@ fr:
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
         trades: "Échanges"
-        trades_waiting:
-          zero: "%{number} échange en attente de vous"
-          one: "%{number} échange en attente de vous"
-          other: "%{number} échanges en attente de vous"
-        market_outbid:
-          zero: "%{number} enchère dépassée"
-          one: "%{number} enchère dépassée"
-          other: "%{number} enchères dépassées"
         duels: "Duels"
         feed: "Fil d'activité"
         invitations_waiting:
