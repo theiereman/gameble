@@ -4306,6 +4306,16 @@ fr:
   duels:
     alpha: "ALPHA"
     alpha_warning: "Attention, ce mode est en alpha. Il peut contenir des bugs et des problèmes d'équilibrage. Vos parties sont analysées pour équilibrer les règles."
+    archetypes:
+      coverage: "couverture"
+      popularity: "popularité"
+      rating: "note"
+      release: "sortie"
+      discovery: "découverte"
+      circulation: "circulation"
+      two_stats: "deux stats"
+      trumps: "atouts"
+      random: "aléatoire"
     feedback: "Envoyer un feedback"
     show:
       title: "Duels"
@@ -4439,6 +4449,7 @@ fr:
       call: "Annoncer"
       sending: "Envoi…"
       answer: "Répondre avec cette carte"
+      bot_archetype: "Le bot joue un deck %{archetype}"
       hidden_call: "Annonce cachée"
       called_status: "%{name} a annoncé. Sa carte : %{card}."
       card_name: "%{title}, %{year}"

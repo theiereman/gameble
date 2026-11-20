@@ -87,6 +87,11 @@
   letter-spacing: var(--tracking-count-large-phone);
 }
 
+.duel-board__bot {
+  grid-column: 3;
+  text-transform: none;
+}
+
 .duel-board__margin {
   grid-column: 1 / -1;
   text-align: center;

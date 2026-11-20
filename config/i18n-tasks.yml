@@ -19,6 +19,7 @@ search:
 # Accounts::SignIn.failure_key, Game::Operation), which the static search cannot see.
 ignore_unused:
   - "duels.tutorial.steps.*"
+  - "duels.archetypes.*"
   - "booster.canister_kind.*"
   - "charts.*.words.*"
   - "errors.*"

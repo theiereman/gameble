@@ -51,6 +51,8 @@ class DuelScreen
 
   def practice? = @duel.practice
 
+  def bot_archetype = @duel.bot_archetype
+
   def clock? = !practice? && deadline.present? && (waiting? || turn.present?)
 
   def stage(card, own:)

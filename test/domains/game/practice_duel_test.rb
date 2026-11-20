@@ -39,6 +39,16 @@ class Game::PracticeDuelTest < ActiveSupport::TestCase
     assert_equal 1, Accounts::Player.where(bot_of_id: @lea.id).count
   end
 
+  test "each practice duel deals the bot a named deck, never the one it held the time before" do
+    first = start.value!
+    Game::DuelSeat.where(duel_id: first.id).update_all(status: "left")
+    second = start.value!
+
+    assert_includes Game::DeckArchetypes::NAMES, first.bot_archetype
+    assert_includes Game::DeckArchetypes::NAMES, second.bot_archetype
+    assert_not_equal first.bot_archetype, second.bot_archetype
+  end
+
   test "the bot plays its calls and its answers, and a draft cannot practise" do
     duel = start.value!
     Game::Duel.where(id: duel.id).update_all(first_caller: "opponent")

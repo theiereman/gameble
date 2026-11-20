@@ -3,8 +3,6 @@ module Game
     ROLE = :opponent
     NAME = "Bot".freeze
     DECK_SIZE = Deck::SLOTS.size
-    CANDIDATES = DECK_SIZE * 3
-    SMART_SHARE = 0.5
     THINKING_TIME = (1.5..4.0)
 
     def self.player_for(human)
@@ -13,23 +11,24 @@ module Game
       Accounts::Player.find_by!(bot_of_id: human.id)
     end
 
-    def self.deck_cards
-      candidates = Catalog::CardSeason.where(id: DuelStat.where.not(discovery_value: nil).select(:card_season_id))
-        .order(Arel.sql("random()")).limit(CANDIDATES).pluck(:id, :card_id)
-      candidates.uniq(&:last).first(DECK_SIZE).map(&:first)
+    def self.archetype_after(human, random: Random)
+      previous = Duel.where(practice: true, id: DuelSeat.where(player_id: human.id).select(:duel_id)).order(id: :desc).pick(:bot_archetype)
+      (DeckArchetypes::NAMES - [ previous ]).sample(random:)
     end
+
+    def self.deck_cards(archetype) = DeckArchetypes.build(archetype, catalog).map(&:card_season_id)
 
     def self.thinking_time(random: Random) = random.rand(THINKING_TIME).seconds
 
-    # A bot that plays the best move half of the time and a random one otherwise, and never reads the call it answers.
-    def self.call_move(rules, random: Random)
-      return rules.automatic_call if random.rand < SMART_SHARE
-
-      DuelRules::Call.new(card: rules.hand(ROLE).sample(random:), stat: rules.stats_left(ROLE).sample(random:), direction: DuelStat::DIRECTIONS.sample(random:))
+    def self.catalog
+      DuelStat.where.not(discovery_value: nil).joins("JOIN catalog_card_seasons ON catalog_card_seasons.id = game_duel_stats.card_season_id")
+        .pluck(Arel.sql("game_duel_stats.card_season_id"), Arel.sql("catalog_card_seasons.card_id"),
+          *DuelStat::STATS.map { Arel.sql("game_duel_stats.#{it}_percentile") })
+        .map do |card_season_id, card_id, *percentiles|
+          stats = DuelStat::STATS.zip(percentiles).to_h { |stat, percentile| [ stat, DuelCard::Stat.new(value: nil, percentile:, median_distance: nil) ] }
+          DuelCard.new(card_season_id:, card_id:, number: 0, rarity: 0, stats:)
+        end
     end
-
-    def self.answer_card(rules, random: Random)
-      random.rand < SMART_SHARE ? rules.automatic_answer : rules.hand(ROLE).sample(random:)
-    end
+    private_class_method :catalog
   end
 end

@@ -49,6 +49,8 @@ class DuelsTest < ApplicationSystemTestCase
     duel = Game::Duel.sole
     assert duel.practice
     assert_current_path duel_path(locale: :en, token: duel.token)
+    archetype = I18n.t("duels.archetypes.#{duel.bot_archetype}", locale: :en)
+    assert_selector ".duel-board__bot", text: "The bot plays a #{archetype} deck"
   end
 
   test "on a phone, DUELS lists the decks and opens one's editor, which leads back to Duels" do

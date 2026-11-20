@@ -11,16 +11,17 @@ module Game
         step idle(player)
         step idle(bot)
         deck = step ready_deck(player.id, deck_token)
-        cards = { challenger: DuelSnapshot.call(deck), opponent: DuelSnapshot.for_cards(PracticeBot.deck_cards) }
+        archetype = PracticeBot.archetype_after(player)
+        cards = { challenger: DuelSnapshot.call(deck), opponent: DuelSnapshot.for_cards(PracticeBot.deck_cards(archetype)) }
         step(cards.values.all? { it.size == PracticeBot::DECK_SIZE } ? Success() : Failure(:deck_not_ready))
-        start(player, bot, deck_token, cards)
+        start(player, bot, deck_token, cards, archetype)
       end
     end
 
     private
 
-    def start(player, bot, deck_token, cards)
-      duel = Duel.new(practice: true)
+    def start(player, bot, deck_token, cards, archetype)
+      duel = Duel.new(practice: true, bot_archetype: archetype)
       duel.update!(state: "active", started_at: Time.current, first_caller: DuelRules::ROLES.sample.to_s, move_number: 1,
         move_deadline_at: schedule(duel, 1, DuelClock::CALL),
         **cards.to_h { |role, deck| [ :"#{role}_cards", deck.map(&:to_snapshot) ] },

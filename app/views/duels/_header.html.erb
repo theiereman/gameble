@@ -18,6 +18,9 @@
       <span aria-hidden="true">–</span>
     <% end %>
     <span class="duel-board__opponent"><%= duel_player_name(screen.opponent) %></span>
+    <% if screen.bot_archetype %>
+      <span class="duel-board__bot"><%= t("duels.board.bot_archetype", archetype: t("duels.archetypes.#{screen.bot_archetype}")) %></span>
+    <% end %>
     <% if screen.started? && !screen.finished? %>
       <span class="duel-board__margin" aria-hidden="true"><%= t("duels.board.margin") %> <%= duel_signed_margin(screen.margin_gap) %></span>
       <span class="visually-hidden"><%= t("duels.board.margin") %> <%= duel_margin_spoken(screen.margin_gap) %></span>

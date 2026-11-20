@@ -1897,6 +1897,16 @@ en:
   duels:
     alpha: ALPHA
     alpha_warning: "Careful: this mode is in alpha. It may contain bugs and balance problems. Your games are analysed to balance the rules."
+    archetypes:
+      coverage: "coverage"
+      popularity: "popularity"
+      rating: "rating"
+      release: "release"
+      discovery: "discovery"
+      circulation: "circulation"
+      two_stats: "two-stat"
+      trumps: "trump"
+      random: "random"
     feedback: Send feedback
     board:
       forfeit:
@@ -1912,6 +1922,7 @@ en:
       versus_html: "vs %{name}"
       answer: Answer with this card
       automatic: Move played automatically
+      bot_archetype: "The bot plays a %{archetype} deck"
       call: Call
       called_status: "%{name} has called. Their card: %{card}."
       card_name: "%{title}, %{year}"

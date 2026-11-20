@@ -17,14 +17,16 @@ module Game
     end
 
     def announce(player, duel, rules)
-      move = PracticeBot.call_move(rules)
+      move = skilled_play(player, duel).call_move
       CallRound.new.call(player:, token: duel.token, move_number: duel.move_number, card: position(rules, move.card), stat: move.stat,
         direction: move.direction)
     end
 
     def answer(player, duel, rules)
-      AnswerRound.new.call(player:, token: duel.token, move_number: duel.move_number, card: position(rules, PracticeBot.answer_card(rules)))
+      AnswerRound.new.call(player:, token: duel.token, move_number: duel.move_number, card: position(rules, skilled_play(player, duel).answer_card))
     end
+
+    def skilled_play(player, duel) = SkilledPlay.new(DuelView.for(duel, duel.seat_of(player)))
 
     def position(rules, card) = rules.deck(PracticeBot::ROLE).index(card) + 1
   end
