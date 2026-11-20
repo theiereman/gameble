@@ -4,11 +4,11 @@ type: architecture-spine
 purpose: build-substrate
 altitude: initiative
 paradigm: 'modular monolith with an operations layer'
-scope: 'gameble as a whole: one Rails application, its four domains, its web layer, the Steam import, the deployment, the market release and the duels release.'
+scope: 'gameble as a whole: one Rails application, its four domains, its web layer, the Steam import, the deployment, the market release, the duels release and market volume.'
 status: final
 created: '2026-10-02'
-updated: '2026-11-14'
-binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28, CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37, CAP-38, CAP-39, CAP-40, CAP-41, CAP-42]
+updated: '2026-11-20'
+binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28, CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37, CAP-38, CAP-39, CAP-40, CAP-41, CAP-42, CAP-44, CAP-45, CAP-46, CAP-47, CAP-48, CAP-49]
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/market-economy.md
@@ -146,6 +146,7 @@ graph TD
 
 - **Binds:** CAP-6, CAP-12, CAP-13, CAP-14, CAP-17, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-31, CAP-32
 - **Prevents:** a feed, gauge, unlock or achievement computed three different ways; personal data frozen in a log; a race or a duplicate aborting an opening.
+- **Amended 2026-11-20:** the lock order places buy orders, Archive stock rows and capacity rows (market volume).
 - **Rule:**
   - An operation that changes state publishes one primary Rails Event Store event inside its transaction; an operation that changes nothing publishes nothing, and housekeeping writes (last seen, the NOUVEAU watermark) publish none. Events are never modified.
   - An operation that raises a player's quantities then inserts a set-tier row (unique per player, set and tier) with `ON CONFLICT DO NOTHING` for each tier of a published-season set whose required count the player now holds, counting any edition of each member (AD-5); it finds those sets through each credited card's card-season in the published season, so an earlier edition received by trade crosses current tiers. Each new row records once how it was reached (a pack, a trade or the allocation): the opening's response and its replay read the rows of that pack, the allocation screen reads the allocation's rows, the season recap reads the rows reached in play. Each new row publishes exactly one event: `complete` publishes `Game::SetCompleted`, any other tier `Game::SetTierReached`. Every set has a `complete` row, at 100 % of its cards, after its other tiers. A tier once reached stays reached when cards leave. `game_set_tiers` replaces `game_set_completions`, with no backfill. A tier row's season is its set's season: that is the tier's mark. Sets of earlier seasons earn no new tier. Achievements that count sets (first complete set, three complete sets) count distinct set kind and key; those that count cards count games (AD-5).
@@ -153,7 +154,7 @@ graph TD
   - Every operation that raises a player's quantities (`Game::OpenPack`, `Game::AcceptTrade` for both players, and a market settlement for the winner, AD-45) reads the published season once, right after its bank locks, and passes it to the receipt, the draw (`Game::DrawPool` for that season), the tier pass and its response. It then receives each player's pending allocation as a step of its own transaction, before any credit, so it celebrates only the tiers it crosses itself; the allocation's event precedes the caller's. The received season is checked under the bank lock, so concurrent operations receive once.
   - The allocation is received and seen apart. While the player's last seen season is below the published one and they hold a card-season of an earlier season, the hub and the booster page redirect to the allocation screen (a GET that writes nothing, AD-11, reading this check from the primary); the screen's POST receives the allocation if still pending and marks it seen, a housekeeping write that publishes nothing.
   - A handler runs in that transaction, never publishes an event, and writes only rows of that player or new rows: a feed entry, a weekly contribution, an achievement, a card back unlock, the player's latest activity. Unique rows are inserted with `ON CONFLICT DO NOTHING`; a duplicate never fails the operation.
-  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then trade rows in ascending id, then market listings in ascending id, then a duel row, then its seats, then decks and their cards, then holdings in ascending player then card-season, then the players' `game_player_states` rows, then the player's custom sets and their games, then the edition price row, then market wallets in ascending player id. Holdings and player states are both taken under the bank lock, so either may come first. A duel operation takes the bank locks of both seated players first, a removed player's skipped; `Game::Market::Ledger.post` runs once per transaction, last.
+  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then trade rows in ascending id, then market listings in ascending id, then a duel row, then its seats, then decks and their cards, then holdings in ascending player then card-season, then buy orders in ascending id (AD-58), then Archive stock rows in ascending card-season (AD-60), then the players' `game_player_states` rows, then the player's capacity rows (AD-62), custom sets and their games, then the edition price rows in ascending card-season, then market wallets in ascending player id. Holdings and player states are both taken under the bank lock, so either may come first. A duel operation takes the bank locks of both seated players first, a removed player's skipped; `Game::Market::Ledger.post` runs once per transaction, last.
   - Totals across players (the gauge) are summed by one periodic job.
   - State tables are the truth; events are not replayed to rebuild them.
   - Events carry identifiers only. Deleting an account anonymises the player record.
@@ -421,14 +422,16 @@ graph TD
 
 - **Binds:** CAP-6, CAP-11, CAP-27, CAP-28
 - **Prevents:** a custom set stored as a catalog set and earning rewards; goals that bend the draw; each screen computing a goal's missing cards its own way; a player's private set shown to others.
+- **Amended 2026-11-20:** goal positions run 1 to 10 and both limits read `Game::Capacity` (AD-62); `OrderServed`, `WantedChoicesApplied` and `ArchivePurchased` also remove a completed goal.
 - **Rule:**
   - `Game` owns custom sets: `game_custom_sets` (player, public token, name, kind `custom` or `steam_library`, the library's sync state) and `game_custom_set_games` (custom set, `catalog_cards` id), unique per set and game. A set lists only games with a card-season in a published regular season, through one `Catalog::PublishedCardIds` query that both the picker and `Steam::OwnedGames` filter by; a game later seasons drop keeps counting (any edition held counts) and its empty slot shows its card-season of the latest published season that holds it. A custom set lists games, never card-seasons, and is never a `catalog_sets` row: it earns no `game_set_tiers` row, title, back, celebration, feed entry or allocation.
-  - Limits are checked by the operations under the player's bank lock: a `custom` set holds 3 to 50 games and a player at most 10 of them; one `steam_library` set per player (a partial unique index), with no size cap, outside the 10. Only AD-36's sync writes a library set's games.
+  - Limits are checked by the operations under the player's bank lock: a `custom` set holds 3 to 50 games and a player at most `Game::Capacity.limit(player, :custom_set)` of them (AD-62); one `steam_library` set per player (a partial unique index), with no size cap, outside the custom-set limit. Only AD-36's sync writes a library set's games.
   - A custom set's progress and album read `Game::HeldGames`, as a game set's do (AD-5: any edition counts), through one `Game::CustomSetStandings` query that the album, the sets list, the hub and `Game::GoalNeeds` share. A set's games and goals reference it with `ON DELETE CASCADE`. A custom set and the library set have no tiers (author, 2026-10-30): only owned / total is read; nothing about progress is stored.
   - A custom set shows to its owner only: its pages, its name and its goals are refused to anyone else by policy, and nothing names it on a public or friends' surface.
-  - Active goals are `game_goals` rows (player, position checked between 1 and 5, unique per player and position, so the database caps them at five), each targeting exactly one of a game set by kind and key (checked) or a `custom` set, unique per player and target; a library set and a tribute set are never a goal. A goal is addressed by its target (a game set by season, kind and key, a custom set by token), never by position; goals are never reordered: a goal keeps its position until removed and a new goal takes the lowest free one (author, 2026-10-30). A goal whose set becomes complete is removed by the `Game` handler of the event that credited the card (`Game::PackOpened`, `Game::TradeAccepted` for each player), in that transaction, freeing its position; as every handler, it publishes nothing. A game set goal reads the published season's set of that kind and key; when a newly published season has none, the goal leaves by itself, removed by the handler of the season's publication event in its transaction, with no notice (author, 2026-10-30).
+  - Active goals are `game_goals` rows (player, position checked between 1 and 10, unique per player and position, so the database caps them at the ceiling of ten; the operations hold a player to `Game::Capacity.limit(player, :goal)`, AD-62), each targeting exactly one of a game set by kind and key (checked) or a `custom` set, unique per player and target; a library set and a tribute set are never a goal. A goal is addressed by its target (a game set by season, kind and key, a custom set by token), never by position; goals are never reordered: a goal keeps its position until removed and a new goal takes the lowest free one (author, 2026-10-30). A goal whose set becomes complete is removed by the `Game` handler of the event that credited the card (`Game::PackOpened`, `Game::TradeAccepted` for each player, `Game::Market::AuctionSold`, `Game::Market::OrderServed`, `Game::Market::WantedChoicesApplied` and `Game::Market::ArchivePurchased` for each buyer), in that transaction, freeing its position; as every handler, it publishes nothing. A game set goal reads the published season's set of that kind and key; when a newly published season has none, the goal leaves by itself, removed by the handler of the season's publication event in its transaction, with no notice (author, 2026-10-30).
   - One query, `Game::GoalNeeds(player)`, returns each goal's games, owned or not, and its missing ones; the collection grid, the albums, the capsule reveal, the card detail, the profile and AD-38 read it, and marking stores nothing. The hub reads no goal (author, 2026-10-30). The profile shows the goals on game sets only, under `Game::Visibility.visible?` (AD-13).
   - Draws never read goals or custom sets: `Game::DrawPool` and the odds take no player input, and the draw's statistical test is unchanged.
+- **Costs:** `game_goals_position_check` is widened to 1 to 10 expand/contract (AD-5's way); `Game::CustomSet::PER_PLAYER` gives way to `Game::Capacity`, in its callers too (AD-62).
 
 ### AD-36 — The Steam library set is synced by a web-layer job `[ADOPTED]`
 
@@ -479,65 +482,80 @@ graph TD
 
 ### AD-40 — The market lives in `Game` `[ADOPTED]`
 
-- **Binds:** CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37
+- **Binds:** CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37, CAP-44, CAP-45, CAP-46, CAP-47, CAP-48, CAP-49
 - **Prevents:** two domains locking the same rows in different orders; a fifth domain reaching into `Game`'s holdings, tiers and allocation.
+- **Amended 2026-11-20:** binds market volume; orders, direct sales, the wanted table's validation and Archive and slot purchases are rate limited; `:market_busy` covers every ledger post; one refusal code for missing PiCoins; forms carry no id.
 - **Rule:**
   - Market models, operations, queries and jobs live in `Game` under `Game::Market`, in tables prefixed `game_market_`. Back-office pages stay in the web layer and call `Game::Market` operations. The 100-6-Tron is `Game::Market::Mint`; `bank` keeps meaning the capsule reserve.
   - Every player-acting operation is a `Game::Operation` taking `player:`. An operation with no acting player inherits `ApplicationOperation`, as `Game::SumWeeklyGoal` does.
-  - `Failure(:market_busy)` answers `ActiveRecord::Deadlocked` in every market operation; the player can retry. Listing, bidding and entrusting are rate limited per player with explicit limits.
-  - A card-season with no rarity can be neither entrusted nor listed.
+  - `Failure(:market_busy)` answers `ActiveRecord::Deadlocked` in every operation that calls `Ledger.post`, `Game::BuySlot` included; the player can retry. A price above `available` answers `Failure(:more_than_available)`, as `PlaceBid` does, in `PlaceOrder`, `BuyFromArchives` and `BuySlot`. Listing, bidding, entrusting, placing and cancelling orders, selling to an order, validating the wanted table, buying from the Archives and buying a slot are rate limited per player with explicit limits.
+  - A card-season with no rarity can be neither entrusted, listed, sold to an order nor bought from the Archives.
+  - Market forms name an edition by card slug and season number and an order by its token; the controller resolves the ids (AD-15).
   - Player-facing words are locale keys (AD-18), and every amount goes through one `picoins` helper giving the compact form, never a euro sign.
 
 ### AD-41 — PiCoins are a wallet and a permanent record `[ADOPTED]`
 
 - **Binds:** CAP-29, CAP-30, CAP-31, CAP-32, CAP-36
 - **Prevents:** a balance that changes with no trace; PiCoins created outside entrustment; a settlement paid twice; two ways of moving money; a surplus left committed.
+- **Amended 2026-11-20:** entries gain `order_id`; kinds `archive_purchase` and `slot_purchase`; both purchases are destroyed, the destroyed kinds one constant; the settlement index extends to orders; an entry's version is the one that priced it.
 - **Rule:**
   - `game_market_wallets` holds one row per player with `available` and `committed`, both `bigint`, each checked `>= 0`. A player with no row has zero.
-  - `game_market_ledger_entries` is insert-only and holds the player, `kind`, `available_delta`, `committed_delta`, the listing when there is one, and the time. Each kind moves exactly this:
+  - `game_market_ledger_entries` is insert-only and holds the player, `kind`, `available_delta`, `committed_delta`, the listing or the buy order when there is one (`listing_id`, `order_id`, never both, checked), and the time. Each kind moves exactly this:
 
     | Kind | Player | `available_delta` | `committed_delta` |
     | --- | --- | --- | --- |
     | `mint` | entruster | `+value` | 0 |
     | `stamp` | seller | `-stamp` | 0 |
-    | `hold` | bidder | `-amount` | `+amount` |
-    | `release` | bidder | `+amount` | `-amount` |
-    | `purchase` | winner | 0 | `-final price` |
+    | `hold` | bidder or order owner | `-amount` | `+amount` |
+    | `release` | bidder or order owner | `+amount` | `-amount` |
+    | `purchase` | winner or served order's owner | 0 | `-final price` |
     | `sale` | seller | `+final price` | 0 |
     | `commission` | seller | `-commission` | 0 |
     | `forfeit` | deleted account | `-remaining available` | 0 |
+    | `archive_purchase` | Archive buyer (AD-60) | `-price` | 0 |
+    | `slot_purchase` | slot buyer (AD-62) | `-price` | 0 |
 
   - `Game::Market::Ledger.post(entries)` is the only writer of both tables, and a test refuses any other reference to their write methods. One transaction makes one call, after every other lock: it upserts missing wallets and locks them in ascending player id, nets the deltas per wallet, applies them, then inserts every entry. The model raises on update and destroy; `db/schema.rb` cannot carry a trigger.
   - Player rows are anonymised, never deleted (AD-14), so entries keep their player id and account deletion never touches them.
-  - A partial unique index on listing, player and kind, its predicate written as `kind = 'stamp' OR kind = 'purchase' OR kind = 'sale' OR kind = 'commission'`, makes the database refuse a second settlement.
-  - Only `Game::Market::Mint.credit` posts `mint`, and only `EntrustCards` calls it. Across all entries, the sum of the deltas equals minted minus stamps, commissions and forfeits.
+  - A partial unique index on listing, player and kind, its predicate written as `kind = 'stamp' OR kind = 'purchase' OR kind = 'sale' OR kind = 'commission'`, makes the database refuse a second settlement. A second partial unique index on order, player and kind, its predicate `order_id IS NOT NULL`, makes it refuse a second hold, release or serving of one order.
+  - Only `Game::Market::Mint` makes `mint` entries, and only the entrust step shared by `EntrustCards` and `ApplyWantedChoices` (AD-59) calls it; it returns the entry to the caller's single post. Across all entries, the sum of the deltas equals minted minus the destroyed kinds, `Game::Market::LedgerEntry::DESTROYED_KINDS` (`stamp`, `commission`, `forfeit`, `archive_purchase`, `slot_purchase`), the one list the reconciliation, `DailyFigures` and the snapshot (AD-48) read.
+  - Each entry's `settings_id` is the version whose value priced it (AD-59 for a direct sale).
   - `AuctionMath.commission(price, percent)` is the integer floor of `price * percent / 100`. `sale` is always the full final price.
   - A nightly job checks, in one `REPEATABLE READ` read, each wallet against its entries and the global sum, and reports any difference to the error tracker and the indicators (AD-48).
+- **Costs:** the kind check gains the two purchase kinds, expand then validate; `LedgerEntry` gains `order_id`, its foreign key added `validate: false` then validated and its index built concurrently; the "`listing_id`, `order_id`, never both" check added `NOT VALID` then validated; the order, player and kind unique index built concurrently in its own migration; `Mint.credit` returns its entry instead of posting; `DailyFigures::DESTROYING_KINDS` and `ReconcileWallets`' `kind IN (...)` literal give way to `DESTROYED_KINDS`.
 
 ### AD-42 — Economy settings are versioned `[ADOPTED]`
 
 - **Binds:** CAP-13, CAP-29, CAP-30, CAP-31, CAP-32, CAP-34, CAP-35
-- **Prevents:** a live auction changing rules midway; two app instances reading different values; a change with no author; two changes overwriting each other.
+- **Prevents:** a live auction changing rules midway; two app instances reading different values; a change with no author; two changes overwriting each other; an Archive price under the player minimum.
+- **Amended 2026-11-20:** the version holds the Archive prices, the slot prices and the order duration; orders, direct sales, Archive and slot purchases submit the version they drew; a direct sale's commission reads the version the seller confirmed.
 - **Rule:**
   - `game_market_settings` is insert-only, one row per version, holding every value of `market-economy.md` and whether the market is open. Each row names the version it replaces, unique, so of two concurrent changes the second refuses with `Failure(:settings_changed)`. The highest id is current, read from the database by each operation, never cached in process.
   - `Game::Market::ChangeSettings`, taking the administrator as `player:`, validates the whole candidate row, the no-loss floor included. The double-or-halve bound of `market-economy.md` covers amounts, minimums and the cap; commission, percents and durations have ranges of their own.
   - The form carries the Brotherhood's announcement, typed by staff in both languages. The same transaction publishes it through `Accounts::CreateAnnouncement`, which replaces the announcement currently shown.
   - A listing stores its version at creation, and that auction's durations, increment, soft close and commission read it. Entrustment values, the cap, the stamp and minimum at listing, the feed threshold, the average-price window and the unusual-maximum confirmation threshold read the current version. A form drawing settings-derived amounts submits the version it drew; entrusting and listing refuse a stale version with `Failure(:amounts_changed)`, charging and paying nothing.
+  - Market volume values are columns of the version: `archive_price_<rarity>` per rarity, nullable (null: the rarity is absent from the shop), checked `archive_price_<rarity> IS NULL OR archive_price_<rarity> >= minimum_price_<rarity>`; `slot_price_goal_<n>` and `slot_price_custom_set_<n>` for slots 6 to 10 and `slot_price_deck_<n>` for slots 4 and 5, the price by slot number; and `order_duration_days`. `ChangeSettings` validates the Archive bound both ways (a minimum raised over an Archive price is refused), and the double-or-halve bound covers both price families; setting a null Archive price is bounded by the minimum only `[ASSUMPTION: a rarity entering the shop has no previous value to double or halve]`.
+  - An order stores its version at placement, and its reachable rarities and `expires_at` read it (AD-58). A direct sale's commission reads the version the seller confirmed (its `settings_token`), checked current under the locks; an Archive price and a slot price read the current version. `PlaceOrder`, `SellToOrder`, `ApplyWantedChoices`, `BuyFromArchives` and `BuySlot` refuse a stale version with `Failure(:amounts_changed)`.
+- **Costs:** the Archive bound's check is added `NOT VALID` then validated; the expand migration adds the Archive prices null on every existing version, so the shop opens when an administrator sets them through `ChangeSettings`, and adds the slot prices and the order duration with `market-economy.md`'s values as defaults `[ASSUMPTION: the slot prices and the 7-day duration need no administrator's change to start]`.
 
 ### AD-43 — Entrusting and the Archives `[ADOPTED]`
 
-- **Binds:** CAP-29
-- **Prevents:** a popular card's row locked by every player; a batch half applied; holdings that lower by a path other than trades.
+- **Binds:** CAP-29, CAP-48
+- **Prevents:** a popular card's row locked by every player; a batch half applied; holdings that lower by a path other than trades; a stock recomputed over a purchase.
+- **Amended 2026-11-20:** the Archives sell (AD-60): a stock is deposits less withdrawals, summed and decremented under one lock order; no write sets a stock to zero.
 - **Rule:**
   - `Game::Market::EntrustCards` takes one player and an ordered list of card-seasons and quantities, under the player's bank lock, then their holdings (AD-10). Only `quantity - reserved` can be entrusted.
   - The daily cap is read from the player's `mint` entries of the current UTC day. The batch applies in the given order, whole cards only; a card that does not fit is skipped and later cheaper ones may fit. It returns what was entrusted and what stayed, posts one `mint` entry, and publishes one `Game::Market::CardsEntrusted` listing the cards.
   - Lowering a holding uses the same step as a trade, shared by both, and removes unheld showcase entries.
   - `game_market_archive_deposits` holds one row per player and card-season with a quantity. Deposits survive account deletion. `game_market_archive_stocks`, one row per card-season, is summed by a periodic job. Nothing writes a stock row per entrustment (AD-9).
+  - `game_market_archive_withdrawals` holds one row per Archive purchase (AD-60); withdrawals survive account deletion. A stock is the card-season's deposits less its withdrawals. `SumArchiveStocks` runs in one `READ COMMITTED` transaction: it locks the existing stock rows in ascending card-season, upserts only the card-seasons whose deposits less withdrawals is above zero and deletes the rows whose net is zero or less, so no write sets `quantity` to 0 (its check `quantity > 0` is not deferrable). `BuyFromArchives` deletes the row it locked when its quantity is 1 and decrements it otherwise.
+- **Costs:** `SumArchiveStocks` is rewritten: its one upsert of deposits and its delete of rows without a deposit become the positive-net upsert and the non-positive delete.
 
 ### AD-44 — Listings and bids `[ADOPTED]`
 
-- **Binds:** CAP-30, CAP-31, CAP-33
-- **Prevents:** a copy sold and traded at once; a price computed in two places; a maximum leaking; deadlock between a bid and a settlement.
+- **Binds:** CAP-30, CAP-31, CAP-33, CAP-44, CAP-46, CAP-47
+- **Prevents:** a copy sold and traded at once; a price computed in two places; a maximum leaking; deadlock between a bid and a settlement; a wanted card announced once per listing in the bell; an order's end notice dropped or a line outliving its order; each notice story deciding its own push.
+- **Amended 2026-11-20:** notices carry an order; order kinds and their lifecycle; one grouped wanted line, its seen state a bell read; the device push ratified; tied accounts join the staff-only reads.
 - **Rule:**
   - A listing is one copy of one card-season: `game_market_listings`, reached by token, with status `open`, `sold`, `unsold`, `cancelled` or `withdrawn`, and `sold_at` and `final_price` once sold. An open listing carries `reserved + 1` on the seller's holding (AD-6), so trades and entrustment see it as taken. Going private does not touch listings.
   - `Game::Market::ListCard` runs under the seller's bank lock, then the holding, then the ledger (`stamp`). `CancelListing` requires `leader_id` to be null.
@@ -553,61 +571,82 @@ graph TD
 
   - `game_market_bids` gets one row per validated bid, with the player, `maximum`, the price after, the outcome and `extended_until`. A raise is private to its owner. A bid changing the price or leader within the soft-close window moves `ends_at` and fills `extended_until`, which adds the history's extension line.
   - `PlaceBid` publishes one event, `Game::Market::BidPlaced`, carrying the player outbid.
-  - Only queries for their owner and for the back-office read `leader_maximum`, `game_market_bids.maximum`, ledger entries of kind `hold` and `release`, and alt signals. The public history selects player, price after the bid, outcome, `extended_until` and time.
+  - Only queries for their owner and for the back-office read `leader_maximum`, `game_market_bids.maximum`, ledger entries of kind `hold` and `release`, and alt signals; tied accounts are read by the back-office and, server-side only, by AD-63's queries. The public history selects player, price after the bid, outcome, `extended_until` and time.
   - An outbid notice is a `game_market_notices` row owned by the player, written by a handler, shown by the bell and sent on the player's private stream (AD-13). Later notices use the same table and channel. The listing's public stream is named by its token and only asks each viewer to refetch, sent by a batched job after commit.
+  - A notice carries a listing, a buy order or both (`listing_id` nullable, `order_id`, at least one, checked). Kinds add `order_served` and `order_expired` (order only) and `listed_above_order` (the order and the listing). Three partial unique indexes: player and listing for a notice with no order; player and order for `listed_above_order`; player and order for the order's end notice (`order_served` or `order_expired`; an order ends once). Each upsert names its index and replaces kind, listing and amount; these notices never use `ON CONFLICT DO NOTHING`.
+  - An order's end (served, expired, cancelled, withdrawn) deletes its `listed_above_order` notice in that transaction; served and expired then write their end notice, cancelled and withdrawn none. No notice is written for a removed player: `Notice.record` refuses one, tested.
+  - A new listing's handler (`CardListed`, and each listing of `WantedChoicesApplied`, AD-45) writes, for each player `WantingPlayers` returns (AD-61) except the seller, `listed_above_order` on that player's open order on the game when the order reaches the listed edition's rarity (AD-58) and the starting price is above the order's price, replacing the order's previous listing, else a `wanted` notice. The handlers of the listing's end (`ListingCancelled`, `ListingWithdrawn`, `AuctionSold`, `AuctionUnsold`) delete the notices of kind `listed_above_order` pointing at it, and only those.
+  - The bell shows every `wanted` notice of an open listing as one grouped line, computed on load: it counts distinct cards, a card holding a `listed_above_order` line counted there instead, and is unseen when a listing of it was created after the player last saw the line. The last time seen is the `read_at` of one fixed `game_bell_reads` key (`wanted:grouped`), written by the bell's read POST (`Game::MarkBellRead`, AD-11), whose pruning to `BellRead::KEPT_PER_PLAYER` never drops that key.
+  - Device pushes ratify the code: a web-layer subscriber adds an event's notices to an `AfterCommitBatch`, whose job pushes them from the notices table. `MarketPushNotice` pushes every market line of the bell that is not a wanted card, `order_served` and `order_expired` included (it hears `OrderServed`, `OrderExpired` and `WantedChoicesApplied`'s sales); `WantedCardNotice` pushes `wanted` and `listed_above_order` lines for each new listing of `CardListed` and `WantedChoicesApplied`, under its quiet window (`WantedCardNotice::QUIET_FOR`, one hour).
+- **Costs:** `game_market_notices` gains `order_id` (foreign key added `validate: false` then validated) and the kind check its three kinds, expand then validate; `listing_id` becomes nullable and the "at least one" check is added `NOT VALID` then validated; the unique index on player and listing becomes partial (`order_id IS NULL`) beside the two order indexes, each built concurrently in its own migration; `Notice` declares `belongs_to :listing, optional: true` and `Notice.record` upserts with `unique_by:` the index name its row needs, never columns; `MarketPushNotice::EVENTS` and `WantedCardNotice::EVENTS` gain the events above.
 
 ### AD-45 — An auction closes once `[ADOPTED]`
 
-- **Binds:** CAP-13, CAP-28, CAP-32, CAP-34
-- **Prevents:** a double settlement; a bid landing during a close; a bought card skipping allocation, tiers or showcase rules; a market sale feeding the weekly goal.
+- **Binds:** CAP-13, CAP-28, CAP-32, CAP-34, CAP-47, CAP-48
+- **Prevents:** a double settlement; a bid landing during a close; a bought card skipping allocation, tiers or showcase rules; a market sale feeding the weekly goal; an Archive purchase in the feed; a move of a free copy freeing another reservation; a handler seeing a half-applied composed operation.
+- **Amended 2026-11-20:** the event table gains the order, Archive and slot events and the two summary events; a direct sale's feed entry carries its order; a move names what it releases.
 - **Rule:**
   - `Game::Market::CloseDueAuctionsJob` calls `CloseAuction(player: seller, listing_id:)` once per due listing, one per transaction, with `require_account` as `Game::ExpireTrade` does, reporting an error and moving on. A bid at or past `ends_at` is refused.
   - `CloseAuction` reads seller and leader without a lock, takes their bank locks, locks the listing, reads `now` and rechecks that it is open, due and has that leader; otherwise it does nothing and the next run retries. Removal is read after the bank locks, for both `banned_at` and `deleted_at`.
   - With no leader, the listing becomes `unsold` and the reservation is released. A removed seller makes it `withdrawn`, releasing the leader's maximum. A removed leader's maximum is released and the listing becomes `unsold`.
   - The settlement step reads the published season, receives the winner's allocation, moves one copy with its `reserved`, records set tiers with `reached_by: "trade"`, removes unheld showcase entries and refreshes the edition price (AD-47). It returns entries rather than posting them: `purchase`, `release` of the maximum less the price when there is a surplus, `sale` and `commission`. The caller makes the single `Ledger.post` and publishes one `Game::Market::AuctionSold`.
+  - A step that moves a copy names what it releases: only a listing's settlement releases its one reserved copy. A direct sale, an Archive purchase and every step of `ApplyWantedChoices` move a free copy and release nothing; a test sells one free copy beside a deck block, a trade offer and an open listing on the same edition and finds `reserved` unchanged.
+  - Steps publish nothing. A composed operation publishes one summary event after all its writes: `ApplyWantedChoices` publishes `Game::Market::WantedChoicesApplied` (its sales with order, buyer, card-season and price; its listings; its entrusted cards), `Game::BuySlot` publishes `Game::SlotBought` (the kind, and the goal it added). Their handlers do for each part what the part's own event triggers, writing rows in ascending player id, then key.
   - A relist is a new listing with a new stamp.
   - Event consumers:
 
     | Event | Heard by | Never heard by |
     | --- | --- | --- |
     | `BidPlaced` | outbid notices | feed |
-    | `AuctionSold` | outbid notices when someone was outbid, the sale's feed entry, `GoalsReached`, `Achievements` | `WeeklyContribution` |
-    | `CardsEntrusted` | nobody at launch | feed |
+    | `AuctionSold` | outbid notices when someone was outbid, the sale's feed entry, `GoalsReached`, `Achievements`, wanted refresh, the end of `listed_above_order` notices | `WeeklyContribution` |
+    | `CardsEntrusted` | `Achievements`, wanted refresh | feed |
+    | `CardListed` | wanted and `listed_above_order` notices and their push (AD-44) | feed |
+    | `OrderServed` | the end of the order's `listed_above_order` notice, `order_served` notice and its push, the sale's feed entry by the sale rule, `GoalsReached`, `Achievements`, wanted refresh (both players) | `WeeklyContribution` |
+    | `WantedChoicesApplied` | per sale, what `OrderServed` hears; per listing, what `CardListed` hears; for the entrusted cards, what `CardsEntrusted` hears; wanted refresh of the seller and each buyer, once each | `WeeklyContribution` |
+    | `ArchivePurchased` | `GoalsReached`, `Achievements`, wanted refresh | feed, `WeeklyContribution` |
+    | `OrderExpired` | the end of the order's `listed_above_order` notice, `order_expired` notice and its push, wanted refresh | feed |
+    | `OrderCancelled`, `OrderWithdrawn` | the end of the order's `listed_above_order` notice, wanted refresh | feed, other notices |
+    | `OrderPlaced` | wanted refresh | feed, notices |
+    | `Game::SlotBought` | with a goal, what `GoalAdded` hears (wanted refresh) | feed |
 
-- **Costs:** `AcceptTrade#move` is extracted for trades, entrustment and settlement; the `game_feed_entries` kind check gains `sale`, expand then validate; `FeedEntries.visible`, `NewFeedEntries` and `VisibleFeedEntry` let this kind through (AD-49); `BankLock`'s comment follows AD-10.
+- **Costs:** `Game::MoveHoldings#move` serves trades, entrustment, settlement, direct sales and Archive purchases, given what it releases; the `game_feed_entries` kind check gains `sale`, expand then validate; `FeedEntries.visible`, `NewFeedEntries` and `VisibleFeedEntry` let this kind through (AD-49); `BankLock`'s comment follows AD-10. For direct sales, `game_feed_entries` gains `order_id` (foreign key added `validate: false` then validated, unique index built concurrently): a `sale` entry carries exactly one of listing and order, unique per order as per listing, its check swapped expand/contract, the old check dropped before any code writes an order's entry (AD-50). `SaleFeed`, `GoalsReached`, `Achievements`, `WantedNotices`, the push subscribers and `PlayerStream` subscribe to the new events as the table says.
 
 ### AD-46 — Removed players leave the market `[ADOPTED]`
 
-- **Binds:** CAP-14, CAP-15, CAP-30, CAP-31, CAP-32
-- **Prevents:** a card or a held maximum stuck on a removed account; a handler writing another player's wallet; PiCoins refunded with no entrustment.
+- **Binds:** CAP-14, CAP-15, CAP-30, CAP-31, CAP-32, CAP-44, CAP-46
+- **Prevents:** a card or a held maximum stuck on a removed account; a handler writing another player's wallet; PiCoins refunded with no entrustment; held order money stuck on a removed account; a removed player counted as wanting a card.
+- **Amended 2026-11-20:** removed players' orders are withdrawn; their wanted rows and tied-account rows go; the export adds orders, Archive purchases and slots.
 - **Rule:**
-  - `Game::Market::DropPresenceJob` finds banned or deleted players with an open listing, a leading bid or, once deleted, a wallet holding PiCoins, and runs one operation per listing, one per transaction, as `CloseAuction` does.
+  - `Game::Market::DropPresenceJob` finds banned or deleted players with an open listing, a leading bid, an open buy order or, once deleted, a wallet holding PiCoins, and runs one operation per listing or order, one per transaction, as `CloseAuction` does.
+  - As order owner: `WithdrawOrder` makes the order `withdrawn`, posts its `release` and publishes `OrderWithdrawn`, with no notice; a banned owner's PiCoins return to `available`, a deleted owner's are then forfeited by `ForfeitBalance`.
   - As seller: the listing becomes `withdrawn`, the leader's maximum is released and the stamp is kept. `Game::ReleasePlayer` has already deleted a deleted player's holdings synchronously, so releasing a reservation is a no-op on a missing row.
   - As leader: the maximum is released, a `voided` line joins the history, and the auction resumes at its starting price with no leader, its end unchanged. Releasing a leader never depends on the seller.
-  - A final `ForfeitBalance` posts `forfeit` for a deleted player with no open listing or lead left, the retention job's deletions included. A banned player's wallet stays.
-  - `ReleasePlayer` also deletes the player's market notices and, as for every feed entry, their sale entries.
-  - The data export (AD-14) adds the wallet, entries, listings and bids with the player's own maximums. The privacy and retention pages name them.
+  - A final `ForfeitBalance` posts `forfeit` for a deleted player with no open listing, lead or order left, the retention job's deletions included. A banned player's wallet stays.
+  - `ReleasePlayer` also deletes the player's market notices, their wanted rows (through `RefreshWanted`, AD-61), the `game_market_tied_accounts` rows naming them on either side (as it deletes their alt signals) and, as for every feed entry, their sale entries; it deletes their capacity rows with their goals, custom sets and decks `[ASSUMPTION: bought slots die with the account]`. Orders, withdrawals and ledger entries keep the anonymised player id. A banned player's wanted rows go with their withdrawn orders' refresh, and every wanted read skips removed players; an unban rebuilds them (AD-61).
+  - The data export (AD-14) adds the wallet, entries, listings and bids with the player's own maximums, buy orders with the sales to orders the player made, Archive purchases and bought slots. The privacy and retention pages name them.
 
 ### AD-47 — The average price is stored per edition `[ADOPTED]`
 
-- **Binds:** CAP-34
-- **Prevents:** a collection sort computing averages per row; two formulas; a stale average after concurrent sales.
+- **Binds:** CAP-34, CAP-47
+- **Prevents:** a collection sort computing averages per row; two formulas; a stale average after concurrent sales; a direct sale missing from the average.
+- **Amended 2026-11-20:** served orders are sales: the average, its refresh, `rarity_average` and `EditionSales` read them beside sold listings.
 - **Rule:**
-  - `game_market_edition_prices` holds one row per card-season, with the average and the number of sales used. `Game::Market::EditionPrice` is the only formula, reading `sold_at` and `final_price`: no sale is dropped under 3 sales, and the result is floored to an integer. A settlement upserts and locks the card-season's row, before the ledger post (AD-10), then reads the sales. A nightly job refreshes the rows whose window moved. The collection joins this table to filter and sort.
-  - The settlement also stores the row's new average on the sold listing (`average_after_sale`), so a sale keeps the average it produced.
+  - `game_market_edition_prices` holds one row per card-season, with the average and the number of sales used. `Game::Market::EditionPrice` is the only formula, reading one sales source: sold listings (`sold_at`, `final_price`) and served orders of the card-season (`served_at`, `price`), merged in time order, then source and id, which `EditionSales` (AD-51) and `rarity_average` read too: no sale is dropped under 3 sales, and the result is floored to an integer. A settlement upserts and locks the card-season's row, before the ledger post (AD-10), then reads the sales. A nightly job refreshes the rows whose window moved. The collection joins this table to filter and sort.
+  - The settlement, and a direct sale (AD-59), also stores the row's new average on the sold listing or the served order (`average_after_sale`), so a sale keeps the average it produced.
   - A rarity's average price is the median of the averages of that rarity's edition rows with at least the minimum sale count, null when there is none, computed only by `Game::Market::EditionPrice.rarity_average`.
 
 ### AD-48 — Indicators and signals are computed by jobs `[ADOPTED]`
 
 - **Binds:** CAP-35, CAP-36, CAP-37
 - **Prevents:** a back-office GET writing or scanning the whole ledger; an alert changing a setting by itself; a figure computed two ways.
+- **Amended 2026-11-20:** destroyed reads `DESTROYED_KINDS` (AD-41), Archive and slot purchases included; the refresh also writes tied accounts and the Archive signal (AD-63).
 - **Rule:**
-  - `Game::Market::WriteDailySnapshot`, an `ApplicationOperation`, writes one `game_market_daily_snapshots` row per UTC day after the reconciliation and the edition price refresh: PiCoins created (`mint`), destroyed (stamps, commissions and forfeits, with forfeits also stored apart), PiCoins in circulation at the end of the day, PiCoins per player active over 90 days, the median daily earnings, each rarity's average price (`EditionPrice.rarity_average`), the top 1% share and the reconciliation result. It publishes `Game::Market::DailySnapshotWritten`; a second run for the same day changes nothing. Days before the market's first opening have no row.
+  - `Game::Market::WriteDailySnapshot`, an `ApplicationOperation`, writes one `game_market_daily_snapshots` row per UTC day after the reconciliation and the edition price refresh: PiCoins created (`mint`), destroyed (`LedgerEntry::DESTROYED_KINDS`, AD-41, with forfeits also stored apart), PiCoins in circulation at the end of the day, PiCoins per player active over 90 days, the median daily earnings, each rarity's average price (`EditionPrice.rarity_average`), the top 1% share and the reconciliation result. It publishes `Game::Market::DailySnapshotWritten`; a second run for the same day changes nothing. Days before the market's first opening have no row.
   - Circulation at the end of a day is the sum of every entry's deltas before the next UTC midnight, read in the reconciliation's `REPEATABLE READ` snapshot and handed to the snapshot operation. A test checks that each day's circulation equals the previous day's plus created less destroyed.
   - An active player opened a pack in the period, read from `game_packs.opened_at`. Earnings are `mint` plus `sale` less `commission`. The day's median daily earnings is the median over the players active that day whose earnings are positive, null when there is none. A price in days of income is `price.fdiv(median)`, null when either is null, computed only by `Game::Market::EconomySeries` (AD-51).
   - The back-office indicators are the four of `market-economy.md`: destroyed against created over 30 days, PiCoins per active player over 90 days, prices in days of income, and the top 1% share. Their alert thresholds and day-of-income targets are settings (AD-42).
   - An alert is derived from `EconomySeries`' last point of an indicator and the current thresholds, and proposes a prefilled `ChangeSettings` form. Nothing applies without an administrator's validation. Explanations are locale keys (AD-18).
-  - `Game::Market::RefreshAltSignals`, an `ApplicationOperation`, replaces `game_market_alt_signals` daily, one row per account and signal with the facts behind it. These rows are staff data, read only in the back-office. Thresholds are constants of `Game::Market::AltSignals`. A signal changes nothing on the account.
+  - `Game::Market::RefreshAltSignals`, an `ApplicationOperation`, replaces `game_market_alt_signals` daily, one row per account and signal with the facts behind it, and `game_market_tied_accounts` in the same transaction (AD-63). These rows are staff data, read in the back-office and by AD-63's server-side queries only. Thresholds are constants of `Game::Market::AltSignals`. A signal changes nothing on the account.
 
 ### AD-49 — One component names a player `[ADOPTED]`
 
@@ -615,38 +654,42 @@ graph TD
 - **Prevents:** a surface linking a profile the viewer may not see; a banned or deleted name shown; each screen deciding differently.
 - **Rule:**
   - The bid history, the pioneer row and a market sale's feed entry render a player through one component given the player and the viewer. It prints the persona name, with a link to the profile only when `Game::Visibility.visible?(viewer, owner)` is true. A banned or deleted player prints the anonymous locale key, with no link.
-  - A sale's feed entry has kind `sale`, names the buyer as `player_id`, and is unique per listing. It shows whatever the buyer's visibility, unless banned or deleted, and is deleted with the account. A feed broadcast renders with no viewer, so with no link; the page render links.
+  - A sale's feed entry has kind `sale`, names the buyer as `player_id`, and is unique per listing, or per order for a direct sale (AD-45). It shows whatever the buyer's visibility, unless banned or deleted, and is deleted with the account. A feed broadcast renders with no viewer, so with no link; the page render links.
   - These name-only surfaces are the exception to AD-13's rule that a public surface hides an entry naming a non-public player.
 
 ### AD-50 — Opening and running the market `[ADOPTED]`
 
 - **Binds:** CAP-32, CAP-33, CAP-35, CAP-36
-- **Prevents:** a market opened before its legal conditions; no way to stop it; a stuck close going unnoticed; two recurring schedules chosen ad hoc.
+- **Prevents:** a market opened before its legal conditions; no way to stop it; a stuck close going unnoticed; two recurring schedules chosen ad hoc; an order placed before it can be served.
+- **Amended 2026-11-20:** order expiry joins the schedule and the health check; market volume's rollout.
 - **Rule:**
   - Every deploy creates, idempotently, a first closed settings version with the starting values (as AD-29 does for milestones). Until a first opening is recorded, the market address shows the teaser; after it, a closed version shows the suspended banner above readable listings. In both cases entrusting, listing and bidding refuse with `Failure(:market_closed)`; cancelling a listing stays allowed.
-  - `Game::Market::OpenMarket`, for administrators, opens it, and refuses unless the administrator confirms that the terms forbid real-money trading and that the draw odds are published; the confirmation is recorded on the version. `ChangeSettings` copies `open` from version to version and can close the market; closing and removal jobs keep running.
+  - `Game::Market::OpenMarket`, for administrators, opens it, and refuses unless the administrator confirms that the terms forbid real-money trading and that the draw odds are published; the confirmation is recorded on the version. `ChangeSettings` copies `open` from version to version and can close the market; closing, order expiry and removal jobs keep running.
   - Rollout: expand migrations and the feed check first, deploy closed, exercise on staging, then open.
+  - Market volume rollout: expand migrations first; the contract migrations (old feed, notice and ledger checks dropped, the notices' `listing_id` nullable) ship before any code writes an order row; the slot grant (AD-62) and `RebuildAllWantedJob` (AD-61) run as data steps of the deploy, before the wanted reads take traffic. No feature flag: market volume ships whole in one release, cut only once all its stories are on `develop` (author, 2026-11-20).
   - Recurring entries, in both the `development` and `production` blocks of `config/recurring.yml`, on queue `default`:
 
     | Job | Schedule |
     | --- | --- |
     | `CloseDueAuctionsJob` | every 10 seconds |
+    | `ExpireDueOrdersJob` (AD-58) | every minute `[ASSUMPTION: an order's 7 days need no closer clock]` |
     | `DropPresenceJob` | every minute |
     | `ArchiveStocksJob` | every hour |
     | `ReconcileWalletsJob`: reconciliation, edition price refresh, then `WriteDailySnapshot`, in that order in one job | every day at 00:10 UTC |
     | `RefreshAltSignalsJob` | every day at 00:40 UTC |
     | `CheckMarketHealthJob` | every 5 minutes |
 
-  - `CheckMarketHealthJob` reports to the error tracker when the oldest due open listing is over 5 minutes old, and the back-office shows that age.
+  - `CheckMarketHealthJob` reports to the error tracker when the oldest due open listing or the oldest due open order is over 5 minutes old, and the back-office shows both ages.
 
 ### AD-51 — Economy charts are drawn from stored figures `[ADOPTED]`
 
 - **Binds:** CAP-34, CAP-36, CAP-38
 - **Prevents:** a figure computed in the browser and again on the server; a chart recomputed on every page view; two chart renderers; a chart without a readable equivalent; series colors or words drifting from the tokens and locales; an unpublished chart leaking to players; a chart made public by data volume alone.
+- **Amended 2026-11-20:** `EditionSales` reads served orders beside sold listings (AD-47).
 - **Rule:**
   - Every number a viewer reads comes from the server: points, totals, differences and ratios, the day's balance included. The pure configuration module may only transform for display (draw destroyed below the axis, choose axis ticks). The browser formats numbers with AD-18's client helper and a client `picoins` compact form, tested against the server's through a shared fixture, never with a raw `Intl` call. A missing figure is `null` in the JSON, a gap in the chart and the locale's no-value mark in the table, never 0.
   - `Game::Market::EconomySeries`, a query on the reading role, is the only reader of `game_market_daily_snapshots`, for charts, summary figures and alerts alike. It returns, ending on the last complete UTC day, the Reactor over 30 days (per day: `minted`, `destroyed`, `balance`, `circulation`; summaries: last circulation, 30-day sums and the destroyed-to-created ratio), the rarity prices over 90 days (per day and rarity: average price, days of income, and an index equal to 100 on the rarity's first snapshot with a price; summary: each rarity's 90-day change) and the four back-office indicators over 90 days. A threshold or target is the current version's value as a flat `threshold` series; a changed threshold does not redraw history. Lengths are constants of `EconomySeries`.
-  - `Game::Market::EditionSales`, a query on the reading role, returns a card-season's settled sales within the current average-price window (`sold_at`, `final_price`, `average_after_sale` from AD-47), their count, and the rarity's current minimum price as a flat `floor` series. Under the minimum sale count it returns no `average` series. The card's chart shows only when its edition price row has sales used.
+  - `Game::Market::EditionSales`, a query on the reading role, returns a card-season's settled sales within the current average-price window, sold listings (`sold_at`, `final_price`) and served orders (`served_at`, `price`) as one shape (time, price, `average_after_sale` from AD-47) in AD-47's order, their count, and the rarity's current minimum price as a flat `floor` series. Under the minimum sale count it returns no `average` series. The card's chart shows only when its edition price row has sales used.
   - One `ChartComponent` renders every chart: a `<figure>` with its title, a `<canvas role="img">` named by that title and described (`aria-describedby`) by a summary sentence the server composes from the figures, the series as JSON in one Stimulus value, the chart's words (series names, units, threshold label, tooltip lines) as templates under `charts.<kind>` in a second value composed by `t()`, and a `<details>` table of every value it draws. The series value is the one exception to AD-30's string-templates-only rule. The JSON holds the kind, one server-rendered label per point and series keyed by meaning (`minted`, `destroyed`, `balance`, `circulation`, a rarity code name, `sale`, `average`, `floor`, `threshold`, an indicator name), never a color, an id or a token. A sparkline is a `ChartComponent` of kind `sparkline`: `aria-hidden`, with no title or table, beside a server-rendered figure carrying its value. Swatches and accents use classes, never `style`.
   - One `chart` Stimulus controller imports, on connect, one registration module in `app/frontend/lib/charts/` that registers only the Chart.js parts used, never `chart.js/auto`; nothing else imports Chart.js at run time, so a page without a chart does not load it. It builds the configuration through a pure module per kind in the same folder (tested by Vitest), resolves each key to a `--color-chart-*` or rarity token and each rarity to its shape from a TypeScript constant, uses the font tokens after `document.fonts.ready`, draws with animation off unless the shared motion switch allows it, redraws when its series value changes or forced colours turn on or off (then in system colours, series told apart by dash and shape), and destroys the chart on disconnect. Daily series use a category axis of server labels and the scatter a linear axis in epoch milliseconds; there is no date adapter. A chart has one y-axis: two measures of different scale are two charts on a shared time axis.
   - `game_market_chart_publications` holds one row per public chart kind (`reactor`, `rarity_prices`, `edition_sales`), unique, with `published_at` and `unpublished_at` and the administrator who last changed it. `Game::Market::PublishChart` and `Game::Market::UnpublishChart`, for administrators, write it, publishing `Game::Market::ChartPublished` or `ChartUnpublished`, heard by nobody at launch; publishing a published chart or unpublishing an unpublished one changes nothing and publishes nothing. Moderators see the switches read-only. Back-office charts have no switch.
@@ -658,15 +701,16 @@ graph TD
 
 ### AD-52 — A deck blocks one copy through `reserved`
 
-- **Binds:** CAP-40
+- **Binds:** CAP-40, CAP-49
 - **Prevents:** a deck card traded, listed or entrusted; a second formula for free copies; a trade or market release freeing a deck block; a copy refused for a second deck.
+- **Amended 2026-11-20:** the deck limit reads `Game::Capacity` (AD-62); a deck card cannot be sold to an order.
 - **Rule:**
-  - Decks live in `Game`: `game_decks` (token, player, name of 1 to 24 characters; at most 5 per player) and `game_deck_cards` (deck, card-season, the card-season's card, slot from 1 to 12), unique on deck and slot and on deck and card, so a game appears once whatever its edition. Database checks hold these limits. A deck and its contents are seen only by its owner.
+  - Decks live in `Game`: `game_decks` (token, player, name of 1 to 24 characters; at most `Game::Capacity.limit(player, :deck)` per player, AD-62) and `game_deck_cards` (deck, card-season, the card-season's card, slot from 1 to 12), unique on deck and slot and on deck and card, so a game appears once whatever its edition. Database checks hold these limits. A deck and its contents are seen only by its owner.
   - An edition in at least one of the player's decks holds exactly 1 of that holding's `reserved` (AD-6), whatever the number of decks. The deck operations, under the player's bank lock, raise it when the edition enters the player's first deck and lower it when it leaves the last. An edition already in another deck needs no free copy; any other needs one (`Failure(:no_free_copy)`). An edition whose stats row has no discovery value cannot enter a deck (`Failure(:not_yet_ranked)`, AD-53).
   - `Game::ReservedCopies` splits `reserved` into in a deck (1 when the edition is in a deck), on sale and in trade, as it derives "En vente" from listings. Trade and market releases subtract only what they reserved, so they never free a deck block; going private leaves decks untouched. A friend's trade picker never offers a deck-blocked copy. Spare copies (free copies beyond one per game) come from one function, used by trade suggestions and the market desk alike.
-  - `Game::DecksHolding` names the player's decks that hold an edition, for the trade, sale and entrust screens; `Game::RemoveFromDecks` takes an edition out of all of them. One object, `Game::DeckCoverage`, gives the coverage strip and "COMPLÉTER LES MANQUES".
+  - `Game::DecksHolding` names the player's decks that hold an edition, for the trade, sale, order sale and entrust screens; `Game::RemoveFromDecks` takes an edition out of all of them. One object, `Game::DeckCoverage`, gives the coverage strip and "COMPLÉTER LES MANQUES".
   - Each editor change is one operation; a deck edit never changes a challenge or duel already under way (AD-54).
-- **Costs:** `Game::ReservedCopies` gains the in-deck share; the spare counts of the market desk and of suggestions move to one function.
+- **Costs:** `Game::ReservedCopies` gains the in-deck share; the spare counts of the market desk and of suggestions move to one function; `Game::Deck::PER_PLAYER` and `PlayerDecks.room_left?` read `Game::Capacity`.
 
 ### AD-53 — Duel stats are one stored table
 
@@ -725,6 +769,81 @@ graph TD
   - Wins, losses, draws and the history read finished non-practice duels, their seats and rounds, at the current `rules_version`; they show on the player's own Duels screen only.
   - The back-office duel page (CAP-51) reads the duel tables directly, per `rules_version`, live duels apart from practice duels, which feed only their table by `bot_archetype`; at the alpha's volume no stored figures are needed (unlike AD-51).
   - The export lists the player's decks and duels with scores and rounds, the opponent unnamed.
+
+### AD-58 — A buy order holds its price until it ends
+
+- **Binds:** CAP-44, CAP-46, CAP-47
+- **Prevents:** an order's money spent twice; two open orders of one player on one game; reachable rarities moving with the settings; an order bidding on an auction; an order left open past its end.
+- **Rule:**
+  - `game_market_orders`: token, player, `catalog_cards` id, `price` (`bigint`, `> 0`), settings version, status `open`, `served`, `expired`, `cancelled` or `withdrawn`, `expires_at`, `created_at`, and once served `seller_id`, `served_card_season_id`, `served_at` and `average_after_sale`, set together (checked, as a listing's sold columns, AD-44). A partial unique index on player and card where `status = 'open'` holds one open order per player and game; `PlaceOrder` checks for one under the bank lock before inserting (`Failure(:order_already_open)`), the index the backstop.
+  - An order is open while `status = 'open'` and `expires_at > now`. Every reader of orders (`EligibleOrders`, `BestVisibleOrder`, the order screens) treats a due order as ended, and every serving operation rechecks it under the order's lock with `now` read once after its locks. Only `ExpireOrder` writes `expired`; a due order not yet expired still blocks a new order on its game until the job runs, and its wanted row goes with `OrderExpired`.
+  - An order reaches a rarity when that rarity's `minimum_price_<rarity>` in the order's stored version is at or below its price; `Game::Market::Order.reaching(rarity)` is the only formula. An order reaching no rarity is refused (`Failure(:order_below_minimum)`).
+  - `Game::Market::PlaceOrder(player:, card:, price:, settings_token:)` runs under the player's bank lock: it refuses a closed market (`:market_closed`), a stale version (`:amounts_changed`), a game with no card-season in a published season (`Catalog::PublishedCardIds`, `:card_not_published`), and a price above `available` (`:more_than_available`); it sets `expires_at` from the version's `order_duration_days`, posts `hold` with `order_id` and publishes `Game::Market::OrderPlaced`. `CancelOrder` runs under the owner's bank lock, then the order row: an open order becomes `cancelled`, posts `release` and publishes `OrderCancelled`; it is allowed while the market is closed, as cancelling a listing is (AD-50).
+  - `Game::Market::ExpireDueOrdersJob`, running while the market is closed too (AD-50), calls `ExpireOrder(player: owner, order_id:)` once per due open order, one per transaction, with `require_account`, reporting an error and moving on (AD-45's close). Under the owner's bank lock and the order row it rechecks that the order is open and due, then makes it `expired`, posts `release` and publishes `OrderExpired`; otherwise it does nothing.
+  - Every order operation locks the owner's bank lock, then the order row (AD-10), and changes an order's status only from `open`. An order never touches a listing or a bid, and `PlaceBid` and `CloseAuction` never read orders.
+- **Costs:** besides the open unique index, each built concurrently in its own migration: a partial index on `expires_at` where open (the expiry job), one on card, price descending, `created_at` and id where open (`EligibleOrders`), one on `served_card_season_id` and `served_at` where served (`EditionPrice`, `EditionSales`); `ExpireDueOrdersJob` joins both blocks of `config/recurring.yml`.
+
+### AD-59 — A direct sale serves the best eligible order the seller saw
+
+- **Binds:** CAP-13, CAP-34, CAP-45, CAP-47
+- **Prevents:** a sale to an order the seller did not see; a sale to one's own order; eligibility computed per screen; a copy sold to an order and listed at once; a wanted table half applied; a stamp paid with money the same validation was about to receive and then refused; a sale turned into an entrustment the seller never saw; a commission the seller did not confirm; a deck block, trade offer or listing freed by a sale.
+- **Rule:**
+  - `Game::Market::EligibleOrders(card_season, except: seller)` is the only reader of eligibility: the open orders (AD-58) on the edition's game, not the seller's, reaching the edition's rarity, whose owner is neither banned nor deleted, best price first, then the oldest, then the lowest id. `BestEligibleOrder` is its first row. The listing form's banner, the entrust recap, the wanted table and the sales read them.
+  - `Game::Market::SellToOrder(player: seller, card_season_id:, order_token:, settings_token:)` reads the best eligible order without a lock, takes both bank locks in ascending player id, checks the market is open and the version is current, locks the seller's and the buyer's holdings in ascending player id, then the order row, and rechecks under those locks that the best eligible order, open and unexpired at the `now` it read, is still the one the seller saw; otherwise `Failure(:best_order_changed)`, and nothing moves. It needs one free copy (`:copy_not_free`).
+  - It moves one free copy, releasing nothing (AD-45): the buyer's allocation received, the copy moved, set tiers recorded with `reached_by: "trade"`, unheld showcase entries removed, the edition price row refreshed and its average stored on the order (AD-47). The order becomes `served` with the seller, the card-season and `served_at`. One `Ledger.post`: `purchase` for the buyer (committed less the price) and `sale` for the seller, both with the order's version, and `commission` computed from and stamped with the version the seller confirmed, each with `order_id`; no stamp. It publishes `Game::Market::OrderServed`.
+  - The Confier wanted table is one operation, `Game::Market::ApplyWantedChoices(player:, lines:, settings_token:)`, each line a card-season, its copies and a choice: `order` with the order tokens the table drew, `auction` with a starting price and duration, or `entrust`. The table draws each game's eligible orders best first across all its lines, each order assigned once, one copy each; a copy the table drew no order for is shown, and applied, as entrusted.
+  - In one transaction it reads the drawn orders without a lock, takes the player's and every drawn order owner's bank locks in ascending player id, checks the market and the version, locks holdings, then the order rows in ascending id, and rechecks that each drawn order is open, unexpired and the best eligible order left for its copy after the earlier assignments. Otherwise, whatever happened to the order, `Failure(:best_order_changed)` names the changed lines and their new best order, and nothing moves.
+  - Every field is checked before any write: each card-season's copies summed over every line against its free copies, a starting price under its minimum, a duration not offered, and stamps that `available` plus the validation's proceeds cannot pay, the entrustment proceeds computed from `CapLeft` in the table's order as the entrust step applies them. Any of these refuses the whole table with `Failure(:invalid_choices)` naming each invalid line and its code `[ASSUMPTION: the one failure that carries line detail beside its symbol, for the table's per-field refusals]`; a post that would send a wallet below zero is that failure, never an exception.
+  - It then serves the orders (`SellToOrder`'s step), opens one listing per `auction` copy (`ListCard`'s step, its stamp included) and entrusts the `entrust` copies (`EntrustCards`' step, in the table's order, a copy over the daily cap skipped, named in the result and kept). Every step moves free copies and releases nothing. The edition price refreshes are collected and run after every move, in ascending card-season. One `Ledger.post` carries every entry (mint, stamps, purchases, sales, commissions), so the stamps net against the proceeds. Its steps publish nothing; it publishes one `Game::Market::WantedChoicesApplied` (AD-45). "Entrust them all anyway" is `EntrustCards` on every set-apart copy.
+- **Costs:** `ListCard`'s listing step and `EntrustCards`' entrust step return their ledger entries instead of posting and publish nothing; the settlement step serves both a listing and an order, takes what it releases and the commission's version; `refresh_edition_price` writes `average_after_sale` on either.
+
+### AD-60 — The Archive shop withdraws from the stock
+
+- **Binds:** CAP-37, CAP-48
+- **Prevents:** a copy sold that the Archives do not hold; a stock recomputed over a purchase; a row per Archive copy; an Archive purchase in the feed or the average price.
+- **Rule:**
+  - `Game::Market::BuyFromArchives(player:, card_season_id:, settings_token:)` runs under the player's bank lock: it refuses a closed market (`:market_closed`), a stale version (`:amounts_changed`), a rarity whose Archive price is null in the version (`:not_in_shop`) and a price above `available` (`:more_than_available`); it locks the player's holding, then the card-season's stock row, refusing a missing row (`:out_of_stock`).
+  - The confirmation carries a single-use purchase token; `game_market_archive_withdrawals` is unique on player and token, so a double click or a retried POST finds the purchase already made and buys nothing more (as a repeated trade send creates nothing, AD-8) (author, 2026-11-20).
+  - It inserts a `game_market_archive_withdrawals` row (player, card-season, purchase token, price, settings version, time), decrements or deletes the stock row (AD-43), and moves one copy in, releasing nothing, as AD-45's settlement step does for a winner: allocation received, set tiers with `reached_by: "trade"`. It posts `archive_purchase` (`available` less the price), destroyed, and publishes `Game::Market::ArchivePurchased`, which no feed handler hears. It refreshes no edition price: an Archive purchase is not a sale.
+  - Deposits per player and card-season stay the record of who entrusted; no row per copy (AD-6, AD-9). An Archive copy's provenance is the set of its edition's depositors: no copy or withdrawal is attributed to one depositor, and AD-63's signal names the tied depositor. Staff read deposits and withdrawals in the back-office; no player-facing query reads a depositor.
+  - The shop and the market search read stock rows of the rarities the current version prices, each at its Archive price; there is no daily purchase limit.
+
+### AD-61 — Wanted is a table one operation writes
+
+- **Binds:** CAP-29, CAP-44, CAP-45, CAP-46
+- **Prevents:** two definitions of a wanted card; a count scanning every goal and custom set per card; a seeker's name reaching another player; a removed player counted; a row left by a goal removed without its event; two refreshes of one player racing.
+- **Rule:**
+  - `game_market_wanted` holds one row per player, `catalog_cards` id and reason (`goal` or `order`), unique on the three, and for `order` the order's reachable rarities (`rarities`, a `smallint[]` of tier integers written only from `Order.reaching`, null for `goal`) `[ASSUMPTION: stored so a count by edition needs no join to orders and settings]`.
+  - Only `Game::Market::RefreshWanted.call(player)` writes it: it replaces the player's rows from `Game::GoalNeeds(player)`'s missing games and the player's open orders, writes none for a banned or deleted player, and publishes nothing. It runs only while its player's bank lock is held (it asserts the lock and never takes one) and inserts with `ON CONFLICT DO NOTHING`. A test refuses any other writer, as AD-41's does for the ledger.
+  - The handler of every event that changes a player's goals, custom sets, holdings or orders calls it in that transaction for each player concerned, after the event's goal-removal handler: `PackOpened`, `TradeAccepted` and `AuctionSold` (both players), `OrderServed` (both), `WantedChoicesApplied` (the seller and each buyer), `CardsEntrusted`, `ArchivePurchased`, `GoalAdded`, `GoalRemoved`, `SlotBought` with a goal, `CustomSetEdited`, `CustomSetDeleted`, `OrderPlaced`, `OrderCancelled`, `OrderExpired` and `OrderWithdrawn`.
+  - `Game::Market::RebuildWanted(player:)`, an `ApplicationOperation`, takes the bank lock, calls `RefreshWanted` and publishes nothing, a housekeeping write (AD-10). `Catalog::SeasonPublished`'s handler enqueues after commit `Game::Market::RebuildAllWantedJob` (queue `default`), which runs it for every player not removed, one per transaction, as `HealBanksJob` runs its operations (AD-7); the release runs the same job as a data step of its deploy. `Accounts::PlayerUnbanned`'s `Game` handler enqueues after commit `Game::Market::RebuildWantedJob`, which runs it for that player.
+  - A test compares `game_market_wanted` with a fresh `RefreshWanted` after every path that changes goals without `GoalRemoved`: goal completion, the season's goal removal and the custom set cascade.
+  - Two queries read it, both skipping banned and deleted players and the given player, and both counting a `goal` row at every rarity and an `order` row at its `rarities` only: `WantingPlayers(card_season, except:)`, for the wanted notices' handler only, and `WantedCounts(card_ids, except: viewer)`, the distinct players per card and rarity. Pages get counts only; the player's own rows (the VOULUE tag, the market's wanted filter and its count) are read for their owner alone.
+- **Costs:** `WantingPlayers` reads the table instead of goals, custom sets and holdings; `MarketsController#wanted_card_ids` and `ListingFilters.wanted` read the viewer's own rows instead of `goal_marks`.
+
+### AD-62 — Capacity slots are bought counts
+
+- **Binds:** CAP-27, CAP-28, CAP-40, CAP-49
+- **Prevents:** a slot paid twice; a limit computed in several places; a ceiling passed by a race; a purchase that charges and leaves the action blocked; a player charged for a slot they already use.
+- **Rule:**
+  - `game_capacity_slots` holds one row per player and kind (`goal`, `custom_set`, `deck`) with the `bought` count, unique on player and kind, checked between 1 and 5 for goals and custom sets and between 1 and 2 for decks; the goal position check (1 to 10, AD-35) holds the goal ceiling.
+  - `Game::Capacity` holds the free counts (5, 5, 3) and the ceilings (10, 10, 5); `Game::Capacity.limit(player, kind)`, free plus bought, is the only limit every operation and screen reads (AD-35, AD-52).
+  - `Game::BuySlot(player:, kind:, slot:, settings_token:)`, with the blocked action's input, runs under the player's bank lock, then the capacity row: it refuses a slot other than the current limit plus one (`:slot_already_bought`), a slot past the ceiling (`:slot_ceiling`), a stale version (`:amounts_changed`) and a price above `available` (`:more_than_available`); it prices the slot from the version's `slot_price_<kind>_<slot>` (AD-42), raises `bought`, posts `slot_purchase` (destroyed) through `Game::Market::Ledger`, last, and publishes one `Game::SlotBought` carrying the kind and the goal it added (AD-45). It never asks whether the market is open; a deadlock answers `:market_busy` (AD-40).
+  - For a goal it adds the goal in the same transaction through the goal step, which publishes nothing here. It succeeds only when the step inserts a new goal; any other outcome, an existing goal included, rolls the whole transaction back with the step's code, and no slot or PiCoin moves. For a custom set or a deck the blocked action is opening its editor: the purchase raises the limit and its answer opens the editor, whose save creates the set or deck under the new limit `[ASSUMPTION: no custom set can be created empty, and the deck editor creates its deck on save]`.
+  - A slot is kept for good: deleting a goal, custom set or deck never lowers `bought`.
+  - A data migration grants free slots, with no ledger entry, computed per player when it runs: `custom_set` `max(0, custom sets - 5)` and `deck` `max(0, decks - 3)`, a row only where the grant is above zero. The old limits (10 custom sets, 5 decks) keep every grant within the bought bounds, so no player is left above their limit.
+- **Costs:** `Game::CustomSet::PER_PLAYER`, `Game::Deck::PER_PLAYER` and the goals' cap of five give way to `Game::Capacity`, in their callers too: `app/views/library/_custom_sets.html.erb`, `app/views/pages/how_it_works.html.erb` and its copy in both locales, `app/models/deck_list.rb`; the limit screens show the next slot's price.
+
+### AD-63 — Tied accounts are staff data a few queries read
+
+- **Binds:** CAP-37, CAP-46, CAP-48
+- **Prevents:** an alt's order shown to its main account as the price to beat; a tie computed two ways; a tie shown to a player; an Archive round trip between alts going unseen; staff data naming a deleted account.
+- **Rule:**
+  - `RefreshAltSignals` also replaces `game_market_tied_accounts` in its transaction (AD-48): one row per pair and signal, the lower account id first (checked), with the facts behind it. A pair is tied when a pair signal names it: one-way trades, sales outside price and minimum-price sales, the ties `bids_on_tied_seller` already reads. Served orders join the sale signals before the ties are computed; `archive_purchase_of_tied_deposit` and `order_sale_to_tied_buyer` read ties and make none. The refresh drops deleted accounts (`without_deleted_accounts`), and `ReleasePlayer` deletes a deleted account's rows (AD-46).
+  - The rows are staff data, never shown or named to a player. Server-side, `Game::Market::BestVisibleOrder(card, viewer)` reads them: the order form's best other order on the game, open, placed more than an hour ago, its owner neither banned nor deleted nor the viewer nor tied to the viewer; it returns a price only `[ASSUMPTION: the hour is a constant of the query, as the signal thresholds are of AltSignals]`.
+  - A new signal, `archive_purchase_of_tied_deposit`: an Archive purchase within `MARKET_WINDOW_DAYS` of an edition whose deposit row of an account tied to the buyer was updated within the same window `[ASSUMPTION: a deposit row's updated_at is its last entrustment, the only time stored per player and edition]`.
+  - The sale signals read served orders as sales beside sold listings, and a direct sale to an order of an account tied to the seller is the signal `order_sale_to_tied_buyer` `[ASSUMPTION: the signal's name and its reading of served orders; the decisions name only the Archive signal]`.
+- **Costs:** `AltSignals::SIGNALS`, which `AltSignal` validates against, gains the two signals, each with its label in both locales.
 
 ## Consistency Conventions
 
@@ -907,8 +1026,8 @@ gameble/
 | CAP-22 Titles and menu themes (after the launch) | `Game`, web layer | AD-10, AD-18, AD-25 |
 | CAP-23 Seasonal allocation (after the launch) | `Game`, web layer | AD-5, AD-9, AD-10, AD-11, AD-18, AD-25 |
 | CAP-25 Roadmap | `Catalog`, back-office | AD-3, AD-18, AD-29 |
-| CAP-27 Custom sets and the Steam library set | `Game`, `Steam` (library read), `app/jobs` (sync) | AD-4, AD-5, AD-14, AD-15, AD-35, AD-36 |
-| CAP-28 Active goals | `Game`, web layer (collection, card detail, profile) | AD-11, AD-13, AD-35 |
+| CAP-27 Custom sets and the Steam library set | `Game`, `Steam` (library read), `app/jobs` (sync) | AD-4, AD-5, AD-14, AD-15, AD-35, AD-36, AD-62 |
+| CAP-28 Active goals | `Game`, web layer (collection, card detail, profile) | AD-11, AD-13, AD-35, AD-61, AD-62 |
 | CAP-29 Entrusting and the Archives | `Game::Market` | AD-6, AD-40, AD-41, AD-42, AD-43 |
 | CAP-30 Listing | `Game::Market` | AD-6, AD-40, AD-41, AD-42, AD-44, AD-46 |
 | CAP-31 Bidding | `Game::Market` | AD-10, AD-13, AD-40, AD-41, AD-42, AD-44, AD-46 |
@@ -917,12 +1036,18 @@ gameble/
 | CAP-34 Average price | `Game::Market`, collection | AD-11, AD-40, AD-42, AD-45, AD-47, AD-51 |
 | CAP-35 Economy settings | back-office, `Game::Market`, `Accounts` (announcement) | AD-40, AD-42, AD-48, AD-50 |
 | CAP-36 Indicators and alerts | back-office, `Game::Market` | AD-18, AD-40, AD-41, AD-42, AD-48, AD-50, AD-51 |
-| CAP-37 Alt-account signals | back-office, `Game::Market` | AD-40, AD-48 |
+| CAP-37 Alt-account signals | back-office, `Game::Market` | AD-40, AD-48, AD-59, AD-60, AD-63 |
 | CAP-38 Economy page | web layer, back-office, `Game::Market` | AD-11, AD-14, AD-16, AD-18, AD-40, AD-47, AD-48, AD-51 |
 | CAP-39 Duel stats | `Game` (duel stats), card detail, feed | AD-5, AD-10, AD-13, AD-53 |
-| CAP-40 Decks | `Game` (decks, holdings), deck editor | AD-6, AD-10, AD-15, AD-52, AD-53 |
+| CAP-40 Decks | `Game` (decks, holdings), deck editor | AD-6, AD-10, AD-15, AD-52, AD-53, AD-62 |
 | CAP-41 Live duels | `Game` (duels), `Accounts` (reachability), duel screens | AD-10, AD-13, AD-14, AD-15, AD-30, AD-49, AD-54, AD-55, AD-56 |
 | CAP-42 Duel record (alpha) | `Game` (duels) | AD-54, AD-57 |
+| CAP-44 Wanted cards | `Game::Market` (wanted table), market, card detail, bell | AD-10, AD-11, AD-35, AD-44, AD-46, AD-61 |
+| CAP-45 Selling wanted cards from Confier | `Game::Market`, Confier wanted table | AD-40, AD-41, AD-43, AD-59, AD-61 |
+| CAP-46 Buy orders | `Game::Market`, order form, recurring job | AD-10, AD-40, AD-41, AD-42, AD-46, AD-50, AD-58, AD-63 |
+| CAP-47 Direct sale to an order | `Game::Market`, listing form, Confier wanted table | AD-10, AD-41, AD-44, AD-45, AD-47, AD-49, AD-59 |
+| CAP-48 Archive shop | `Game::Market`, shop screen, market search | AD-10, AD-41, AD-42, AD-43, AD-45, AD-60, AD-63 |
+| CAP-49 Capacity slots | `Game` (capacity), `Game::Market::Ledger` | AD-35, AD-41, AD-42, AD-52, AD-62 |
 | CAP-50 Practice duel | `Game` (duels) | AD-54, AD-56 |
 | CAP-51 Alpha measurement | `Game` (duels), back-office | AD-54, AD-57 |
 | Legal page | web layer | AD-18 |
@@ -950,8 +1075,11 @@ gameble/
 - **K3s:** only if Kamal on several servers stops being enough.
 - **Publishing the image filter:** an npm package, then a Rails gem wrapper; a side quest outside the MVP. AD-17 keeps it extractable.
 - **Admin interface gem and the back-office design:** the back-office stays plain Rails pages plus Mission Control Jobs, outside the redesign.
-- **Archive resale:** designed when it is built; AD-43's deposits and stocks are its starting point.
-- **Market browsing filters, the typical price per rarity (optional in `market-economy.md`) and which notices follow the outbid one:** set by the UX; `Game::Market` queries own the filters and AD-44 fixes the notices' table and channel.
+- **Archive resale:** designed in AD-60; selling Légendaires is setting their Archive price (AD-42).
+- **Wanted refresh cost:** `RefreshWanted` runs inside every pack opening (AD-61); measured against AD-7's 200 ms p95 on `POST /packs` before the release. If it exceeds it: does an event that only raises holdings delete just the credited games' `goal` rows (a held game is missing from no goal), or is the refresh deferred to a job?
+- **Archive stock row contention:** `BuyFromArchives` holds its stock row from its lock to commit, handlers included (AD-60). Measured on a popular Archive card before opening the shop: does the decrement move to one conditional `UPDATE ... WHERE quantity > 0` as the last write before the ledger post, with Archive stock rows moved after custom sets in AD-10's lock order?
+- **Wanted table size:** how many lines one `ApplyWantedChoices` validates at most (it holds every drawn order owner's bank lock for one transaction, AD-59), and whether its lines count against the listing and entrusting rate limits, and a refused validation against its own (AD-40).
+- **Market browsing filters and the typical price per rarity (optional in `market-economy.md`):** set by the UX; `Game::Market` queries own the filters. The notices that follow the outbid one are settled in AD-44.
 - **Ledger partitioning:** decide when the entries table passes 50 million rows.
 - **Later economy charts:** an edition compared with the game's other editions, market volume, the week's largest rises and falls with sparklines, a player's collection value over time and their own PiCoin flows, and a Lorenz curve in the back-office. Market-wide ones extend `EconomySeries` and the snapshot. Per-player ones need per-player daily rows, and a rule for cards with no sale, designed in an update run before they are built.
 - **Native apps:** a later version. Seasons after the first are carried by AD-5's holding rule and CAP-23's allocation.
