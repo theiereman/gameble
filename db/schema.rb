@@ -411,6 +411,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_184008) do
     t.index ["player_id", "read_at"], name: "index_game_bell_reads_on_player_id_and_read_at"
   end
 
+  create_table "game_capacity_slots", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "kind", null: false
+    t.integer "bought", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "kind"], name: "index_game_capacity_slots_on_player_id_and_kind", unique: true
+    t.check_constraint "bought >= 1 AND bought <= 5 AND (kind::text <> 'deck'::text OR bought <= 2)", name: "game_capacity_slots_bought_check"
+    t.check_constraint "kind::text = 'goal'::text OR kind::text = 'custom_set'::text OR kind::text = 'deck'::text", name: "game_capacity_slots_kind_check"
+  end
+
   create_table "game_card_back_unlocks", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.string "back", null: false
@@ -753,7 +764,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_184008) do
     t.index ["player_id", "position"], name: "index_game_goals_on_player_id_and_position", unique: true
     t.index ["player_id", "set_kind", "set_key"], name: "index_game_goals_on_player_id_and_game_set", unique: true, where: "(set_kind IS NOT NULL)"
     t.check_constraint "(custom_set_id IS NULL) = (set_kind IS NOT NULL) AND (set_kind IS NULL) = (set_key IS NULL)", name: "game_goals_target_check"
-    t.check_constraint "\"position\" >= 1 AND \"position\" <= 5", name: "game_goals_position_check"
+    t.check_constraint "\"position\" >= 1 AND \"position\" <= 10", name: "game_goals_position_check"
     t.check_constraint "set_kind IS NULL OR set_kind::text = 'theme'::text OR set_kind::text = 'franchise'::text OR set_kind::text = 'studio'::text OR set_kind::text = 'hall_of_fame'::text OR set_kind::text = 'ufo'::text", name: "game_goals_set_kind_check"
   end
 
@@ -1013,6 +1024,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_184008) do
     t.check_constraint "commission_basis_points >= 0 AND commission_basis_points <= 2500", name: "game_market_settings_commission_check"
     t.check_constraint "daily_cap > 0 AND increment_basis_points > 0 AND soft_close_seconds > 0", name: "game_market_settings_positive_check"
     t.check_constraint "preselected_duration_hours = duration_short_hours OR preselected_duration_hours = duration_medium_hours OR preselected_duration_hours = duration_long_hours", name: "game_market_settings_preselected_check"
+  end
+
+  create_table "game_market_tied_accounts", force: :cascade do |t|
+    t.bigint "low_account_id", null: false
+    t.bigint "high_account_id", null: false
+    t.string "signal", null: false
+    t.jsonb "facts", default: {}, null: false
+    t.datetime "refreshed_at", null: false
+    t.index ["high_account_id"], name: "index_game_market_tied_accounts_on_high_account_id"
+    t.index ["low_account_id", "high_account_id", "signal"], name: "index_game_market_tied_accounts_uniqueness", unique: true
+    t.check_constraint "low_account_id < high_account_id", name: "game_market_tied_accounts_order_check"
   end
 
   create_table "game_market_wallets", force: :cascade do |t|
@@ -1280,6 +1302,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_184008) do
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "game_achievement_unlocks", "accounts_players", column: "player_id"
   add_foreign_key "game_bell_reads", "accounts_players", column: "player_id"
+  add_foreign_key "game_capacity_slots", "accounts_players", column: "player_id"
   add_foreign_key "game_custom_set_games", "catalog_cards", column: "card_id"
   add_foreign_key "game_custom_set_games", "game_custom_sets", column: "custom_set_id", on_delete: :cascade
   add_foreign_key "game_custom_sets", "accounts_players", column: "player_id"
@@ -1343,6 +1366,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_184008) do
   add_foreign_key "game_market_orders", "game_market_settings", column: "settings_id"
   add_foreign_key "game_market_settings", "accounts_players", column: "author_id"
   add_foreign_key "game_market_settings", "game_market_settings", column: "replaces_id"
+  add_foreign_key "game_market_tied_accounts", "accounts_players", column: "high_account_id"
+  add_foreign_key "game_market_tied_accounts", "accounts_players", column: "low_account_id"
   add_foreign_key "game_market_wallets", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
