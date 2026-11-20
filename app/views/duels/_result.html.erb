@@ -22,7 +22,6 @@
       <p class="duel-result__margin"><%= t("duels.board.decided_on_margin", margin: duel_points(screen.margin_gap)) %></p>
     <% end %>
   <% end %>
-  <div id="duel-capsule-line"><%= render "duels/capsule", capsule: screen.capsule if screen.capsule %></div>
   <%= render "duels/rematch", screen: screen %>
   <%= tag.button t("duels.board.see_rounds"), type: :button, class: "button button--link", data: { unfold_target: "button", action: "unfold#show" } %>
   <div class="duel-result__rounds" hidden tabindex="-1" data-unfold-target="content">

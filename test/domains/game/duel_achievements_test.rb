@@ -3,7 +3,7 @@ require_relative "../../support/game_packs"
 require_relative "../../support/duels"
 
 # The ten duel achievements read finished duels, their seats and rounds: what counts, what a round played by the game
-# does not, and the job that follows a finished duel for both seats.
+# does not; a finished duel runs no achievement job.
 class Game::DuelAchievementsTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include GamePacks
@@ -169,17 +169,13 @@ class Game::DuelAchievementsTest < ActiveSupport::TestCase
     assert_equal [ 0, 0, 0 ], %i[distinct_stats_won duels_won margin_wins].map { progress(it) }
   end
 
-  test "a finished duel runs the job for both seats, which grants neither a duel achievement" do
+  test "a finished duel runs no achievement job for either seat" do
     duel = finished_duel
-    event = Game::DuelFinished.new(data: { duel_id: duel.id, challenger_id: @lea.id, opponent_id: @hugo.id })
 
-    assert_enqueued_jobs 2, only: Game::GrantAchievementsJob do
-      Game::Handlers::Achievements.call(event)
+    assert_not_includes Game::Handlers::Achievements::EVENTS.keys, Game::DuelFinished
+    assert_no_enqueued_jobs only: Game::GrantAchievementsJob do
+      Rails.configuration.event_store.publish(Game::DuelFinished.new(data: { duel_id: duel.id, challenger_id: @lea.id, opponent_id: @hugo.id }))
     end
-    perform_enqueued_jobs only: Game::GrantAchievementsJob
-
-    assert_empty unlocked(@lea)
-    assert_empty unlocked(@hugo)
   end
 
   test "the Duelliste back stays the one of Abuse of Dominant Position, which 50 wins no longer grant" do

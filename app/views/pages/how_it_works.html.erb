@@ -100,8 +100,6 @@
     <p class="how-it-works__duel-ties"><%= t(".duels.ties") %></p>
     <p class="how-it-works__duel-timers"><%= t(".duels.timers", accept: Game::DuelClock::ACCEPT.to_i, call: Game::DuelClock::CALL.to_i,
           answer: Game::DuelClock::ANSWER.to_i, absence: Game::DuelClock::ABSENCE.to_i) %></p>
-    <p class="how-it-works__duel-capsule"><%= t(".duels.capsule", cards: Game::Pack::DUEL_SIZE) %></p>
-    <%= render "pages/odds_table", name: "duel", odds: Game::DrawOdds::DUEL %>
   <% end %>
 
   <%= render "pages/market_rules", rules: @market_rules if @market_rules %>

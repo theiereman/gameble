@@ -89,8 +89,6 @@ class DuelScreen
     end
   end
 
-  def capsule = (@duel.capsule.to_sym if outcome == :win && @duel.capsule)
-
   def forfeited? = @duel.forfeited_by.present?
 
   def forfeited_by_me? = @duel.forfeited_by == @seat.role

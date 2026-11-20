@@ -45,7 +45,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
   def odds_tables
     {
       "regular" => Game::DrawOdds::REGULAR, "bonus" => Game::DrawOdds::BONUS,
-      "reward" => Game::DrawOdds::REWARD, "epic_or_better" => Game::DrawOdds::EPIC_OR_BETTER, "duel" => Game::DrawOdds::DUEL
+      "reward" => Game::DrawOdds::REWARD, "epic_or_better" => Game::DrawOdds::EPIC_OR_BETTER
     }
   end
 
@@ -111,7 +111,8 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select ".how-it-works__duel-round", /\b#{Game::DuelRules::ROUNDS}\b.*\b#{Game::DuelRules::HAND_SIZE}\b/m
     clock = Game::DuelClock
     assert_select ".how-it-works__duel-timers", /\b#{clock::ACCEPT.to_i}\b.*\b#{clock::CALL.to_i}\b.*\b#{clock::ANSWER.to_i}\b.*\b#{clock::ABSENCE.to_i}\b/m
-    assert_select ".how-it-works__duel-capsule", /\b#{Game::Pack::DUEL_SIZE}\b/
+    assert_select ".how-it-works__duel-capsule", 0
+    assert_select "#how-it-works-duels ~ table.how-it-works__odds, table.how-it-works__odds[data-odds=duel]", 0
   end
 
   # The tier sentence's rows, by their sizes, with the ranks each names.

@@ -112,7 +112,7 @@ class DuelBoardTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the finished duel: the spoken result first, ten rounds as sentences, the place of the capsule line and the rematch" do
+  test "the finished duel: the spoken result first, ten rounds as sentences, no capsule line, and the rematch" do
     duel = finish
     rules = rules_of(duel)
     scores = rules.scores
@@ -126,7 +126,7 @@ class DuelBoardTest < ActionDispatch::IntegrationTest
     end
     assert_select "#duel-result .duel-result__figures[aria-hidden=true]", text: /#{scores[:challenger]} – #{scores[:opponent]}/
     assert_select "#duel-result .duel-result__pip", 10
-    assert_select "#duel-capsule-line", 1
+    assert_select "#duel-capsule-line", 0
     assert_select "ol.duel-rounds > li", 10
     assert_select "ol.duel-rounds > li:first-child", text: /\ARound 1, (Léa|Hugo) calls .+: .+, \d{4}, against .+, \d{4}\. (Won|Lost|Draw)\./
     assert_select "#duel-hand", 0

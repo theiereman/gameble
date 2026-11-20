@@ -1914,10 +1914,6 @@ en:
       automatic: Move played automatically
       call: Call
       called_status: "%{name} has called. Their card: %{card}."
-      capsule:
-        already_won_today: Duel capsule already won today.
-        automatic_move: 'No capsule: one of your moves was played automatically.'
-        granted: DUEL CAPSULE WON
       card_name: "%{title}, %{year}"
       decided_on_margin: "Decided on margin: %{margin} percentile points"
       decided_on_value: decided on the exact value
@@ -2014,7 +2010,7 @@ en:
       friend: Friend
       in_progress_html: "Duel in progress against %{name}."
       practice: "Train against the bot"
-      practice_hint: "Training only: it counts for nothing and gives no capsule."
+      practice_hint: "Training only: it counts for nothing."
       received_html: "%{name} challenges you to a duel."
       resume: Resume
       resume_label: "Resume the duel against %{name}"
@@ -3963,7 +3959,6 @@ en:
           even when your standard reserve is full.'
         title: The daily capsule
       duels:
-        capsule: 'The first win of the UTC day gives a duel capsule of %{cards} cards, in your special reserve, unless the game played one of your moves. Further wins, losses and draws give nothing. Its odds:'
         decks: 'A deck holds exactly %{cards} cards you own, a game at most once, and you can keep up to %{decks} decks. A card in a deck blocks one copy of its edition: that copy cannot be traded, sold or entrusted until you take the card out of every deck that holds it. Your other copies stay free.'
         round: 'A duel is %{rounds} rounds. Both decks are face up; only which cards are in a hand stays hidden. Each player holds a hand of %{hand} cards, which serves both to call and to answer, and draws one card after each round. The caller locks a card from their hand, a stat and a direction; their card turns face up while the call stays hidden. The other player answers with a card from their hand. The better percentile in the called direction wins the round; equal percentiles compare the exact value; if those are equal too, nobody scores. Each player calls each stat once.'
         stats: 'Every card is measured on %{number} stats: %{names}. Each is a percentile, the share of the ranked cards the card beats, computed when a season is published and every Monday at midnight UTC. A card''s trump is its most extreme stat, in either direction.'
@@ -4047,7 +4042,6 @@ en:
         reward: 'The weekly mission''s reward capsule:'
         tables:
           bonus: Daily capsule
-          duel: Duel capsule
           epic_or_better: Replacement card
           regular: Standard capsule
           reward: Reward capsule
