@@ -27,7 +27,8 @@ module Duels
 
   # An unsaved active duel the challenger calls first, each deck drawn last card first.
   def active_duel(challenger: duel_deck(1001), opponent: duel_deck(2001), first_caller: "challenger")
-    Game::Duel.new(token: SecureRandom.base58(24), state: "active", first_caller:, started_at: Time.current,
+    Game::Duel.new(token: SecureRandom.base58(24), state: "active", rules_version: Game::DuelRules::VERSION, first_caller:,
+      started_at: Time.current,
       challenger_cards: challenger.map(&:to_snapshot), opponent_cards: opponent.map(&:to_snapshot),
       challenger_draw_order: challenger.map(&:card_season_id).reverse, opponent_draw_order: opponent.map(&:card_season_id).reverse)
   end

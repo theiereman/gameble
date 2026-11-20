@@ -3,9 +3,11 @@ module Game
     Record = Data.define(:wins, :losses, :draws)
     NONE = Record.new(wins: 0, losses: 0, draws: 0)
 
-    WINS_SQL = DuelAchievementMetrics::SQL.fetch(:duels_won)
-    LOSSES_SQL = "SELECT COUNT(*) FROM #{DuelAchievementMetrics::OWN_FINISHED_DUELS} AND duel.result <> 'draw' AND duel.result <> seat.role".freeze
-    DRAWS_SQL = "SELECT COUNT(*) FROM #{DuelAchievementMetrics::OWN_FINISHED_DUELS} AND duel.result = 'draw'".freeze
+    OWN_DUELS = "#{DuelAchievementMetrics::OWN_FINISHED_DUELS} AND duel.rules_version = #{DuelRules::VERSION}".freeze
+
+    WINS_SQL = "SELECT COUNT(*) FROM #{OWN_DUELS} AND duel.result = seat.role".freeze
+    LOSSES_SQL = "SELECT COUNT(*) FROM #{OWN_DUELS} AND duel.result <> 'draw' AND duel.result <> seat.role".freeze
+    DRAWS_SQL = "SELECT COUNT(*) FROM #{OWN_DUELS} AND duel.result = 'draw'".freeze
 
     SQL = "SELECT (#{WINS_SQL}), (#{LOSSES_SQL}), (#{DRAWS_SQL})".freeze
 

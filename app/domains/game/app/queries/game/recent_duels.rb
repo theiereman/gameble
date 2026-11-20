@@ -7,7 +7,8 @@ module Game
     def self.call(player, limit: LIMIT)
       return [] if player.nil?
 
-      seats = DuelSeat.where(player_id: player.id).joins(:duel).merge(Duel.where(state: "finished", practice: false))
+      counted = Duel.where(state: "finished", practice: false, rules_version: DuelRules::VERSION)
+      seats = DuelSeat.where(player_id: player.id).joins(:duel).merge(counted)
         .preload(duel: :seats).order("game_duels.ended_at DESC, game_duels.id DESC").limit(limit)
       seats.map { result_of(it) }
     end

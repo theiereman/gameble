@@ -33,7 +33,8 @@ module Game
 
     def start(player, duel, seats, decks, deck_token)
       cards = DuelRules::ROLES.zip(decks).to_h { |role, deck| [ role, DuelSnapshot.call(deck) ] }
-      duel.update!(state: "active", started_at: Time.current, first_caller: DuelRules::ROLES.sample(random: SecureRandom).to_s,
+      duel.update!(state: "active", rules_version: DuelRules::VERSION, started_at: Time.current,
+        first_caller: DuelRules::ROLES.sample(random: SecureRandom).to_s,
         move_number: next_move(duel), move_deadline_at: schedule(duel, next_move(duel), DuelClock::CALL),
         **cards.to_h { |role, deck| [ :"#{role}_cards", deck.map(&:to_snapshot) ] },
         **cards.to_h { |role, deck| [ :"#{role}_draw_order", deck.map(&:card_season_id).shuffle(random: SecureRandom) ] })

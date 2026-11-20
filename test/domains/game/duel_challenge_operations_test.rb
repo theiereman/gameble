@@ -108,9 +108,11 @@ class Game::DuelChallengeOperationsTest < ActiveSupport::TestCase
   end
 
   test "an acceptance freezes both decks, draws both orders and the first caller, seats the friend and writes one event" do
-    duel = accept(challenge.value!).value!.reload
+    challenged = challenge.value!
+    challenged.update_columns(rules_version: Game::DuelRules::VERSION - 1)
+    duel = accept(challenged).value!.reload
 
-    assert_equal [ "active", 1 ], [ duel.state, duel.move_number ]
+    assert_equal [ "active", 1, Game::DuelRules::VERSION ], [ duel.state, duel.move_number, duel.rules_version ]
     assert duel.started_at
     assert_includes %w[challenger opponent], duel.first_caller
     assert_equal Game::DuelSnapshot.call(@lea_deck).map(&:to_snapshot), duel.challenger_cards

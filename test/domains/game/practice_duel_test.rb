@@ -21,7 +21,7 @@ class Game::PracticeDuelTest < ActiveSupport::TestCase
     duel = start.value!
 
     assert duel.practice
-    assert_equal "active", duel.state
+    assert_equal [ "active", Game::DuelRules::VERSION ], [ duel.state, duel.rules_version ]
     bot = Accounts::Player.find_by!(bot_of_id: @lea.id)
     assert_equal [ @lea.id, bot.id ], duel.seats.order(:id).map(&:player_id)
     assert_equal 12, duel.opponent_cards.size

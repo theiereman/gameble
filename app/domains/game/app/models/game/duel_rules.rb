@@ -1,5 +1,6 @@
 module Game
   class DuelRules
+    VERSION = 1
     ROLES = %i[challenger opponent].freeze
     ROUNDS = 10
     HAND_SIZE = 3

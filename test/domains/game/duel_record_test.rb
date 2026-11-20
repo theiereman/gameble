@@ -11,9 +11,11 @@ class Game::DuelRecordTest < ActiveSupport::TestCase
     @third = accounts_players(:administrator)
   end
 
-  def finished_duel(challenger: @lea, opponent: @hugo, result: "challenger", scores: [ 6, 4 ], ended_at: Time.current)
+  def finished_duel(challenger: @lea, opponent: @hugo, result: "challenger", scores: [ 6, 4 ], ended_at: Time.current,
+    rules_version: Game::DuelRules::VERSION)
     duel = active_duel
-    duel.assign_attributes(state: "finished", result:, ended_at:, challenger_score: scores.first, opponent_score: scores.last)
+    duel.assign_attributes(state: "finished", result:, ended_at:, challenger_score: scores.first, opponent_score: scores.last,
+      rules_version:)
     duel.save!
     { "challenger" => challenger, "opponent" => opponent }.each do |role, player|
       Game::DuelSeat.create!(duel:, role:, player_id: player&.id, status: "left")
@@ -47,6 +49,15 @@ class Game::DuelRecordTest < ActiveSupport::TestCase
     assert_equal Game::DuelRecord::Record.new(wins: 1, losses: 0, draws: 0), Game::DuelRecord.call(@lea)
     assert_equal Game::DuelRecord::NONE, Game::DuelRecord.call(@third)
     assert_queries_count(0) { assert_equal Game::DuelRecord::NONE, Game::DuelRecord.call(nil) }
+  end
+
+  test "a duel played under older rules counts in neither the record nor the last results" do
+    current = finished_duel
+    finished_duel(result: "opponent", scores: [ 4, 6 ], rules_version: Game::DuelRules::VERSION - 1)
+
+    assert_equal Game::DuelRecord::Record.new(wins: 1, losses: 0, draws: 0), Game::DuelRecord.call(@lea)
+    assert_equal Game::DuelRecord::Record.new(wins: 0, losses: 1, draws: 0), Game::DuelRecord.call(@hugo)
+    assert_equal [ current.token ], Game::RecentDuels.call(@lea).map(&:token)
   end
 
   test "the last ten results, the newest first, each with the player's own score and the opponent" do

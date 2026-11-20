@@ -22,8 +22,8 @@ module Game
 
     def start(player, bot, deck_token, cards, archetype)
       duel = Duel.new(practice: true, bot_archetype: archetype)
-      duel.update!(state: "active", started_at: Time.current, first_caller: DuelRules::ROLES.sample.to_s, move_number: 1,
-        move_deadline_at: schedule(duel, 1, DuelClock::CALL),
+      duel.update!(state: "active", rules_version: DuelRules::VERSION, started_at: Time.current,
+        first_caller: DuelRules::ROLES.sample.to_s, move_number: 1, move_deadline_at: schedule(duel, 1, DuelClock::CALL),
         **cards.to_h { |role, deck| [ :"#{role}_cards", deck.map(&:to_snapshot) ] },
         **cards.to_h { |role, deck| [ :"#{role}_draw_order", deck.map(&:card_season_id).shuffle(random: SecureRandom) ] })
       seats = {
