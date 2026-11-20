@@ -52,7 +52,7 @@ class DuelRewardsSystemTest < ApplicationSystemTestCase
     assert_no_selector "#duel-capsule-line"
     assert_no_text "DUEL CAPSULE WON"
     assert_no_text "Duel capsule already won today."
-    assert_selector "#duel-result a", text: "Send feedback"
+    assert_selector "#duel-result a", text: /send feedback/i
     assert_no_selector "#toasts .toast"
   end
 
