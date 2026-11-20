@@ -16,7 +16,7 @@ class Game::Market::EntrustPreviewCasesTest < ActiveSupport::TestCase
       player = accounts_players(:player)
       settings = open_market!(daily_cap: CAP, **example.fetch("values").transform_keys { :"entrustment_#{it}" })
       minted_before = CAP - example.fetch("cap_left")
-      Game::Market::Mint.credit(player_id: player.id, amount: minted_before, settings_id: settings.id) if minted_before.positive?
+      Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: player.id, amount: minted_before, settings_id: settings.id)) if minted_before.positive?
       card_seasons = CARD_SEASONS.transform_values { catalog_card_seasons(it) }
       example.fetch("lines").each { |line| hold(player, card_seasons.fetch(line.fetch("rarity")).id, line.fetch("copies")) }
       lines = example.fetch("lines").to_h { [ card_seasons.fetch(it.fetch("rarity")).id, it.fetch("copies") ] }

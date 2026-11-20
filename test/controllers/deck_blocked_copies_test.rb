@@ -214,7 +214,7 @@ class DeckBlockedCopiesTest < ActionDispatch::IntegrationTest
 
   test "a forged sale or entrustment of a copy a deck blocks is refused and moves nothing" do
     settings = open_market!
-    Game::Market::Mint.credit(player_id: @player.id, amount: 1_000_000, settings_id: settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 1_000_000, settings_id: settings.id))
     card = ranked_cards(@player, 1, titles: [ "Portal" ]).sole
     put_in(deck(@player, "Vieux briscards"), card)
     sign_in(@player)

@@ -39,8 +39,8 @@ class Game::Market::ReconcileWalletsTest < ActiveSupport::TestCase
   end
 
   test "wallets built through the ledger are balanced, with the totals of a real series" do
-    Game::Market::Mint.credit(player_id: @alice.id, amount: 10_000, settings_id: @settings.id)
-    Game::Market::Mint.credit(player_id: @bob.id, amount: 5_000, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @alice.id, amount: 10_000, settings_id: @settings.id))
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @bob.id, amount: 5_000, settings_id: @settings.id))
     post(entry(@alice, :stamp, available: -500))
     post(entry(@alice, :hold, available: -2_000, committed: 2_000))
     post(entry(@alice, :purchase, committed: -2_000), entry(@bob, :sale, available: 2_000), entry(@bob, :commission, available: -100))
@@ -55,7 +55,7 @@ class Game::Market::ReconcileWalletsTest < ActiveSupport::TestCase
   end
 
   test "a purchase from the Archive and of a slot count as destroyed" do
-    Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id))
     post(entry(@alice, :archive_purchase, available: -300), entry(@alice, :slot_purchase, available: -200), entry(@alice, :stamp, available: -10))
 
     result = reconcile
@@ -65,7 +65,7 @@ class Game::Market::ReconcileWalletsTest < ActiveSupport::TestCase
   end
 
   test "a wallet changed outside the ledger is one difference naming the player and both sums" do
-    Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id))
     Game::Market::Wallet.where(player_id: @alice.id).update_all(available: 1_500)
 
     result = reconcile
@@ -104,7 +104,7 @@ class Game::Market::ReconcileWalletsTest < ActiveSupport::TestCase
   end
 
   test "a post committed from another thread during the read is not seen" do
-    Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id))
     interleaved = false
     subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |*, payload|
       next if interleaved || !payload[:sql].include?("FULL OUTER JOIN")
@@ -124,7 +124,7 @@ class Game::Market::ReconcileWalletsTest < ActiveSupport::TestCase
   end
 
   test "the read issues no write" do
-    Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id))
     statements = []
     subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") { |*, payload| statements << payload[:sql] }
 

@@ -15,7 +15,7 @@ class WantedCardNoticeJobTest < ActiveJob::TestCase
     @wanting = accounts_players(:moderator)
     @card = catalog_card_seasons(:common_card_one)
     @settings = open_market!
-    Game::Market::Mint.credit(player_id: @seller.id, amount: 1_000, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @seller.id, amount: 1_000, settings_id: @settings.id))
     hold(@seller, @card.id, 2)
     insert_set([ @card.id, *unheld_cards(2) ], { complete: 3 }, key: "roguelike", params: { "theme" => "roguelike" })
     Game::AddGoal.new.call(player: @wanting, kind: "theme", key: "roguelike").value!

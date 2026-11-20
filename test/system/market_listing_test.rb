@@ -13,7 +13,7 @@ class MarketListingSystemTest < ApplicationSystemTestCase
     @common = catalog_card_seasons(:common_card_one)
     Game::Market::Settings.delete_all
     @settings = open_market!(first_opened_at: 1.day.ago)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 10, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 10, settings_id: @settings.id))
     hold(@player, @common.id, 1)
   end
 

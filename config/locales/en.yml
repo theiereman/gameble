@@ -2401,6 +2401,8 @@ en:
       no_rarity: One of these cards has no rarity yet, so the Brotherhood cannot value it.
       not_enough_copies: You do not have that many free copies of one of these cards.
       nothing_fits: No card fits within your cap for today. It renews at 00:00 UTC.
+      invalid_choices: Some choices need fixing. Nothing was sold, listed or entrusted.
+      invalid_choice: This choice does not exist.
     steam:
       already_published: The cards of that run are already published in a season,
         officer. Start a new import to fill the next draft.

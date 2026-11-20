@@ -33,7 +33,7 @@ class Game::ReleasePlayerMarketTest < ActiveSupport::TestCase
   end
 
   test "the wallet and the ledger stay so the balance can still be forfeited" do
-    Game::Market::Mint.credit(player_id: @player.id, amount: 1_000, settings_id: Game::Market::CurrentSettings.call.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 1_000, settings_id: Game::Market::CurrentSettings.call.id))
 
     assert Game::ReleasePlayer.new.call(player: @player).success?
 

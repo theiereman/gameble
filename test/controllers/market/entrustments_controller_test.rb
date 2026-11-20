@@ -301,7 +301,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     settings = open_market!
     hold(@player, @common.id, 1)
     hold(@player, @rare.id, 1)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 11_950, settings_id: settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 11_950, settings_id: settings.id))
     sign_in(@player)
 
     post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: selection({ ref(@common) => "1", ref(@rare) => "1" }) }
@@ -333,7 +333,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     legendary = catalog_card_seasons(:legendary_card_one)
     hold(@player, legendary.id, 1)
     hold(@player, @common.id, 1)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 11_500, settings_id: settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 11_500, settings_id: settings.id))
     sign_in(@player)
 
     post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: selection({ ref(legendary) => "1", ref(@common) => "1" }) }
@@ -351,7 +351,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
   test "when nothing fits the page answers 422 with the renewal line and keeps the ticks" do
     settings = open_market!
     hold(@player, @common.id, 1)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 12_000, settings_id: settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 12_000, settings_id: settings.id))
     sign_in(@player)
 
     assert_no_difference -> { Game::Market::LedgerEntry.count } do
@@ -382,7 +382,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
   test "the cap left drawn is the daily cap less what was minted today" do
     settings = open_market!
     hold(@player, @common.id, 1)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 11_500, settings_id: settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 11_500, settings_id: settings.id))
     sign_in(@player)
 
     get new_market_entrustment_path(locale: :en)

@@ -20,7 +20,7 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
   end
 
   def fund(player, amount)
-    Game::Market::Mint.credit(player_id: player.id, amount:, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: player.id, amount:, settings_id: @settings.id))
   end
 
   def list(card_season_id: @common.id, starting_price: @minimum, duration_hours: 24, token: @settings.token, player: @player)

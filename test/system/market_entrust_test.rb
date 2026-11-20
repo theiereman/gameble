@@ -86,7 +86,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     hold(@player, @legendary.id, 1)
     hold(@player, @uncommon.id, 2)
     hold(@player, @common.id, 3)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 11_500, settings_id: settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 11_500, settings_id: settings.id))
     sign_in_through_the_site
 
     visit new_market_entrustment_path(locale: :en)
@@ -158,7 +158,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
   test "a full cap disables validation and says when it renews" do
     settings = open_market!
     hold(@player, @common.id, 2)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 12_000, settings_id: settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 12_000, settings_id: settings.id))
     sign_in_through_the_site
 
     visit new_market_entrustment_path(locale: :en)

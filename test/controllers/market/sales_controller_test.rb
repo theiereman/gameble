@@ -25,7 +25,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     fund(500)
   end
 
-  def fund(amount) = Game::Market::Mint.credit(player_id: @player.id, amount:, settings_id: @settings.id)
+  def fund(amount) = Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount:, settings_id: @settings.id))
 
   def ref(card_season) = "#{card_season.card.slug}:#{card_season.season.number}"
 

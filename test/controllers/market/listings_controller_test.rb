@@ -184,7 +184,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the form carries the price and the unusual multiple of the current settings, and the unusual dialog only" do
-    Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 500, settings_id: Game::Market::CurrentSettings.call.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 500, settings_id: Game::Market::CurrentSettings.call.id))
     sign_in(accounts_players(:administrator))
     annonce
 
@@ -196,7 +196,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "quick amounts fill the minimum or a raise above it" do
-    Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 500, settings_id: Game::Market::CurrentSettings.call.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 500, settings_id: Game::Market::CurrentSettings.call.id))
     sign_in(accounts_players(:administrator))
     annonce
 

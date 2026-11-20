@@ -959,7 +959,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     seller = accounts_players(:moderator)
     soon = listing!(seller:, card_season: catalog_card_seasons(:common_card_one), ends_at: 15.minutes.from_now)
     listing!(seller:, card_season: catalog_card_seasons(:rare_card_one), hours: 24)
-    Game::Market::Mint.credit(player_id: @player.id, amount: 4_000, settings_id: Game::Market::CurrentSettings.call.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 4_000, settings_id: Game::Market::CurrentSettings.call.id))
     sign_in(@player)
 
     get home_path(locale: :en)

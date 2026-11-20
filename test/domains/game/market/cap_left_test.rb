@@ -10,7 +10,7 @@ class Game::Market::CapLeftTest < ActiveSupport::TestCase
   end
 
   test "it is the daily cap less what the player minted today" do
-    Game::Market::Mint.credit(player_id: @player.id, amount: 1_500, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 1_500, settings_id: @settings.id))
 
     assert_equal 10_500, Game::Market::CapLeft.call(@player.id, settings: @settings)
   end
@@ -20,7 +20,7 @@ class Game::Market::CapLeftTest < ActiveSupport::TestCase
   end
 
   test "it never goes below zero when the cap was lowered under what was minted" do
-    Game::Market::Mint.credit(player_id: @player.id, amount: 5_000, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @player.id, amount: 5_000, settings_id: @settings.id))
     lowered = open_market!(daily_cap: 3_000)
 
     assert_equal 0, Game::Market::CapLeft.call(@player.id, settings: lowered)

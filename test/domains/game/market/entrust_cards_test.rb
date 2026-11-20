@@ -18,7 +18,7 @@ class Game::Market::EntrustCardsTest < ActiveSupport::TestCase
   end
 
   def minted_before(player, amount)
-    Game::Market::Mint.credit(player_id: player.id, amount:, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: player.id, amount:, settings_id: @settings.id))
   end
 
   def entrust(lines, token: @settings.token, player: @player)

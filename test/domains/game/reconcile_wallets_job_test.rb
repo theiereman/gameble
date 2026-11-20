@@ -36,7 +36,7 @@ class Game::ReconcileWalletsJobTest < ActiveSupport::TestCase
   def wallet(player) = Game::Market::Wallet.find_by(player_id: player.id)
 
   test "matching wallets report nothing and no balance changes" do
-    Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id))
 
     assert_no_error_reported { Game::ReconcileWalletsJob.perform_now }
 
@@ -44,7 +44,7 @@ class Game::ReconcileWalletsJobTest < ActiveSupport::TestCase
   end
 
   test "a wallet changed outside the ledger is reported with its player and left as it was" do
-    Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id)
+    Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @alice.id, amount: 1_000, settings_id: @settings.id))
     Game::Market::Wallet.where(player_id: @alice.id).update_all(available: 1_500)
 
     report = assert_error_reported(Game::Market::Reconciliation::WalletMismatch) { Game::ReconcileWalletsJob.perform_now }

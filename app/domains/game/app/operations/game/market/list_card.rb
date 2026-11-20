@@ -1,7 +1,7 @@
 module Game
   module Market
     class ListCard < Operation
-      include PriceAmount
+      include ListingOpening
 
       def call(player:, card_season_id:, starting_price:, duration_hours:, settings_token:)
         player = step require_player(player)
@@ -15,9 +15,8 @@ module Game
           step price_rule(settings, rarity, starting_price)
           step duration_rule(settings, duration_hours)
           step stamp_covered(settings, rarity, player)
-          listing = create_listing(player, card_season_id, settings, starting_price, duration_hours)
-          reserve(holding)
-          Ledger.post(Ledger::Entry.new(player_id: player.id, kind: :stamp, available_delta: -settings.stamp(rarity), listing_id: listing.id, settings_id: settings.id))
+          listing, stamp = open_listing(player, holding, settings, rarity, starting_price, duration_hours)
+          Ledger.post(stamp)
           step publish(CardListed.new(data: { listing_id: listing.id, seller_id: player.id, card_season_id: }), stream_name: stream_name(player.id))
           listing
         end
@@ -42,27 +41,8 @@ module Game
 
       def free_copy(holding) = holding && holding.quantity > holding.reserved ? Success(holding) : Failure(:copy_not_free)
 
-      def price_rule(settings, rarity, starting_price)
-        starting_price < settings.minimum_price(rarity) ? Failure(:start_below_minimum) : Success()
-      end
-
-      def duration_rule(settings, duration_hours)
-        allowed = [ settings.duration_short_hours, settings.duration_medium_hours, settings.duration_long_hours ]
-        allowed.include?(whole_number(duration_hours)) ? Success() : Failure(:invalid_duration)
-      end
-
       def stamp_covered(settings, rarity, player)
         Balance.call(player).available >= settings.stamp(rarity) ? Success() : Failure(:stamp_not_covered)
-      end
-
-      def create_listing(player, card_season_id, settings, starting_price, duration_hours)
-        hours = whole_number(duration_hours)
-        Listing.create!(seller: player, card_season_id:, settings_id: settings.id, starting_price:, duration_hours: hours,
-          ends_at: hours.hours.from_now, current_price: starting_price)
-      end
-
-      def reserve(holding)
-        Holding.where(id: holding.id).update_all([ "reserved = reserved + 1, updated_at = ?", Time.current ])
       end
     end
   end
