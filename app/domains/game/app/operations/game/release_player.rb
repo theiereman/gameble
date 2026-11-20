@@ -9,6 +9,7 @@ module Game
         step ReleaseDuelSeats.new.call(player:)
         Market::Notice.where(player_id: player.id).delete_all
         Market::AltSignal.where(account_id: player.id).or(Market::AltSignal.where(other_account_id: player.id)).delete_all
+        Market::TiedAccount.where(low_account_id: player.id).or(Market::TiedAccount.where(high_account_id: player.id)).delete_all
         FeedReaction.where(player_id: player.id).delete_all
         ReactionNotice.where(reactor_id: player.id).delete_all
         TradeView.where(player_id: player.id).delete_all

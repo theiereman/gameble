@@ -2,6 +2,7 @@ module Game
   module Market
     module AltSignals
       SIGNALS = %w[near_maximum_opening one_way_trades sales_outside_price minimum_price_sales bids_on_tied_seller].freeze
+      TYING = %w[one_way_trades sales_outside_price minimum_price_sales].freeze
 
       OPENING_CAPSULES_PER_DAY = 120
       OPENING_DAYS_REQUIRED = 3

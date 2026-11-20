@@ -33,7 +33,15 @@ class AltSignalSentenceComponentTest < ViewComponent::TestCase
         assert I18n.exists?("back_office.market_signals.sentences.#{signal}", locale), "#{locale} sentence of #{signal}"
         assert I18n.exists?("back_office.market_signals.signals.#{signal}", locale), "#{locale} name of #{signal}"
       end
+      Game::Market::AltSignals::TYING.each do |signal|
+        assert I18n.exists?("back_office.market_signals.tie_sentences.#{signal}", locale), "#{locale} tie sentence of #{signal}"
+      end
     end
+  end
+
+  test "a tie reads its facts between the two accounts" do
+    assert_equal "Sales between the two accounts at the minimum price in the last 30 days: 4.",
+      render_inline(AltSignalSentenceComponent.new(signal: "minimum_price_sales", facts: { "sales" => 4 }, tie: true)).text
   end
 
   test "the French sentence is written too" do

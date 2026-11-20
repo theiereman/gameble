@@ -635,12 +635,19 @@ en:
         other_account: "Other account"
         refreshed_at: "Refreshed"
         signal: "Signal"
+        ties_caption: "Pairs of accounts a signal ties to each other"
+        ties_empty: "No signal ties two accounts."
+        ties_heading: "Tied accounts"
       signals:
         bids_on_tied_seller: "Bids on the listing of a tied account"
         minimum_price_sales: "Repeated minimum-price sales"
         near_maximum_opening: "Near-maximum capsule opening"
         one_way_trades: "Repeated one-way trades"
         sales_outside_price: "Sales outside the market price"
+      tie_sentences:
+        minimum_price_sales: "Sales between the two accounts at the minimum price in the last 30 days: %{sales}."
+        one_way_trades: "Trades between the two accounts in the last 7 days where one gave far more than it got: %{trades}. Copies given: %{given}, received: %{received}."
+        sales_outside_price: "Sales between the two accounts in the last 30 days at under half or over twice the edition's average price: %{sales} (%{below} below, %{above} above)."
     markets:
       announcement:
         hint: "Shown on the red banner in place of the current announcement, in each player's language, %{length} characters at most."

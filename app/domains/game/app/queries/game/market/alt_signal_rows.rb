@@ -9,6 +9,12 @@ module Game
           .map { Row.new(signal: it.signal, account: it.account, other_account: it.other_account, facts: it.facts) }
       end
 
+      def self.ties
+        ties = TiedAccount.includes(:low_account, :high_account).to_a
+        ties.sort_by { [ AltSignals::TYING.index(it.signal), it.low_account.persona_name.to_s.downcase, it.id ] }
+          .map { Row.new(signal: it.signal, account: it.low_account, other_account: it.high_account, facts: it.facts) }
+      end
+
       def self.refreshed_at = AltSignal.maximum(:refreshed_at)
     end
   end

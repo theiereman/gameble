@@ -42,5 +42,36 @@
         </tbody>
       </table>
     </div>
+
+    <h2><%= t(".ties_heading") %></h2>
+    <% if @ties.empty? %>
+      <%= render PanelComponent.new(tag: :p, data: { ties_empty: true }) do %>
+        <%= t(".ties_empty") %>
+      <% end %>
+    <% else %>
+      <div class="ledger-scroll">
+        <table class="ledger">
+          <caption class="visually-hidden"><%= t(".ties_caption") %></caption>
+          <thead>
+            <tr>
+              <th scope="col"><%= t(".account") %></th>
+              <th scope="col"><%= t(".other_account") %></th>
+              <th scope="col"><%= t(".signal") %></th>
+              <th scope="col"><%= t(".facts") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @ties.each do |tie| %>
+              <tr data-tie="<%= tie.signal %>">
+                <td><%= render "back_office/market_signals/account", player: tie.account %></td>
+                <td><%= render "back_office/market_signals/account", player: tie.other_account %></td>
+                <td><%= t("back_office.market_signals.signals.#{tie.signal}") %></td>
+                <td><%= render AltSignalSentenceComponent.new(signal: tie.signal, facts: tie.facts, tie: true) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
   <% end %>
 </div>

@@ -949,12 +949,19 @@ fr:
         other_account: "Autre compte"
         refreshed_at: "Actualisé"
         signal: "Signal"
+        ties_caption: "Paires de comptes qu'un signal lie l'un à l'autre"
+        ties_empty: "Aucun signal ne lie deux comptes."
+        ties_heading: "Comptes liés"
       signals:
         bids_on_tied_seller: "Enchères sur l'annonce d'un compte lié"
         minimum_price_sales: "Ventes au prix minimum répétées"
         near_maximum_opening: "Ouverture de capsules proche du maximum"
         one_way_trades: "Échanges à sens unique répétés"
         sales_outside_price: "Ventes hors du prix du marché"
+      tie_sentences:
+        minimum_price_sales: "Ventes entre les deux comptes au prix minimum ces 30 derniers jours : %{sales}."
+        one_way_trades: "Échanges entre les deux comptes ces 7 derniers jours où l'un a donné bien plus qu'il n'a reçu : %{trades}. Exemplaires donnés : %{given}, reçus : %{received}."
+        sales_outside_price: "Ventes entre les deux comptes ces 30 derniers jours à moins de la moitié ou à plus du double du prix moyen de l'édition : %{sales} (%{below} en dessous, %{above} au-dessus)."
     markets:
       announcement:
         hint: "Affichée sur le bandeau rouge à la place de l'annonce actuelle, dans la langue de chaque joueur, %{length} caractères au plus."

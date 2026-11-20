@@ -8,13 +8,17 @@ class BackOfficeMarketSignalsTest < ApplicationSystemTestCase
 
   setup do
     Game::Market::AltSignal.delete_all
+    Game::Market::TiedAccount.delete_all
     Game::Pack.update_all(opened_at: nil)
     @alice = accounts_players(:player)
     @bob = accounts_players(:administrator)
     @now = Time.current.utc.beginning_of_day + 40.minutes
   end
 
-  teardown { Game::Market::AltSignal.delete_all }
+  teardown do
+    Game::Market::AltSignal.delete_all
+    Game::Market::TiedAccount.delete_all
+  end
 
   def visit_signals_as(player)
     mock_steam_sign_in(player.steam_id)
