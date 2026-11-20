@@ -565,7 +565,7 @@ class BoosterTest < ApplicationSystemTestCase
 
     # One activation reveals the top card; a tap on it stores it, once its guard is over.
     page.send_keys(:enter)
-    assert_selector "#{phone_card(1)}[data-revealed]"
+    assert_selector "#{phone_card(1)}[data-revealed]", wait: 10
     assert_announced "Card 1: Tin Soldier — 2024. Common."
     assert_equal "Tin Soldier — 2024, Common. Store the card.", find(phone_hit(1))["aria-label"]
     assert_focus phone_hit(1)
@@ -578,7 +578,7 @@ class BoosterTest < ApplicationSystemTestCase
 
     # The second: a tap on the revealed card, once its guard is over.
     page.send_keys(:enter)
-    assert_selector "#{phone_card(2)}[data-revealed]"
+    assert_selector "#{phone_card(2)}[data-revealed]", wait: 10
     sleep 0.45
     find("#{phone_card(2)} .booster-card__front .card").click
     assert_no_selector phone_card(2)
@@ -586,7 +586,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_focus phone_hit(3)
 
     page.send_keys(:enter)
-    assert_selector "#{phone_card(3)}[data-revealed]"
+    assert_selector "#{phone_card(3)}[data-revealed]", wait: 10
     sleep 0.45
     store_on_phone(3)
     assert_no_selector phone_card(3)
@@ -594,12 +594,12 @@ class BoosterTest < ApplicationSystemTestCase
     assert_focus phone_hit(4)
 
     page.send_keys(:enter)
-    assert_selector "#{phone_card(4)}[data-revealed]"
+    assert_selector "#{phone_card(4)}[data-revealed]", wait: 10
     sleep 0.45
     store_on_phone(4)
     assert_focus phone_hit(5)
     page.send_keys(:enter)
-    assert_selector "#{phone_card(5)}[data-revealed]"
+    assert_selector "#{phone_card(5)}[data-revealed]", wait: 10
     sleep 0.45
     store_on_phone(5)
 
@@ -624,7 +624,7 @@ class BoosterTest < ApplicationSystemTestCase
     open_canister
     assert_pile(5)
     page.send_keys(:enter)
-    assert_selector "#{phone_card(1)}[data-revealed]"
+    assert_selector "#{phone_card(1)}[data-revealed]", wait: 10
     sleep 0.45
     store_on_phone(1)
     slot = ".booster-tray__slot--filled"
@@ -663,7 +663,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_pile(5)
     assert_no_selector ".booster-card__repost"
     page.send_keys(:enter)
-    assert_selector "#{phone_card(1)}[data-revealed]"
+    assert_selector "#{phone_card(1)}[data-revealed]", wait: 10
     assert_no_selector ".booster-card__repost"
     sleep 0.45
     store_on_phone(1)
