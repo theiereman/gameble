@@ -794,7 +794,7 @@ fr:
           wins: "Victoires"
           with_automatic_move: "Avec un coup automatique"
         heading: "Comment se jouent les duels"
-        intro: "Les duels terminés d'une version des règles. Un duel abandonné compte comme terminé et comme abandonné, et dans aucun taux ni aucune stat appelée ; chaque taux est une part des duels joués jusqu'au bout (le taux de victoire d'une recette, des decks qu'ils ont mis en jeu), et un nul n'est jamais une victoire."
+        intro: "Les duels terminés d'une version des règles. Un duel abandonné compte comme terminé et comme abandonné, et dans aucun taux ni aucune stat appelée ; chaque taux est une part des duels joués jusqu'au bout (le taux de victoire d'une recette, des decks qu'ils ont mis en jeu), et un nul n'est jamais une victoire."
         live:
           empty: "Aucun duel en ligne ne s'est terminé sous ces règles."
           figures_caption: "Les duels en ligne terminés sous ces règles"
