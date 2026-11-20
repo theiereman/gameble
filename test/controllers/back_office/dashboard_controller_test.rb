@@ -45,13 +45,13 @@ module BackOffice
       assert_select "a.office-tile--urgent[href='/fr/back-office/reports'] .office-tile__status--count", "2 en attente"
     end
 
-    test "a moderator sees the moderation group and the market's" do
+    test "a moderator sees the moderation group, the duels' and the market's" do
       sign_in(accounts_players(:moderator))
 
       get back_office_path(locale: :fr)
 
-      assert_equal %w[Modération Marché], css_select(".office-group__heading").map(&:text)
-      assert_select "a.office-tile", 5
+      assert_equal %w[Modération Duels Marché], css_select(".office-group__heading").map(&:text)
+      assert_select "a.office-tile", 6
       assert_select "a[href='/fr/back-office/themes']", false
     end
 
@@ -60,8 +60,8 @@ module BackOffice
 
       get back_office_path(locale: :fr)
 
-      assert_equal %w[Modération Catalogue Communication Marché Technique], css_select(".office-group__heading").map(&:text)
-      assert_select "a.office-tile", 14
+      assert_equal %w[Modération Catalogue Communication Duels Marché Technique], css_select(".office-group__heading").map(&:text)
+      assert_select "a.office-tile", 15
       assert_select "a.office-tile[data-office-tile='jobs'][data-turbo='false'][href='/back-office/jobs/']"
     end
 

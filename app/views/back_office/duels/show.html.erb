@@ -1,0 +1,93 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <%= form_with url: back_office_duels_path, method: :get, class: "ledger-search" do %>
+    <label for="duel-version"><%= t(".version_label") %></label>
+    <%= select_tag :version, options_for_select(@versions, @version), id: "duel-version", class: "ledger-search__field" %>
+    <%= render ButtonComponent.new(variant: :secondary, type: :submit) do %><%= t(".version_submit") %><% end %>
+  <% end %>
+
+  <section class="stack" aria-labelledby="duels-live">
+    <h2 id="duels-live"><%= t(".live.heading") %></h2>
+    <% if @report.live.finished.zero? %>
+      <%= render PanelComponent.new(tag: :p, quiet: true, data: { duel_empty: "live" }) do %><%= t(".live.empty") %><% end %>
+    <% else %>
+      <div class="ledger-scroll">
+        <table class="ledger">
+          <caption class="visually-hidden"><%= t(".live.figures_caption") %></caption>
+          <thead>
+            <tr><%= render "back_office/duels/figure_headings" %></tr>
+          </thead>
+          <tbody>
+            <tr data-duel-figures="live"><%= render "back_office/duels/figure_cells", figures: @report.live %></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><%= t(".live.recipes_heading") %></h3>
+      <div class="ledger-scroll">
+        <table class="ledger">
+          <caption class="visually-hidden"><%= t(".live.recipes_heading") %></caption>
+          <thead>
+            <tr>
+              <th scope="col"><%= t(".columns.recipe") %></th>
+              <th scope="col"><%= t(".columns.decks") %></th>
+              <th scope="col"><%= t(".columns.wins") %></th>
+              <th scope="col"><%= t(".columns.win_rate") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @report.recipes.each do |recipe| %>
+              <tr data-duel-recipe="<%= recipe.name %>">
+                <th scope="row"><%= t("duels.archetypes.#{recipe.name}") %></th>
+                <td data-duel-figure="decks"><%= recipe.decks %></td>
+                <td data-duel-figure="wins"><%= recipe.wins %></td>
+                <td data-duel-figure="win_rate"><%= duel_share(recipe.wins, recipe.decks) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <%= render "back_office/duels/stats_called", scope: "live", heading: t(".live.stats_heading"), stats_called: @report.live.stats_called %>
+    <% end %>
+  </section>
+
+  <section class="stack" aria-labelledby="duels-practice">
+    <h2 id="duels-practice"><%= t(".practice.heading") %></h2>
+    <% if @report.practice_total.finished.zero? %>
+      <%= render PanelComponent.new(tag: :p, quiet: true, data: { duel_empty: "practice" }) do %><%= t(".practice.empty") %><% end %>
+    <% else %>
+      <div class="ledger-scroll">
+        <table class="ledger">
+          <caption class="visually-hidden"><%= t(".practice.caption") %></caption>
+          <thead>
+            <tr>
+              <th scope="col"><%= t(".columns.bot_archetype") %></th>
+              <%= render "back_office/duels/figure_headings" %>
+              <th scope="col"><%= t(".columns.bot_wins") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @report.practice.each do |row| %>
+              <tr data-duel-practice="<%= row.archetype %>">
+                <th scope="row"><%= t("duels.archetypes.#{row.archetype}") %></th>
+                <%= render "back_office/duels/figure_cells", figures: row.figures %>
+                <td data-duel-figure="bot_wins"><%= duel_share(row.bot_wins, row.figures.played) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <%= render "back_office/duels/stats_called", scope: "practice", heading: t(".practice.stats_heading"),
+            stats_called: @report.practice_total.stats_called %>
+    <% end %>
+  </section>
+</div>

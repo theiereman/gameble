@@ -22,6 +22,9 @@ module BackOfficeDashboardHelper
         back_office_tile(:roadmap, back_office_roadmap_path, action: :show?),
         back_office_tile(:feedbacks, back_office_feedbacks_path)
       ],
+      duels: [
+        back_office_tile(:duels, back_office_duels_path, action: :show?)
+      ],
       market: [
         back_office_tile(:market, back_office_market_path, action: :show?)
       ],

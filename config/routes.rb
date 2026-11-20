@@ -341,6 +341,9 @@ Rails.application.routes.draw do
       post "market/charts/:kind/unpublish" => "chart_publications#unpublish", as: :unpublish_chart,
         constraints: { kind: /reactor|rarity_prices|edition_sales/ }
 
+      # How duels play, staff only: the finished duels of one rules version, live apart from practice.
+      resource :duels, only: :show
+
       # The card preview, both renderers side by side, administrators only.
       resources :cards, only: :index
 

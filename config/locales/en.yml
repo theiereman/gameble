@@ -408,6 +408,39 @@ en:
         draft: "The note of %{version} is back to draft."
         ready: "The note of %{version} is ready."
         skipped: "%{version} needs no note."
+    duels:
+      no_value: "—"
+      show:
+        columns:
+          bot_archetype: "Bot archetype"
+          bot_wins: "Bot wins"
+          calls: "Calls"
+          decided_on_margin: "Decided on the margin"
+          decks: "Decks played"
+          direction: "Direction"
+          finished: "Duels finished"
+          first_caller_wins: "First caller wins"
+          forfeited: "Forfeited"
+          recipe: "Recipe"
+          stat: "Stat"
+          win_rate: "Win rate"
+          wins: "Wins"
+          with_automatic_move: "With an automatic move"
+        heading: "How duels play"
+        intro: "The finished duels of one rules version. A forfeited duel counts as finished and as forfeited, and in no rate and no stat called; every rate is a share of the duels played out (the recipe win rate, of the decks they dealt), and a draw is never a win."
+        live:
+          empty: "No live duel has finished under these rules."
+          figures_caption: "Live duels finished under these rules"
+          heading: "Live duels"
+          recipes_heading: "Win rate by deck recipe"
+          stats_heading: "Stats called in live duels"
+        practice:
+          caption: "Practice duels by bot archetype"
+          empty: "No practice duel has finished under these rules."
+          heading: "Practice duels"
+          stats_heading: "Stats called in practice duels"
+        version_label: "Rules version"
+        version_submit: "Show"
     feedbacks:
       index:
         count:
@@ -699,6 +732,7 @@ en:
           moderation: Moderation
           catalog: Catalog
           communication: Communication
+          duels: Duels
           market: Market
           technical: Technical
         tiles:
@@ -732,6 +766,9 @@ en:
           feedbacks:
             title: Testing
             text: What players say about the features under test.
+          duels:
+            title: The duels
+            text: How duels play, per rules version.
           announcements:
             title: The announcements
             text: The red banner, in English and French.
@@ -1907,6 +1944,7 @@ en:
       two_stats: "two-stat"
       trumps: "trump"
       random: "random"
+      other: "other"
     feedback: Send feedback
     board:
       forfeit:

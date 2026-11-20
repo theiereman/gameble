@@ -775,6 +775,39 @@ fr:
         draft: "La note de %{version} repasse en brouillon."
         ready: "La note de %{version} est prête."
         skipped: "%{version} n'a pas besoin de note."
+    duels:
+      no_value: "—"
+      show:
+        columns:
+          bot_archetype: "Archétype du bot"
+          bot_wins: "Victoires du bot"
+          calls: "Appels"
+          decided_on_margin: "Décidés à la marge"
+          decks: "Decks joués"
+          direction: "Sens"
+          finished: "Duels terminés"
+          first_caller_wins: "Victoires du premier à appeler"
+          forfeited: "Abandonnés"
+          recipe: "Recette"
+          stat: "Stat"
+          win_rate: "Taux de victoire"
+          wins: "Victoires"
+          with_automatic_move: "Avec un coup automatique"
+        heading: "Comment se jouent les duels"
+        intro: "Les duels terminés d'une version des règles. Un duel abandonné compte comme terminé et comme abandonné, et dans aucun taux ni aucune stat appelée ; chaque taux est une part des duels joués jusqu'au bout (le taux de victoire d'une recette, des decks qu'ils ont mis en jeu), et un nul n'est jamais une victoire."
+        live:
+          empty: "Aucun duel en ligne ne s'est terminé sous ces règles."
+          figures_caption: "Les duels en ligne terminés sous ces règles"
+          heading: "Duels en ligne"
+          recipes_heading: "Taux de victoire par recette de deck"
+          stats_heading: "Stats appelées dans les duels en ligne"
+        practice:
+          caption: "Les duels d'entraînement par archétype du bot"
+          empty: "Aucun duel d'entraînement ne s'est terminé sous ces règles."
+          heading: "Duels d'entraînement"
+          stats_heading: "Stats appelées dans les duels d'entraînement"
+        version_label: "Version des règles"
+        version_submit: "Afficher"
     feedbacks:
       index:
         count:
@@ -1013,6 +1046,7 @@ fr:
           moderation: "Modération"
           catalog: "Catalogue"
           communication: "Communication"
+          duels: "Duels"
           market: "Marché"
           technical: "Technique"
         tiles:
@@ -1046,6 +1080,9 @@ fr:
           feedbacks:
             title: "Testing"
             text: "Les retours des joueurs sur les fonctionnalités en test."
+          duels:
+            title: "Les duels"
+            text: "Comment se jouent les duels, par version des règles."
           announcements:
             title: "Les annonces"
             text: "Le bandeau rouge, en français et en anglais."
@@ -4316,6 +4353,7 @@ fr:
       two_stats: "deux stats"
       trumps: "atouts"
       random: "aléatoire"
+      other: "autre"
     feedback: "Envoyer un feedback"
     show:
       title: "Duels"

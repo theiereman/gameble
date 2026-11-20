@@ -1,0 +1,22 @@
+<h3><%= heading %></h3>
+<div class="ledger-scroll">
+  <table class="ledger" data-duel-stats="<%= scope %>">
+    <caption class="visually-hidden"><%= heading %></caption>
+    <thead>
+      <tr>
+        <th scope="col"><%= t("back_office.duels.show.columns.stat") %></th>
+        <th scope="col"><%= t("back_office.duels.show.columns.direction") %></th>
+        <th scope="col"><%= t("back_office.duels.show.columns.calls") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% Game::DuelStat::STATS.product(Game::DuelStat::DIRECTIONS).each do |stat, direction| %>
+        <tr data-duel-call="<%= stat %>-<%= direction %>">
+          <th scope="row"><%= t("duel_stats.names.#{stat}") %></th>
+          <td><%= t("duel_stats.directions.#{stat}.#{direction}") %></td>
+          <td><%= stats_called.fetch([ stat, direction ], 0) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
