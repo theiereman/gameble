@@ -228,6 +228,12 @@ html:has(body > .ticker) {
   text-align: center;
 }
 
+.tab-bar__alpha {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .tab-bar__badge--accent {
   background: var(--color-accent);
   color: var(--color-on-accent);

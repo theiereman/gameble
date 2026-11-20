@@ -19,13 +19,6 @@
         <%= render "public_profiles/figure", label: t("public_profiles.show.stats.first_discoveries"), value: activity.first_discoveries %>
         <%= render "public_profiles/figure", label: t("public_profiles.show.stats.trades_concluded"), value: activity.trades_concluded %>
       </dl>
-      <% if feature_enabled?(:duels) %>
-        <dl class="profile-stats__grid">
-          <%= render "public_profiles/figure", label: t("public_profiles.show.stats.duel_wins"), value: activity.duel_wins %>
-          <%= render "public_profiles/figure", label: t("public_profiles.show.stats.duel_losses"), value: activity.duel_losses %>
-          <%= render "public_profiles/figure", label: t("public_profiles.show.stats.duel_draws"), value: activity.duel_draws %>
-        </dl>
-      <% end %>
     </dd>
   </dl>
 <% end %>

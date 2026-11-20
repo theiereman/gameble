@@ -103,13 +103,13 @@ module Game
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze
 
+    OFFERED = CATALOGUE.reject(&:duel?).freeze
+
     def self.find(key)
       BY_KEY[key.to_s]
     end
 
-    def self.offered(features = EnabledFeatures.call)
-      features.include?("duels") ? CATALOGUE : CATALOGUE.reject(&:duel?)
-    end
+    def self.offered = OFFERED
 
     def self.offered_keys(offered = self.offered) = offered.map { it.key.to_s }
 

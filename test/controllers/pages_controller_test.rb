@@ -49,7 +49,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     }
   }.freeze
 
-  PLAYER_HUB_QUERIES = 37
+  PLAYER_HUB_QUERIES = 36
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -183,9 +183,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select "#menu-trades-badge.stream-slot", 1
       assert_select ".menu-item__badge, .visually-hidden", 0
     end
-    # 04: the duels, with no badge.
+    # 04: the duels, tagged alpha, with no badge.
     assert_select ".hub-menu a.menu-item[href='/fr/duels'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Duels"
+      assert_select ".alpha-tag", "ALPHA"
       assert_select ".menu-item__badge, .visually-hidden", 0
     end
     assert_select ".hub-menu a.menu-item[href='/fr/market']", 0
@@ -197,8 +198,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # 06: the achievements screen, none earned yet.
     assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Succès"
-      assert_select ".menu-item__meta[aria-hidden=true]", "0/#{Game::Achievements::CATALOGUE.size}"
-      assert_select ".visually-hidden", "0 succès obtenu sur #{Game::Achievements::CATALOGUE.size}"
+      assert_select ".menu-item__meta[aria-hidden=true]", "0/#{Game::Achievements.offered.size}"
+      assert_select ".visually-hidden", "0 succès obtenu sur #{Game::Achievements.offered.size}"
     end
     # 07: the extras, a button that swaps the list in place for the hidden one.
     assert_select ".hub-menu button.menu-item[type=button][aria-keyshortcuts='7'][aria-expanded=false][aria-controls=hub-menu-extras][data-hub-menu-target~=extrasEntry][data-action='hub-menu#openExtras']" do

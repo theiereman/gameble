@@ -666,7 +666,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     reads = progress_reads { Game::GrantAchievementsJob.perform_now(@player.id) }
 
     assert_not_includes reads.first, :two_rare_or_better_capsules
-    assert_equal (Game::AchievementProgress::METRICS - [ :two_rare_or_better_capsules ]).sort, reads.first.sort
+    assert_equal (Game::Achievements.metrics(Game::Achievements.offered) - [ :two_rare_or_better_capsules ]).sort, reads.first.sort
     assert_equal %w[statistical_non_compliance first_booster packaging_irregularity], unlocked
 
     Game::Achievements::CATALOGUE.each { Game::AchievementUnlock.record(@player.id, it.key, Time.current) }

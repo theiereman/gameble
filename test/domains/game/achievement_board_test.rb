@@ -18,15 +18,14 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
 
   def tile(key, player = @player) = Game::AchievementBoard.call(player).find { it.key == key }
 
-  test "a tile per achievement, in catalogue order, each with its threshold" do
+  test "a tile per offered achievement, in catalogue order, each with its threshold" do
     tiles = Game::AchievementBoard.call(@player)
 
-    assert_equal Game::Achievements::CATALOGUE.map(&:key), tiles.map(&:key)
-    assert_equal Game::Achievements::CATALOGUE.map(&:threshold), tiles.map(&:threshold)
+    assert_equal Game::Achievements.offered.map(&:key), tiles.map(&:key)
+    assert_equal Game::Achievements.offered.map(&:threshold), tiles.map(&:threshold)
   end
 
-  test "without duels the board, its summary and the earned count leave the duel achievements out" do
-    Game::SetFeatureFlag.new.call(player: accounts_players(:administrator), key: "duels", enabled: false).value!
+  test "the board, its summary and the earned count leave the duel achievements out" do
     unlock(:first_booster, :competitive_advantage_observed)
     duel_keys = Game::Achievements::CATALOGUE.select(&:duel?).map(&:key)
 
@@ -60,7 +59,7 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
   end
 
   test "an earned tile's progress is its threshold, and the board reads only the metrics of unearned achievements" do
-    unlock(*(Game::Achievements::CATALOGUE.map(&:key) - %i[boosters_10]))
+    unlock(*(Game::Achievements.offered.map(&:key) - %i[boosters_10]))
     opened_packs(3)
     asked = []
     original = Game::AchievementProgress.method(:call)
@@ -79,7 +78,7 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
   end
 
   test "only an achievement with a threshold above one is countable" do
-    assert_equal Game::Achievements::CATALOGUE.select { it.threshold > 1 }.map(&:key),
+    assert_equal Game::Achievements.offered.select { it.threshold > 1 }.map(&:key),
       Game::AchievementBoard.call(@player).select(&:countable?).map(&:key)
   end
 
@@ -90,5 +89,5 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
     assert_equal 1, Game::AchievementBoard.call(@player).count(&:earned)
   end
 
-  def total_achievements = Game::Achievements::CATALOGUE.size
+  def total_achievements = Game::Achievements.offered.size
 end

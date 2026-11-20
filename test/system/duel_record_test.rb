@@ -2,7 +2,7 @@ require "application_system_test_case"
 require_relative "../support/steam_sign_in"
 require_relative "../support/live_duels"
 
-# Léa wins one duel against Hugo and loses another: her profile's activity shows 1 win and 1 loss, her Duels screen shows
+# Léa wins one duel against Hugo and loses another: her profile's activity shows no duel figure, her Duels screen shows
 # the record and the two last duels, a row opens its result, and the rules link opens the duels section of How it works.
 class DuelRecordSystemTest < ApplicationSystemTestCase
   include SteamSignIn
@@ -38,7 +38,7 @@ class DuelRecordSystemTest < ApplicationSystemTestCase
 
   def top_of(selector) = evaluate_script("document.querySelector(#{selector.to_json}).getBoundingClientRect().top")
 
-  test "the profile and the Duels screen show a win and a loss, a row opens its result and the rules link opens the duels section" do
+  test "the profile leaves the duels out, the Duels screen shows a win and a loss, a row opens its result and the rules link opens the duels section" do
     rate_deck_of(@lea, 100)
     rate_deck_of(@hugo, 50)
     won = play_a_duel
@@ -51,9 +51,8 @@ class DuelRecordSystemTest < ApplicationSystemTestCase
     assert_signed_in
 
     visit me_path(locale: :en)
-    assert_selector ".profile-figure", text: /Duel wins\s*1/i
-    assert_selector ".profile-figure", text: /Duel losses\s*1/i
-    assert_selector ".profile-figure", text: /Duel draws\s*0/i
+    assert_selector ".profile-figure", text: /Capsules opened/i
+    assert_no_selector ".profile-figure", text: /Duel/i
 
     visit duels_path(locale: :en)
     assert_selector ".duel-record__line", text: "Duels: 1 win, 1 loss, 0 draws", visible: :all

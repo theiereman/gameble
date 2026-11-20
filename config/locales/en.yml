@@ -408,21 +408,6 @@ en:
         draft: "The note of %{version} is back to draft."
         ready: "The note of %{version} is ready."
         skipped: "%{version} needs no note."
-    features:
-      index:
-        heading: The features
-        intro: A feature that is off is hidden from every player and its pages answer "not found". Switching it on shows it to everyone at once.
-        names:
-          duels: Duels
-        descriptions:
-          duels: The Duels tab, the decks, the challenges between friends and the duel profile of the cards.
-        enabled: "On"
-        disabled: "Off"
-        turn_on: Switch on
-        turn_off: Switch off
-      update:
-        turned_on: "%{name} is on for every player."
-        turned_off: "%{name} is hidden from the players."
     feedbacks:
       index:
         count:
@@ -747,9 +732,6 @@ en:
           feedbacks:
             title: Testing
             text: What players say about the features under test.
-          features:
-            title: The features
-            text: Switch on what is still hidden from the players.
           announcements:
             title: The announcements
             text: The red banner, in English and French.
@@ -1914,7 +1896,7 @@ en:
   duels:
   duels:
     alpha: ALPHA
-    alpha_warning: "Careful: this mode is in alpha. It may contain bugs and balance problems."
+    alpha_warning: "Careful: this mode is in alpha. It may contain bugs and balance problems. Your games are analysed to balance the rules."
     feedback: Send feedback
     board:
       forfeit:
@@ -2307,7 +2289,6 @@ en:
       unknown_back: That card back does not exist.
       unknown_code: No player has that code.
       unknown_direction: Unknown direction.
-      unknown_feature: That feature does not exist.
       unknown_reaction: That reaction does not exist.
       unknown_reason: The duel stats know no such reason to be computed.
       unknown_season: You did not earn this card back in that season.
@@ -3924,7 +3905,6 @@ en:
           one: "%{number} invitation waiting for your answer"
           other: "%{number} invitations waiting for your answer"
         label: Bridge menu
-        market: Market
         market_outbid:
           one: "%{number} auction outbid"
           other: "%{number} auctions outbid"
@@ -4581,9 +4561,6 @@ en:
         placing: "Place %{position} of %{count}"
       stats:
         activity: Activity
-        duel_draws: Duel draws
-        duel_losses: Duel losses
-        duel_wins: Duel wins
         first_discoveries: First discoveries
         packs_opened: Capsules opened
         rarities: Rarities
@@ -5000,7 +4977,6 @@ en:
       hub: Bridge
       label: Main navigation
       landing: Home
-      market: Market
       market_outbid:
         one: "%{number} auction outbid"
         other: "%{number} auctions outbid"

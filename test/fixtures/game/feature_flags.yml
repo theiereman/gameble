@@ -1,9 +1,0 @@
-_fixture:
-  model_class: Game::FeatureFlag
-
-# The duels are on in every test; a test of the switch turns them off itself.
-duels:
-  key: duels
-  enabled: true
-  created_at: <%= Time.utc(2026, 11, 18) %>
-  updated_at: <%= Time.utc(2026, 11, 18) %>

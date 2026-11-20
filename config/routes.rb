@@ -282,9 +282,6 @@ Rails.application.routes.draw do
 
       resources :code_contributions, path: "code-contributions", only: :create
 
-      # The features still hidden from the players, administrators only: each one is switched on or off.
-      resources :features, only: %i[index update], param: :key, constraints: { key: /[a-z_]+/ }
-
       resources :seasons, only: %i[index show update], param: :number, constraints: { number: /\d+/ } do
         post :publish, on: :collection
       end

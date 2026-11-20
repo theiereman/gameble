@@ -1,5 +1,4 @@
 class DuelsController < ApplicationController
-  require_feature :duels
   def show
     authorize :duel, :show?
     @decks = DeckList.new(current_player, locale: I18n.locale)

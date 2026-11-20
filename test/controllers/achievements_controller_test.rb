@@ -87,7 +87,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".achievements__segment--lit", 0
     assert_select "#achievements-earned", false
     assert_select "h2#achievements-to_earn", "To earn · #{total_achievements}"
-    assert_equal Game::Achievements::CATALOGUE.select { it.threshold > 1 }.map { [ "0", it.threshold.to_s ] },
+    assert_equal Game::Achievements.offered.select { it.threshold > 1 }.map { [ "0", it.threshold.to_s ] },
       css_select("progress.achievement__bar").map { [ it["value"], it["max"] ] }
     assert_equal [ "0 / 10", "0 / 100", "0 / 500", "0 / 3", "0 / 10", "0 / 7", "0 / 10", "0 / 10", "0 / 5", "0 / 10", "0 / 3",
       "0 / 3", "0 / 25", "0 / 5" ], css_select(".achievement__progress").map(&:text).first(14)
@@ -237,5 +237,5 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Executive", insider.at_css(".achievement__avatar").text
   end
 
-  def total_achievements = Game::Achievements::CATALOGUE.size
+  def total_achievements = Game::Achievements.offered.size
 end

@@ -169,7 +169,7 @@ class Game::DuelAchievementsTest < ActiveSupport::TestCase
     assert_equal [ 0, 0, 0 ], %i[distinct_stats_won duels_won margin_wins].map { progress(it) }
   end
 
-  test "a finished duel grants its first achievements to both seats through the job" do
+  test "a finished duel runs the job for both seats, which grants neither a duel achievement" do
     duel = finished_duel
     event = Game::DuelFinished.new(data: { duel_id: duel.id, challenger_id: @lea.id, opponent_id: @hugo.id })
 
@@ -178,25 +178,18 @@ class Game::DuelAchievementsTest < ActiveSupport::TestCase
     end
     perform_enqueued_jobs only: Game::GrantAchievementsJob
 
-    assert_equal %w[first_dispute_settled_amicably competitive_advantage_observed], unlocked(@lea)
-    assert_equal %w[first_dispute_settled_amicably], unlocked(@hugo)
+    assert_empty unlocked(@lea)
+    assert_empty unlocked(@hugo)
   end
 
-  test "the Duelliste back is the one of Abuse of Dominant Position, unlocked at 50 wins once claimed" do
+  test "the Duelliste back stays the one of Abuse of Dominant Position, which 50 wins no longer grant" do
     assert_equal [ :achievement, "abuse_of_dominant_position" ], Game::CardBacks.find("duelliste").unlock.to_h.values_at(:kind, :target)
 
-    49.times { finished_duel }
+    50.times { finished_duel }
     Game::GrantAchievementsJob.grant(@lea)
-    assert_not_includes unlocked(@lea), "abuse_of_dominant_position"
 
-    finished_duel
-    Game::GrantAchievementsJob.grant(@lea)
-    assert_equal %w[competitive_advantage_observed dominant_position abuse_of_dominant_position],
-      unlocked(@lea) - %w[first_dispute_settled_amicably]
+    assert_empty unlocked(@lea)
     assert_empty Game::CardBackUnlock.where(player_id: @lea.id, back: "duelliste")
-
-    perform_enqueued_jobs { Game::ClaimAchievement.new.call(player: @lea, achievement: "abuse_of_dominant_position").value! }
-    assert_equal [ "duelliste" ], Game::CardBackUnlock.where(player_id: @lea.id).pluck(:back)
   end
 
   def unlocked(player) = Game::AchievementUnlock.where(player_id: player.id).order(:id).pluck(:achievement)

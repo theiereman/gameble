@@ -26,6 +26,14 @@
   letter-spacing: var(--tracking-label);
 }
 
+/* No tracking, so the tag fits a tab at 360px. */
+.alpha-tag--compact {
+  padding: 0 var(--space-1);
+  font: var(--font-button-sm);
+  letter-spacing: 0;
+  line-height: 10px;
+}
+
 .feedback-form {
   display: flex;
   flex-direction: column;

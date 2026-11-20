@@ -33,12 +33,12 @@ class CardBacksControllerTest < ActionDispatch::IntegrationTest
       assert_select ".back-picker__tail", "à l'inscription"
     end
     assert_equal [ "De base", "Succès", "Sets · Thèmes", "Sets · Palmarès" ], css_select(".back-picker__group-name").map(&:text)
-    assert_select "#me-back-sheet .me-sheet__count .visually-hidden", "6 sur #{Game::CardBacks::KEYS.size} débloqués"
+    assert_select "#me-back-sheet .me-sheet__count .visually-hidden", "6 sur #{Game::CardBacks::KEYS.size - 1} débloqués"
     assert_select ".me-back-opener .me-opener__kicker", "Dos de carte · vous seul"
     assert_select ".back-picker__tile--active", 1
     assert_select ".back-picker__tile--active button[aria-label=?]", "Standard, actif. Offert à tous les joueurs, à l'inscription."
-    assert_select ".back-picker__tile--locked", Game::CardBacks::KEYS.size - 6
-    assert_select ".back-picker__tile--locked button[type=button]", Game::CardBacks::KEYS.size - 6
+    assert_select ".back-picker__tile--locked", Game::CardBacks::KEYS.size - 7
+    assert_select ".back-picker__tile--locked button[type=button]", Game::CardBacks::KEYS.size - 7
     assert_select ".back-picker__tile form[action$='/personalization/back'] input[name=back][value='set-theme-rpg']"
     assert_select ".back-picker__tile[data-key='set-theme-rpg'] button[data-active-label^='RPG, actif.'][data-unlocked-label$='Équiper.']"
     assert_select ".back-picker__tile[data-key='etoile-dor'] button[aria-label=?]",

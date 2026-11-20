@@ -86,18 +86,18 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-band__identity > button.button--secondary.button--small[type=button][disabled][aria-label=?]", "Trade with Gabe the Brave",
       text: "TRADE"
     assert_select ".profile-band [aria-haspopup], .profile-band a", false
-    assert_equal [ [ "Cards", "11/#{card_total(season)}" ], [ "Complete sets", "1" ], [ "Achievements", "5/#{Game::Achievements::CATALOGUE.size}" ] ], keys
+    assert_equal [ [ "Cards", "11/#{card_total(season)}" ], [ "Complete sets", "1" ], [ "Achievements", "5/#{Game::Achievements.offered.size}" ] ], keys
 
     assert_select "section.profile-stats[aria-label=Statistics]"
     rarities = figures(".profile-stats__grid--rarities")
     assert_equal [ "Common", "Uncommon", "Rare", "Epic", "Legendary" ], rarities.map(&:first)
     assert_equal 11, rarities.sum { it.last.to_i }
     assert_select ".profile-stats__grid--rarities .profile-figure--rarity-5 svg.profile-figure__icon"
-    assert_equal [ [ "Capsules opened", "2" ], [ "First discoveries", "1" ], [ "Trades concluded", "1" ], [ "Duel wins", "0" ],
-      [ "Duel losses", "0" ], [ "Duel draws", "0" ] ], figures(".profile-stats__grid:not(.profile-stats__grid--rarities)")
+    assert_equal [ [ "Capsules opened", "2" ], [ "First discoveries", "1" ], [ "Trades concluded", "1" ] ],
+      figures(".profile-stats__grid:not(.profile-stats__grid--rarities)")
 
     assert_equal [ "Showcase", "Fortune", "Achievements", "Sets" ], css_select("h2").map(&:text)
-    assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "5 achievements earned out of #{Game::Achievements::CATALOGUE.size}"
+    assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "5 achievements earned out of #{Game::Achievements.offered.size}"
     assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .achievements__segment--lit", 5
     assert_select ".profile-section__label", "Latest earned"
     assert_equal [ "File Closed in Full", "Probation Period Completed", "Approved Mutual Assistance", "Noted Above Expectations" ],
@@ -179,9 +179,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
 
     assert_response :success
-    assert_equal [ [ "Cards", "0/#{card_total(season)}" ], [ "Complete sets", "0" ], [ "Achievements", "0/#{Game::Achievements::CATALOGUE.size}" ] ], keys
+    assert_equal [ [ "Cards", "0/#{card_total(season)}" ], [ "Complete sets", "0" ], [ "Achievements", "0/#{Game::Achievements.offered.size}" ] ], keys
     assert_equal [ 0 ] * 5, figures(".profile-stats__grid--rarities").map { it.last.to_i }
-    assert_select ".achievements__segment", Game::Achievements::CATALOGUE.size
+    assert_select ".achievements__segment", Game::Achievements.offered.size
     assert_select ".achievements__segment--lit", false
     assert_select ".profile-section__label, .profile-achievements", false
     assert_select ".profile-section__aside", "0 sets started"
@@ -195,7 +195,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".profile__no-season", "No season of cards is published yet."
-    assert_equal [ [ "Cards", "0" ], [ "Complete sets", "0" ], [ "Achievements", "0/#{Game::Achievements::CATALOGUE.size}" ] ], keys
+    assert_equal [ [ "Cards", "0" ], [ "Complete sets", "0" ], [ "Achievements", "0/#{Game::Achievements.offered.size}" ] ], keys
     assert_select ".profile-stats, .profile-section", false
   end
 
@@ -286,7 +286,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup, the top bar's four and the trades and
     # invitations waiting.
-    assert_request_queries(22) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(21) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
   end
 
@@ -524,25 +524,15 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the Duels figures read the owner's wins, losses and draws, and a private owner's record stays hidden with the other stats" do
+  test "the owner's finished duels add no figure to the activity" do
     publish_sets_draft
-    %w[challenger challenger opponent draw].each { finish_duel(it) }
+    %w[challenger opponent draw].each { finish_duel(it) }
 
     get brother_path(locale: :en, token: @owner.token)
 
-    assert_equal [ [ "Duel wins", "2" ], [ "Duel losses", "1" ], [ "Duel draws", "1" ] ],
-      figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").last(3)
-
-    get brother_path(locale: :fr, token: @owner.token)
-
-    assert_equal [ [ "Victoires en duel", "2" ], [ "Défaites en duel", "1" ], [ "Égalités en duel", "1" ] ],
-      figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").last(3)
-
-    @owner.update!(visibility: "private")
-    get brother_path(locale: :en, token: @owner.token)
-
-    assert_response :not_found
-    assert_no_match(/Duel wins|Duel losses/, response.body)
+    assert_equal [ "Capsules opened", "First discoveries", "Trades concluded" ],
+      figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").map(&:first)
+    assert_no_match(/Duel wins|Duel losses|Duel draws/, response.body)
   end
 
   test "a private or friends-only owner is the unavailable page for a visitor and a stranger, not for the owner" do
@@ -656,13 +646,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Joueur #{code}"
     assert_select "h1", "Joueur #{code}"
     assert_select ".profile-band__since", "Membre depuis mars 2026"
-    assert_equal [ [ "Cartes", "0/#{card_total(season)}" ], [ "Sets complets", "0" ], [ "Succès", "0/#{Game::Achievements::CATALOGUE.size}" ] ], keys
+    assert_equal [ [ "Cartes", "0/#{card_total(season)}" ], [ "Sets complets", "0" ], [ "Succès", "0/#{Game::Achievements.offered.size}" ] ], keys
     assert_select "section.profile-stats[aria-label=Statistiques]"
     assert_equal [ "Raretés", "Activité" ], css_select(".profile-stats__kicker").map(&:text)
-    assert_equal [ "Capsules ouvertes", "Premières découvertes", "Échanges conclus", "Victoires en duel", "Défaites en duel", "Égalités en duel" ],
+    assert_equal [ "Capsules ouvertes", "Premières découvertes", "Échanges conclus" ],
       figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").map(&:first)
     assert_equal [ "Fortune", "Succès", "Sets" ], css_select("h2").map(&:text)
-    assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "0 succès obtenu sur #{Game::Achievements::CATALOGUE.size}"
+    assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "0 succès obtenu sur #{Game::Achievements.offered.size}"
     assert_select ".profile-section__aside", "0 set entamé"
 
     set_members(season, "pirates").each { |id| hold(@owner, id, 1) }
@@ -749,14 +739,14 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # faces of those shown; the themes' names; the owner's game set goals;
     # the owner's earned titles and their chosen one; the owner's avatar; the owner's fortune;
     # the owner's best cards on the stage and their faces.
-    assert_request_queries(22) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(21) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
     assert_select ".profile-sets .set-tile", minimum: 1
 
     hold_started_sets(season)
     open_packs(season, 3)
     %w[first_epic first_trade boosters_10 first_repost].each { unlock(it, 1.hour.ago) }
-    assert_request_queries(22) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(21) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-sets .set-tile", 5
     assert_select ".profile-achievements .achievement", 4
 
@@ -765,18 +755,18 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # next pack, copies per tier, rarity legend), the tab bar's trades and
     # invitations waiting, the viewer's friendship and invitations with the owner,
     # and the viewer's avatar beside the owner's.
-    assert_request_queries(36) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(35) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(35) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(34) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-stage .card", held.size
     assert_response :success
 
     # The owner's edit link and drag hooks cost nothing more.
     sign_in(@owner)
-    assert_request_queries(32) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(31) { get brother_path(locale: :en, token: @owner.token) }
     assert_select "[data-stage-order-target=slot]", held.size
   end
 

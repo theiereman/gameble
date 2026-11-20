@@ -2,7 +2,7 @@ module Game
   module Handlers
     module DuelStatsFeed
       def self.call(event)
-        return unless event.data.fetch(:reason) == "weekly" && EnabledFeatures.call.include?("duels")
+        return unless event.data.fetch(:reason) == "weekly"
 
         moves = DuelStatMoves.new(DuelProfiles.weekly_changes).rows
         return if moves.empty?

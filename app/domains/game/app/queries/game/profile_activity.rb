@@ -1,16 +1,13 @@
 module Game
   module ProfileActivity
-    Activity = Data.define(:packs_opened, :first_discoveries, :trades_concluded, :duel_wins, :duel_losses, :duel_draws)
-    NONE = Activity.new(packs_opened: 0, first_discoveries: 0, trades_concluded: 0, duel_wins: 0, duel_losses: 0, duel_draws: 0)
+    Activity = Data.define(:packs_opened, :first_discoveries, :trades_concluded)
+    NONE = Activity.new(packs_opened: 0, first_discoveries: 0, trades_concluded: 0)
 
     SQL = <<~SQL.squish.freeze
       SELECT
         (#{AchievementProgress::PACKS_OPENED_SQL}),
         (#{AchievementProgress::FIRST_DISCOVERIES_SQL}),
-        (#{AchievementProgress::TRADES_ACCEPTED_SQL}),
-        (#{DuelRecord::WINS_SQL}),
-        (#{DuelRecord::LOSSES_SQL}),
-        (#{DuelRecord::DRAWS_SQL})
+        (#{AchievementProgress::TRADES_ACCEPTED_SQL})
     SQL
 
     def self.call(player)

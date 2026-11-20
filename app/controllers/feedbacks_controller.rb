@@ -1,5 +1,4 @@
 class FeedbacksController < ApplicationController
-  require_feature :duels
   throttle_player to: 10, only: :create, path: -> { home_path }, alert: "feedbacks.create.throttled"
 
   def new

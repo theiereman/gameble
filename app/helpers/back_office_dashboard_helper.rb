@@ -26,7 +26,6 @@ module BackOfficeDashboardHelper
         back_office_tile(:market, back_office_market_path, action: :show?)
       ],
       technical: [
-        back_office_tile(:features, back_office_features_path),
         back_office_tile(:jobs, mission_control_jobs.root_path(locale: nil), action: :show?, turbo: false)
       ]
     }.transform_values(&:compact).reject { |_, tiles| tiles.empty? }

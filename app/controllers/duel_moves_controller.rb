@@ -1,5 +1,4 @@
 class DuelMovesController < ApplicationController
-  require_feature :duels
   throttle_player to: 60, only: %i[challenge practice accept decline cancel forfeit announce answer], path: -> { duels_path }, alert: "duels.throttled"
 
   def challenge

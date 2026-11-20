@@ -209,22 +209,6 @@ export const BACK_OFFICE_ICONS = {
       ".....c.....",
     ],
   },
-  features: {
-    look: "a toggle switch",
-    grid: [
-      "...........",
-      "...........",
-      ".ccccccccc.",
-      "c.........c",
-      "c.....ccc.c",
-      "c....cccc.c",
-      "c.....ccc.c",
-      "c.........c",
-      ".ccccccccc.",
-      "...........",
-      "...........",
-    ],
-  },
   feedbacks: {
     look: "a speech bubble",
     grid: [

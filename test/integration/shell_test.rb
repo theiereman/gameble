@@ -259,6 +259,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "a.tab-bar__tab[href='/fr/library'][aria-current=page]", /Sets/
     assert_select "a.tab-bar__tab[href='/fr/exchanges']:not([aria-current])", /Échanges/
     assert_select "a.tab-bar__tab[href='/fr/duels']:not([aria-current])", /Duels/
+    assert_select "a.tab-bar__tab[href='/fr/duels'] .alpha-tag", "ALPHA"
     assert_select "span.tab-bar__tab[aria-disabled=true], button.tab-bar__tab, .tab-bar__list--visitor", 0
     assert_select "nav.tab-bar[data-controller=navigation-lock]"
     assert_select ".top-bar__start[data-controller=navigation-lock]"
