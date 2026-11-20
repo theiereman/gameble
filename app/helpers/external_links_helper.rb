@@ -1,5 +1,5 @@
 module ExternalLinksHelper
-  DONATION_URL = "https://buymeacoffee.com/theiereman".freeze
+  DONATION_URL = "https://fr.tipeee.com/gameble-trading-card-game".freeze
   SOURCE_CODE_URL = "https://github.com/theiereman/gameble".freeze
   COMMUNITY_URL = "https://discord.gg/B5utMfwEN".freeze
   NEW_TAB = { rel: "noopener noreferrer external", target: "_blank" }.freeze

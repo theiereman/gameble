@@ -135,7 +135,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       end
     end
     external = css_select("#hub-menu-extras a.menu-item[target=_blank]")
-    assert_equal [ [ "3", "03", "Soutenir", "https://buymeacoffee.com/theiereman" ], [ "4", "04", "GitHub", "https://github.com/theiereman/gameble" ],
+    assert_equal [ [ "3", "03", "Soutenir", "https://fr.tipeee.com/gameble-trading-card-game" ], [ "4", "04", "GitHub", "https://github.com/theiereman/gameble" ],
       [ "5", "05", "Discord", "https://discord.gg/B5utMfwEN" ] ],
       external.map { [ it["aria-keyshortcuts"], it.at_css(".menu-item__number").text, it.at_css(".menu-item__label").text, it["href"] ] }
     external.each do |link|
@@ -678,7 +678,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__affiliation", /n'est affilié ni à Valve ni à Steam/
     assert_select ".legal__section", text: /CNIL/
     donation = css_select("main a.legal__donation").sole
-    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank", "Soutenir (nouvel onglet)" ],
+    assert_equal [ "https://fr.tipeee.com/gameble-trading-card-game", "_blank", "Soutenir (nouvel onglet)" ],
       [ donation["href"], donation["target"], donation.text.squish ]
     assert_includes donation["rel"].split, "noopener"
     assert_select "section[aria-labelledby=legal-support]", text: /Ils passent par Buy Me a Coffee/

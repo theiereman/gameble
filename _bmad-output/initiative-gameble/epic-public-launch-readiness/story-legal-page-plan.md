@@ -24,7 +24,7 @@ deferred: []
 
 **Problem:** The site states nowhere, as a whole, that it has no affiliation with Steam or Valve, who owns the artwork, its terms of use or what it does with personal data. Each card detail carries its own notice instead, and the public card page's "Mentions légales" is an inert label.
 
-**Approach:** Add a public, locale-scoped legal page holding five sections: legal notice (publisher and host), the no-affiliation and ownership notices, terms of use, privacy notice, and "Support gameble" with the donation link. Link it from the settings list and the public card page footer, add a donation row to the settings, and remove the per-card notice with its tests. The author decided (2026-10-08) on the following. Claude drafts the terms and privacy texts and the author reviews them before commit. The publisher is presented as an anonymous private individual's non-commercial project. The contact e-mail and the host's identity come from configuration, because the production domain and VPS are not chosen yet. Donations go to `https://buymeacoffee.com/theiereman`, linked from both the legal page and the settings.
+**Approach:** Add a public, locale-scoped legal page holding five sections: legal notice (publisher and host), the no-affiliation and ownership notices, terms of use, privacy notice, and "Support gameble" with the donation link. Link it from the settings list and the public card page footer, add a donation row to the settings, and remove the per-card notice with its tests. The author decided (2026-10-08) on the following. Claude drafts the terms and privacy texts and the author reviews them before commit. The publisher is presented as an anonymous private individual's non-commercial project. The contact e-mail and the host's identity come from configuration, because the production domain and VPS are not chosen yet. Donations go to `https://fr.tipeee.com/gameble-trading-card-game`, linked from both the legal page and the settings.
 
 ## Boundaries & Constraints
 
@@ -85,7 +85,7 @@ deferred: []
 **Acceptance Criteria:**
 - Given a signed-in player on the settings, when they follow "Mentions légales", then the legal page opens in their locale.
 - Given a signed-out visitor on a public card page, when they follow the footer's "Mentions légales", then the legal page opens.
-- Given the settings, when the player looks at the SOUTENIR row, then its link points to `https://buymeacoffee.com/theiereman` and opens in a new tab.
+- Given the settings, when the player looks at the SOUTENIR row, then its link points to `https://fr.tipeee.com/gameble-trading-card-game` and opens in a new tab.
 - Given any card detail, when it is opened, then no per-card ownership notice appears.
 
 ## Implementation Notes

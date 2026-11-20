@@ -58,7 +58,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "Non"
     assert_select "form[action=?][data-turbo=false] button", "/session?locale=fr", text: "Se déconnecter"
     support = css_select("li.settings-row a.settings-row__support").sole
-    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank", "Soutenir (nouvel onglet)" ],
+    assert_equal [ "https://fr.tipeee.com/gameble-trading-card-game", "_blank", "Soutenir (nouvel onglet)" ],
       [ support["href"], support["target"], support.text.squish ]
     assert_includes support["rel"].split, "noopener"
     assert_select ".settings__list > li:last-child a.button--link[href='/fr/legal']", "Mentions légales"
@@ -529,7 +529,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :fr)
 
     assert_select "#settings-support"
-    assert_select "a.settings-row__support[href='https://buymeacoffee.com/theiereman'][target=_blank]"
+    assert_select "a.settings-row__support[href='https://fr.tipeee.com/gameble-trading-card-game'][target=_blank]"
   end
 
   test "the settings screen is under no tab, with a contextual phone back" do
