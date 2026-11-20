@@ -27,7 +27,7 @@ export default class ListingSummaryController extends Controller<HTMLElement> {
     clearTimeout(this.timer)
   }
 
-  render({ stamp, commission, received, disabled, shortfall, status }: SummaryView): void {
+  render({ stamp, commission, received, disabled, primary, shortfall, status }: SummaryView): void {
     this.reflectAmount(this.stampTarget, stamp)
     this.stampLineTarget.classList.toggle("sale-line--short", shortfall !== null)
     this.shortTarget.hidden = shortfall === null
@@ -36,7 +36,11 @@ export default class ListingSummaryController extends Controller<HTMLElement> {
     this.reflectAmount(this.commissionTarget, commission)
     this.reflectAmount(this.receivedTarget, received)
     const button = this.element.querySelector<HTMLButtonElement>("button[type=submit]")
-    if (button) button.disabled = disabled
+    if (button) {
+      button.disabled = disabled
+      button.classList.toggle("button--primary", primary)
+      button.classList.toggle("button--secondary", !primary)
+    }
     this.postStatus(status)
   }
 

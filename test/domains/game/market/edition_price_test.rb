@@ -74,6 +74,18 @@ class Game::Market::EditionPriceTest < ActiveSupport::TestCase
     assert_equal [ 20_000, 10_000 ], window(settings: narrow)
   end
 
+  test "served orders count with sold listings, newest first, a served order before a listing sold at the same time" do
+    at = 1.day.ago
+    sold!(@card, 10_000, sold_at: 3.days.ago)
+    served!(@card, 20_000, served_at: 2.days.ago)
+    sold!(@card, 30_000, sold_at: at)
+    served!(@card, 40_000, served_at: at)
+    served!(@other, 99_000, served_at: at)
+    Game::Market::Order.create!(player: accounts_players(:moderator), card_id: @card.card_id, settings: @settings, price: 50_000, expires_at: 1.day.from_now)
+
+    assert_equal [ 40_000, 30_000, 20_000, 10_000 ], window
+  end
+
   test "another edition's sales and unsold listings are ignored" do
     sold!(@other, 99_000, sold_at: 1.day.ago)
     sold!(@card, 10_000, sold_at: 1.day.ago)
@@ -115,6 +127,14 @@ class Game::Market::EditionPriceTest < ActiveSupport::TestCase
 
     assert_equal 4_000, rarity_average(:common)
     assert_equal 9_000, rarity_average(:rare)
+  end
+
+  test "a rarity's average counts served orders" do
+    sold!(@card, 1_000, sold_at: @now - 1.day)
+    served!(@card, 3_000, served_at: @now - 2.days)
+    served!(@card, 4_000, served_at: @now - 3.days)
+
+    assert_equal 3_000, rarity_average(:common)
   end
 
   test "a rarity's average skips sales outside the window and is null with none left" do

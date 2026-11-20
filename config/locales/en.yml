@@ -2388,6 +2388,7 @@ en:
       market_busy: The Archives are busy right now. Try again in a moment.
       market_closed: The market is closed for now.
       copy_not_free: This card is no longer available.
+      best_order_changed: This buy order has just been served. Check the new best order, then validate again.
       invalid_duration: Choose one of the listed durations.
       invalid_price: Enter a whole number of PiCoins, above zero.
       stamp_not_covered: "You are short of %{amount} PiCoins for the stamp."
@@ -3801,11 +3802,22 @@ en:
         start_label: STARTING PRICE
         step: "Step %{step} of 2"
         submit: PUT UP FOR SALE
+      order:
+        better: "A better order just arrived: %{amount}. Check it, then validate again."
+        none: No buy order for this card.
+        submit: SELL NOW
+        submit_label: "Sell now to the buy order, %{amount} PiCoins received"
+        terms_html: "Instant sale, no stamp. You receive %{received} (Brotherhood Effort: %{commission})."
+        waiting_html: "A buy order is waiting for you: %{amount}"
+      sold:
+        body_html: "%{card} is sold to a buy order. You receive %{amount}."
+        title: SOLD
       strings:
         amount: "%{amount} PiCoins"
         invalid_price: Enter a whole number of PiCoins, above zero.
         minimum_hint: "At least %{amount} for a %{rarity}"
         minimum_refusal: "At least %{amount} for a %{rarity}."
+        order_waiting: "A buy order is waiting for you: %{amount} PiCoins"
         stamp_short: "You are short of %{amount} PiCoins for the stamp."
         status: You receive %{amount} PiCoins
         step: "Step %{step} of 2"

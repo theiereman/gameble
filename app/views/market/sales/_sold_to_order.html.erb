@@ -1,0 +1,5 @@
+<%# locals: (sale:) %>
+<%= tag.div class: "market-outcome market-outcome--success", data: { controller: "row-focus", row_focus_landing_value: "" } do %>
+  <h2 class="market-outcome__title" tabindex="-1" data-row-focus-target="heading"><%= t("market.sales.sold.title") %></h2>
+  <p class="market-outcome__body"><%= t("market.sales.sold.body_html", card: sale["card"], amount: render(PicoinAmountComponent.new(amount: sale["received"]))) %></p>
+<% end %>

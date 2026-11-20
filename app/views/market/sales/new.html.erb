@@ -9,6 +9,7 @@
     <h1 id="market-sale-heading" class="visually-hidden"><%= t(".heading") %></h1>
     <%= render "shell/balance_chip", placement: :header %>
   </header>
+  <% if @sold_to_order %><%= render "market/sales/sold_to_order", sale: @sold_to_order %><% end %>
 
   <% if signed_out %>
     <%= render PanelComponent.new(class: "market-sale__notice") do %>
@@ -39,7 +40,7 @@
         <%= hidden_field_tag :card, @card_slug, id: nil if @card_slug %>
         <%= hidden_field_tag :ref, @chosen_ref.to_s, id: nil, data: { listing_form_target: "ref" } %>
         <% if @chosen_copy %>
-          <%= tag.span hidden: true, data: { listing_form_target: "edition", **sale_edition_data(@chosen_copy, @settings) } %>
+          <%= tag.span hidden: true, data: { listing_form_target: "edition", **sale_edition_data(@chosen_copy, @settings, order: @orders[@chosen_ref]) } %>
         <% end %>
         <p class="market-sale__step" data-listing-form-target="step"><%= t(".step", step: @chosen_ref ? 2 : 1) %></p>
         <% if @card_slug %>

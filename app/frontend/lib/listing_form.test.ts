@@ -30,6 +30,7 @@ const rare: Edition = {
   free: 2,
   minimum: 1_000,
   stamp: 500,
+  order: null,
 }
 const common: Edition = { ...rare, ref: "beta:1", title: "Beta", rarity: "common", minimum: 100, stamp: 50 }
 

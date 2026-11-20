@@ -29,6 +29,15 @@ class Game::Market::EditionSalesTest < ActiveSupport::TestCase
     assert_equal @settings.average_window_days, result.window_days
   end
 
+  test "served orders sit among the sold listings in time order" do
+    sold!(@edition, 2_000, sold_at: 3.days.ago, average_after_sale: 2_000)
+    served!(@edition, 2_600, served_at: 2.days.ago, average_after_sale: 2_300)
+    sold!(@edition, 2_200, sold_at: 1.day.ago, average_after_sale: 2_200)
+
+    assert_equal [ 2_000, 2_600, 2_200 ], chart.sales.map(&:final_price)
+    assert_equal [ 2_000, 2_300, 2_200 ], chart.sales.map(&:average_after_sale)
+  end
+
   test "under the minimum sale count there is no average, from it the last stored average" do
     2.times { |ago| sold!(@edition, 2_000 + ago, sold_at: (ago + 1).days.ago, average_after_sale: 2_000) }
     assert_not chart.averaged?

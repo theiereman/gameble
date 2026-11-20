@@ -5,7 +5,8 @@
 <%= tag.li class: class_names("sale-cell", "sale-cell--#{rarity}", "sale-cell--chosen": chosen), role: "option",
       tabindex: (tabbable ? 0 : -1),
       aria: { selected: chosen.to_s, disabled: ("true" if copy.free < 1), label: sale_cell_label(copy, @settings, @prices[copy.ref], decks:) },
-      data: { listing_form_target: "cell", listing_grid_target: "cell", action: "click->listing-grid#choose", **sale_edition_data(copy, @settings) } do %>
+      data: { listing_form_target: "cell", listing_grid_target: "cell", action: "click->listing-grid#choose",
+              **sale_edition_data(copy, @settings, order: @orders[copy.ref]) } do %>
   <span class="sale-cell__check" aria-hidden="true" <%= "hidden" unless chosen %>>✓</span>
   <span class="sale-cell__art" aria-hidden="true"><%= render CardComponent.new(card: copy.card, size: :s, tilt: false) %></span>
   <span class="sale-cell__name" aria-hidden="true"><%= copy.card.title %></span>
@@ -21,5 +22,8 @@
   <% end %>
   <% if @price_offered && @prices.key?(copy.ref) %>
     <template data-listing-form-target="priceTemplate" data-ref="<%= copy.ref %>"><%= render "market/sales/price", price: @prices[copy.ref] %></template>
+  <% end %>
+  <% if @open %>
+    <template data-listing-form-target="orderTemplate" data-ref="<%= copy.ref %>"><%= render "market/sales/order_banner", order: @orders[copy.ref] %></template>
   <% end %>
 <% end %>

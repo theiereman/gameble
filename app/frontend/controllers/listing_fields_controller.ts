@@ -6,7 +6,16 @@ import type { FieldsView, FieldView } from "../lib/listing_form_view"
 const START_HINT = "sale-start-hint"
 
 export default class ListingFieldsController extends Controller<HTMLElement> {
-  static targets = ["start", "duration", "hint", "startError", "durationError", "priceSlot"]
+  static targets = [
+    "start",
+    "duration",
+    "hint",
+    "startError",
+    "durationError",
+    "priceSlot",
+    "orderSlot",
+    "orderRefusal",
+  ]
 
   declare readonly startTarget: HTMLInputElement
   declare readonly durationTargets: HTMLInputElement[]
@@ -15,8 +24,16 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   declare readonly durationErrorTarget: HTMLElement
   declare readonly hasPriceSlotTarget: boolean
   declare readonly priceSlotTarget: HTMLElement
+  declare readonly hasOrderSlotTarget: boolean
+  declare readonly orderSlotTarget: HTMLElement
+  declare readonly hasOrderRefusalTarget: boolean
+  declare readonly orderRefusalTarget: HTMLElement
 
   private pristine = true
+
+  connect(): void {
+    if (this.hasOrderRefusalTarget) this.orderRefusalTarget.focus()
+  }
 
   render({ hint, start, duration, locked }: FieldsView): void {
     writeText(this.hintTarget, hint)
@@ -58,9 +75,18 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
 
   // The chosen edition's price, drawn from its cell's template; one already drawn stays when its cell is gone.
   showPrice(ref: string, template: HTMLTemplateElement | null): void {
-    if (!this.hasPriceSlotTarget || this.priceSlotTarget.dataset.ref === ref) return
-    this.priceSlotTarget.dataset.ref = ref
-    this.priceSlotTarget.replaceChildren(...(template ? [template.content.cloneNode(true)] : []))
+    if (this.hasPriceSlotTarget) this.showIn(this.priceSlotTarget, ref, template)
+  }
+
+  // The best order waiting for the chosen edition, or the line saying there is none, as the price.
+  showOrder(ref: string, template: HTMLTemplateElement | null): void {
+    if (this.hasOrderSlotTarget) this.showIn(this.orderSlotTarget, ref, template)
+  }
+
+  private showIn(slot: HTMLElement, ref: string, template: HTMLTemplateElement | null): void {
+    if (slot.dataset.ref === ref) return
+    slot.dataset.ref = ref
+    slot.replaceChildren(...(template ? [template.content.cloneNode(true)] : []))
   }
 
   private reflectField(input: HTMLInputElement, error: HTMLElement, { error: text }: FieldView, hintId?: string): void {

@@ -7,6 +7,7 @@ export type ListingStrings = {
   invalidPrice: string
   minimumHint: string
   minimumRefusal: string
+  orderWaiting: string
   stampShort: string
   status: string
   step: string
@@ -33,6 +34,7 @@ export type SummaryView = {
   commission: number | null
   received: number | null
   disabled: boolean
+  primary: boolean
   shortfall: string | null
   status: string
 }
@@ -80,6 +82,14 @@ export function statusOf(figure: number | null, { locale, strings }: Forms): str
 
 export type Wallet = { open: boolean; available: number }
 
+// An order waiting for the chosen edition is said before what the auction would bring.
+function choiceStatus(state: ListingState, forms: Forms, received: number | null): string {
+  const order = chosenEdition(state)?.order ?? null
+  const waiting =
+    order === null ? "" : t(forms.strings.orderWaiting, { amount: picoins(order, { locale: forms.locale }) })
+  return [waiting, statusOf(received, forms)].filter((text) => text !== "").join(". ")
+}
+
 export function summaryViewOf(state: ListingState, forms: Forms, { open, available }: Wallet): SummaryView {
   const shown = lines(state)
   const missing = shown && shown.stamp > available ? shown.stamp - available : null
@@ -88,9 +98,10 @@ export function summaryViewOf(state: ListingState, forms: Forms, { open, availab
     commission: shown?.commission ?? null,
     received: shown?.received ?? null,
     disabled: !open || shown === null || missing !== null,
+    primary: (chosenEdition(state)?.order ?? null) === null,
     shortfall:
       missing === null ? null : t(forms.strings.stampShort, { amount: picoins(missing, { locale: forms.locale }) }),
-    status: statusOf(shown?.received ?? null, forms),
+    status: choiceStatus(state, forms, shown?.received ?? null),
   }
 }
 

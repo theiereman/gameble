@@ -43,6 +43,7 @@ Rails.application.routes.draw do
     get "market/sell" => "market/sales#new", as: :new_market_sale
     get "market/sell/cards/:slug" => "market/sales#new", as: :new_market_card_sale
     post "market/sell" => "market/sales#create", as: :market_sales
+    post "market/sell/order" => "market/sales#sell", as: :market_order_sale
     # One listing, read by its token.
     get "market/listings/:token" => "market/listings#show", as: :market_listing
     post "market/listings/:token/bids" => "market/bids#create", as: :market_listing_bids

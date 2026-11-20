@@ -27,7 +27,7 @@
 
   <p id="sale-rules" class="sale-summary__rules"><%= t("market.sales.new.rules") %></p>
   <div class="sale-summary__submit">
-    <%= render ButtonComponent.new(type: :submit, disabled: !@open, describedby: short ? "sale-short sale-rules" : "sale-rules") do %>
+    <%= render ButtonComponent.new(type: :submit, variant: (chosen && @orders[chosen.ref] ? :secondary : :primary), disabled: !@open, describedby: short ? "sale-short sale-rules" : "sale-rules") do %>
       <%= t("market.sales.new.submit") %> · <%= render PicoinAmountComponent.new(amount: stamp, data: { listing_summary_target: "submitStamp" }) %>
     <% end %>
   </div>

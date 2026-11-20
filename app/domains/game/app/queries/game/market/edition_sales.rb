@@ -17,8 +17,8 @@ module Game
 
       def self.call(card_season_id, now: Time.current, settings: CurrentSettings.call)
         rarity = Catalog::CardSeason.where(id: card_season_id).pick(:rarity).to_sym
-        sales = Listing.sold.where(card_season_id:).where("sold_at > ?", now - settings.average_window_days.days)
-          .order(sold_at: :desc, id: :desc).limit(settings.average_sale_count)
+        sales = EditionPrice.sales.where(card_season_id:).where("sold_at > ?", now - settings.average_window_days.days)
+          .order(EditionPrice::NEWEST_FIRST).limit(settings.average_sale_count)
           .pluck(:sold_at, :final_price, :average_after_sale).reverse.map { Sale.new(*it) }
         Chart.new(sales:, floor: settings.minimum_price(rarity), rarity:, window_days: settings.average_window_days)
       end

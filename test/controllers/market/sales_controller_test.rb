@@ -4,6 +4,8 @@ require_relative "../../support/holdings"
 require_relative "../../support/market"
 require_relative "../../support/counting_rate_limit"
 require_relative "../../support/singleton_stub"
+require_relative "../../support/market_auctions"
+require_relative "../../support/market_orders"
 
 class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
@@ -11,6 +13,8 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   include MarketSettings
   include CountingRateLimit
   include SingletonStub
+  include MarketAuctions
+  include MarketOrders
 
   setup do
     @player = accounts_players(:player)
@@ -567,5 +571,153 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".sale-grid__empty", /No edition matches these filters/
     assert_select ".market-sale__notice", false
+  end
+
+  def buyer_order(price = 900, player: accounts_players(:moderator))
+    fund!(player, 10_000)
+    order!(player, @rare, price)
+  end
+
+  def post_order_sale(order, card_season = @rare, **overrides)
+    post market_order_sale_path(locale: :en), params: { settings: @settings.token, ref: ref(card_season), order: order.token, starting_price: "",
+      duration_hours: "24", **overrides }
+  end
+
+  test "the chosen copy shows the best order's banner, the listing button turning secondary, and the others carry theirs in templates" do
+    hold(@player, @rare.id, 1)
+    hold(@player, @common.id, 1)
+    order = buyer_order
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en)
+    assert_select ".sale-order-slot:empty"
+
+    get new_market_sale_path(locale: :en, ref: ref(@rare))
+
+    assert_select ".sale-fields .sale-order-slot[data-ref=?] .sale-order", ref(@rare) do
+      assert_select ".sale-order__title", text: /A buy order is waiting for you: 900/
+      assert_select ".sale-order__terms", text: /Instant sale, no stamp\. You receive 810\s+\(Brotherhood Effort: 90\s*\)\./
+      assert_select "button.button--primary[type=submit][name=order][value=?][formaction=?][aria-label=?]", order.token, market_order_sale_path(locale: :en),
+        "Sell now to the buy order, 810 PiCoins received", text: "SELL NOW"
+    end
+    assert_select ".sale-summary button.button--secondary[type=submit]", text: /PUT UP FOR SALE/
+    assert_select "[role=option][data-ref=?][data-order='900']", ref(@rare)
+    assert_select "[data-listing-form-target=edition][data-order='900']"
+    assert_select "[role=option][data-ref=?][data-order='']", ref(@common)
+    assert_select "template[data-listing-form-target=orderTemplate][data-ref=?]", ref(@common)
+    assert_includes response.body, "No buy order for this card."
+    assert_no_match(/(?:data-[a-z-]+|id|name|value)="#{order.id}"/, response.body)
+  end
+
+  test "without an order the no-order line takes the banner's place and the listing button stays primary" do
+    hold(@player, @rare.id, 1)
+    fund!(@player, 10_000)
+    order!(@player, @rare, 900)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :fr, ref: ref(@rare))
+
+    assert_select ".sale-order-slot .sale-order-none", "Aucun ordre d'achat pour cette carte."
+    assert_select ".sale-order", false
+    assert_select ".sale-summary button.button--primary[type=submit]"
+  end
+
+  test "a closed market draws no banner" do
+    hold(@player, @rare.id, 1)
+    buyer_order
+    sign_in(@player)
+    @settings = close_market!(first_opened_at: 2.days.ago)
+
+    get new_market_sale_path(locale: :en, ref: ref(@rare))
+
+    assert_select ".sale-order-slot", false
+    assert_select "template[data-listing-form-target=orderTemplate]", false
+  end
+
+  test "selling to the order serves it and lands on Mettre en vente with the sold panel" do
+    hold(@player, @rare.id, 2)
+    order = buyer_order
+    sign_in(@player)
+
+    post_order_sale(order, card: @rare.card.slug)
+
+    assert_redirected_to new_market_card_sale_path(locale: :en, slug: @rare.card.slug)
+    assert_response :see_other
+    assert_equal "served", order.reload.status
+    follow_redirect!
+    assert_select ".market-outcome--success h2[tabindex='-1'][data-row-focus-target=heading]", "SOLD"
+    assert_select ".market-outcome__body", text: /Blue Depths is sold to a buy order. You receive 810/
+  end
+
+  test "a better order placed meanwhile is refused inline: the banner redraws it with its sentence and nothing moves" do
+    hold(@player, @rare.id, 1)
+    seen = buyer_order
+    better = buyer_order(1_000, player: accounts_players(:administrator))
+    sign_in(@player)
+
+    nothing_moves { post_order_sale(seen) }
+
+    assert_response :unprocessable_content
+    assert_select ".sale-order-slot .sale-order button[name=order][value=?]", better.token
+    assert_select ".sale-order__refusal[role=alert][tabindex='-1']", "A better order just arrived: 1,000 PiCoins. Check it, then validate again."
+    assert_equal "open", seen.reload.status
+  end
+
+  test "an order served meanwhile is refused with the served line, the no-order line drawn" do
+    hold(@player, @rare.id, 1)
+    seen = buyer_order
+    seen.update_columns(status: "cancelled")
+    sign_in(@player)
+
+    nothing_moves { post_order_sale(seen) }
+
+    assert_response :unprocessable_content
+    assert_select ".sale-order-slot .sale-order-none"
+    assert_select ".sale-order__refusal[role=alert]", "This buy order has just been served. Check the new best order, then validate again."
+  end
+
+  test "an order changed meanwhile while the market closed is refused above the button, no banner being drawn" do
+    hold(@player, @rare.id, 1)
+    seen = buyer_order
+    seen.update_columns(status: "cancelled")
+    sign_in(@player)
+    @settings = close_market!(first_opened_at: 2.days.ago)
+
+    nothing_moves { post_order_sale(seen) }
+
+    assert_response :unprocessable_content
+    assert_select ".sale-order-slot", false
+    assert_select ".market-sale__refusal", "This buy order has just been served. Check the new best order, then validate again."
+  end
+
+  test "a stale settings version refuses the direct sale like a listing" do
+    hold(@player, @rare.id, 1)
+    order = buyer_order
+
+    sign_in(@player)
+    nothing_moves { post_order_sale(order, settings: "stale") }
+
+    assert_response :unprocessable_content
+    assert_select ".market-sale__refusal", text: /The amounts changed/
+  end
+
+  test "a visitor's direct sale is refused and writes nothing" do
+    order = buyer_order
+
+    assert_no_difference -> { Game::Market::LedgerEntry.count } do
+      post_order_sale(order)
+    end
+
+    assert_response :see_other
+    assert_equal "open", order.reload.status
+  end
+
+  test "the eleventh direct sale of a minute is throttled" do
+    sign_in(@player)
+    order = buyer_order
+
+    with_counting_rate_limit(Market::SalesController) { 11.times { post_order_sale(order) } }
+
+    assert_redirected_to new_market_sale_path(locale: :en)
   end
 end

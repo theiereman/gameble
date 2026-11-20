@@ -1,0 +1,72 @@
+[data-layout="wide"] .sale-fields {
+  flex-wrap: wrap;
+}
+
+.sale-order-slot {
+  flex: 1 0 100%;
+  min-width: 0;
+}
+
+.sale-order-slot:empty {
+  display: none;
+}
+
+.sale-order {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel-sunken);
+  box-shadow:
+    inset 3px 0 0 var(--color-gold),
+    inset 0 0 0 2px var(--color-line-soft);
+}
+
+.sale-order__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.sale-order__title,
+.sale-order__terms,
+.sale-order__refusal,
+.sale-order-none {
+  margin: 0;
+}
+
+.sale-order__title {
+  color: var(--color-text-max);
+  font: var(--font-body);
+  font-weight: 700;
+}
+
+.sale-order__title .picoin-amount {
+  color: var(--color-gold);
+}
+
+.sale-order__terms {
+  color: var(--color-muted);
+  font: var(--font-label);
+}
+
+.sale-order__refusal {
+  color: var(--color-alert);
+  font: var(--font-body-small);
+}
+
+.sale-order-none {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+[data-layout="phone"] .sale-order {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+[data-layout="phone"] .sale-order .button {
+  width: 100%;
+}

@@ -41,11 +41,16 @@ function editionFrom(element: HTMLElement): Edition {
     free: Number(data.free),
     minimum: Number(data.minimum),
     stamp: Number(data.stamp),
+    order: data.order ? Number(data.order) : null,
   }
 }
 
+function sellsToOrder(event: Event): boolean {
+  return (event as SubmitEvent).submitter?.getAttribute("name") === "order"
+}
+
 export default class ListingFormController extends Controller<HTMLFormElement> {
-  static targets = ["cell", "edition", "ref", "priceTemplate", "start", "duration", "step"]
+  static targets = ["cell", "edition", "ref", "priceTemplate", "orderTemplate", "start", "duration", "step"]
   static values = { locale: String, basisPoints: Number, open: Boolean, available: Number, strings: Object }
   static outlets = ["copy-filters", "listing-grid", "listing-fields", "listing-summary"]
 
@@ -54,6 +59,7 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
   declare readonly hasRefTarget: boolean
   declare readonly refTarget: HTMLInputElement
   declare readonly priceTemplateTargets: HTMLTemplateElement[]
+  declare readonly orderTemplateTargets: HTMLTemplateElement[]
   declare readonly startTarget: HTMLInputElement
   declare readonly durationTargets: HTMLInputElement[]
   declare readonly hasStepTarget: boolean
@@ -76,17 +82,20 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
   private media?: MediaQueryList
   private arrived: HTMLElement[] = []
   private cellsChanged = false
+  private selling = false
 
   connect(): void {
     this.arrived = []
     this.state = this.startFromMarkup()
     this.watchLayout()
+    window.addEventListener("pageshow", this.shown)
     this.render()
   }
 
   disconnect(): void {
     this.media?.removeEventListener("change", this.layoutChanged)
     this.media = undefined
+    window.removeEventListener("pageshow", this.shown)
     this.state = undefined
   }
 
@@ -142,6 +151,11 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
   submit(event: Event): void {
     const state = this.state
     if (!state) return
+    if (sellsToOrder(event)) {
+      if (state.chosen === null || this.selling) event.preventDefault()
+      else this.selling = true
+      return
+    }
     const problem = refusal(state)
     if (state.chosen === null || problem) event.preventDefault()
     if (problem) this.apply(validate(state), () => this.fields()?.focusField(problem.field))
@@ -153,6 +167,11 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
       this.render()
     }
     then?.()
+  }
+
+  // A page restored from the back-forward cache can sell again.
+  private readonly shown = (): void => {
+    this.selling = false
   }
 
   private readonly layoutChanged = (): void => {
@@ -209,12 +228,13 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     if (this.hasRefTarget && this.refTarget.value !== (state.chosen ?? "")) this.refTarget.value = state.chosen ?? ""
     this.grid()?.render(gridViewOf(state))
     this.fields()?.render(fieldsViewOf(state, forms))
-    this.fields()?.showPrice(state.chosen ?? "", this.priceTemplateFor(state.chosen))
+    this.fields()?.showPrice(state.chosen ?? "", this.templateFor(this.priceTemplateTargets, state.chosen))
+    this.fields()?.showOrder(state.chosen ?? "", this.templateFor(this.orderTemplateTargets, state.chosen))
     this.summary()?.render(summaryViewOf(state, forms, { open: this.openValue, available: this.availableValue }))
   }
 
-  private priceTemplateFor(ref: string | null): HTMLTemplateElement | null {
-    return ref === null ? null : (this.priceTemplateTargets.find((template) => template.dataset.ref === ref) ?? null)
+  private templateFor(templates: HTMLTemplateElement[], ref: string | null): HTMLTemplateElement | null {
+    return ref === null ? null : (templates.find((template) => template.dataset.ref === ref) ?? null)
   }
 
   private grid(): ListingGridController | null {

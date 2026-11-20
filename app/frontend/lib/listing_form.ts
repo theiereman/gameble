@@ -15,6 +15,7 @@ export type Edition = {
   free: number
   minimum: number
   stamp: number
+  order: number | null
 }
 
 export type Refusal = { field: Field; code: RefusalCode }

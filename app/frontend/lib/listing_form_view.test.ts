@@ -16,6 +16,7 @@ const strings: ListingStrings = {
   invalidPrice: "Enter a whole number of PiCoins, above zero.",
   minimumHint: "At least %{amount} for a %{rarity}",
   minimumRefusal: "At least %{amount} for a %{rarity}.",
+  orderWaiting: "A buy order is waiting for you: %{amount} PiCoins",
   stampShort: "You are short of %{amount} PiCoins for the stamp.",
   status: "You receive %{amount} PiCoins",
   step: "Step %{step} of 2",
@@ -32,6 +33,7 @@ const rare: Edition = {
   free: 1,
   minimum: 1_000,
   stamp: 500,
+  order: null,
 }
 const common: Edition = { ...rare, ref: "beta:1", rarity: "common", rarityName: "common", minimum: 100, stamp: 50 }
 
@@ -107,6 +109,7 @@ describe("summary view", () => {
       commission: null,
       received: null,
       disabled: false,
+      primary: true,
       shortfall: null,
       status: "",
     })
@@ -118,9 +121,23 @@ describe("summary view", () => {
       commission: 130,
       received: 1_170,
       disabled: false,
+      primary: true,
       shortfall: null,
       status: "You receive 1,170 PiCoins",
     })
+  })
+
+  it("turns the listing button secondary and says the waiting order first when an order waits for the chosen edition", () => {
+    const waiting = start([{ ...rare, order: 2_500 }, common], 1_000, { start: "", duration: "24" }, "alpha:1", "wide")
+
+    expect(summaryViewOf(waiting, forms, wallet)).toMatchObject({
+      primary: false,
+      status: "A buy order is waiting for you: 2,500 PiCoins",
+    })
+    expect(summaryViewOf(setStart(waiting, "1300"), forms, wallet).status).toBe(
+      "A buy order is waiting for you: 2,500 PiCoins. You receive 1,170 PiCoins",
+    )
+    expect(summaryViewOf(choose(waiting, "beta:1"), forms, wallet)).toMatchObject({ primary: true, status: "" })
   })
 
   it("shows no figure and no status for an amount beyond the safe integers", () => {
