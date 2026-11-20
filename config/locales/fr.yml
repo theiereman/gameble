@@ -509,7 +509,7 @@ fr:
           errors: "les erreurs techniques reçues par Sentry : 30 jours ;"
           backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
           leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à la mission hebdo, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
-        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos decks, la liste de votre bibliothèque Steam, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos scores de chance, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami, vos feedbacks, vos visites de profils, la dernière ouverture de chacun de vos échanges, les notifications que vous avez lues, vos entrées du fil d'activité et vos réactions sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos decks, vos emplacements achetés, la liste de votre bibliothèque Steam, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos scores de chance, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami, vos feedbacks, vos visites de profils, la dernière ouverture de chacun de vos échanges, les notifications que vous avez lues, vos entrées du fil d'activité et vos réactions sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         market_deletion: "Sur le marché, la suppression de votre compte supprime vos notifications du marché et les entrées du fil qui annoncent vos ventes, efface votre nom des historiques d'enchères, retire vos annonces en cours et libère vos maximums. Votre solde de PiCoins est détruit sans remboursement, une fois vos annonces et vos enchères en tête réglées. Le registre des PiCoins est conservé sans identité, pendant la durée indiquée plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
@@ -637,7 +637,7 @@ fr:
         once: "Une complétion n'est enregistrée qu'une fois : une carte échangée puis récupérée ne complète rien de nouveau. Votre profil compte les sets que vous possédez complets en ce moment."
       duels:
         title: "Les duels"
-        decks: "Un deck compte exactement %{cards} cartes que vous possédez, un jeu au plus une fois, et vous pouvez garder jusqu'à %{decks} decks. Une carte dans un deck bloque un exemplaire de son édition : cet exemplaire ne peut être ni échangé, ni vendu, ni confié tant que vous ne retirez pas la carte de tous les decks qui la contiennent. Vos autres exemplaires restent libres."
+        decks: "Un deck compte exactement %{cards} cartes que vous possédez, un jeu au plus une fois, et vous pouvez garder %{free} decks, jusqu'à %{ceiling} avec des emplacements achetés. Une carte dans un deck bloque un exemplaire de son édition : cet exemplaire ne peut être ni échangé, ni vendu, ni confié tant que vous ne retirez pas la carte de tous les decks qui la contiennent. Vos autres exemplaires restent libres."
         stats: "Chaque carte est mesurée sur %{number} stats : %{names}. Chacune est un centile, la part des cartes classées que la carte bat, calculé à la publication d'une saison puis chaque lundi à minuit UTC. L'atout d'une carte est sa stat la plus extrême, dans un sens ou dans l'autre."
         round: "Un duel compte %{rounds} manches. Les decks sont visibles des deux côtés : seules les cartes de la main restent cachées. Chaque joueur tient une main de %{hand} cartes, qui sert à annoncer comme à répondre, et pioche une carte après chaque manche. Celui qui annonce verrouille une carte de sa main, une stat et un sens ; sa carte se retourne et l'annonce reste cachée. L'autre joueur répond avec une carte de sa main. Le meilleur centile dans le sens annoncé gagne la manche ; à centiles égaux, on compare la valeur exacte ; si elle est égale aussi, personne ne marque. Chaque joueur annonce chaque stat une fois."
         ties: "Un point par manche gagnée ; le plus haut score gagne le duel. À score égal, l'écart le plus grand l'emporte : les points de centile par lesquels les manches d'un joueur ont été gagnées. Si l'écart est égal aussi, le duel est une égalité."
@@ -3642,7 +3642,7 @@ fr:
       title: "Supprimer mon compte"
       close: "Fermer"
       market_html: "Votre solde de %{balance} PiCoins est détruit sans remboursement une fois vos annonces en cours retirées et vos offres libérées."
-      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos decks, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos scores de chance, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, vos feedbacks, vos visites de profils, la dernière ouverture de chacun de vos échanges, les notifications que vous avez lues, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts, achats annoncés dans le fil et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos decks, vos emplacements achetés, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos scores de chance, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, vos feedbacks, vos visites de profils, la dernière ouverture de chacun de vos échanges, les notifications que vous avez lues, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts, achats annoncés dans le fil et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos duels passés, vos premières découvertes, vos contributions à la mission hebdo, votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé), les signalements, l'historique de modération, les signaux de comptes alternatifs, les versions des réglages du marché et les publications des graphes, et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
@@ -3916,7 +3916,7 @@ fr:
       remove: "Objectif %{number} · Retirer"
       remove_label: "Objectif %{number}, %{set}. Retirer des objectifs"
     full:
-      limit: "5 objectifs au plus"
+      limit: "10 objectifs au plus"
       hint: "Retirez un objectif pour en ajouter un autre."
       link: "Voir mes objectifs"
     reached:
@@ -4391,8 +4391,8 @@ fr:
       other_lost_spoken: "La connexion de %{name} est perdue. Ses coups seront joués automatiquement dans une minute."
     decks:
       heading: "Mes decks"
-      count: "%{count} / 5"
-      heading_spoken: "Mes decks, %{count} sur 5"
+      count: "%{count} / %{max}"
+      heading_spoken: "Mes decks, %{count} sur %{max}"
       new: "Nouveau deck"
       complete:
         zero: ", %{count} carte"
@@ -4910,7 +4910,7 @@ fr:
       goal_set_not_found: "Ce set ne fait pas partie de la saison publiée."
       goal_set_complete: "Ce set est déjà complet."
       library_set_empty: "Votre bibliothèque Steam ne contient encore aucun jeu du catalogue."
-      too_many_goals: "5 objectifs au plus. Retirez un objectif pour en ajouter un autre."
+      too_many_goals: "10 objectifs au plus. Retirez un objectif pour en ajouter un autre."
       game_not_in_catalog: "Un jeu choisi n'est pas dans le catalogue. Rechargez la page et réessayez."
       name_required: "NOM REQUIS · Donnez un nom à votre set."
       name_taken: "NOM DÉJÀ PRIS · Un autre de vos sets porte ce nom."

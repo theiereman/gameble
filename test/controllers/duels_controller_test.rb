@@ -42,8 +42,8 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", /Duels/
     assert_select "main h1", "Duels"
     assert_select "h2#duel-decks-heading[tabindex='-1']" do
-      assert_select "[aria-hidden=true]", "Mes decks · 0 / 5"
-      assert_select ".visually-hidden", "Mes decks, 0 sur 5"
+      assert_select "[aria-hidden=true]", "Mes decks · 0 / 3"
+      assert_select ".visually-hidden", "Mes decks, 0 sur 3"
     end
     assert_select ".duel-decks__list .deck-row", 0
     assert_select "a.deck-new[href='/fr/duels/decks/new'] .deck-new__label", "Nouveau deck"
@@ -61,7 +61,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
 
     get duels_path(locale: :fr)
 
-    assert_select "#duel-decks-heading [aria-hidden=true]", "Mes decks · 2 / 5"
+    assert_select "#duel-decks-heading [aria-hidden=true]", "Mes decks · 2 / 3"
     assert_equal [ "/fr/duels/decks/#{full.token}", "/fr/duels/decks/#{draft.token}" ], rows.pluck("href")
     assert_equal [ "Vieux briscards, 12 cartes", "Brouillon, brouillon, 9 sur 12" ],
       rows.map { |row| row.css(".deck-row__name, .deck-row__head > .visually-hidden").map(&:text).join }
@@ -89,14 +89,15 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     assert_nil row.at_css(".deck-row__count")
   end
 
-  test "five decks: no way to a sixth, the line that says so instead" do
-    5.times { |index| create_deck("Deck #{index + 1}") }
+  test "three decks and no slot bought: no way to a fourth, the line that says so instead" do
+    3.times { |index| create_deck("Deck #{index + 1}") }
     sign_in(@player)
 
     get duels_path(locale: :en)
 
-    assert_equal 5, rows.size
-    assert_select "#duel-decks-heading .visually-hidden", "My decks, 5 of 5"
+    assert_equal 3, rows.size
+    assert_select "#duel-decks-heading [aria-hidden=true]", "My decks · 3 / 3"
+    assert_select "#duel-decks-heading .visually-hidden", "My decks, 3 of 3"
     assert_select "a[href='/en/duels/decks/new']", 0
     assert_select ".duel-decks__full", "Five decks at most: delete one to make another."
   end

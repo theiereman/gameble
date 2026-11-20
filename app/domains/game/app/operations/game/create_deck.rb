@@ -28,7 +28,7 @@ module Game
     end
 
     def room_left(player)
-      Deck.where(player_id: player.id).count < Deck::PER_PLAYER ? Success() : Failure(:too_many_decks)
+      Deck.where(player_id: player.id).count < Capacity.limit(player, :deck) ? Success() : Failure(:too_many_decks)
     end
 
     def default_name(player)

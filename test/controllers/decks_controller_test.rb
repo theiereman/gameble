@@ -135,8 +135,8 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
   end
 
-  test "with five decks the new editor says so and shows no editor" do
-    5.times { create_deck }
+  test "with three decks and no slot bought the new editor says so and shows no editor" do
+    3.times { create_deck }
     sign_in(@player)
 
     get new_deck_path(locale: :fr)

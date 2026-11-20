@@ -59,7 +59,7 @@ en:
       market_html: "Your balance of %{balance} PiCoins is destroyed without refund once your running listings are withdrawn and your bids released."
       note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
         the time of your last visit, your last data export, the announcements you closed, the release notes you saw and your latest activity,
-        your collection, your showcase, your set tiers, your custom sets, your decks, your goals, your achievements, your
+        your collection, your showcase, your set tiers, your custom sets, your decks, your bought slots, your goals, your achievements, your
         card back unlocks and your active card back, your capsules, opened or not, your luck scores, your daily bonuses and your weekly mission rewards,
         your friends, your invitations, your friend code, your feedback, your profile visits, when you last opened each of your trades, the notifications you read, your reactions to feed entries and your activity feed
         entries: pulls, discoveries, reposts, purchases announced in the feed and every trade that names you. Your
@@ -2045,10 +2045,10 @@ en:
       complete:
         one: ", %{count} card"
         other: ", %{count} cards"
-      count: "%{count} / 5"
+      count: "%{count} / %{max}"
       draft: ", draft, %{count} of %{total}"
       heading: My decks
-      heading_spoken: My decks, %{count} of 5
+      heading_spoken: My decks, %{count} of %{max}
       new: New deck
     history:
       heading: Recent duels
@@ -2267,7 +2267,7 @@ en:
         other: 3 GAMES AT LEAST · Add %{count} more games to save the set.
         zero: 3 GAMES AT LEAST · Add %{count} more games to save the set.
       too_many_games: 50 GAMES AT MOST · Remove a game to add another.
-      too_many_goals: 5 goals at most. Remove a goal to add another one.
+      too_many_goals: 10 goals at most. Remove a goal to add another one.
       too_many_sets: 10 SETS AT MOST · Remove a set to create another.
       friend_profile_private: "%{name}'s profile is private: trades are closed."
       insufficient_copies: 'You do not have enough free copies of an offered card:
@@ -2837,7 +2837,7 @@ en:
     card_words: 'goal %{number}: %{set}'
     full:
       hint: Remove a goal to add another one.
-      limit: 5 goals at most
+      limit: 10 goals at most
       link: See my goals
     name: 'Goal %{number}: %{set}'
     reached:
@@ -4002,7 +4002,7 @@ en:
           even when your standard reserve is full.'
         title: The daily capsule
       duels:
-        decks: 'A deck holds exactly %{cards} cards you own, a game at most once, and you can keep up to %{decks} decks. A card in a deck blocks one copy of its edition: that copy cannot be traded, sold or entrusted until you take the card out of every deck that holds it. Your other copies stay free.'
+        decks: 'A deck holds exactly %{cards} cards you own, a game at most once, and you can keep %{free} decks, up to %{ceiling} with bought slots. A card in a deck blocks one copy of its edition: that copy cannot be traded, sold or entrusted until you take the card out of every deck that holds it. Your other copies stay free.'
         round: 'A duel is %{rounds} rounds. Both decks are face up; only which cards are in a hand stays hidden. Each player holds a hand of %{hand} cards, which serves both to call and to answer, and draws one card after each round. The caller locks a card from their hand, a stat and a direction; their card turns face up while the call stays hidden. The other player answers with a card from their hand. The better percentile in the called direction wins the round; equal percentiles compare the exact value; if those are equal too, nobody scores. Each player calls each stat once.'
         stats: 'Every card is measured on %{number} stats: %{names}. Each is a percentile, the share of the ranked cards the card beats, computed when a season is published and every Monday at midnight UTC. A card''s trump is its most extreme stat, in either direction.'
         ties: 'One point per round won; the higher score wins the duel. Equal scores go to the larger margin, the percentile points by which a player''s won rounds were won. Still equal, the duel is a draw.'
@@ -4192,7 +4192,7 @@ en:
           audience measurement trackers.'
         deletion: When you delete your account, your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address, which is deleted there too), your profile name,
           the time of your last visit, your last data export, the announcements you closed, the release notes you saw, your latest activity,
-          your collection, your showcase, your set tiers, your custom sets, your decks, your Steam library list, your goals, your achievements, your
+          your collection, your showcase, your set tiers, your custom sets, your decks, your bought slots, your Steam library list, your goals, your achievements, your
           card back unlocks and your choice of active card back, your capsules, your luck scores, your daily bonuses, your weekly mission rewards, your friendships,
           your invitations, your friend code, your feedback, your profile visits, when you last opened each trade, the notifications you read, your activity feed entries and your reactions are erased,
           your open trades are cancelled and your profile disappears. What also concerns

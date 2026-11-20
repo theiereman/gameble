@@ -46,7 +46,7 @@ class LibraryOwnSetsTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :fr)
 
-    assert_select "section.custom-sets > .custom-sets__head > h2#custom-sets-title + p.custom-sets__note", "Visibles par vous seul · 1 / 10"
+    assert_select "section.custom-sets > .custom-sets__head > h2#custom-sets-title + p.custom-sets__note", "Visibles par vous seul · 1 / 5"
     tile = mes_sets_tiles.sole
     assert_equal "/fr/library/custom-sets/#{custom_set.token}", tile["href"]
     recto = tile.at_css(".set-tile__face--recto")
@@ -89,7 +89,7 @@ class LibraryOwnSetsTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get library_path(locale: :en)
-    assert_select ".custom-sets__note", "Visible to you only · 0 / 10"
+    assert_select ".custom-sets__note", "Visible to you only · 0 / 5"
     assert_select "ul.custom-sets__tiles > li", 1
     assert_select "ul.custom-sets__tiles > li.custom-sets__add > button.new-set-tile"
 

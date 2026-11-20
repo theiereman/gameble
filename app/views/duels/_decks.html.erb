@@ -2,8 +2,8 @@
 <%= render PanelComponent.new(tag: :section, class: "duel-decks", aria: { labelledby: "duel-decks-heading" },
       data: { controller: "row-focus", row_focus_landing_value: landing }.compact) do %>
   <h2 id="duel-decks-heading" class="duel-decks__heading" tabindex="-1" data-row-focus-target="heading">
-    <span aria-hidden="true"><%= t("duels.decks.heading") %> · <%= t("duels.decks.count", count: decks.count) %></span>
-    <span class="visually-hidden"><%= t("duels.decks.heading_spoken", count: decks.count) %></span>
+    <span aria-hidden="true"><%= t("duels.decks.heading") %> · <%= t("duels.decks.count", count: decks.count, max: decks.limit) %></span>
+    <span class="visually-hidden"><%= t("duels.decks.heading_spoken", count: decks.count, max: decks.limit) %></span>
   </h2>
   <ul class="duel-decks__list">
     <% decks.rows.each do |row| %>

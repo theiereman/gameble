@@ -47,9 +47,9 @@ module GoalsHelper
     t("public_profiles.show.goals.row", **goal_row_words(need))
   end
 
-  def goal_free_slot(goals)
+  def goal_free_slot(goals, slots)
     taken = goals.map(&:position)
-    Game::Goal::POSITIONS.find { !taken.include?(it) }
+    (1..slots).find { !taken.include?(it) }
   end
 
   private

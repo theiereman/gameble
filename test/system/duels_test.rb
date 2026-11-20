@@ -62,7 +62,7 @@ class DuelsTest < ApplicationSystemTestCase
     tab("Duels").click
 
     assert_current_path duels_path(locale: :en)
-    assert_selector "h2#duel-decks-heading", text: "MY DECKS · 2 / 5"
+    assert_selector "h2#duel-decks-heading", text: "MY DECKS · 2 / 3"
     assert_selector ".deck-row__name", count: 2
     assert_equal [ "Vieux briscards", "Brouillon" ], all(".deck-row__name").map(&:text)
     assert_selector "a.deck-new", text: "NEW DECK"

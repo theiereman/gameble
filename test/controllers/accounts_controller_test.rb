@@ -37,6 +37,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_set_tiers" => { fr: [ "vos paliers de sets" ], en: [ "your set tiers" ] },
     "game_custom_sets" => { fr: [ "vos sets perso" ], en: [ "your custom sets" ] },
     "game_decks" => { fr: [ "vos decks" ], en: [ "your decks" ] },
+    "game_capacity_slots" => { fr: [ "vos emplacements achetés" ], en: [ "your bought slots" ] },
     "game_goals" => { fr: [ "vos objectifs" ], en: [ "your goals" ] },
     "game_achievement_unlocks" => { fr: [ "vos succès" ], en: [ "your achievements" ] },
     "game_packs" => { fr: [ "vos capsules, ouvertes ou non" ], en: [ "your capsules, opened or not" ] },

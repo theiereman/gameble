@@ -4,7 +4,7 @@ require_relative "../../support/game_sets"
 require_relative "../../support/custom_sets"
 require_relative "../../support/holdings"
 
-# Marking and unmarking goals: up to five, each on a game set of the
+# Marking and unmarking goals: as many as the player's goal capacity, each on a game set of the
 # published season or one of the player's custom sets, taking the lowest
 # free number and keeping it; each change writes one event, a refusal
 # writes nothing.
@@ -55,11 +55,24 @@ class Game::GoalOperationsTest < ActiveSupport::TestCase
     assert_equal [ [ 1, "theme", "roguelike" ], [ 2, "theme", "rpg" ], [ 3, "theme", "cosy" ] ], positions
   end
 
-  test "a sixth goal is refused" do
+  test "a sixth goal is refused at the free limit and takes number 6 with one bought slot" do
     %w[a1 a2 a3 a4 a5 a6].each { theme(it) }
     %w[a1 a2 a3 a4 a5].each { add(kind: "theme", key: it).value! }
 
     assert_refused(:too_many_goals) { add(kind: "theme", key: "a6") }
+
+    Game::CapacitySlot.create!(player_id: @player.id, kind: "goal", bought: 1)
+    assert_equal 6, add(kind: "theme", key: "a6").value!.position
+  end
+
+  test "a tenth goal is stored at number 10 with every goal slot bought" do
+    Game::CapacitySlot.create!(player_id: @player.id, kind: "goal", bought: 5)
+    keys = (1..11).map { "a#{it}" }
+    keys.each { theme(it) }
+    keys.first(9).each { add(kind: "theme", key: it).value! }
+
+    assert_equal 10, add(kind: "theme", key: "a10").value!.reload.position
+    assert_refused(:too_many_goals) { add(kind: "theme", key: "a11") }
   end
 
   test "a set already a goal stays as it is, at five goals too" do
@@ -177,11 +190,11 @@ class Game::GoalOperationsTest < ActiveSupport::TestCase
     assert_empty Game::Goal.where(player_id: @player.id)
   end
 
-  test "the table refuses a sixth number, two targets, none, and a kind outside the set kinds" do
+  test "the table refuses an eleventh number, two targets, none, and a kind outside the set kinds" do
     theme("roguelike")
     custom_set = create_custom_set(@player)
     rows = [
-      { position: 6, set_kind: "theme", set_key: "roguelike" },
+      { position: 11, set_kind: "theme", set_key: "roguelike" },
       { position: 1, set_kind: "theme", set_key: "roguelike", custom_set_id: custom_set.id },
       { position: 1 },
       { position: 1, set_kind: "theme" },

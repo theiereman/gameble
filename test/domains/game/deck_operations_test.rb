@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/decks"
 
-# Creating, renaming and deleting a player's decks: five at most, a name of 1 to 24 characters unique to the player
+# Creating, renaming and deleting a player's decks: as many as their capacity, a name of 1 to 24 characters unique to the player
 # whatever its case; each change writes one event, a refusal or a change already made writes nothing.
 class Game::DeckOperationsTest < ActiveSupport::TestCase
   include GamePacks
@@ -29,6 +29,7 @@ class Game::DeckOperationsTest < ActiveSupport::TestCase
   end
 
   test "a deck with no name is named Deck and the lowest number its player does not use, with one event" do
+    Game::CapacitySlot.create!(player_id: @player.id, kind: "deck", bought: 1)
     first = create.value!
     create(name: "deck 3").value!
 
@@ -49,8 +50,8 @@ class Game::DeckOperationsTest < ActiveSupport::TestCase
     assert create(name: "Vieux briscards", player: accounts_players(:moderator)).success?
   end
 
-  test "a sixth deck is refused" do
-    5.times { create.value! }
+  test "a fourth deck is refused at the free limit" do
+    3.times { create.value! }
 
     assert_refused(:too_many_decks) { create }
   end

@@ -2,8 +2,6 @@ module Game
   class Goal < ApplicationRecord
     self.table_name = "game_goals"
 
-    POSITIONS = (1..5)
-
     belongs_to :custom_set, class_name: "Game::CustomSet", optional: true
 
     def self.drop_reached(player_ids)

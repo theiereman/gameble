@@ -7,7 +7,6 @@ module Game
 
     NAME_LIMIT = 40
     GAMES = (3..50)
-    PER_PLAYER = 10
 
     has_secure_token :token, length: 24
 

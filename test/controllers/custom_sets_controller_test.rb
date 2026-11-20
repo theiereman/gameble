@@ -269,7 +269,7 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
     assert_select "section.custom-sets[aria-labelledby=custom-sets-title]" do
       assert_select "h2#custom-sets-title", "My sets"
-      assert_select ".custom-sets__note", "Visible to you only · 1 / 10"
+      assert_select ".custom-sets__note", "Visible to you only · 1 / 5"
       assert_select "ul.set-tiles > li > a.set-tile[href='/en/library/custom-sets/#{custom_set.token}']" do
         assert_select ".set-tile__face--recto .set-tile__name", "Mes favoris"
         assert_select ".set-tile__face--recto .set-tile__kind", "Custom set · 3 games"
@@ -278,7 +278,7 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
       end
       assert_select "ul.set-tiles > li:last-child > button.new-set-tile[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=custom-set-editor]" do
         assert_select ".new-set-tile__title", "New set"
-        assert_select ".new-set-tile__rule", "3 to 50 games · 10 sets at most"
+        assert_select ".new-set-tile__rule", "3 to 50 games · 5 sets at most"
       end
     end
   end
@@ -304,18 +304,18 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "an eleventh set is refused inline; ten sets: no new set button and no editor" do
-    10.times { create_custom_set(@player, name: "Set #{it}") }
+  test "a sixth set is refused inline with no slot bought; five sets: no new set button and no editor" do
+    5.times { create_custom_set(@player, name: "Set #{it}") }
     sign_in(@player)
 
     assert_no_difference -> { writes } do
-      post custom_sets_path(locale: :fr), params: { name: "Onze", games: slugs_of(:portal, :rare_card, :common_card) }, headers: STREAM
+      post custom_sets_path(locale: :fr), params: { name: "Six", games: slugs_of(:portal, :rare_card, :common_card) }, headers: STREAM
     end
     assert_refusal "10 SETS AU PLUS · Retirez un set pour en créer un autre."
 
     get library_path(locale: :en)
-    assert_select ".custom-sets__note", "Visible to you only · 10 / 10 · remove a set to create another"
-    assert_select ".custom-sets a.set-tile", 10
+    assert_select ".custom-sets__note", "Visible to you only · 5 / 5 · remove a set to create another"
+    assert_select ".custom-sets a.set-tile", 5
     assert_select ".new-set-tile, #custom-set-editor", false
   end
 
@@ -427,7 +427,7 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :en)
 
-    assert_select ".custom-sets__note", "Visible to you only · 1 / 10"
+    assert_select ".custom-sets__note", "Visible to you only · 1 / 5"
     assert_equal [ "/en/library/custom-sets/#{custom_set.token}" ], css_select(".custom-sets a.set-tile").map { it["href"] }
   end
 

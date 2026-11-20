@@ -20,6 +20,26 @@
   --goal: var(--color-goal-5);
 }
 
+.goal-tone--6 {
+  --goal: var(--color-goal-6);
+}
+
+.goal-tone--7 {
+  --goal: var(--color-goal-7);
+}
+
+.goal-tone--8 {
+  --goal: var(--color-goal-8);
+}
+
+.goal-tone--9 {
+  --goal: var(--color-goal-9);
+}
+
+.goal-tone--10 {
+  --goal: var(--color-goal-10);
+}
+
 /* A numbered bookmark: the outline is a filter on the wrapper, since a clip-path would cut it. */
 .goal-bookmark {
   --bookmark-width: 18px;
@@ -347,6 +367,26 @@
 
 .set-album__header:has(.goal-control--set.goal-tone--5) {
   --goal: var(--color-goal-5);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--6) {
+  --goal: var(--color-goal-6);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--7) {
+  --goal: var(--color-goal-7);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--8) {
+  --goal: var(--color-goal-8);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--9) {
+  --goal: var(--color-goal-9);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--10) {
+  --goal: var(--color-goal-10);
 }
 
 @media (max-width: 719px) {

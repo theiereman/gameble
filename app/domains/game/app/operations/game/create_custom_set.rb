@@ -22,7 +22,7 @@ module Game
     private
 
     def room_left(player)
-      CustomSet.custom.where(player_id: player.id).count < CustomSet::PER_PLAYER ? Success() : Failure(:too_many_sets)
+      CustomSet.custom.where(player_id: player.id).count < Capacity.limit(player, :custom_set) ? Success() : Failure(:too_many_sets)
     end
   end
 end

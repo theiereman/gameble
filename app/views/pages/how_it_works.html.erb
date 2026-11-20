@@ -94,7 +94,7 @@
 
   <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-duels" }) do %>
     <h2 id="how-it-works-duels" class="how-it-works__heading"><%= t(".duels.title") %></h2>
-    <p class="how-it-works__duel-decks"><%= t(".duels.decks", cards: Game::Deck::SLOTS.size, decks: Game::Deck::PER_PLAYER) %></p>
+    <p class="how-it-works__duel-decks"><%= t(".duels.decks", cards: Game::Deck::SLOTS.size, free: Game::Capacity::FREE[:deck], ceiling: Game::Capacity::CEILING[:deck]) %></p>
     <p class="how-it-works__duel-stats"><%= t(".duels.stats", number: Game::DuelStat::STATS.size, names: duel_stat_names(Game::DuelStat::STATS)) %></p>
     <p class="how-it-works__duel-round"><%= t(".duels.round", rounds: Game::DuelRules::ROUNDS, hand: Game::DuelRules::HAND_SIZE) %></p>
     <p class="how-it-works__duel-ties"><%= t(".duels.ties") %></p>

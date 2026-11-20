@@ -25,6 +25,7 @@ module Game
         Goal.where(player_id: player.id).delete_all
         CustomSet.where(player_id: player.id).delete_all
         Deck.where(player_id: player.id).delete_all
+        CapacitySlot.where(player_id: player.id).delete_all
         Holding.where(player_id: player.id).delete_all
         AchievementUnlock.where(player_id: player.id).delete_all
         CardBackUnlock.where(player_id: player.id).delete_all

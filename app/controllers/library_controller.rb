@@ -20,6 +20,8 @@ class LibraryController < ApplicationController
     @steam_library_tile = library_tiles.first
     @sets_total = Catalog::SeasonSets.every_kind(season: @season).count + own_sets.size
     load_goals
+    @goal_slots = Game::Capacity.limit(current_player, :goal)
+    @custom_set_slots = Game::Capacity.limit(current_player, :custom_set)
     load_unique_cards
     load_latest_cards
     @grand_inventory = Game::GrandInventory.new(seasons: :all)

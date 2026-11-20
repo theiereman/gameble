@@ -70,7 +70,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     refusal = control.at_css("p.goal-control__refusal[role=status]")
-    assert_equal "5 objectifs au plus · Retirez un objectif pour en ajouter un autre.Voir mes objectifs", refusal.text.squish
+    assert_equal "10 objectifs au plus · Retirez un objectif pour en ajouter un autre.Voir mes objectifs", refusal.text.squish
     assert_equal "/fr/library#goals", refusal.at_css("a.goal-control__link")["href"]
     assert_equal "Marquer comme objectif", control.at_css("button.goal-button").text.squish
   end
@@ -99,7 +99,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     post library_goals_path(locale: :fr), params: { custom_set: custom_set.token }
     assert_redirected_to "/fr/library/custom-sets/#{custom_set.token}"
     follow_redirect!
-    assert_select "#set-album-goal p.goal-control__refusal", /5 objectifs au plus/
+    assert_select "#set-album-goal p.goal-control__refusal", /10 objectifs au plus/
 
     post library_goals_path(locale: :fr), params: { custom_set: "nope" }
     assert_redirected_to "/fr/library"

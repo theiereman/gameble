@@ -1,10 +1,10 @@
-<%# locals: (goals:, suggestions: []) %>
-<% free = goal_free_slot(goals) %>
+<%# locals: (goals:, slots:, suggestions: []) %>
+<% free = goal_free_slot(goals, slots) %>
 <section id="goals" class="set-entry__section goals" aria-labelledby="goals-title">
   <%= render PanelComponent.new(brackets: true, class: "goals__panel") do %>
     <div class="goals__head">
       <h2 id="goals-title" class="set-entry__title"><%= t("library.entry.goals.title") %></h2>
-      <span class="goals__count"><%= t("library.entry.goals.count_html", count: goals.size, max: Game::Goal::POSITIONS.max) %></span>
+      <span class="goals__count"><%= t("library.entry.goals.count_html", count: goals.size, max: slots) %></span>
     </div>
     <% if goals.any? %>
       <ol class="goals__list">
@@ -13,7 +13,7 @@
         <% end %>
       </ol>
       <% if free %>
-        <p class="goals__free"><%= goal_bookmark(free, hollow: true) %><span><%= t("library.entry.goals.free", count: Game::Goal::POSITIONS.count - goals.size) %></span></p>
+        <p class="goals__free"><%= goal_bookmark(free, hollow: true) %><span><%= t("library.entry.goals.free", count: slots - goals.size) %></span></p>
       <% end %>
     <% elsif suggestions.any? %>
       <p class="goals__empty goals__empty--suggesting"><%= goal_bookmark(nil, size: :large, hollow: true) %><span><%= t("library.entry.goals.suggestions") %></span></p>

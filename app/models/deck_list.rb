@@ -19,7 +19,9 @@ class DeckList
 
   def count = decks.size
 
-  def room_left? = count < Game::Deck::PER_PLAYER
+  def limit = @limit ||= Game::Capacity.limit(@player, :deck)
+
+  def room_left? = count < limit
 
   private
     def decks = @decks ||= Game::PlayerDecks.listing(@player)

@@ -47,8 +47,8 @@ class CustomSetsTest < ApplicationSystemTestCase
     visit library_path(locale: :en)
 
     within("section.custom-sets") do
-      assert_text "Visible to you only · 0 / 10"
-      find("button.new-set-tile", text: /new set\s+3 to 50 games · 10 sets at most/i).click
+      assert_text "Visible to you only · 0 / 5"
+      find("button.new-set-tile", text: /new set\s+3 to 50 games · 5 sets at most/i).click
     end
     within(editor) do
       assert_selector ".modal__title", text: /\Anew set\z/i
@@ -80,7 +80,7 @@ class CustomSetsTest < ApplicationSystemTestCase
     assert_no_selector "dialog[open]"
     assert_current_path library_path(locale: :en)
     within("section.custom-sets") do
-      assert_text "Visible to you only · 1 / 10"
+      assert_text "Visible to you only · 1 / 5"
       assert_selector "li:first-child > a.set-tile .set-tile__face--recto .set-tile__head", text: /Mes favoris\s+custom set · 3 games\s+1\/3/i
       assert_selector "li:last-child > button.new-set-tile"
     end
@@ -198,6 +198,21 @@ class CustomSetsTest < ApplicationSystemTestCase
       assert_selector ".custom-set-editor__count b", text: "49 games"
       assert_no_refusal
     end
+  end
+
+  test "OBJECTIFS and MES SETS count against the free slots, and a bought custom set slot makes room for a sixth set" do
+    5.times { Game::AddGoal.new.call(player: @player, custom_set: create_set(name: "Set #{it}").token).value! }
+    sign_in(@player)
+    visit library_path(locale: :en)
+    assert_selector ".goals__count", text: "5 / 5"
+    assert_selector ".custom-sets__note", text: "Visible to you only · 5 / 5 · remove a set to create another"
+    assert_no_selector ".new-set-tile"
+
+    Game::CapacitySlot.create!(player_id: @player.id, kind: "custom_set", bought: 1)
+    create_set(name: "Set 5")
+    visit library_path(locale: :en)
+    assert_selector ".custom-sets__note", text: "Visible to you only · 6 / 6 · remove a set to create another"
+    assert_selector "section.custom-sets a.set-tile", count: 6
   end
 
   test "on the phone MES SETS shows two sets and the new set tile, and Tout voir unfolds the others in place, focusing the third" do

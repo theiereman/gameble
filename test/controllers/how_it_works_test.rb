@@ -105,7 +105,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
 
   def assert_duel_numbers(locale)
     assert_select "#how-it-works-duels"
-    assert_select ".how-it-works__duel-decks", /\b#{Game::Deck::SLOTS.size}\b.*\b#{Game::Deck::PER_PLAYER}\b/m
+    assert_select ".how-it-works__duel-decks", /\b#{Game::Deck::SLOTS.size}\b.*\b#{Game::Capacity::FREE[:deck]}\b.*\b#{Game::Capacity::CEILING[:deck]}\b/m
     assert_select ".how-it-works__duel-stats", /\b#{Game::DuelStat::STATS.size}\b/
     Game::DuelStat::STATS.each { assert_select ".how-it-works__duel-stats", /#{Regexp.escape(I18n.t("duel_stats.names.#{it}", locale:))}/ }
     assert_select ".how-it-works__duel-round", /\b#{Game::DuelRules::ROUNDS}\b.*\b#{Game::DuelRules::HAND_SIZE}\b/m

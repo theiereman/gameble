@@ -1,5 +1,5 @@
-<%# locals: (tiles:, goals: []) %>
-<% room = tiles.size < Game::CustomSet::PER_PLAYER %>
+<%# locals: (tiles:, slots:, goals: []) %>
+<% room = tiles.size < slots %>
 <% folded = tiles.size - CustomSetsHelper::SHOWN_ON_PHONE %>
 <section class="set-entry__section custom-sets" aria-labelledby="custom-sets-title" data-controller="set-fold">
   <div class="custom-sets__head">
@@ -7,9 +7,9 @@
     <p class="custom-sets__note">
       <%= pixel_icon("lock", class: "custom-sets__lock") %>
       <% if room %>
-        <%= t("library.entry.custom_sets.count", sets: tiles.size, max: Game::CustomSet::PER_PLAYER) %>
+        <%= t("library.entry.custom_sets.count", sets: tiles.size, max: slots) %>
       <% else %>
-        <%= t("library.entry.custom_sets.count_full", sets: tiles.size, max: Game::CustomSet::PER_PLAYER) %>
+        <%= t("library.entry.custom_sets.count_full", sets: tiles.size, max: slots) %>
       <% end %>
     </p>
   </div>
@@ -25,7 +25,7 @@
           <span class="new-set-tile__text">
             <b class="new-set-tile__title"><%= t("library.entry.custom_sets.new") %></b>
             <span class="new-set-tile__rule"><%= t("library.entry.custom_sets.new_rule", min: Game::CustomSet::GAMES.min, max: Game::CustomSet::GAMES.max,
-              sets: Game::CustomSet::PER_PLAYER) %></span>
+              sets: slots) %></span>
           </span>
         </button>
       </li>

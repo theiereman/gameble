@@ -22,7 +22,7 @@ module Game
     private
 
     def free_position(player)
-      position = (Goal::POSITIONS.to_a - Goal.where(player_id: player.id).pluck(:position)).first
+      position = ((1..Capacity.limit(player, :goal)).to_a - Goal.where(player_id: player.id).pluck(:position)).first
       position ? Success(position) : Failure(:too_many_goals)
     end
 

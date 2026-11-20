@@ -4,7 +4,7 @@ require_relative "../../support/game_sets"
 require_relative "../../support/custom_sets"
 
 # Creating, editing and deleting a player's own sets: a named list of 3 to
-# 50 published games, 10 sets at most, a name unique to the player whatever
+# 50 published games, as many sets as their capacity, a name unique to the player whatever
 # its case; each change writes one event, a refusal writes nothing.
 class Game::CustomSetOperationsTest < ActiveSupport::TestCase
   include GamePacks
@@ -96,12 +96,12 @@ class Game::CustomSetOperationsTest < ActiveSupport::TestCase
     assert_refused(:name_taken) { create(name: "Mes favore\u0301s") }
   end
 
-  test "the library set does not count among the ten" do
+  test "the library set does not count among the five free sets" do
     Game::CustomSet.create!(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY)
-    9.times { create(name: "Set #{it}").value! }
+    4.times { create(name: "Set #{it}").value! }
 
-    assert create(name: "Set 9").success?
-    assert_refused(:too_many_sets) { create(name: "Set 10") }
+    assert create(name: "Set 4").success?
+    assert_refused(:too_many_sets) { create(name: "Set 5") }
   end
 
   test "a game unknown, or with no rated card-season in a published season, is refused" do
