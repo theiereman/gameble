@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forge Report: Duels Alpha</title>
+<style>
+:root{--bg:#f6f1e7;--panel:#fffaf0;--ink:#2a241c;--muted:#6d6252;--line:#ddd2bd;--seal:#8f2f24;--accent:#6b4a12}
+@media (prefers-color-scheme:dark){:root{--bg:#191612;--panel:#231f19;--ink:#efe7d8;--muted:#b0a48f;--line:#40382b;--seal:#d4685a;--accent:#dcb56c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Georgia,"Times New Roman",serif}
+main{max-width:920px;margin:0 auto;padding:40px 16px 72px}
+header{display:flex;gap:28px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:24px}
+h1{font-size:2.1rem;line-height:1.15;margin:0 0 8px}
+h2{font-size:1.3rem;margin:40px 0 12px;color:var(--accent)}
+p{margin:0 0 12px}
+.kicker{font:600 .78rem/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.muted{color:var(--muted)}
+.seal{width:164px;height:164px;flex:none;color:var(--seal);transform:rotate(-8deg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.card h3{margin:0 0 4px;font-size:1rem}
+.card p{margin:0;font-size:.94rem}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.94rem}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{font:600 .78rem/1.3 ui-monospace,Menlo,monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+ul{padding-left:20px;margin:0}
+li{margin:0 0 8px}
+.stat{font:700 1.6rem/1.1 Georgia,serif;color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div>
+    <div class="kicker">BMad Forge · gameble · 2026-11-20</div>
+    <h1>The duels alpha and its place in the interface</h1>
+    <p class="muted">Ship duels to every player as an alpha that tests the rules, and decide where they live in the app without burying the market or the friend-trade flow.</p>
+  </div>
+  <svg class="seal" viewBox="0 0 200 200" role="img" aria-label="Hardened seal">
+    <circle cx="100" cy="100" r="88" fill="currentColor" opacity=".14"/>
+    <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="5"/>
+    <circle cx="100" cy="100" r="66" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 5"/>
+    <text x="100" y="92" text-anchor="middle" font-family="Georgia,serif" font-size="25" font-weight="700" fill="currentColor" letter-spacing="2">HARDENED</text>
+    <text x="100" y="118" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="currentColor" letter-spacing="3">DUELS · ALPHA</text>
+  </svg>
+</header>
+
+<h2>What the evidence showed</h2>
+<div class="grid">
+  <div class="card"><div class="stat">15</div><p>places the global flag forks, the tab bar among them; the native apps already ignore it</p></div>
+  <div class="card"><div class="stat">82–90&nbsp;%</div><p>the coverage deck's win rate against every other recipe in the 2026-11-14 simulation</p></div>
+  <div class="card"><div class="stat">50 / 50</div><p>today's bot: automatic move half the time, random otherwise, never reads the opponent</p></div>
+  <div class="card"><div class="stat">~1,100 vs ~50</div><p>cards a week moved by friend trades against market sales</p></div>
+</div>
+
+<h2>Locked decisions</h2>
+<ul>
+  <li><strong>Scope:</strong> open alpha for everyone, labelled ALPHA, flag removed. Live friend challenges and the practice duel; no capsule, achievements or Duelliste back. Async goes to the beta.</li>
+  <li><strong>Purpose:</strong> is the duel fun, and do players build varied decks. A test bench for the rules: one dominant deck means the rules change.</li>
+  <li><strong>Bot:</strong> skilled, margin-aware play with a named archetype deck that changes each game.</li>
+  <li><strong>Measurement:</strong> a back-office page, human and practice duels apart; the bot's archetype and the rules version stored per duel; the ALPHA banner says games are analysed.</li>
+  <li><strong>Navigation E&prime;:</strong> PONT · CAPSULE · SETS · ÉCHANGES · DUELS (ALPHA tag). MARCHÉ first and default in ÉCHANGES; players with a friend trade in 30 days keep ENTRE AMIS. Native apps get DUELS back.</li>
+  <li><strong>Record:</strong> off the public profile, on the player's own Duels screen, current rules only.</li>
+  <li><strong>Card detail and feed:</strong> the duel profile stays for everyone below the collection facts; the Monday standing entry ships as built.</li>
+</ul>
+
+<h2>Rejected</h2>
+<div class="scroll"><table>
+<tr><th>Option</th><th>Why</th></tr>
+<tr><td>Keep the flag</td><td>All or nobody, two navigations to maintain</td></tr>
+<tr><td>Invite-only alpha</td><td>A per-player flag costs more than an honest label</td></tr>
+<tr><td>B · no tab</td><td>The hub menu is hidden on the phone: no way to decks or practice</td></tr>
+<tr><td>D · hub block</td><td>New UX to hide what the alpha needs played</td></tr>
+<tr><td>F · market alone</td><td>Hides the goals-to-suggestions trade flow</td></tr>
+<tr><td>Async in the alpha</td><td>An epic that tests retention, not the alpha questions</td></tr>
+<tr><td>Public record</td><td>Pushes players to the dominant deck, mixes rules versions</td></tr>
+</table></div>
+
+<h2>Weak points that survived</h2>
+<ul>
+  <li>A skilled bot may teach everyone the coverage deck; read decks built against the bot apart from decks built against friends.</li>
+  <li>About 30 active players: a few dozen human duels; archetype win rates come mostly from practice.</li>
+  <li>Live duels need two friends online at once until the beta.</li>
+  <li>Removing the rewards is migration work on built tables.</li>
+</ul>
+
+<h2>Who pressure-tested it</h2>
+<div class="grid">
+  <div class="card"><h3>🎨 Sally · UX Designer</h3><p>A tab needs a daily loop; the card detail is where duels meet the collection.</p></div>
+  <div class="card"><h3>📋 John · Product Manager</h3><p>Practice, not async, answers "no friend online".</p></div>
+  <div class="card"><h3>🏗️ Winston · Architect</h3><p>Async is an epic, not a longer clock.</p></div>
+  <div class="card"><h3>📊 Mary · Analyst</h3><p>Sample size; read human and bot series apart.</p></div>
+  <div class="card"><h3>🪓 Splinter · Consensus Challenger</h3><p>A strong bot converges decks; the kept sub-tab serves both publics.</p></div>
+  <div class="card"><h3>😈 Grumbal · Adversary</h3><p>A public record kills experimentation.</p></div>
+  <div class="card"><h3>🗣️ Outside voices</h3><p>Inès (friends never online), Karim (metro player), Léo and Nadia (deckbuilders), Bastien (market), Camille (friend trader), Théo (competitor), Hugo (pure collector).</p></div>
+</div>
+</main>
+</body>
+</html>
