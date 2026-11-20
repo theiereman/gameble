@@ -17,6 +17,10 @@ sources:
 
 Decisions taken during the UX work that change the product contract. They reach the spec through `bmad-spec`. Ordered by capability, then by the spec file they touch.
 
+### Market volume (2026-11-20)
+
+The wanted definition (CAP-44), buy orders and direct sales (CAP-46), slots (CAP-49), the goal, custom-set and deck ceilings, and the `market-economy.md` lines on destroyed PiCoins, Archive prices, the shop, alt signals, the average price and the feed: listed in [validation-report-market-volume-2026-11-20.md](validation-report-market-volume-2026-11-20.md), Spec changes needed.
+
 ### Changed by the 2026-10-05 redesign
 
 - **Glossary:** the interface says "booster" for the spec's "pack", "réserve" for its "bank", and "objectif communautaire" for the weekly goal (superseded on 2026-10-15: the interface says "capsule" for the pack; see `lore.md`).
