@@ -3,7 +3,12 @@
   <div class="market-row__main">
     <p class="market-row__heading">
       <a class="market-row__title" href="<%= href %>" data-row-token="<%= token %>"><%= card.title %></a>
-      <span class="market-row__rarity market-row__rarity--<%= card.rarity %>"><%= rarity_name %></span>
+      <% if edition_note %><span class="market-row__editions"><%= edition_note %></span><% end %>
+      <% if rarities %>
+        <%= helpers.order_rarity_pills(rarities) %>
+      <% else %>
+        <span class="market-row__rarity market-row__rarity--<%= card.rarity %>"><%= rarity_name %></span>
+      <% end %>
     </p>
     <span class="market-row__chip market-row__chip--<%= tone %>"><%= status %></span>
     <dl class="market-row__facts">

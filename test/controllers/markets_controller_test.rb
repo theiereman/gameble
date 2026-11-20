@@ -196,7 +196,7 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#market-suspended-banner", 1
     assert_select ".market-screen__actions button[disabled][aria-describedby=market-suspended-banner]", 2
-    assert_select ".tabs__tab--disabled[aria-disabled=true]", 2
+    assert_select ".tabs__tab--disabled[aria-disabled=true]", 3
   end
 
   test "an open market and a never opened one draw no banner" do

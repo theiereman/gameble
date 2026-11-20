@@ -98,3 +98,17 @@ a.market-screen__chip:hover {
 .market-screen__chips {
   scroll-margin-top: var(--space-4);
 }
+
+@media (max-width: 719px) {
+  .market-screen__chips {
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-inline-end: var(--space-8);
+    mask-image: linear-gradient(to right, var(--color-outline) calc(100% - var(--space-8)), transparent);
+  }
+
+  .market-screen__chips .tabs__tab {
+    flex: 0 0 auto;
+    scroll-margin-inline: var(--space-8);
+  }
+}

@@ -1,4 +1,4 @@
-<%# locals: (holders:, view:, strings:) %>
+<%# locals: (holders:, view:, strings:, secondary: false) %>
 <ul class="card-trade__friends">
   <% preload_avatars(holders.map(&:player)) %>
   <% holders.each do |holder| %>
@@ -17,7 +17,7 @@
       <% if holder.asked %>
         <span class="card-trade__asked"><%= t("card_details.trade.asked") %></span>
       <% else %>
-        <%= render ButtonComponent.new(size: :small, href: new_trade_path(friend: holder.player.token, ask: trade_edition_key(holder.edition))) do %><%= t("card_details.trade.propose") %><% end %>
+        <%= render ButtonComponent.new(variant: (secondary ? :secondary : :primary), size: :small, href: new_trade_path(friend: holder.player.token, ask: trade_edition_key(holder.edition))) do %><%= t("card_details.trade.propose") %><% end %>
       <% end %>
     </li>
   <% end %>

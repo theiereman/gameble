@@ -1396,6 +1396,8 @@ en:
     unlocked:
       title: Card back unlocked
   card_details:
+    order:
+      button: Place an order
     actions:
       collection: Collection
       links: Links
@@ -2370,6 +2372,11 @@ en:
       invalid_price: Enter a whole number of PiCoins, above zero.
       stamp_not_covered: "You are short of %{amount} PiCoins for the stamp."
       start_below_minimum: "At least %{amount} for a %{rarity}."
+      card_not_published: This card is not published yet.
+      order_below_minimum: "At least %{amount} for a %{rarity}."
+      order_already_open: "You already have an order on %{card}: %{amount}, %{days} d left."
+      order_not_open: This order is no longer in progress.
+      order_not_found: This order does not exist.
       no_rarity: One of these cards has no rarity yet, so the Brotherhood cannot value it.
       not_enough_copies: You do not have that many free copies of one of these cards.
       nothing_fits: No card fits within your cap for today. It renews at 00:00 UTC.
@@ -3507,6 +3514,7 @@ en:
         one: "%{number} outbid"
         other: "%{number} outbid"
       sales: MY SALES
+      orders: MY ORDERS
     my_bids:
       groups:
         in_progress:
@@ -3558,6 +3566,82 @@ en:
             one: ", %{number} with a bid."
             other: ", %{number} with a bid."
             zero: ", no bid yet."
+    my_orders:
+      all_editions: every edition
+      cancel: CANCEL
+      cancel_name: "Cancel the order, %{card}"
+      groups:
+        in_progress: IN PROGRESS
+      result:
+        available: "%{amount} available"
+        balance_after: Balance after
+        body: "Your %{amount} PiCoins are held. The first player who accepts sells you a copy of %{card} at this price; the card then joins your collection."
+        closing: Free cancellation. An order never bids for you.
+        heading: "ORDER PLACED ON %{card}"
+        reached: Rarities reached
+      show:
+        empty: You have placed no order.
+        heading: My orders
+    order_cancellations:
+      create:
+        cancelled: "Order cancelled: your %{amount} PiCoins are returned to you."
+        throttled: Slow down, the Archives are counting. Try again in a minute.
+      dialog:
+        close: Close
+        confirm: CANCEL THE ORDER
+        keep: KEEP THE ORDER
+        text: "Your %{amount} PiCoins held on %{card} are returned to you. No fee."
+        title: CANCEL THIS ORDER?
+    orders:
+      create:
+        throttled: Slow down, the Archives are counting. Try again in a minute.
+      days:
+        one: "%{number} day"
+        other: "%{number} days"
+      labels:
+        end: End
+        held: Price held
+      list:
+        last_word: ", and "
+        two_words: " and "
+      letters:
+        common: C
+        epic: E
+        legendary: L
+        rare: R
+        uncommon: U
+      new:
+        all_editions: "Every edition of %{card}. The first player who accepts sells you a copy at this price."
+        at_least: "At least %{amount}"
+        available: "Available: %{amount} PiCoins. An order never bids for you."
+        chip_from: "%{rarity} from %{amount}"
+        chip_reached: "%{rarity} %{amount}"
+        duration: Duration
+        free_cancel_html: "%{amount} PiCoins will be held, then returned if the order expires or if you cancel it. Free cancellation."
+        heading: BUY ORDER
+        heading_for: "Buy order · %{card}"
+        held_now: Held now
+        price: MY PRICE
+        reached: RARITIES REACHED
+        submit: PLACE THE ORDER
+        submit_amount_html: " · %{amount}"
+        yours: YOUR ORDER
+      strings:
+        all: Your price reaches every rarity.
+        next:
+          common: Commons
+          epic: Epics
+          legendary: Legendaries
+          rare: Rares
+          uncommon: Uncommons
+        none: "%{next} from %{amount}."
+        reached:
+          common: commons
+          epic: epics
+          legendary: legendaries
+          rare: rares
+          uncommon: uncommons
+        some: "Your price reaches %{reached}. %{next} from %{amount}."
     rows:
       closing: "Closing…"
       labels:

@@ -1,0 +1,25 @@
+<%# locals: (row:, balance:) %>
+<%= render PanelComponent.new(tag: :section, class: "order-result", aria: { labelledby: "order-result-heading" }) do %>
+  <h2 id="order-result-heading" class="order-result__heading" tabindex="-1" data-row-focus-target="heading"><%= t("market.my_orders.result.heading", card: row.card.title) %></h2>
+  <p class="order-result__body"><%= t("market.my_orders.result.body", amount: picoins(row.price), card: row.card.title) %></p>
+  <dl class="order-result__facts">
+    <div class="order-result__fact">
+      <dt><%= t("market.my_orders.result.reached") %></dt>
+      <dd><%= order_rarity_pills(row.rarities) %> <span class="order-result__words"><%= order_rarity_words(row.rarities) %></span></dd>
+    </div>
+    <div class="order-result__fact">
+      <dt><%= t("market.orders.labels.held") %></dt>
+      <dd><%= render PicoinAmountComponent.new(amount: row.price) %></dd>
+    </div>
+    <div class="order-result__fact">
+      <dt><%= t("market.orders.labels.end") %></dt>
+      <dd><%= local_time_tag(row.expires_at) %>
+        <span class="order-result__words"><%= order_days(row.duration_days) %></span></dd>
+    </div>
+    <div class="order-result__fact">
+      <dt><%= t("market.my_orders.result.balance_after") %></dt>
+      <dd><%= t("market.my_orders.result.available", amount: picoins(balance.available)) %></dd>
+    </div>
+  </dl>
+  <p class="order-result__closing"><%= t("market.my_orders.result.closing") %></p>
+<% end %>

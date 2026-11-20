@@ -1,0 +1,12 @@
+<% content_for :title, t(".heading") %>
+<% tab = capture do %>
+  <% if @placed %><%= render "market/my_orders/result", row: @placed, balance: @balance %><% end %>
+  <% if @orders.empty? %>
+    <%= render EmptyStateComponent.new(line: t(".empty")) %>
+  <% else %>
+    <%= render "market/my_orders/group", rows: @orders, focus_heading: @placed.nil? %>
+  <% end %>
+<% end %>
+<%= render "exchanges/tabs", current: :market %>
+<%= render "markets/tab", title: content_for(:title), current: :orders, pulse: @pulse, desk: @desk, suspended: @suspended,
+      data: { controller: "row-focus", row_focus_landing_value: ("" if @placed) }.compact, content: tab %>

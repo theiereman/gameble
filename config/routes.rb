@@ -51,6 +51,11 @@ Rails.application.routes.draw do
     get "market/my-sales" => "market/my_sales#show", as: :market_my_sales
     # The auctions a player bid on.
     get "market/my-bids" => "market/my_bids#show", as: :market_my_bids
+    # A buy order on every edition of one card, and a player's open orders.
+    get "market/order/cards/:slug" => "market/orders#new", as: :new_market_card_order
+    post "market/order/cards/:slug" => "market/orders#create", as: :market_card_orders
+    get "market/my-orders" => "market/my_orders#show", as: :market_my_orders
+    post "market/orders/:token/cancellation" => "market/order_cancellations#create", as: :market_order_cancellation
     # The Brotherhood's Exchange: the economy's public charts.
     get "market/exchange" => "market/exchanges#show", as: :market_exchange
     # One published chart, cached by version, embedded by the exchange page.

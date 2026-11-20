@@ -137,6 +137,22 @@ if Rails.env.development? && Game::Market::MarketState.call.open?
   puts "Listed #{listed} copies on the market."
 end
 
+# Development only: two fake players each place a buy order, at the lowest minimum, on a published card they hold in no edition.
+# A player who already has an open order, or cannot pay, is skipped.
+if Rails.env.development? && Game::Market::MarketState.call.open?
+  settings = Game::Market::CurrentSettings.call
+  lowest = Game::Market::SettingsRules::RARITIES.map { settings.minimum_price(it) }.min
+  placed = DevSignInsController::FAKE_PLAYER_COUNT.times.to_a.drop(1).first(2).count do |number|
+    player = Accounts::SignIn.new.call(steam_id: DevSignInsController.steam_id(number), persona_name: DevSignInsController.persona_name(number)).value!
+    next false if Game::Market::Order.where(player_id: player.id, status: "open").exists?
+
+    held = Catalog::CardSeason.where(id: Game::Holding.where(player_id: player.id).where("quantity > 0").select(:card_season_id)).select(:card_id)
+    card_id = Catalog::PublishedCardIds.within(Catalog::Card.where.not(id: held).limit(50).pluck(:id)).first
+    card_id && Game::Market::PlaceOrder.new.call(player:, card_id:, price: lowest, settings_token: settings.token).success?
+  end
+  puts "Placed #{placed} buy orders on the market."
+end
+
 # Development only: ninety days of market history, so the economy's charts draw. The market's first opening moves back to the
 # first of those days; each day without a snapshot gets backdated mints, stamps and sales of a dozen fake players, posted through
 # the ledger, then its snapshot written by WriteDailySnapshot. A day that already has a snapshot is left alone, and a day that

@@ -8,7 +8,8 @@ module PlayerStream
   SEEN_EVENTS = [ Game::TradeSeen ].freeze
   BALANCE_EVENTS = [
     Game::Market::CardsEntrusted, Game::Market::CardListed, Game::Market::AuctionSold, Game::Market::AuctionUnsold, Game::Market::ListingWithdrawn,
-    Game::Market::BidPlaced
+    Game::Market::BidPlaced, Game::Market::OrderPlaced, Game::Market::OrderCancelled, Game::Market::OrderExpired, Game::Market::OrderWithdrawn,
+    Game::Market::OrderServed, Game::Market::WantedChoicesApplied, Game::Market::ArchivePurchased, Game::SlotBought
   ].freeze
   MARKET_EVENTS = [ Game::Market::LeadVoided, Game::Market::ListingCancelled ].freeze
   DUEL_KINDS = {
@@ -85,6 +86,10 @@ module PlayerStream
         balance_notices([ data[:leader_id] ]) + market_notices([ data[:seller_id] ])
       when Game::Market::ListingCancelled
         market_notices(bidders_of(data))
+      when Game::Market::OrderServed
+        balance_notices(data.values_at(:buyer_id, :seller_id))
+      when Game::Market::WantedChoicesApplied
+        balance_notices([ data[:seller_id] ] + data[:sales].map { it[:buyer_id] })
       when *BALANCE_EVENTS
         [ balance_notice(data[:player_id]) ]
       when *CUT_OFF_EVENTS

@@ -26,6 +26,7 @@ class CardsController < ApplicationController
     @goals = goal_marks.goals_for(@detail.card_id) unless @public
     @showcase = showcase_state
     market = market_state
+    @market_open = market.open?
     @entrustment = Game::Market::CardEntrustment.call(current_player, card_id: @detail.card_id, state: market) unless @public
     @trade_holders = trade_holders unless @public || @copies
     @pioneer = pioneer_line

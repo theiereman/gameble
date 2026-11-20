@@ -160,6 +160,25 @@ class PlayerStreamTest < ActiveSupport::TestCase
       PlayerStream.notices(Game::Market::CardListed.new(data: { listing_id: listing.id, seller_id: @alice.id, card_season_id: @one }))
   end
 
+  test "each market-volume event yields a balance notice for every player whose PiCoins it moved" do
+    order = { order_id: 1, player_id: @alice.id, card_id: 1, amount: 100 }
+    single = [ Game::Market::OrderPlaced, Game::Market::OrderCancelled, Game::Market::OrderExpired, Game::Market::OrderWithdrawn ].map { it.new(data: order) }
+    single << Game::Market::ArchivePurchased.with(player_id: @alice.id, card_season_id: @one, price: 100)
+    single << Game::SlotBought.with(player_id: @alice.id, kind: "goal")
+    single.each do |event|
+      assert_includes PlayerStream::EVENTS, event.class
+      assert_equal [ { player_id: @alice.id, balance: true } ], PlayerStream.notices(event), event.class.name
+    end
+
+    served = Game::Market::OrderServed.new(data: { order_id: 1, buyer_id: @alice.id, seller_id: @bob.id, card_season_id: @one, price: 100 })
+    assert_equal [ @alice.id, @bob.id ].map { { player_id: it, balance: true } }, PlayerStream.notices(served)
+
+    carol = accounts_players(:administrator)
+    sales = [ @alice, carol, @alice ].map { { order_id: 1, buyer_id: it.id, card_season_id: @one, price: 100 } }
+    applied = Game::Market::WantedChoicesApplied.with(seller_id: @bob.id, sales:, listing_ids: [], entrusted: [])
+    assert_equal [ @bob.id, @alice.id, carol.id ].map { { player_id: it, balance: true } }, PlayerStream.notices(applied)
+  end
+
   test "a refused entrustment enqueues nothing" do
     settings = close_market!
 

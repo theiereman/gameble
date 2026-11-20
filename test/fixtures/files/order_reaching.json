@@ -1,0 +1,16 @@
+{
+  "minimums": { "common": 13, "uncommon": 34, "rare": 78, "epic": 223, "legendary": 70000 },
+  "cases": [
+    { "price": 1, "reached": [] },
+    { "price": 12, "reached": [] },
+    { "price": 13, "reached": ["common"] },
+    { "price": 33, "reached": ["common"] },
+    { "price": 34, "reached": ["common", "uncommon"] },
+    { "price": 78, "reached": ["common", "uncommon", "rare"] },
+    { "price": 222, "reached": ["common", "uncommon", "rare"] },
+    { "price": 223, "reached": ["common", "uncommon", "rare", "epic"] },
+    { "price": 69999, "reached": ["common", "uncommon", "rare", "epic"] },
+    { "price": 70000, "reached": ["common", "uncommon", "rare", "epic", "legendary"] },
+    { "price": 1000000, "reached": ["common", "uncommon", "rare", "epic", "legendary"] }
+  ]
+}

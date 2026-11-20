@@ -57,7 +57,7 @@ Some forms are plain CSS classes rather than components: use the class as writte
 | `SortComponent` | exists | `prefix:`, `label:`, `options:` (`label`, `href`, `current`). Sorting is one button in the filter row ("Sort: Ending soon ▾") that opens a menu and ticks the current option. Never a row of underlined links. |
 | `FigureComponent` | to build | A number with its unit and label (`10 /60 unique cards`, Me stats, exchange figures). |
 | `SegmentedComponent` | to build | Two or three exclusive choices side by side (All / Friends, Français / English, This week / All time). |
-| `EmptyStateComponent` | to build | One quiet line, and an action when there is one, in place of a list that is empty. |
+| `EmptyStateComponent` | exists | `line:`, and an `action` slot when there is one: one quiet line in place of a list that is empty. |
 | `.dock` | exists (`dock.css`) | Add `dock` to the summary block. In a pick-then-confirm flow (entrust, sale), the summary and the confirm button float at the bottom of the screen over the grid, above the tab bar on a phone. The grid takes the full width. It is never a side column stuck to the top. The dock is wider than the content column (24px past each side, 8px on a phone) and casts a drop shadow, so it reads as floating over the content. Entrust and sale use the same dock. |
 
 ## Hotwire Native

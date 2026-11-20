@@ -2542,6 +2542,7 @@ fr:
         one: "%{number} dépassée"
         other: "%{number} dépassées"
       sales: "MES VENTES"
+      orders: "MES ORDRES"
     my_bids:
       groups:
         in_progress:
@@ -2593,6 +2594,83 @@ fr:
             one: ", dont %{number} avec une offre."
             other: ", dont %{number} avec une offre."
         heading: "Mes ventes"
+    my_orders:
+      all_editions: "toutes éditions"
+      cancel: "ANNULER"
+      cancel_name: "Annuler l'ordre, %{card}"
+      groups:
+        in_progress: "EN COURS"
+      result:
+        available: "%{amount} disponibles"
+        balance_after: "Solde après"
+        body: "Vos %{amount} PiCoins sont bloqués. Le premier joueur qui accepte vous vend un exemplaire de %{card} à ce prix ; la carte rejoint alors votre collection."
+        closing: "Annulation sans frais. Un ordre n'enchérit jamais à votre place."
+        heading: "ORDRE PASSÉ SUR %{card}"
+        reached: "Raretés atteintes"
+      show:
+        empty: "Vous n'avez passé aucun ordre."
+        heading: "Mes ordres"
+    order_cancellations:
+      create:
+        cancelled: "Ordre annulé : vos %{amount} PiCoins vous sont rendus."
+        throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
+      dialog:
+        close: "Fermer"
+        confirm: "ANNULER L'ORDRE"
+        keep: "GARDER L'ORDRE"
+        text: "Vos %{amount} PiCoins bloqués sur %{card} vous sont rendus. Aucun frais."
+        title: "ANNULER CET ORDRE ?"
+    orders:
+      create:
+        throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
+      days:
+        zero: "%{number} jour"
+        one: "%{number} jour"
+        other: "%{number} jours"
+      labels:
+        end: "Fin"
+        held: "Prix bloqué"
+      list:
+        last_word: " et "
+        two_words: " et "
+      letters:
+        common: "C"
+        epic: "É"
+        legendary: "L"
+        rare: "R"
+        uncommon: "PC"
+      new:
+        all_editions: "Toutes éditions de %{card}. Le premier joueur qui accepte vous vend un exemplaire à ce prix."
+        at_least: "Au moins %{amount}"
+        available: "Disponible : %{amount} PiCoins. Un ordre n'enchérit jamais à votre place."
+        chip_from: "%{rarity} dès %{amount}"
+        chip_reached: "%{rarity} %{amount}"
+        duration: "Durée"
+        free_cancel_html: "%{amount} PiCoins seront bloqués, puis rendus si l'ordre expire ou si vous l'annulez. Annulation sans frais."
+        heading: "ORDRE D'ACHAT"
+        heading_for: "Ordre d'achat · %{card}"
+        held_now: "Bloqués maintenant"
+        price: "MON PRIX"
+        reached: "RARETÉS ATTEINTES"
+        submit: "PASSER L'ORDRE"
+        submit_amount_html: " · %{amount}"
+        yours: "VOTRE ORDRE"
+      strings:
+        all: "Votre prix atteint toutes les raretés."
+        next:
+          common: "communes"
+          epic: "épiques"
+          legendary: "légendaires"
+          rare: "rares"
+          uncommon: "peu communes"
+        none: "Les %{next} à partir de %{amount}."
+        reached:
+          common: "communes"
+          epic: "épiques"
+          legendary: "légendaires"
+          rare: "rares"
+          uncommon: "peu communes"
+        some: "Votre prix atteint les %{reached}. Les %{next} à partir de %{amount}."
     rows:
       closing: "Clôture en cours…"
       labels:
@@ -4560,6 +4638,8 @@ fr:
         other: ", %{number} enchères dépassées"
       throttled: "Trop de changements en une minute. Réessayez dans un instant."
   card_details:
+    order:
+      button: "Passer un ordre"
     actions:
       collection: "Collection"
       links: "Liens"
@@ -4969,6 +5049,11 @@ fr:
       invalid_price: "Entrez un nombre entier de PiCoins, au-dessus de zéro."
       stamp_not_covered: "Il vous manque %{amount} PiCoins pour le timbre."
       start_below_minimum: "Au moins %{amount} pour une %{rarity}."
+      card_not_published: "Cette carte n'est pas encore publiée."
+      order_below_minimum: "Au moins %{amount} pour une %{rarity}."
+      order_already_open: "Vous avez déjà un ordre sur %{card} : %{amount}, encore %{days} j."
+      order_not_open: "Cet ordre n'est plus en cours."
+      order_not_found: "Cet ordre n'existe pas."
       no_rarity: "Une de ces cartes n'a pas encore de rareté : la Confrérie ne peut pas l'estimer."
       not_enough_copies: "Vous n'avez pas autant d'exemplaires libres d'une de ces cartes."
       nothing_fits: "Aucune carte ne tient dans votre plafond du jour. Il se renouvelle à 00:00 UTC."
