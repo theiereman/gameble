@@ -691,6 +691,8 @@ graph TD
   - Every move is an operation: `ChallengeFriend`, `CancelChallenge`, `AcceptChallenge`, `RefuseChallenge`, `LapseChallenge`, `CallRound`, `AnswerRound`, `PlayAutomaticMove`. Each locks as AD-10 says, checks the state, `move_number` and whose move it is, refuses anything else (`Failure(:not_your_move)`, `:stat_already_called`, `:card_not_in_hand`), raises `move_number`, and publishes one event; the answer of round 10 finishes the duel and publishes `Game::DuelFinished` in place of its round event. Only `ChallengeFriend` and `AcceptChallenge` check friendship and `open_to_friends?` (AD-13); later moves act for a seat, whose player may since have been unfriended, made private, banned or deleted.
   - One pure object, `Game::DuelRules`, holds the rules: the call order A B A B A B A B B A, each stat once per player, the hand from the draw order and the played cards, the round outcome, ties, the margin and the automatic move. Operations and tests use it; the client computes nothing.
   - `Game::DuelView.for(duel, seat)` is the only way a duel becomes what a player sees: the seat's hand and locked call, the other's card once called, played cards, scores, margins, and calls left counted from revealed rounds only; the decks in their fixed order. It never holds the other seat's hand, an unrevealed call or a draw order, and in state `challenged` nothing of the challenger's deck. Pages and broadcasts render from it alone, read the primary, and a policy refuses a viewer who holds no seat. Duels and results are seen only by their two players; opponent names go through AD-49's component.
+  - A practice duel (CAP-50) is a duel with `practice` true against the player's bot (`Game::PracticeBot`, one private `Accounts` player per human), started by `StartPracticeDuel` with no challenge; its move clock is 30 minutes (AD-56). A pure object computes the bot's call and answer from `DuelRules` and `DuelView.for` the bot's seat, never from the human's hand, call or draw order, and plays for the margin. Its deck is one archetype of `duel-rules.md`, built from the catalog at the duel's start; the archetype is stored on the duel (`bot_archetype`).
+  - `game_duels.rules_version` holds the version of `DuelRules` a duel is played under, a constant raised with any rule change and set at the start; every read that compares duels (the record, the back-office page) filters or groups by it.
 - **Costs:** `Game::Fortune` gains a `duel_packs` column and `LuckOdds` the duel kind (the Flukeometer counts duel capsules, author, 2026-11-14); `Game::Reserve::KINDS` and the kind and size checks on `game_packs` gain `duel`.
 
 ### AD-55 — Reachable friends and one stream per seat
@@ -708,25 +710,27 @@ graph TD
 - **Binds:** CAP-41, CAP-42
 - **Prevents:** a move waiting forever; a time trusted from the client; an automatic move played over a real one or after the player came back; one deadline column for two seats.
 - **Rule:**
-  - The duel row stores `move_deadline_at` for the move awaited: 60 s to accept, 60 s to call, 45 s to answer. A seat's reconnection deadline is its `present_until` plus 60 s. The move's effective deadline is the earlier of the two for the seat that must act. The countdown on screen reads the stored times.
+  - The duel row stores `move_deadline_at` for the move awaited: 60 s to accept, 60 s to call, 45 s to answer. A practice duel gives 30 minutes per move. A seat's reconnection deadline is its `present_until` plus 60 s. The move's effective deadline is the earlier of the two for the seat that must act. The countdown on screen reads the stored times.
   - An operation that sets a deadline enqueues after commit `Game::DuelDeadlineJob`, on the `duels` queue, for the deadline plus 2 s, with the duel token and the `move_number`. Only this job and `Game::SweepDuelDeadlinesJob` (every 10 s, in both blocks of `config/recurring.yml`) run `PlayAutomaticMove` or `LapseChallenge`, which act only when, under the duel lock, the `move_number` still matches and the effective deadline has passed.
   - A move handed to a seat already past its reconnection deadline gets a deadline of now. Bans, deletions and going private write no duel row: a removed player's lease simply lapses.
   - An automatic move is marked on its round.
 - **Costs:** a `duels` queue with its own worker in `config/queue.yml`.
 
-### AD-57 — Duel rewards and records read the duel tables
+### AD-57 — Duel records and the alpha's measurement read the duel tables
 
-- **Binds:** CAP-17, CAP-20, CAP-42
-- **Prevents:** a second duel capsule the same day; a capsule paid for an automatic move; a record counted two ways.
+- **Binds:** CAP-17, CAP-20, CAP-42, CAP-51
+- **Prevents:** a reward handed out during the alpha; a record that mixes rules versions or counts practice; measurement figures computed two ways.
 - **Rule:**
-  - The duel capsule is a pack of kind `duel` (AD-7), in the special reserve, its origin name and colour a locale key and a DESIGN token. The finishing move draws it for the winner in its transaction when none of the winner's moves is automatic and they have no duel pack for the UTC day the duel ends; a unique index on player and `duel_day`, set only on duel packs, makes a second grant impossible.
-  - Wins, losses, draws, the history and the duel achievements (AD-37 metrics) read finished duels, their seats and rounds; a round with the player's automatic move does not count for Valuation Error or Certified Versatility. `GrantAchievementsJob` also follows `Game::DuelFinished`. No backfill runs: no duel predates 1.4.
+  - During the alpha the finishing move grants nothing and `GrantAchievementsJob` does not follow `Game::DuelFinished`. The `duel` pack kind (AD-7), `game_fortunes.duel_packs`, the unique index on player and `duel_day` and the duel achievement keys stay in the schema, unused, for the beta (author, 2026-11-20).
+  - Wins, losses, draws and the history read finished non-practice duels, their seats and rounds, at the current `rules_version`; they show on the player's own Duels screen only.
+  - The back-office duel page (CAP-51) reads the duel tables directly, per `rules_version`, live duels apart from practice duels, which feed only their table by `bot_archetype`; at the alpha's volume no stored figures are needed (unlike AD-51).
   - The export lists the player's decks and duels with scores and rounds, the opponent unnamed.
 
 ## Consistency Conventions
 
 | Concern | Convention |
 | --- | --- |
+| Unfinished features | A feature ships to every player, labelled (ALPHA) while it is tested; there is no runtime feature switch. A release that must not show a feature does not merge it. |
 | Naming: tables | Prefixed by pack: `catalog_cards`, `game_holdings`, `accounts_players`, `steam_apps`. |
 | Naming: operations | `Pack::VerbNoun`: `Game::OpenPack`, `Game::AcceptTrade`, `Catalog::PublishSeason`. |
 | Naming: events | `Pack::NounVerbed`, past tense: `Game::PackOpened`, `Game::SetCompleted`, `Accounts::PlayerDeleted`. |
@@ -918,7 +922,9 @@ gameble/
 | CAP-39 Duel stats | `Game` (duel stats), card detail, feed | AD-5, AD-10, AD-13, AD-53 |
 | CAP-40 Decks | `Game` (decks, holdings), deck editor | AD-6, AD-10, AD-15, AD-52, AD-53 |
 | CAP-41 Live duels | `Game` (duels), `Accounts` (reachability), duel screens | AD-10, AD-13, AD-14, AD-15, AD-30, AD-49, AD-54, AD-55, AD-56 |
-| CAP-42 Duel capsule and record | `Game` (packs, duels, achievements) | AD-7, AD-37, AD-54, AD-57 |
+| CAP-42 Duel record (alpha) | `Game` (duels) | AD-54, AD-57 |
+| CAP-50 Practice duel | `Game` (duels) | AD-54, AD-56 |
+| CAP-51 Alpha measurement | `Game` (duels), back-office | AD-54, AD-57 |
 | Legal page | web layer | AD-18 |
 
 ## Deferred

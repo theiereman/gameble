@@ -58,12 +58,18 @@ Checked by simulation on 2026-11-14 (`../forge-decks-and-matches/simulation-2026
 - A banned or deleted player's duel in progress finishes by automatic play.
 - An automatic move between equal choices takes the larger distance of the exact value from the median, then the stat order of the Stats table, then the lower card number.
 
-## Reward and record
+## Reward and record (alpha)
 
-- The first win of the UTC day (the day the duel ends) gives one duel capsule: 3 cards at the daily bonus odds (CAP-16), in the special reserve (CAP-4), with its own origin name and colour, only if the game played none of the winner's moves. Further wins, losses and draws give nothing material. There is no stake in PiCoins or cards.
-- Duelling one's own second account is accepted: it takes ten real rounds a day for 3 cards, no more than that account opening its own capsules.
-- The profile shows wins, losses and draws. Duel achievements follow CAP-17: recognition or a card back, never a capsule.
+- During the alpha a duel gives nothing material: no capsule, achievement or card back, and no stake in PiCoins or cards. The first-win duel capsule (3 cards at the daily bonus odds, CAP-16, only if the game played none of the winner's moves), the duel achievements and the Duelliste back are withheld until the beta (CAP-42).
+- The player's own Duels screen shows wins, losses and draws against players under the rules in force; the public profile shows none. Practice duels never count.
+- Every change to these rules raises the rules version stored on each duel (CAP-51).
 - Decks and duel history are in the player's export (CAP-14) and deleted with the account; an opponent's history then reads "anonyme".
+
+## Practice duel (CAP-50)
+
+- Against the bot, under the rules above, 30 minutes per move; it counts for nothing.
+- The bot plays as the skilled player of the 2026-11-14 simulation: it reads both open decks, the cards struck out and the shown card, and plays for the margin; it never reads the player's hand, call or draw order.
+- Its deck, drawn from the current catalog at the duel's start, is one archetype, changing from one practice duel to the next and named on screen: **coverage** (the ten stat-directions each held by a card at 90 or above where the catalog allows), **single stat** (the most extreme cards on one stat, one archetype per stat), **two stats** (split between two stats), **trump sort** (the twelve most extreme trumps) and **random** (twelve editions, a game at most once).
 
 ## Later
 

@@ -50,6 +50,8 @@ The four marked in Back are the hardest to obtain and unlock a card back each (a
 
 ## Duel achievements (release 1.4)
 
+Withheld during the duels alpha (author, 2026-11-20): built, neither granted nor listed; they return with the duels beta (spec CAP-42).
+
 Chosen by the author on 2026-11-14 from a proposed list; their French and English titles were approved by the author on 2026-11-14 (French in `EXPERIENCE.md`, Achievement titles and conditions, 24 to 33). They read finished duels (CAP-41); a duel counts once it ends, automatic moves included, except where the condition says otherwise.
 
 | Title | Type | Condition | Back |
