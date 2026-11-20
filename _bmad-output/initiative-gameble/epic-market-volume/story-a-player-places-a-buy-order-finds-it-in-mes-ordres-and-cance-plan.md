@@ -7,11 +7,11 @@ status: 'built'
 baseline_revision: 'ae21a36542b1522663c28af4746692cb72a736d6'
 route: 'full'
 route_source: 'auto'
-review: 'thorough'
+review: 'quick'
 review_source: 'pinned'
-lenses_ran: ['blind-hunter', 'edge-case-hunter', 'verification-gap', 'intent-alignment']
+lenses_ran: ['quick']
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '{project-root}/AGENTS.md'
   - '{project-root}/docs/design-system.md'
@@ -175,6 +175,18 @@ Web:
   - `[low]` `[reject]` intent: card_not_published tested only with a card lacking any card-season — the unpublished-season case is PublishedCardIds' own, tested there.
   - `[low]` `[reject]` intent: "shown once" untested — the panel is driven by a one-request flash; a reload test would test Rails' flash.
 
+### 2026-11-20 — Review pass
+- verdicts: 4 findings — high 0, medium 0, low 2, false 1, maybe-false 1
+- findings:
+  - `[low]` `[reject]` quick: a visitor on the bare card URL never sees the greyed PASSER UN ORDRE — carried: same claim as the earlier visitor rows; `cards/_public` is the visitor page, raised to the author.
+  - `[low]` `[patch]` quick: on a phone the current chip no longer merges into the panel; `overflow-x: auto` turns its 2px overlap into clipped, vertically scrollable overflow — confirmed in a 360/390px render (panel border drawn under the current chip, row `scrollHeight` 48 over `clientHeight` 46); the phone row is now `overflow: auto hidden` with `padding-bottom` and a matching negative `margin-bottom` of `--space-unit`, so the chip covers the panel's edge again.
+  - `[false]` `[reject]` quick: the result panel's lime label heading and its own edge and padding break the design system's heading and panel rules — DESIGN.md's "Order form result" specifies exactly this Bid result panel: lime edge, compact 12px 16px padding, heading bold 13px lime in label spacing.
+  - `[maybe-false]` `[defer]` quick: PlayerOrders drops an open order whose card lost its face or locale text — carried: already the deferred item; not deferred again.
+- phone render of the chip row (the named risk; 320, 360 and 390px, French and English, not a lens):
+  - `[low]` `[patch]` render: on MES ORDRES the current chip arrives half past the row's edge ("MES ORDR" under the fade at 390px French) — the market tab controller scrolls the current chip clear of the fade when the chip row connects.
+  - `[low]` `[patch]` render: tabbing to a partly visible chip leaves it under the fade (Chromium scrolls a focused element only when mostly hidden, so `scroll-margin-inline` never applies), against DESIGN.md's "a focused chip scrolls fully into view, its ring clear of the fade" — a `focusin` on the row scrolls the focused chip the same way.
+  - The end padding works: scrolled to the end, the last chip stops 32px short of the edge, clear of the fade. Focus rings are inset and are not clipped.
+
 ## Design Notes
 
 - `card_id:` rather than the architecture's `card:`: every market operation takes ids (`listing_id`, `card_season_id`), and the controller only holds `CardDetail#card_id`.
@@ -199,3 +211,12 @@ Web:
 - **Follow-up review:** true. Three medium entries were patched. The unverified risk is the phone chip row (scrolling container, fade mask, end padding, the current chip's 1px overlap into the panel and focus rings), which no test renders at phone width.
 - **Verification:** `bin/rails test` 6258 runs, 0 failures (private database, `PARALLEL_WORKERS=4`); system tests `market_orders`, `market_bids`, `market`, `card_detail`, `card_trade`, `market_sales` 14 runs green; `npm run test:js` 1539 green; `format:check`, `lint:css`, `check_planning_references`, `check_file_sizes`, `packwerk check`, `zeitwerk:check`, `i18n-tasks missing` pass. No migration.
 - **Residual risks:** the deferred item; the phone chip row unchecked in a browser; a visitor on the bare card URL sees the public page without the greyed button; English copy and the C/U/R/E/L letters are drafts for the author; local `develop` is 10 ahead and 3 behind `origin/develop`, and those 3 commits also edit the locales and `player_streams/_update`.
+
+### Follow-up review (2026-11-20, quick)
+
+- **Summary:** the phone chip row, rendered at 320, 360 and 390px. The current chip merges into the panel again (`overflow: auto hidden`, `--space-unit` bottom padding and negative margin on the phone row). `market_tab_controller` scrolls the current chip clear of the fade when the row connects (MES ORDRES arrived half hidden), and the focused chip on `focusin` (browsers do not scroll a partly visible focused chip).
+- **Files:** `app/frontend/styles/market-screen.css` (phone row overflow and overlap room); `app/frontend/controllers/market_tab_controller.ts` (`chipsTargetConnected`, `showChip`, `clearEdges`); `app/views/markets/_chips.html.erb` (`focusin` action); `test/system/market_orders_test.rb` (a 360px test: the current chip shows whole, clear of the fade, covers the panel's edge, no vertical scroll).
+- **Review:** 4 lens findings (low 2, false 1, maybe-false 1) and 2 render findings. Patched 3 low entries (the merge, the current chip on arrival, the focused chip). Carried 1 reject (the visitor on the bare card URL) and 1 defer (PlayerOrders, already deferred). Rejected 1 false (the result panel follows DESIGN.md's Order form result).
+- **Follow-up review:** false. No high was patched on this follow-up pass.
+- **Verification:** system tests `market_orders`, `market`, `market_bids`, `market_sales`, `grand_inventory` and controller tests `markets_controller`, `market/my_orders_controller` 38 runs green (private database `gameble_test_w46_2r`, `PARALLEL_WORKERS=4`); `npm run test:js` 1539 green; `format:check`, `lint:css`, `check_planning_references`, `tsc` pass; `check_file_sizes` flags only `config/routes.rb` (401 lines), already over at fac0d398 and untouched here.
+- **Residual risks:** the deferred item; rendered in headless Chromium only, not Firefox; the left edge has no fade, so a chip scrolled past it is cut hard.

@@ -57,6 +57,25 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
     committed("0 committed")
   end
 
+  test "on a phone the chip row scrolls MY ORDERS into view, merged into the panel" do
+    sign_in_through_the_site(@player)
+    resize_to 360, 780
+    visit market_my_orders_path(locale: :fr)
+
+    assert_selector ".market-screen__chips .tabs__tab--current", text: "MES ORDRES"
+    eventually("the current chip shows whole, clear of the fade, and covers the panel's edge") do
+      evaluate_script(<<~JS)
+        (() => {
+          const row = document.querySelector(".market-screen__chips")
+          const chip = row.querySelector(".tabs__tab--current").getBoundingClientRect()
+          const edges = row.getBoundingClientRect()
+          const panel = row.nextElementSibling.getBoundingClientRect()
+          return chip.left >= edges.left && Math.round(chip.right) <= edges.right - 32 && chip.bottom > panel.top && chip.bottom <= edges.bottom && row.scrollHeight === row.clientHeight
+        })()
+      JS
+    end
+  end
+
   test "a visitor sees MY ORDERS greyed and is led to the landing from the form" do
     visit market_path(locale: :en)
     assert_selector ".market-screen__chips .tabs__tab--disabled", text: "MY ORDERS"

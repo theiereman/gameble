@@ -101,9 +101,11 @@ a.market-screen__chip:hover {
 
 @media (max-width: 719px) {
   .market-screen__chips {
-    overflow-x: auto;
+    overflow: auto hidden;
     scrollbar-width: none;
+    margin-bottom: calc(-1 * var(--space-unit));
     padding-inline-end: var(--space-8);
+    padding-bottom: var(--space-unit);
     mask-image: linear-gradient(to right, var(--color-outline) calc(100% - var(--space-8)), transparent);
   }
 
