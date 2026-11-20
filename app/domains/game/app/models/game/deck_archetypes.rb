@@ -7,7 +7,6 @@ module Game
     STAT_DECK_STRONG = 10
     PAIR_STAT_STRONG = 5
     TRUMP_FLOOR = 98
-    CALLS = DuelStat::STATS.product(DuelStat::DIRECTIONS).freeze
 
     def self.build(name, pool, random: Random)
       shuffled = pool.shuffle(random:)
@@ -23,7 +22,7 @@ module Game
     def self.classify(cards)
       strong = DuelStat::STATS.index_with { |stat| cards.count { extremity(it, stat) >= STRONG } }
       single = DuelStat::STATS.find { strong[it] >= STAT_DECK_STRONG }
-      if CALLS.all? { |stat, direction| cards.any? { DuelRules.strength(it, stat, direction) >= STRONG } } then "coverage"
+      if DuelStat::CALLS.all? { |stat, direction| cards.any? { DuelRules.strength(it, stat, direction) >= STRONG } } then "coverage"
       elsif single then single.to_s
       elsif DuelStat::STATS.combination(2).any? { two_stat?(cards, strong, it) } then "two_stats"
       elsif cards.any? && cards.all? { trump(it) >= TRUMP_FLOOR } then "trumps"
@@ -32,7 +31,7 @@ module Game
     end
 
     def self.coverage(pool)
-      deck = CALLS.reduce([]) do |cards, (stat, direction)|
+      deck = DuelStat::CALLS.reduce([]) do |cards, (stat, direction)|
         next cards if cards.any? { DuelRules.strength(it, stat, direction) >= STRONG }
 
         left = fresh(cards, pool)
@@ -59,7 +58,7 @@ module Game
 
     def self.extremity(card, stat) = DuelStat::DIRECTIONS.map { DuelRules.strength(card, stat, it) }.max
 
-    def self.trump(card) = CALLS.map { |stat, direction| DuelRules.strength(card, stat, direction) }.max
+    def self.trump(card) = DuelStat::CALLS.map { |stat, direction| DuelRules.strength(card, stat, direction) }.max
 
     private_class_method :coverage, :by_stats, :two_stat?, :ranked, :extended, :fresh, :extremity, :trump
   end

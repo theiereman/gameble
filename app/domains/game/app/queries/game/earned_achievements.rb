@@ -5,9 +5,8 @@ module Game
     Earned = Data.define(:count, :total, :latest)
 
     def self.call(player)
-      offered = Achievements.offered
-      keys = player ? newest_first(player, Achievements.offered_keys(offered)) : []
-      Earned.new(count: keys.size, total: offered.size, latest: keys.first(LATEST).map { AchievementBoard.earned_tile(Achievements.find(it)) })
+      keys = player ? newest_first(player, Achievements.offered_keys) : []
+      Earned.new(count: keys.size, total: Achievements.offered.size, latest: keys.first(LATEST).map { AchievementBoard.earned_tile(Achievements.find(it)) })
     end
 
     def self.newest_first(player, offered_keys)

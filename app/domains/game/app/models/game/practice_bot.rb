@@ -20,6 +20,7 @@ module Game
 
     def self.thinking_time(random: Random) = random.rand(THINKING_TIME).seconds
 
+    # shortcut: loads every ranked card of every season at each practice start; pre-select the pool in SQL once that read shows in request times.
     def self.catalog
       DuelStat.where.not(discovery_value: nil).joins("JOIN catalog_card_seasons ON catalog_card_seasons.id = game_duel_stats.card_season_id")
         .pluck(Arel.sql("game_duel_stats.card_season_id"), Arel.sql("catalog_card_seasons.card_id"),

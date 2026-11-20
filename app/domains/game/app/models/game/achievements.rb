@@ -104,6 +104,7 @@ module Game
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze
 
     OFFERED = CATALOGUE.reject(&:duel?).freeze
+    OFFERED_KEYS = OFFERED.map { it.key.to_s }.freeze
 
     def self.find(key)
       BY_KEY[key.to_s]
@@ -111,10 +112,10 @@ module Game
 
     def self.offered = OFFERED
 
-    def self.offered_keys(offered = self.offered) = offered.map { it.key.to_s }
+    def self.offered_keys = OFFERED_KEYS
 
-    def self.unearned(unlocked_keys, offered = self.offered)
-      offered.reject { unlocked_keys.include?(it.key) }
+    def self.unearned(unlocked_keys)
+      OFFERED.reject { unlocked_keys.include?(it.key) }
     end
 
     def self.metrics(achievements)

@@ -10,7 +10,7 @@
       </tr>
     </thead>
     <tbody>
-      <% Game::DuelStat::STATS.product(Game::DuelStat::DIRECTIONS).each do |stat, direction| %>
+      <% Game::DuelStat::CALLS.each do |stat, direction| %>
         <tr data-duel-call="<%= stat %>-<%= direction %>">
           <th scope="row"><%= t("duel_stats.names.#{stat}") %></th>
           <td><%= t("duel_stats.directions.#{stat}.#{direction}") %></td>

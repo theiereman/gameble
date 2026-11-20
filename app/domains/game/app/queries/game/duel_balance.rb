@@ -8,7 +8,6 @@ module Game
     Report = Data.define(:rules_version, :live, :recipes, :practice, :practice_total)
     Call = Data.define(:duel_id, :stat, :direction, :automatic)
 
-    ROLES = %w[challenger opponent].freeze
     ARCHETYPE_ORDER = (DeckArchetypes::NAMES + [ DeckArchetypes::OTHER ]).freeze
     COLUMNS = %i[id practice result first_caller forfeited_by challenger_score opponent_score bot_archetype challenger_cards
       opponent_cards].freeze
@@ -43,7 +42,7 @@ module Game
 
     def self.recipes(duels)
       decks = duels.reject(&:forfeited_by).flat_map do |duel|
-        ROLES.map { |role| [ DeckArchetypes.classify(duel.cards(role)), duel.result == role ] }
+        DuelRules::ROLES.map { |role| [ DeckArchetypes.classify(duel.cards(role)), duel.result == role.to_s ] }
       end
       by_name = decks.group_by(&:first)
       ARCHETYPE_ORDER.filter_map do |name|
