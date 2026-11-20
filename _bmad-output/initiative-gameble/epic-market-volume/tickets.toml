@@ -1,0 +1,252 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The ledger and the orders table carry market volume's money"
+description = "The money contract every lane opens on. game_market_ledger_entries gains order_id: the column, its foreign key to game_market_orders added not valid then validated in a second migration, the check that listing_id and order_id are never both set added NOT VALID then validated, the kind check widened to archive_purchase and slot_purchase (expand, then validate), and AD-41's second partial unique index on order, player and kind where order_id IS NOT NULL, built concurrently in its own migration. Ledger::Entry takes order_id and LedgerEntry::KINDS gains both purchase kinds; LedgerEntry::DESTROYED_KINDS (stamp, commission, forfeit, archive_purchase, slot_purchase) replaces DailyFigures::DESTROYING_KINDS and ReconcileWallets' kind IN literal, so the snapshot and the Reactor count both purchases as destroyed, and the Bourse's destroyed legend and Reactor line name the Brotherhood's purchases in both locales, as does the health page's destroyed-share explanation. game_market_orders (expand migrations, each index built concurrently in its own) holds AD-58's columns and checks: token, player, catalog_cards id, price above 0, settings version, status among open, served, expired, cancelled and withdrawn, expires_at, and seller_id, served_card_season_id, served_at and average_after_sale set together once served; its indexes are one open order per player and game (partial unique), the expiry index, the eligibility index (card, price descending, created_at, id where open) and the served index (served_card_season_id, served_at where served). Game::Market::Order owns the two formulas every later story reads: the open scope (status open and expires_at after a given now) and Order.reaching(rarity) from the order's stored version. The settings version gains order_duration_days, default 7, with its range in SettingsRules; story 3 adds its back-office field. The market-volume event classes are declared with the identifiers they carry, the handoff every lane builds on: Game::Market::OrderPlaced, OrderCancelled, OrderExpired and OrderWithdrawn (order_id, player_id, card_id, amount), OrderServed (order_id, buyer_id, seller_id, card_season_id, price), WantedChoicesApplied (seller_id; sales, each with order_id, buyer_id, card_season_id and price; listing_ids; entrusted, each with card_season_id and quantity), ArchivePurchased (player_id, card_season_id, price) and Game::SlotBought (player_id, kind, goal_id or null)."
+verify = "Model and migration tests: an entry with both a listing and an order is refused; a second hold of one order for one player is refused by the index; Ledger.post accepts both purchase kinds with an order_id; the reconciliation and DailyFigures count an archive_purchase and a slot_purchase as destroyed and still balance; a second open order of one player on one game is refused by the index; Order.reaching reads the stored version and the open scope ends at expires_at. The schema regenerated from the migrations on Postgres 18 matches db/schema.rb."
+covers = ["R1", "R2", "R3", "R25"]
+after = ["38.11", "39.1", "41.2", "37.1", "37.4"]
+hitl = false
+risk = "high"
+unknown = "AD-42 assumption: the 7-day order duration needs no administrator's change to start."
+
+[[entry]]
+id = 2
+type = "story"
+title = "A player places a buy order, finds it in MES ORDRES and cancels it"
+description = "Tracer through every layer. Game::Market::PlaceOrder(player:, card:, price:, settings_token:) runs under the player's bank lock and refuses a closed market (market_closed), a stale version (amounts_changed), a game with no card-season in a published season (card_not_published, through Catalog::PublishedCardIds), a price reaching no rarity (order_below_minimum), an open order on that game (order_already_open, the index the backstop) and a price above available (more_than_available), answering a deadlock with market_busy; it sets expires_at from the version's order_duration_days, posts hold with order_id in one Ledger.post and publishes story 1's OrderPlaced. Game::Market::CancelOrder takes the owner's bank lock, then the order row, makes an open order cancelled, posts release and publishes OrderCancelled, also while the market is closed; any other status refuses (order_not_open). This story owns PlayerStream's balance notice for market volume: from story 1's keys it adds every market-volume event (OrderPlaced, OrderCancelled, OrderExpired, OrderWithdrawn, OrderServed for both players, WantedChoicesApplied for the seller and each buyer, ArchivePurchased, Game::SlotBought) to BALANCE_EVENTS, so the Balance chip moves after commit and the stories that publish them only test it. On a card the player holds in no edition, once the market is open and not suspended, PASSER UN ORDRE is the card detail's one filled button, before PARTAGER and VOIR SUR STEAM, greyed for a visitor. It opens the Ordre d'achat screen, a GET by card slug under the market with its own controller and policy, a visitor led to the landing: the game's h1, then VOTRE ORDRE with MON PRIX (one text field, numeric input mode, empty on arrival, the lowest minimum beside it, Enter moving to the button, a double activation submitting once), RARETÉS ATTEINTES (one chip per rarity, ticked with its minimum or 'dès <minimum>') and the sentence naming the rarities reached and the next rarity's price, computed in the browser for display only from the version's minimums in the markup (app/frontend/lib/order_form.ts), Order.reaching staying authoritative and tested against it through a shared fixture, posted politely after 500 ms without typing; then Bloqués maintenant, the duration, the free-cancellation sentence, PASSER L'ORDRE · <amount> and the available balance; refusals under the field with aria-invalid, keeping the value. The POST, rate limited per player, submits the version it drew and lands on MES ORDRES under the Order form result panel (its heading focused, the four facts, shown once). MES ORDRES is the market chip row's fourth chip, greyed for a visitor; on the phone the four chips scroll sideways in one row, the focused chip scrolled into view. Its EN COURS rows follow MES ENCHÈRES' style (thumbnail, title, toutes éditions, the rarity pills, EN COURS, Prix bloqué, Fin, ANNULER named 'Annuler l'ordre, <card>'), with the empty line, drawn by the EmptyStateComponent this story builds for the epic; ANNULER opens the cancel dialog and, confirmed, releases at once with the cancelled status line. A development seed places orders through PlaceOrder. Copy in en.yml and fr.yml, every errors.game code added by hand."
+verify = "One system test (test/system/market_orders_test.rb): a player opens a card they do not own, places an order through PASSER UN ORDRE, lands on MES ORDRES with the result panel and the order under EN COURS, the balance chip showing the held amount, then cancels it through the dialog and the amount is available again. Operation tests cover every PlaceOrder and CancelOrder refusal, the hold and release entries carrying the order, a cancel while the market is closed and the balance notice enqueued after commit; Vitest covers the rarities sentence against the shared fixture; controller tests cover a visitor led to the landing and the rate limit."
+covers = ["R3", "R4", "R5", "R6", "R24"]
+after = [1, "38.7", "38.8", "39.10"]
+hitl = false
+risk = "high"
+unknown = "Left open by the UX review: whether an order price far above the lowest rarity it reaches asks a confirmation, and whether a visitor's greyed PASSER UN ORDRE gets a sign-in line."
+
+[[entry]]
+id = 3
+type = "story"
+title = "An administrator prices the Archive cards and the slots"
+description = "game_market_settings gains archive_price_<rarity> for the five rarities, nullable and null on every existing version, with the check archive_price_<rarity> IS NULL OR archive_price_<rarity> >= minimum_price_<rarity> added NOT VALID then validated; and slot_price_goal_6 to _10 and slot_price_custom_set_6 to _10 (500, 1,000, 2,000, 3,000, 5,000) and slot_price_deck_4 and _5 (1,000, 2,000), with those defaults. Game::Market::Settings answers an Archive price per rarity (nil: absent from the shop) and a slot price by kind and slot number, the only readers stories 15, 16 and 17 use. SettingsRules validates the Archive bound both ways (a minimum raised above an Archive price is refused), the double-or-halve bound on both price families, a first Archive price bounded by the minimum only, and story 1's order duration within its range. The back-office settings form gains the Archive prices (blank meaning not sold), the slot prices and the order duration, with the Archive price refusal copy, in both locales. An alert's prefilled change (EconomyAlerts) that raises a minimum above an Archive price brings that Archive price up with it, so the prefill stays valid."
+verify = "Operation tests on ChangeSettings: an Archive price under its minimum is refused, raising a minimum over an Archive price is refused, a first Archive price is bounded by the minimum only, a slot price tripled at once is refused, and accepted values reach the new version; an alert's prefill raising a minimum over an Archive price raises the Archive price and validates; request tests save the form as an administrator and show it read-only to a moderator."
+covers = ["R2", "R24"]
+after = [1, "38.9"]
+hitl = false
+risk = "medium"
+unknown = "UX assumption: a raised minimum brings the Archive price up with it; AD-42 assumptions: a rarity entering the shop has no previous value to double or halve; the slot prices need no administrator's change to start."
+
+[[entry]]
+id = 4
+type = "story"
+title = "Goals, custom sets and decks read one capacity"
+description = "game_capacity_slots holds one row per player and kind (goal, custom_set, deck) with the bought count, unique on player and kind, checked 1 to 5 for goals and custom sets and 1 to 2 for decks. Game::Capacity holds the free counts (5, 5, 3) and the ceilings (10, 10, 5), and Game::Capacity.limit(player, kind), free plus bought, replaces Game::CustomSet::PER_PLAYER, Game::Deck::PER_PLAYER and the goals' cap of five in every operation and screen: AddGoal, CreateCustomSet, CreateDeck, PlayerDecks.room_left?, DeckList, the custom sets section and its counts, the OBJECTIFS kicker's n / <slots>, the deck list, and Comment ça marche's deck line in both locales. game_goals_position_check widens to 1 to 10, expand then contract; goal colours 6 to 10 join the tokens and the goal bookmark as DESIGN.md's Goal colours table gives them. A data migration grants, with no ledger entry, custom_set max(0, custom sets - 5) and deck max(0, decks - 3) per player, a row only above zero, so no player is left above their limit; it runs at the release's deploy. At the ceiling the existing refusals keep their copy (10 OBJECTIFS AU PLUS with VOIR MES OBJECTIFS ▸, the ten-sets line, five decks); at a free limit the operations refuse as they do today, and story 17 turns that press into the purchase."
+verify = "Migration and operation tests: the grant gives a player with seven custom sets and four decks two and one bought slots and nothing to a player under the free counts; Capacity.limit reads free plus bought; a sixth goal is refused at the free limit and accepted with one bought slot; a goal at position 10 is stored. One system test: the Collection shows OBJECTIFS 5 / 5 and MES SETS n / 5 for a player with no slot, and 6 / 6 for a player granted a sixth set."
+covers = ["R20", "R25"]
+after = ["42.3"]
+hitl = false
+risk = "medium"
+unknown = "Source conflict: the author lowers Game::Deck::PER_PLAYER to 3 separately for 1.4; whichever reaches develop first, this story replaces the constant by Game::Capacity."
+
+[[entry]]
+id = 5
+type = "story"
+title = "The alt-signal refresh writes tied accounts"
+description = "game_market_tied_accounts holds one row per pair of accounts and signal, the lower account id first (checked), with the facts behind it. Game::Market::RefreshAltSignals replaces it in the same transaction as game_market_alt_signals, from the pair signals that already tie accounts (one-way trades, sales outside price, minimum-price sales: the ties bids_on_tied_seller reads), deleted accounts dropped. One query, Game::Market::TiedAccounts, reads the accounts tied to a player, server-side only; nothing renders a tie to a player. The back-office signals page lists the ties with their facts."
+verify = "Operation tests: a pair with one-way trades yields one tie row with the lower id first, a deleted account's pair yields none, a second refresh replaces the rows; a request test shows the ties to staff and refuses a player."
+covers = ["R23"]
+after = ["41.8"]
+hitl = false
+risk = "low"
+unknown = "Which facts a tie row keeps beyond its pair and signal; the signal rows' facts are the default."
+
+[[entry]]
+id = 6
+type = "story"
+title = "Wanted cards are one table every change refreshes"
+description = "game_market_wanted holds one row per player, catalog_cards id and reason (goal or order), unique on the three, and for an order its reachable rarities as a smallint[] of tier integers written only from Order.reaching, null for a goal. Game::Market::RefreshWanted.call(player) is its only writer: it asserts the player's bank lock is held and never takes one, replaces the player's rows from Game::GoalNeeds' missing games and the player's open orders, writes none for a banned or deleted player, inserts with ON CONFLICT DO NOTHING and publishes nothing; a test refuses any other writer. This story owns the event wiring the other lanes rely on, from story 1's data keys: GoalsReached removes completed goals on OrderServed (the buyer), WantedChoicesApplied (each buyer) and ArchivePurchased (the buyer); Achievements hears OrderServed (both players), WantedChoicesApplied (the seller and each buyer) and ArchivePurchased; a Game handler runs RefreshWanted, after the goal removal, for each player concerned by PackOpened, TradeAccepted and AuctionSold (both players), OrderServed (both), WantedChoicesApplied (the seller and each buyer), CardsEntrusted, ArchivePurchased, GoalAdded, GoalRemoved, SlotBought with a goal, CustomSetEdited, CustomSetDeleted, OrderPlaced, OrderCancelled, OrderExpired and OrderWithdrawn. Game::Market::RebuildWanted(player:) takes the bank lock and refreshes, publishing nothing; Catalog::SeasonPublished's handler enqueues RebuildAllWantedJob after commit, one player not removed per transaction; Accounts::PlayerUnbanned's handler enqueues RebuildWantedJob for that player; a data migration of the release runs the rebuild inline for every player, as the existing backfill migrations do, so it is done before the wanted reads take traffic. WantingPlayers(card_season, except:) and the new WantedCounts(card_ids, except: viewer) read the table, skipping removed players and the given player, a goal row counting at every rarity and an order row at its rarities only. MarketsController#wanted_card_ids, ListingFilters.wanted and the VOULUE tag read the viewer's own rows, so the tag and the VOULUES chip also mark a game the viewer has an open order on; their spoken forms stop saying the card is missing from goals, in both locales."
+verify = "Handler and operation tests: after each event above the table equals a fresh RefreshWanted, goal completion, a season's goal removal and a custom set's cascade included; an order row counts only at its reachable rarities; a refresh writes no row for a banned player, both reads skip a banned player whose rows remain, and an unban rebuilds them; WantedCounts counts a player wanting by goal and order once and never the viewer; the writer test refuses another writer. The open-pack benchmark (OpenPackBenchmark) keeps POST /packs under 200 ms p95 with the refresh in the opening, its figure recorded in the plan."
+covers = ["R11", "R13", "R25"]
+after = [1]
+hitl = false
+risk = "high"
+unknown = "AD-61 assumption: an order row stores its rarities so a count by edition needs no join; and if the benchmark passes 200 ms p95, the Deferred question (delete only the credited games' goal rows on events that only raise holdings, or move the refresh to a job) goes to the author before the story goes on."
+
+[[entry]]
+id = 7
+type = "story"
+title = "A holder sells a copy to the best order from Mettre en vente"
+description = "Game::Market::EligibleOrders(card_season, except: seller) is the only reader of eligibility: story 1's open orders on the edition's game, not the seller's, reaching the edition's rarity, whose owner is neither banned nor deleted, best price, then oldest, then lowest id; BestEligibleOrder is its first row. Game::Market::SellToOrder(player: seller, card_season_id:, order_token:, settings_token:) reads the best eligible order without a lock, takes both bank locks in ascending player id, checks the market is open and the version current, locks both holdings in ascending player id, then the order row, and rechecks at the now it read that the best eligible order is still the one the seller saw, else best_order_changed with nothing moved; it needs one free copy (copy_not_free) and answers a deadlock with market_busy. Epic 39's settlement step now serves a listing or an order: it is given what it releases (a listing's settlement its one reserved copy, a direct sale nothing) and the commission's version; the buyer's allocation is received, the copy moved, tiers recorded with reached_by trade, unheld showcase entries removed; story 15's Archive purchase reuses the buyer's part of this step, and story 8 shares SellToOrder's serving step. EditionPrice reads one sales source, sold listings and served orders merged in time order, then source and id, which rarity_average and EditionSales (the edition chart) read too; the refresh stores average_after_sale on the sold listing or the served order. The order becomes served with its seller, card-season and served_at; one Ledger.post carries purchase and sale at the order's version and commission at the version the seller confirmed, each with order_id, no stamp; it publishes OrderServed with story 1's keys. Mettre en vente, when the chosen copy can serve an order, shows the best-order banner above the unchanged form ('Un ordre d'achat vous attend', what the seller receives after the commission, VENDRE MAINTENANT named with the amount, the view's one primary while METTRE EN VENTE turns secondary), the no-order line otherwise, the choice's status adding the banner's line, the same banner in the phone's step 2; the form submits the order token and the version it drew; a refusal redraws the banner with its sentence and moves focus to it; success shows the VENDUE panel. A copy in a deck, a trade offer or a listing is never sold, and epic 42's deck names stay on the screen. Rate limited per player; copy and errors.game codes in both locales."
+verify = "One system test (test/system/market_direct_sale_test.rb): a holder chooses a copy in Mettre en vente, sees the banner with the order's price less the commission, sells with VENDRE MAINTENANT and sees VENDUE; the buyer holds the copy and the order is served; a better order placed after the screen was drawn refuses with the new amount. Operation tests: priority by price, age and id; the seller's own order, a removed owner's and one not reaching the rarity skipped; the commission at the confirmed version; a stale version refused; the ledger reconciling; one free copy sold beside a deck block, a trade offer and an open listing on the same edition leaving reserved unchanged; average_after_sale stored on the order. Query tests: EditionPrice and EditionSales merge served orders with sold listings in time order."
+covers = ["R7", "R8", "R9", "R24"]
+after = [2, "39.3", "39.5", "42.5", "37.5"]
+hitl = false
+risk = "high"
+unknown = "Left open by the UX review: whether sales between flagged accounts are dropped from the average price; this story counts every direct sale unless the author says otherwise."
+
+[[entry]]
+id = 8
+type = "story"
+title = "The Confier wanted table applies every choice in one validation"
+description = "Game::Market::ApplyWantedChoices(player:, lines:, settings_token:), each line a card-season, its copies and a choice: order with the order tokens the table drew, auction with a starting price and a duration, or entrust. ListCard's listing step and EntrustCards' entrust step are extracted to return their ledger entries and publish nothing, Mint.credit returns its entry instead of posting, and story 7's serving step is shared; each caller makes its own single Ledger.post. In one transaction it reads the drawn orders without a lock, takes the player's and every drawn order owner's bank locks in ascending player id, checks the market and the version, locks holdings, then the order rows in ascending id, and rechecks that each drawn order is open, unexpired and the best eligible order left for its copy after the earlier assignments, else refuses the whole table with best_order_changed naming the changed lines and their new best order. Before any write it checks every field: each card-season's copies summed over its lines against its free copies, a starting price under its minimum, a duration not offered, and stamps that available plus the validation's proceeds cannot pay, the entrustment proceeds computed from CapLeft in the table's order; any of these refuses with invalid_choices carrying each invalid line and its code, and a post that would send a wallet below zero is that failure, never an exception. It then serves the orders, opens one listing per auction copy with its stamp, and entrusts the entrust copies in order, a copy over the daily cap skipped and returned; every step moves free copies and releases nothing; the edition price refreshes run after every move in ascending card-season; one Ledger.post carries every entry (mint, stamps, purchases, sales, commissions), so the stamps net against the proceeds; it publishes one WantedChoicesApplied with story 1's keys. Rate limited per player."
+verify = "Operation tests: Flow 13's table (a sale to an order, an auction, an entrustment) applies with one ledger post that reconciles; a stamp paid from the same validation's sale; an order served meanwhile, and a better order placed meanwhile, each refuse with the line and its new best order and move nothing; each invalid field refuses with its line and code; a copy over the cap is skipped and named while the rest applies; two copies on one line serve two orders best first and entrust the copy left without one; ListCard's and EntrustCards' own tests stay green."
+covers = ["R15", "R24"]
+after = [7]
+hitl = false
+risk = "high"
+unknown = "AD-59 assumption: invalid_choices is the one failure carrying line detail beside its symbol; and the Deferred question of how many lines one validation may hold and whether its lines count against the listing and entrusting rate limits."
+
+[[entry]]
+id = 9
+type = "story"
+title = "Orders expire, and MES ORDRES keeps what ended"
+description = "Game::Market::ExpireOrder(player: owner, order_id:) rechecks under the owner's bank lock and the order row that the order is open and due, makes it expired, posts release and publishes OrderExpired, otherwise doing nothing; Game::Market::ExpireDueOrdersJob runs it once per due open order, one per transaction, with require_account, reporting an error and moving on, every minute in both blocks of config/recurring.yml on queue default, while the market is closed too. CheckMarketHealthJob also reports the oldest due open order over 5 minutes, and the back-office health page shows its age beside the listing's. MES ORDRES gains TERMINÉS RÉCEMMENT (the last 7 days) with SERVI and its line naming the seller and the edition received, and EXPIRÉ and ANNULÉ with 'PiCoins rendus'; a cancel confirmed on an order served a moment before refuses with 'Cet ordre vient d'être servi.' and the row moves to SERVI. The suspended banner's text adds that buy orders stay held until they end, in both locales."
+verify = "Job and operation tests: a due order expires once with its release; a second run, and a run on a cancelled or served order, change nothing; one failing order does not stop the others; expiry runs while the market is closed; the health report fires over 5 minutes. One system test: MES ORDRES shows a served, an expired and a cancelled order under TERMINÉS RÉCEMMENT with their lines, and a cancel on an order served meanwhile is refused."
+covers = ["R3", "R6"]
+after = [7, "41.5"]
+hitl = false
+risk = "medium"
+unknown = "AD-50 assumption: an order's 7 days need no clock closer than a minute; Left open: whether the buyer's SERVI line names the seller or only the edition and date."
+
+[[entry]]
+id = 10
+type = "story"
+title = "A notable direct sale appears in the feed"
+description = "game_feed_entries gains order_id (foreign key added not valid then validated, a unique index built concurrently in its own migration); the sale check is swapped expand/contract so a sale entry carries exactly one of listing and order, the old check dropped before any code writes an order's entry. SaleFeed hears OrderServed and each sale of WantedChoicesApplied and writes a sale entry by market-economy.md's rule (any Épique or Légendaire, or ten times its rarity's minimum or more), the buyer as player_id named through PlayerName, unique per order; FeedEntries.visible, NewFeedEntries and VisibleFeedEntry let it through as they do a listing's sale. ArchivePurchased stays heard by no feed handler."
+verify = "Handler and query tests: a direct sale of an Épique makes one entry carrying its order; a Commune under the threshold makes none; a WantedChoicesApplied with two notable sales makes their two entries once; an entry with both a listing and an order is refused by the check. One system test shows a direct sale's line in the activity feed."
+covers = ["R9"]
+after = [8, "40.6"]
+hitl = false
+risk = "medium"
+unknown = "Left open by the UX review: whether a private player's direct sales stay out of the feed; this story follows a listing's sale, which shows whatever the buyer's visibility."
+
+[[entry]]
+id = 11
+type = "story"
+title = "The order form shows what is for sale now and the order already placed"
+description = "The Ordre d'achat screen gains, on the left, DISPONIBLE MAINTENANT: the game's open listings, every edition, each with its rarity and season, the seller through PlayerName, current price, bids, time left and VOIR L'ANNONCE ▸ named as the Copy deck says, under the line that they are auctions to bid on there, or the nothing line; on the phone it stacks above VOTRE ORDRE. The head adds 'Il vous manque cette carte pour <set>' with that goal's bookmark when the game is missing from a goal. Game::Market::BestVisibleOrder(card, viewer), reading story 5's ties server-side, returns the price of the best other open order on the game placed more than an hour ago, its owner neither removed, nor the viewer, nor tied to the viewer; the form shows it as Meilleur ordre en cours, '—' with none, read 'aucun'. With an order already open on the game, the form shows its line (price, days left, MES ORDRES ▸) instead of the field and the button; an order placed meanwhile in another tab redraws that way with focus on the line; a suspended market shows its banner with the button disabled and the closed line under it. Each MES ORDRES row's title becomes a link stretched over the row to this screen showing that order, ANNULER a sibling after it. Back names the screen it came from."
+verify = "One system test: a player opens the order form on a game with two listings, sees both with their links, places an order, reopens the form from the MES ORDRES row and sees the running order instead of the field. Query tests: BestVisibleOrder skips orders under an hour old, the viewer's own, a removed owner's and a tied account's."
+covers = ["R4", "R6", "R23"]
+after = [5, 9]
+hitl = false
+risk = "low"
+unknown = "AD-63 assumption: the hour is a constant of BestVisibleOrder; Left open: whether cancelled order money stays held for an hour against spoofing."
+
+[[entry]]
+id = 12
+type = "story"
+title = "Order owners hear of serving, expiry and listings above their price"
+description = "game_market_notices gains order_id (foreign key added not valid then validated); listing_id becomes nullable with the at-least-one check added NOT VALID then validated; the kind check gains order_served, order_expired and listed_above_order, expand then validate; the unique index on player and listing becomes partial (order_id IS NULL) beside two order indexes (player and order for listed_above_order; player and order for the order's end notice), each built concurrently in its own migration. Notice declares its listing optional and Notice.record upserts with unique_by the index name its row needs, never columns. CardListed's handler, and each listing of WantedChoicesApplied, write for each player WantingPlayers returns except the seller listed_above_order on that player's open order on the game when it reaches the edition's rarity and the starting price is above the order's price, replacing the order's previous listing, else a wanted notice; the listing's end events delete the listed_above_order notices pointing at it; an order's end (OrderServed, OrderExpired, OrderCancelled, and OrderWithdrawn which story 20 publishes) deletes its listed_above_order notice, and served and expired then write order_served and order_expired. The bell shows the order lines of the Copy deck's Order bell lines, and every wanted notice of an open listing as one grouped line computed on load, counting distinct cards (a card with a listed_above_order line counted there instead), unseen when a listing of it was created after the player last saw it, the seen time being the read_at of the game_bell_reads key wanted:grouped that MarkBellRead writes and never prunes; the grouped line opens ANNONCES with the VOULUES chip on. MarketPushNotice::EVENTS gains OrderServed, OrderExpired and WantedChoicesApplied's sales; WantedCardNotice::EVENTS gains WantedChoicesApplied's listings. PlayerStream reloads the bell on the order notices' events (its MARKET_EVENTS), subscribed after the notice handlers. Under a running MES ORDRES row, the line '<name> vend <card> à <amount>, au-dessus de votre ordre.' with VOIR L'ANNONCE ▸."
+verify = "Handler tests: a listing above an order writes listed_above_order and a listing below it a wanted notice; a second listing replaces the first; the listing's cancellation deletes it; a served order writes order_served and deletes its listed_above_order; no notice for a removed player; each upsert names its index. One system test: a player with an order sees the listed-above line in MES ORDRES and the bell, then the served line after a direct sale; the grouped wanted line counts two cards and turns seen once the bell is read."
+covers = ["R10", "R6"]
+after = [6, 8, 11, "40.1"]
+hitl = false
+risk = "medium"
+unknown = "Left open by the UX review: whether the grouped wanted bell line returns at most once per card per day."
+
+[[entry]]
+id = 13
+type = "story"
+title = "Sellers see which of their copies other players want"
+description = "Every seller-side reader counts story 6's WantedCounts per card and rarity for the viewer's free copies, an only copy included, and never names a player. The market screen gains, at its top above the chips and on every chip, the Vos cartes voulues panel: the kicker VOS CARTES VOULUES with the count of the player's wanted copies, a list of up to four tiles (three on the phone), the most sought first, each the card, its name, '<n> joueurs la veulent' and 'Ordre <amount>' from story 7's BestEligibleOrder or 'Aucun ordre', one link to Mettre en vente on that card opening on the edition with the best order, named as the Copy deck says; 'Tout voir', outside the frame at its lower right, opens the Mettre en vente grid filtered on wanted copies; with none, the count at 0 and the empty line; absent for a visitor; read on load. Mettre en vente's cells carry DEMANDÉE · <n> with its accessible text, and its filter row the chip VOULUES PAR D'AUTRES · <n> with its line. A card detail of a card the player holds a free copy of, when wanted, shows DEMANDÉE and '<n> joueurs la veulent · meilleur ordre <amount>' (or 'aucun ordre d'achat') just above CONFIER and METTRE EN VENTE; never in the collection grid."
+verify = "One system test: a player whose copy is missing from another player's goal and targeted by a third player's order sees the panel tile with 2 joueurs and the order, follows it to Mettre en vente on that edition with the banner, and finds DEMANDÉE · 2 on the cell and the line on the card detail; a visitor sees no panel. Query tests: the panel's order and counts, the viewer's own goals and orders never counted."
+covers = ["R12"]
+after = [6, 7]
+hitl = false
+risk = "medium"
+unknown = "Left open by the UX review: whether Vos cartes voulues shows on every chip or only on ANNONCES and MES VENTES."
+
+[[entry]]
+id = 14
+type = "story"
+title = "Confier sets wanted copies apart and the wanted table applies them"
+description = "Confier's cells carry DEMANDÉE · <n> as Mettre en vente's do. The recap sets wanted copies apart under MISES DE CÔTÉ · <n> CARTES VOULUES, one copy per player who wants the card, further ticked copies going with the batch, each card with its seekers and the line that the choice comes next; VOUS RECEVEZ, the gauge and the button count the rest only, which CONFIER <n> EXEMPLAIRES entrusts at once through EntrustCards; the grid reads Étape 1 sur 2 and the polite status adds the set-apart count; with only wanted copies ticked the button reads CHOISIR POUR LES <n> CARTES VOULUES ▸ and entrusts nothing. The second step, Étape 2 sur 2, at its own address, replaces the grid with the full-width table of EXPERIENCE.md's Confier wanted table: step 1's result line, then one line per wanted card and edition (seekers, the best eligible order drawn best first across the game's lines, each order once, average price, entrustment value), best order, then seekers, then value first, no paging. The choice is a radio group drawn by the SegmentedComponent this story builds: À L'ORDRE · <amount>, a native disabled radio described by 'Aucun ordre' when no order reaches the copy; ENCHÈRES, unfolding Mettre en vente's fields under the line; CONFIER · <amount>. The Prefill rule applies: the order at 90% of the average price or more; an auction at the average when the order is far below it, at the order's price with no average, at the minimum when under it; entrust with no order; an auction when entrusting would not fit the cap left. The dock holds VOUS RECEVEZ MAINTENANT, what goes to auction and what it brings, the stamps, TOUT CONFIER QUAND MÊME · <amount> (EntrustCards on every set-apart copy) and VALIDER LES <n> CHOIX, each total updating with one polite status, a double activation submitting once; the form submits the order tokens and the version it drew to story 8's ApplyWantedChoices. Refused on its own fields: each refusal under its field with aria-invalid and aria-describedby, the dock's count, focus on the first. Refused by a change elsewhere: the table redraws each changed line with its new best order, its new prefill and its sentence, keeps every typed price, the dock names the changed lines, focus goes to the first changed group. Success shows the result panel: the heading focused, what was received and the stamps paid, one line per table line with its chip, sentence and amount, VOIR L'ANNONCE ▸ for an auction, a copy over the cap named and kept, RETOUR AU MARCHÉ. Reopened, the step shows the copies still set apart, or the market when none. On the phone: stacked line panels, a vertical radio list of 44px rows, the dock with the total and both buttons. Choices and typed prices are a pending edit for Esc; the dock pins from 560 CSS px of height."
+verify = "One system test (test/system/market_confier_wanted_test.rb): Flow 13 with Camille ticking three wanted copies and two others, entrusting the two, choosing an order, an auction and an entrustment, validating and reading the result; then its failure branch, an order served before the press, redraws the line with its new choice and nothing moves. Vitest covers the Prefill rule and the dock's totals; controller tests cover a visitor, the rate limit and the step reopened with nothing set apart."
+covers = ["R14", "R16", "R12"]
+after = [8, 13, "38.5"]
+hitl = false
+risk = "high"
+unknown = "UX assumptions to confirm: no paging; a line that would not fit the cap prefilled ENCHÈRES at the average or the minimum; the stamps paid from the same validation's proceeds; the reopened step showing the copies still set apart; the phone dock holding TOUT CONFIER."
+
+[[entry]]
+id = 15
+type = "story"
+title = "A player buys a card from the Archives' shop"
+description = "game_market_archive_withdrawals (expand migrations, its concurrent indexes on their own) holds one row per Archive purchase: player, card-season, purchase token, price, settings version and time, unique on player and token, kept through an account deletion. SumArchiveStocks is rewritten to lock the stock rows in ascending card-season, upsert the card-seasons whose deposits less withdrawals is above zero and delete those at zero or less, never writing a zero. Game::Market::BuyFromArchives(player:, card_season_id:, purchase_token:, settings_token:) runs under the player's bank lock and refuses a closed market, a stale version, a rarity whose Archive price is null (not_in_shop) and a price above available; it locks the player's holding, then the stock row (out_of_stock when missing), inserts the withdrawal (a repeated token buys nothing more), decrements the stock row or deletes it at one, moves one copy in releasing nothing through story 7's settlement step for a buyer (allocation received, tiers reached by trade), posts archive_purchase, refreshes no edition price and publishes ArchivePurchased with story 1's keys. The Boutique de la Confrérie screen, open to visitors: the Brotherhood's line, the search, VOULUES · <n> from the viewer's own wanted rows, the season and sort menus (price ascending by default), the rarity chips of priced rarities only, the count of cards and editions, then a list of tiles (the card in the parchment ring, the ARCHIVES and VOULUE tags, the fixed price, '<n> en stock', ACHETER ▸; the whole tile one link) loading by scroll, the filters in the URL; a visitor reads it with the sign-in line, the tiles leading to the card detail; the empty line. This story builds the purchase confirmation story 17 reuses (the Modal, a bottom sheet on the phone, with Prix, Solde après, the short-of-PiCoins line offering CONFIER DES CARTES, the refusal of a changed price, a double activation submitting once). A tile opens it as the Archive purchase confirmation: card, edition, season, price, Solde après, the Brotherhood's line, ANNULER and ACHETER · <amount>; short of PiCoins it says by how much and offers CONFIER DES CARTES; the last copy taken or the price changed refuse with their lines, the new price drawn; bought, the result replaces the body and the tile's stock falls, or the tile leaves. Rate limited per player; copy in both locales."
+verify = "One system test (test/system/market_shop_test.rb): with Rare priced, a player buys a Rare copy through the confirmation, reads the result, holds the copy and finds the stock one lower; a visitor reads the shop with nothing to buy. Operation tests: every refusal; a repeated token buying once; the last copy deleting the stock row; the archive_purchase entry destroyed in the reconciliation; no feed entry and no edition price change. SumArchiveStocks never writes zero after deposits and withdrawals."
+covers = ["R17", "R18", "R13", "R24"]
+after = [3, 6, 7, "38.12"]
+hitl = false
+risk = "high"
+unknown = "Deferred: stock row contention on a popular Archive card is measured before the shop opens; if it is a problem, whether the decrement becomes one conditional UPDATE as the last write before the ledger post goes to the author."
+
+[[entry]]
+id = 16
+type = "story"
+title = "The market shows Archive offers beside the listings"
+description = "ANNONCES gains, above TOUTES LES ANNONCES, the shop panel BOUTIQUE DE LA CONFRÉRIE: the Archives' count, its line, four Archive offer tiles (three on the phone, the fourth not drawn), the viewer's wanted cards first, then the most recently entrusted, and 'Voir toute la boutique ▸' outside the frame; with nothing priced or in stock, the count at 0 and the empty line without the link; a visitor's tiles lead to the card detail. The ANNONCES grid mixes Archive offer tiles (the ARCHIVES tag, the fixed price with 'prix fixe', ACHETER ▸ opening story 15's confirmation, VOULUE when it applies, named as the Copy deck says) with the player listings under the chosen sort: by fixed price for the price sorts, after the listings for 'se termine bientôt', by the day the copy joined the Archives for 'les plus récentes'; a search counts both ('3 annonces · 3 cartes des Archives'). A search naming one game with nothing for sale shows 'Aucune annonce pour <card>.' with PASSER UN ORDRE opening the order form on that game; with only Archive offers, they show under 'Aucune annonce de joueur pour <card>.' with PASSER UN ORDRE. The order form, when the game has no open listing, shows the Archives' offer, one line per edition of a priced rarity in stock (ARCHIVES, prix fixe, ACHETER · <amount> opening the confirmation)."
+verify = "One system test: ANNONCES shows the shop panel and a grid mixing an offer and listings by price; a search for a game held only by the Archives shows its offer with PASSER UN ORDRE; the order form on that game offers the Archives' line. Query tests cover the mixed order under each sort and the counts."
+covers = ["R19", "R5", "R13"]
+after = [11, 13, 15]
+hitl = false
+risk = "medium"
+unknown = "Left open by the UX review: whether the grid's first row leaves out the offers the shop panel already shows, and whether 'les plus récentes' sorts Archive offers by week so the entrusting day cannot be read."
+
+[[entry]]
+id = 17
+type = "story"
+title = "A player at a free limit buys the next slot in context"
+description = "Game::BuySlot(player:, kind:, slot:, settings_token:), with the blocked action's input, runs under the player's bank lock, then the capacity row: it refuses a slot other than the current limit plus one (slot_already_bought), a slot past the ceiling (slot_ceiling), a stale version and a price above available; it prices the slot from story 3's reader, raises bought (inserting the row at 1), posts slot_purchase through Game::Market::Ledger, last, and publishes Game::SlotBought with story 1's keys; it never asks whether the market is open and answers a deadlock with market_busy. For a goal it adds the goal in the same transaction through the goal step, which publishes nothing here, and succeeds only when the step inserts a new goal, any other outcome rolling everything back with the step's code; for a custom set or a deck the purchase raises the limit and its answer opens the editor, whose save creates the set or the deck. At a free limit below the ceiling, MARQUER COMME OBJECTIF on a set album, the new set tile in MES SETS and + NOUVEAU DECK on Duels stay enabled, described by the next slot's price, and open the slot purchase dialog, story 15's purchase confirmation: the title for the next slot, read in words; the free count; Prix; Solde après; ANNULER and ACHETER · <price>. Short of PiCoins it gives the missing amount with CONFIER DES CARTES, ANNULER alone while the market is suspended; a slot bought meanwhile in another tab refuses with 'Cet emplacement est déjà acheté.'; bought, the goal is added and the result posted politely, or the editor opens; closing returns focus to the button. A slot is kept for good; the ceilings keep their refusals with no dialog. Rate limited per player; copy in both locales, with English ordinals."
+verify = "One system test (test/system/capacity_slots_test.rb): a player with five goals presses MARQUER COMME OBJECTIF, buys the sixth slot and finds the set as goal 6 and OBJECTIFS 6 / 6; a player with three decks buys a fourth and lands in the deck editor. Operation tests: every refusal; a double submission buying once; the goal step's refusal rolling the slot and the PiCoins back; slot_purchase destroyed in the reconciliation; deleting a goal leaving bought unchanged; a purchase while the market is closed."
+covers = ["R21", "R24"]
+after = [4, 15]
+hitl = false
+risk = "high"
+unknown = "AD-62 assumption: no custom set is created empty and the deck editor creates its deck on save."
+
+[[entry]]
+id = 18
+type = "story"
+title = "A goal suggests ordering its missing cards"
+description = "Once the market is open, in OBJECTIFS, right after each goal row whose set has missing cards the player has no order on, a sibling line '<n> cartes à commander : <card> · <card>' names at most two of them in set order, then '+ <n>' in plain text, each name a link to the order form on that game named 'Passer un ordre sur <card>, objectif <n> : <set>'. In that goal's album header, beside OBJECTIF n · RETIRER, the secondary button PASSER DES ORDRES · <n> opens the order form on the first of them; after PASSER L'ORDRE the next one opens, its h1 described by the one-line result of the order just placed ('Ordre passé sur <card> : <amount> PiCoins bloqués. Carte <i> sur <n>.'), and after the last the album opens with that line once, posted politely. Neither shows for a visitor, on another player's album, while the market is suspended, or once every missing card has an order."
+verify = "One system test: a player with a goal missing two cards follows PASSER DES ORDRES · 2, places both orders in a chain and lands on the album with the result line and the button gone; the OBJECTIFS line names the two cards before and is gone after."
+covers = ["R5"]
+after = [16, 17]
+hitl = false
+risk = "low"
+unknown = "UX assumptions to confirm: at most two names then '+ n'; the chain, never drawn, ending on the album with a one-line result."
+
+[[entry]]
+id = 19
+type = "story"
+title = "The alt signals read direct sales and Archive purchases"
+description = "The sale signals (sales outside price, minimum-price sales, and so story 5's ties) read served orders as sales beside sold listings. Two signals join AltSignals::SIGNALS with their labels in both locales: order_sale_to_tied_buyer, a direct sale to an order of an account tied to the seller, and archive_purchase_of_tied_deposit, an Archive purchase within MARKET_WINDOW_DAYS of an edition whose deposit row of an account tied to the buyer was updated in the same window; both read ties and make none. The back-office signals page shows their facts: the order and its price, or the purchase and the entrusting account with its deposit. Staff read deposits and withdrawals there; no player-facing query reads a depositor."
+verify = "Operation tests: two tied accounts trading through an order raise order_sale_to_tied_buyer; a buyer purchasing an edition a tied account entrusted within the window raises archive_purchase_of_tied_deposit, and outside it nothing; served orders count in sales outside price. A request test shows the facts to staff."
+covers = ["R23"]
+after = [5, 15]
+hitl = false
+risk = "medium"
+unknown = "AD-63 assumptions: a deposit row's updated_at is its last entrustment; the order signal's name and its reading of served orders. Left open: whether an order sale is measured against the serving copy's rarity minimum, whether every sale signal includes both direct-sale entry points, and whether spoofing, repeated relisting and goals overlapping a tied account's listings get signals."
+
+[[entry]]
+id = 20
+type = "story"
+title = "A removed player's orders, wanted rows and slots leave with them"
+description = "DropPresenceJob also finds banned or deleted players with an open buy order and runs Game::Market::WithdrawOrder once per order, one per transaction: the order becomes withdrawn, posts release (a banned owner's PiCoins return to available; a deleted owner's are then forfeited by ForfeitBalance, which waits until no open order is left), writes no notice and publishes OrderWithdrawn, whose end-of-order handler from story 12 deletes its listed_above_order notice. ReleasePlayer also deletes the player's wanted rows through RefreshWanted, the game_market_tied_accounts rows naming them on either side, and their capacity rows with their goals, custom sets and decks; orders, withdrawals and ledger entries keep the anonymised player id. The data export adds buy orders with the sales to orders the player made, Archive purchases and bought slots; the privacy and retention pages name them in both locales, and the Delete dialog names the open buy orders withdrawn."
+verify = "Job and operation tests: a banned owner's order is withdrawn with its money available again and its listed_above_order deleted; a deleted owner's order is withdrawn, then the balance forfeited; their wanted, tie and capacity rows are gone and EligibleOrders skips them; an export test finds orders, sales to orders, Archive purchases and slots. One system test reads the Delete dialog's line on open orders."
+covers = ["R22"]
+after = [12, 17, 19, "40.9", "40.10", "40.11"]
+hitl = false
+risk = "medium"
+unknown = "AD-46 assumption: bought slots die with the account."
+
+[[entry]]
+id = 21
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check and bundle exec packwerk check pass, and so do the epic's system tests: test/system/market_orders_test.rb, market_direct_sale_test.rb, market_confier_wanted_test.rb, market_shop_test.rb, capacity_slots_test.rb and the files the other stories touched."
+covers = []
+after = [10, 14, 18, 20]
+hitl = false
+risk = "low"
