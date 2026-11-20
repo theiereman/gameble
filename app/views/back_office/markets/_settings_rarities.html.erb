@@ -10,7 +10,7 @@
       </tr>
     </thead>
     <tbody>
-      <% %i[entrustment stamp minimum_price income_days_target].each do |row| %>
+      <% %i[entrustment stamp minimum_price archive_price income_days_target].each do |row| %>
         <tr>
           <th scope="row" id="market-settings-row-<%= row.to_s.dasherize %>"><%= t("back_office.markets.settings.rows.#{row}") %></th>
           <% Game::Market::SettingsRules::RARITIES.each do |rarity| %>

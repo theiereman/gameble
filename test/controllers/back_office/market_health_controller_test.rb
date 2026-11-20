@@ -156,6 +156,16 @@ module BackOffice
       assert_select "[data-health-indicator=top_share].market-health__tile--alert", false
     end
 
+    test "a proposal that lifts the minimum over the Archive price says the Archive price rises too" do
+      @settings = open_market!(first_opened_at: 10.days.ago, alert_destroyed_share_basis_points: 4_000, archive_price_rare: 80)
+      alerting_snapshot
+      sign_in(accounts_players(:administrator))
+
+      get back_office_market_health_path(locale: :en)
+
+      assert_select "[data-health-alert=destroyed_share] .market-health__proposal", /minimum price rises to 89.*Archive price rises to 89/
+    end
+
     test "a moderator sees the alert and its proposal without the actions" do
       alerting_snapshot
       sign_in(accounts_players(:moderator))

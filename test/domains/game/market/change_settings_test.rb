@@ -65,6 +65,22 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
     assert_nil settings.income_days_target_rare
   end
 
+  test "Archive prices, a slot price and the order duration reach the next version, a blank Archive price stored null" do
+    settings = change(archive_price_common: 50, archive_price_rare: 500, archive_price_epic: nil, slot_price_goal_6: 1_000, order_duration_days: 14).value!
+
+    assert_equal [ 50, 500, nil, nil ], settings.values_at(:archive_price_common, :archive_price_rare, :archive_price_epic, :archive_price_legendary)
+    assert_equal [ 1_000, 14 ], settings.values_at(:slot_price_goal_6, :order_duration_days)
+  end
+
+  test "an Archive price under its minimum, a tripled slot price or an order duration out of range writes nothing" do
+    nothing_is_written do
+      assert_equal :invalid_settings, change(archive_price_rare: 77).failure
+      assert_equal :invalid_settings, change(slot_price_goal_6: 1_500).failure
+      assert_equal :invalid_settings, change(order_duration_days: 0).failure
+      assert_equal :invalid_settings, change(order_duration_days: 31).failure
+    end
+  end
+
   test "values outside the candidate's editable columns are dropped" do
     candidate = candidate(daily_cap: 13_000).merge(open: false, first_opened_at: nil, author_id: 0, replaces_id: 0, token: "forged")
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_20_184008) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_20_193001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1018,9 +1018,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_184008) do
     t.bigint "replaces_id"
     t.datetime "created_at", null: false
     t.integer "order_duration_days", default: 7, null: false
+    t.bigint "archive_price_common"
+    t.bigint "archive_price_uncommon"
+    t.bigint "archive_price_rare"
+    t.bigint "archive_price_epic"
+    t.bigint "archive_price_legendary"
+    t.bigint "slot_price_goal_6", default: 500, null: false
+    t.bigint "slot_price_goal_7", default: 1000, null: false
+    t.bigint "slot_price_goal_8", default: 2000, null: false
+    t.bigint "slot_price_goal_9", default: 3000, null: false
+    t.bigint "slot_price_goal_10", default: 5000, null: false
+    t.bigint "slot_price_custom_set_6", default: 500, null: false
+    t.bigint "slot_price_custom_set_7", default: 1000, null: false
+    t.bigint "slot_price_custom_set_8", default: 2000, null: false
+    t.bigint "slot_price_custom_set_9", default: 3000, null: false
+    t.bigint "slot_price_custom_set_10", default: 5000, null: false
+    t.bigint "slot_price_deck_4", default: 1000, null: false
+    t.bigint "slot_price_deck_5", default: 2000, null: false
     t.index ["author_id"], name: "index_game_market_settings_on_author_id"
     t.index ["replaces_id"], name: "index_game_market_settings_on_replaces_id", unique: true
     t.index ["token"], name: "index_game_market_settings_on_token", unique: true
+    t.check_constraint "archive_price_common IS NULL OR archive_price_common >= minimum_price_common", name: "game_market_settings_archive_price_common_check"
+    t.check_constraint "archive_price_epic IS NULL OR archive_price_epic >= minimum_price_epic", name: "game_market_settings_archive_price_epic_check"
+    t.check_constraint "archive_price_legendary IS NULL OR archive_price_legendary >= minimum_price_legendary", name: "game_market_settings_archive_price_legendary_check"
+    t.check_constraint "archive_price_rare IS NULL OR archive_price_rare >= minimum_price_rare", name: "game_market_settings_archive_price_rare_check"
+    t.check_constraint "archive_price_uncommon IS NULL OR archive_price_uncommon >= minimum_price_uncommon", name: "game_market_settings_archive_price_uncommon_check"
     t.check_constraint "commission_basis_points >= 0 AND commission_basis_points <= 2500", name: "game_market_settings_commission_check"
     t.check_constraint "daily_cap > 0 AND increment_basis_points > 0 AND soft_close_seconds > 0", name: "game_market_settings_positive_check"
     t.check_constraint "preselected_duration_hours = duration_short_hours OR preselected_duration_hours = duration_medium_hours OR preselected_duration_hours = duration_long_hours", name: "game_market_settings_preselected_check"

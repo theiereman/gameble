@@ -7,6 +7,8 @@ module Game
         def stamp_field = EconomyAlerts.stamp_field(rarity)
 
         def minimum_field = EconomyAlerts.minimum_field(rarity)
+
+        def archive_price_field = EconomyAlerts.archive_price_field(rarity)
       end
 
       RULES = {
@@ -30,6 +32,8 @@ module Game
 
       def self.minimum_field(rarity) = :"minimum_price_#{rarity}"
 
+      def self.archive_price_field(rarity) = :"archive_price_#{rarity}"
+
       def self.named(name, series, settings) = call(series, settings).find { it.indicator.to_s == name.to_s }
 
       def self.alert(indicator, value, threshold, rule, settings)
@@ -49,7 +53,10 @@ module Game
         rules = SettingsRules.new(settings)
         stamp = [ (settings.stamp(rarity) * STAMP_RAISE).ceil, rules.amount_limits(stamp_field(rarity)).last ].min
         floor = SettingsRules.floor(settings.entrustment(rarity), stamp, settings.commission_basis_points)
-        changes = { stamp_field(rarity) => stamp, minimum_field(rarity) => [ settings.minimum_price(rarity), floor ].max }
+        minimum = [ settings.minimum_price(rarity), floor ].max
+        changes = { stamp_field(rarity) => stamp, minimum_field(rarity) => minimum }
+        archive_price = settings.archive_price(rarity)
+        changes[archive_price_field(rarity)] = minimum if archive_price && archive_price < minimum
         changes.reject! { |field, value| settings.public_send(field) == value }
         allowed?(rules, settings, changes) ? changes : {}
       end

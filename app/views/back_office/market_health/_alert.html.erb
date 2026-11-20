@@ -9,6 +9,9 @@
       <% if alert.changes.key?(alert.minimum_field) %>
         <%= t("back_office.market_health.alert.proposal_minimum", rarity:, minimum: picoins(alert.changes.fetch(alert.minimum_field))) %>
       <% end %>
+      <% if alert.changes.key?(alert.archive_price_field) %>
+        <%= t("back_office.market_health.alert.proposal_archive_price", price: picoins(alert.changes.fetch(alert.archive_price_field))) %>
+      <% end %>
     </p>
   <% else %>
     <p class="market-health__proposal"><%= t("back_office.market_health.alert.no_proposal") %></p>

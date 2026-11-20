@@ -55,6 +55,48 @@ module BackOffice
       assert_equal [ 13_000, 12 ], Game::Market::CurrentSettings.call.values_at(:daily_cap, :order_duration_days)
     end
 
+    test "the form draws an Archive price per rarity, the twelve slot prices and the order duration, in both languages" do
+      sign_in(accounts_players(:administrator))
+
+      { fr: [ "Prix des Archives", "Emplacements achetés en PiCoins", "Ordres d'achat" ], en: [ "Archive price", "Slots bought with PiCoins", "Buy orders" ] }
+        .each do |locale, (row, slots, orders)|
+          get back_office_market_path(locale:)
+
+          assert_select "#market-settings-row-archive-price", row
+          assert_select "#market-settings legend", slots
+          assert_select "#market-settings legend", orders
+        end
+      Game::Market::SettingsRules::RARITIES.each do |rarity|
+        assert_select "#market-settings-archive-price-#{rarity}[value='']" \
+          "[aria-labelledby='market-settings-row-archive-price market-settings-col-#{rarity}']"
+      end
+      Game::Market::SettingsRules::SLOT_PRICES.each { assert_select "label[for=market-settings-#{it.to_s.dasherize}]" }
+      assert_select "#market-settings-slot-price-goal-6[value='500']"
+      assert_select "#market-settings-order-duration-days[value='7']"
+      assert_select "#market-settings-order-duration-days-hint", /from the next buy order placed/
+    end
+
+    test "an administrator saves Archive prices, a slot price and the order duration through the drawn form" do
+      sign_in(accounts_players(:administrator))
+
+      save(archive_price_common: "50", archive_price_rare: "500", slot_price_deck_4: "1 500", order_duration_days: "14")
+
+      assert_redirected_to back_office_market_path(locale: :en)
+      current = Game::Market::CurrentSettings.call
+      assert_equal [ 50, 500, nil, 1_500, 14 ], current.values_at(:archive_price_common, :archive_price_rare, :archive_price_epic, :slot_price_deck_4,
+        :order_duration_days)
+    end
+
+    test "an Archive price under its minimum is refused beside itself and nothing is written" do
+      sign_in(accounts_players(:administrator))
+
+      nothing_is_written { save(archive_price_rare: "77") }
+
+      assert_response :unprocessable_content
+      assert_select "#market-settings-archive-price-rare[aria-invalid=true][value='77']"
+      assert_select "#market-settings-archive-price-rare-error[role=alert]", "An Archive price cannot be below the Rare minimum price: 78."
+    end
+
     test "with the market open the form is present, a valid save succeeds and the opening section is absent" do
       sign_in(accounts_players(:administrator))
 
@@ -155,6 +197,9 @@ module BackOffice
       assert_select "#market-settings textarea:not([disabled])", false
       assert_select "#market-settings button:not([disabled])", false
       assert_select "input[name='market_settings[stamp_rare]'][value='20']"
+      assert_select "#market-settings-archive-price-rare[disabled]"
+      assert_select "#market-settings-slot-price-goal-6[disabled]"
+      assert_select "#market-settings-order-duration-days[disabled]"
     end
 
     test "the page is accessible by headers and announces its refusals" do

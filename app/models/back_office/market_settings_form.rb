@@ -11,11 +11,13 @@ module BackOffice
         soft_close_seconds unusual_maximum_multiple],
       commission: %i[commission_basis_points],
       averages: %i[average_sale_count average_window_days feed_threshold_multiple],
-      alerts: %i[alert_destroyed_share_basis_points alert_picoins_per_player alert_top_share_basis_points]
+      alerts: %i[alert_destroyed_share_basis_points alert_picoins_per_player alert_top_share_basis_points],
+      slots: Rules::SLOT_PRICES,
+      orders: %i[order_duration_days]
     }.freeze
     MOMENTS = {
-      cap: :now, auctions: :auction_creation, commission: :close, averages: :now, alerts: :now,
-      entrustment: :now, stamp: :listing, minimum_price: :listing, income_days_target: :now
+      cap: :now, auctions: :auction_creation, commission: :close, averages: :now, alerts: :now, slots: :now, orders: :order_placement,
+      entrustment: :now, stamp: :listing, minimum_price: :listing, archive_price: :now, income_days_target: :now
     }.freeze
     BLANKS = /[[:space:]]/
     RARITY_SUFFIX = Regexp.union(Rules::RARITIES.map { |rarity| /_#{rarity}\z/ })
@@ -76,7 +78,7 @@ module BackOffice
 
     def violation_message(field)
       violation = violation(field) or return
-      values = violation.values.transform_values { shown(field, it) }
+      values = violation.values.to_h { |key, value| [ key, key == :rarity ? I18n.t("catalog.rarity.#{value}") : shown(field, value) ] }
       I18n.t("back_office.markets.settings.violations.#{violation.code}", **values)
     end
 
@@ -89,7 +91,7 @@ module BackOffice
     def hint(field)
       parts = [ I18n.t("back_office.markets.settings.hints.currently", value: shown(field, settings.public_send(field)) || "-") ]
       parts << bounds_hint(field)
-      parts << I18n.t("back_office.markets.settings.hints.optional") if Rules::OPTIONAL.include?(field)
+      parts << optional_hint(field)
       parts << I18n.t("back_office.markets.settings.moments.#{moment(field)}")
       parts.compact.join(" ")
     end
@@ -104,6 +106,12 @@ module BackOffice
     def days?(field) = DAYS.include?(field)
 
     private
+
+    def optional_hint(field)
+      if Rules::ARCHIVE_PRICES.include?(field) then I18n.t("back_office.markets.settings.hints.not_sold")
+      elsif Rules::OPTIONAL.include?(field) then I18n.t("back_office.markets.settings.hints.optional")
+      end
+    end
 
     def read(field, text)
       stripped = text.to_s.gsub(BLANKS, "")

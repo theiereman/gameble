@@ -11,7 +11,10 @@ module Game
       ENTRUSTMENTS = RARITIES.map { :"entrustment_#{it}" }.freeze
       STAMPS = RARITIES.map { :"stamp_#{it}" }.freeze
       MINIMUMS = RARITIES.map { :"minimum_price_#{it}" }.freeze
-      AMOUNTS = (ENTRUSTMENTS + STAMPS + MINIMUMS + [ :daily_cap ]).freeze
+      ARCHIVE_PRICES = RARITIES.map { :"archive_price_#{it}" }.freeze
+      PRICED_SLOTS = Capacity::FREE.to_h { |kind, free| [ kind, (free + 1)..Capacity::CEILING.fetch(kind) ] }.freeze
+      SLOT_PRICES = PRICED_SLOTS.flat_map { |kind, slots| slots.map { :"slot_price_#{kind}_#{it}" } }.freeze
+      AMOUNTS = (ENTRUSTMENTS + STAMPS + MINIMUMS + ARCHIVE_PRICES + SLOT_PRICES + [ :daily_cap ]).freeze
       TARGETS = RARITIES.map { :"income_days_target_#{it}" }.freeze
       DURATIONS = %i[duration_short_hours duration_medium_hours duration_long_hours].freeze
       TARGET_RANGE = BigDecimal("0.001")..BigDecimal("365")
@@ -31,7 +34,7 @@ module Game
         order_duration_days: 1..30
       }.freeze
 
-      OPTIONAL = (%i[alert_destroyed_share_basis_points alert_picoins_per_player alert_top_share_basis_points] + TARGETS).freeze
+      OPTIONAL = (%i[alert_destroyed_share_basis_points alert_picoins_per_player alert_top_share_basis_points] + TARGETS + ARCHIVE_PRICES).freeze
       EDITABLE = (AMOUNTS + RANGES.keys + [ :preselected_duration_hours ] + TARGETS).uniq.freeze
       REQUIRED = (EDITABLE - OPTIONAL).freeze
 
@@ -46,9 +49,9 @@ module Game
 
       def floor(entrustment, stamp, commission_basis_points) = self.class.floor(entrustment, stamp, commission_basis_points)
 
-      # The least and the most an amount can become: half of the version in force, rounded up, and twice it.
+      # The least and the most an amount can become: half of the version in force, rounded up, and twice it; none for an amount not yet set.
       def amount_limits(field)
-        value = @current.public_send(field)
+        value = @current.public_send(field) or return
         [ [ value.ceildiv(2), 1 ].max, value * 2 ]
       end
 
@@ -88,15 +91,29 @@ module Game
       def out_of_range(range) = Violation.new(code: :out_of_range, values: { min: range.begin, max: range.end })
 
       def check_amount(field, value, candidate)
+        check_doubling(field, value) || check_floor(field, value, candidate) || check_archive(field, value, candidate)
+      end
+
+      def check_doubling(field, value)
         least, most = amount_limits(field)
+        return unless most
         return out_of_range(1..most) if value < 1
         return Violation.new(code: :more_than_double, values: { limit: most }) if value > most
-        return Violation.new(code: :less_than_half, values: { limit: least }) if value < least
 
-        check_floor(field, value, candidate) if MINIMUMS.include?(field)
+        Violation.new(code: :less_than_half, values: { limit: least }) if value < least
+      end
+
+      def check_archive(field, value, candidate)
+        return unless ARCHIVE_PRICES.include?(field)
+
+        rarity = field.to_s.delete_prefix("archive_price_").to_sym
+        minimum = candidate[:"minimum_price_#{rarity}"]
+        Violation.new(code: :archive_below_minimum, values: { rarity:, minimum: }) if minimum.is_a?(Integer) && value < minimum
       end
 
       def check_floor(field, value, candidate)
+        return unless MINIMUMS.include?(field)
+
         rarity = field.to_s.delete_prefix("minimum_price_")
         entrustment, stamp, commission = candidate.values_at(:"entrustment_#{rarity}", :"stamp_#{rarity}", :commission_basis_points)
         return unless [ entrustment, stamp, commission ].all?(Integer)

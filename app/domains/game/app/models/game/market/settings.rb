@@ -20,6 +20,14 @@ module Game
       def stamp(rarity) = public_send(:"stamp_#{rarity}")
 
       def minimum_price(rarity) = public_send(:"minimum_price_#{rarity}")
+
+      def archive_price(rarity) = public_send(:"archive_price_#{rarity}")
+
+      def slot_price(kind, slot)
+        raise ArgumentError, "no price for #{kind} slot #{slot}" unless SettingsRules::PRICED_SLOTS[kind]&.include?(slot)
+
+        public_send(:"slot_price_#{kind}_#{slot}")
+      end
     end
   end
 end

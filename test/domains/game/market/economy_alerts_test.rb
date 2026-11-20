@@ -92,6 +92,27 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
     end
   end
 
+  test "a proposed minimum over the Archive price raises the Archive price to it, and the candidate passes the rules" do
+    settings = open_market!(alert_destroyed_share_basis_points: 4_000, archive_price_rare: 80)
+    snapshot!(@last_day, created: 100, destroyed_total: 34)
+
+    found = alert(:destroyed_share, settings)
+
+    assert_equal({ stamp_rare: 30, minimum_price_rare: 89, archive_price_rare: 89 }, found.changes)
+    candidate = settings.attributes.symbolize_keys.slice(*Game::Market::SettingsRules::EDITABLE).merge(found.changes)
+    assert_empty Game::Market::SettingsRules.new(settings).violations(candidate)
+  end
+
+  test "an Archive price at or above the proposed minimum, or not set, is left alone" do
+    snapshot!(@last_day, created: 100, destroyed_total: 34)
+
+    [ 89, 500, nil ].each do |archive_price|
+      settings = open_market!(alert_destroyed_share_basis_points: 4_000, archive_price_rare: archive_price)
+
+      assert_equal({ stamp_rare: 30, minimum_price_rare: 89 }, alert(:destroyed_share, settings).changes, archive_price.inspect)
+    end
+  end
+
   test "a proposal the bounds refuse leaves the alert without an action" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000, stamp_rare: 2_000, minimum_price_rare: 5_000, entrustment_rare: 5_000,
       commission_basis_points: 2_500)

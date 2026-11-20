@@ -118,5 +118,34 @@ module BackOffice
       assert_includes hint, "40"
       assert_includes hint, "listing"
     end
+
+    test "every editable field has a moment and a hint, in both languages" do
+      form = MarketSettingsForm.from_settings(@settings)
+
+      %i[en fr].each do |locale|
+        I18n.with_locale(locale) do
+          Game::Market::SettingsRules::EDITABLE.each { assert form.hint(it).present?, "#{locale} #{it}" }
+        end
+      end
+      assert_equal :order_placement, form.moment(:order_duration_days)
+      assert_equal :now, form.moment(:slot_price_deck_5)
+      assert_equal :now, form.moment(:archive_price_legendary)
+    end
+
+    test "an Archive price not set has no bounds and says blank keeps it out of the shop" do
+      hint = MarketSettingsForm.from_settings(@settings).hint(:archive_price_rare)
+
+      assert_equal "Currently -. Optional: leave it blank to keep this rarity out of the shop. Applies at once.", hint
+      assert_equal "", MarketSettingsForm.from_settings(@settings).value_for(:archive_price_rare)
+    end
+
+    test "an Archive price under its minimum is refused naming the rarity and the minimum" do
+      form = form_for(archive_price_epic: "200").check
+
+      assert_equal "An Archive price cannot be below the Epic minimum price: 223.", form.violation_message(:archive_price_epic)
+      I18n.with_locale(:fr) do
+        assert_equal "Un prix des Archives ne peut pas être sous le prix minimum d'une Épique : 223.", form.violation_message(:archive_price_epic)
+      end
+    end
   end
 end
