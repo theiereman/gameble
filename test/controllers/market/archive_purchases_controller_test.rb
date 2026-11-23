@@ -81,6 +81,28 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".purchase-confirmation__fact", text: /Solde après\s+—\s*aucun/
   end
 
+  test "a closed market draws the confirmation without its form, saying why" do
+    close_market!(first_opened_at: 1.day.ago, archive_price_rare: 500)
+    sign_in(@player)
+
+    confirmation
+
+    assert_response :success
+    assert_select ".purchase-confirmation form", 0
+    assert_select ".purchase-confirmation__refusal", "Le marché est suspendu pour le moment."
+  end
+
+  test "an edition gone from the stock draws the confirmation without its form, saying why" do
+    @stock.delete
+    sign_in(@player)
+
+    confirmation
+
+    assert_response :success
+    assert_select ".purchase-confirmation form", 0
+    assert_select ".purchase-confirmation__refusal", "Cette carte n'est plus disponible. Un autre joueur vient de prendre le dernier exemplaire. Rien n'est débité."
+  end
+
   test "a purchase answers the result in the frame and the tile with its stock lowered" do
     sign_in(@player)
 
