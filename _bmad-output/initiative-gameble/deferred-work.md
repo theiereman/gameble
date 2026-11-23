@@ -786,3 +786,9 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-market-volume/story-the-confier-wanted-table-applies-every-choice-in-one-validat-plan.md`
   summary: ApplyWantedChoices and SellToOrder read `now` before taking locks, so an order expiring during the lock wait can still be served.
   evidence: `now = Time.current` precedes `TradeLocks.players`; the recheck and `served_at` use it.
+
+## Deferred from: code review of the market-volume epic (2026-11-23)
+
+- The non-Turbo HTML response of `Market::ArchivePurchasesController#create` has no test; the form lives in a turbo frame, so the fallback is rarely reached. Model it on the slot purchase "without Turbo" test.
+- The wanted result panel is both a live region (`role="status"`) and receives focus on its heading; whether a screen reader reads it twice is unverified. A screen-reader pass settles it.
+- Capsule quick entrust (`EntrustmentsController#create`, JSON) entrusts wanted copies without the set-apart step. Decided 2026-11-23: leave as is.
