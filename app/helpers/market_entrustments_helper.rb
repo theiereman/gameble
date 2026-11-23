@@ -18,13 +18,20 @@ module MarketEntrustmentsHelper
 
   def entrust_selection(ticked) = ticked.map { |ref, copies| "#{ref}=#{copies}" }.join(Market::EntrustmentsController::SELECTION_SEPARATOR)
 
-  def entrust_copy_data(copy)
-    { ref: copy.ref, title: copy.title, rarity: copy.rarity, season: copy.season_number, free: copy.free, owned: copy.owned, value: copy.value }
+  def entrust_copy_data(copy, wanted: nil)
+    { ref: copy.ref, title: copy.title, rarity: copy.rarity, season: copy.season_number, free: copy.free, owned: copy.owned, value: copy.value,
+      seekers: wanted&.seekers.to_i }
   end
 
-  def entrust_cell_label(copy, decks = nil)
+  def entrust_cell_label(copy, decks = nil, wanted: nil)
     [ copy.title, t("catalog.rarity.#{copy.rarity}"), t("market.entrustments.new.season", number: copy.season_number),
-      picoins_label(copy.value), t("market.entrustments.new.free", count: copy.free), (deck_holding_words(decks) if decks) ].compact.join(", ")
+      picoins_label(copy.value), t("market.entrustments.new.free", count: copy.free), (deck_holding_words(decks) if decks),
+      (t("market.sales.new.wanted_words", count: wanted.seekers) if wanted) ].compact.join(", ")
+  end
+
+  # Title, season, copies and value of the first copies a cap left out.
+  def entrust_stayed_lines(stayed, names)
+    stayed.first(RESULT_LINES).map { |line| [ names.fetch(line.card_season_id).title, names.fetch(line.card_season_id).season_number, line.copies, line.value ] }
   end
 
   def entrust_line_stepper

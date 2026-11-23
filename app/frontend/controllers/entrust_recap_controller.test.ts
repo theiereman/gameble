@@ -31,6 +31,13 @@ const MARKUP = `
     <p id="rare-note" data-entrust-recap-target="rare" hidden></p>
     <p id="not-returned" data-entrust-recap-target="sentence">Not given back.</p>
     <div data-entrust-recap-target="submitSlot"><button type="submit">Entrust</button></div>
+    <div id="set-apart" data-entrust-recap-target="setApart" hidden>
+      <p data-entrust-recap-target="setApartHeading"></p>
+      <ul id="set-apart-lines" data-entrust-recap-target="setApartLines"></ul>
+    </div>
+    <template data-entrust-recap-target="setApartTemplate">
+      <li><span class="entrust-recap__set-apart-name"></span><span class="entrust-recap__set-apart-seekers"></span></li>
+    </template>
     <p id="panel-status" role="status" aria-live="polite" data-entrust-recap-target="status"></p>
     </aside>
     </div>
@@ -56,6 +63,8 @@ const view = (over: Partial<RecapView> = {}): RecapView => ({
       state: "fits",
     },
   ],
+  setApart: null,
+  finality: true,
   received: 5000,
   capBefore: 0,
   capUsed: 5000,
@@ -187,6 +196,13 @@ describe("the submit button", () => {
     expect(described()).toBe("not-returned reason")
     recap.render(view({ rare: "Note: 1 copy of Rare or better, Rare game." }))
     expect(described()).toBe("not-returned rare-note reason")
+  })
+
+  it("loses the not-given-back sentence when only wanted copies are ticked", () => {
+    recap.render(view({ lines: [], finality: false, label: "Choose for the wanted card ▸" }))
+    expect(described()).toBe("")
+    expect(document.getElementById("not-returned")!.hidden).toBe(true)
+    expect(document.querySelector("button")!.textContent).toBe("Choose for the wanted card ▸")
   })
 
   it("leaves out a reason id that is not on the page", () => {
@@ -492,5 +508,30 @@ describe("the daily cap gauge", () => {
       expect(lit()).toBe(2)
       expect(gauge().hasAttribute("data-growing")).toBe(false)
     })
+  })
+})
+
+describe("the copies set apart", () => {
+  const setApart = {
+    heading: "SET ASIDE · 2 WANTED CARDS",
+    lines: [
+      { ref: "pyre:1", rarity: "rare", label: "Pyre, season 1", seekers: "1 player wants it" },
+      { ref: "hades:1", rarity: "epic", label: "Hades, season 1", seekers: "2 players want it" },
+    ],
+  }
+
+  it("names each wanted card under its heading, and hides once none is left", () => {
+    recap.render(view({ setApart }))
+    expect(document.getElementById("set-apart")!.hidden).toBe(false)
+    expect(document.getElementById("set-apart")!.textContent).toContain("SET ASIDE · 2 WANTED CARDS")
+    const lines = Array.from(document.querySelectorAll<HTMLElement>("#set-apart-lines li"))
+    expect(lines.map((line) => [line.dataset.ref, line.dataset.rarity, line.textContent])).toEqual([
+      ["pyre:1", "rare", "Pyre, season 11 player wants it"],
+      ["hades:1", "epic", "Hades, season 12 players want it"],
+    ])
+    recap.render(view({ setApart: { ...setApart, lines: setApart.lines.slice(1) } }))
+    expect(document.querySelectorAll("#set-apart-lines li")).toHaveLength(1)
+    recap.render(view())
+    expect(document.getElementById("set-apart")!.hidden).toBe(true)
   })
 })

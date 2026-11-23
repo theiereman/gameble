@@ -1,0 +1,78 @@
+/* Two or three exclusive choices side by side, one native radio each. */
+.segmented {
+  display: inline-flex;
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-deep);
+  padding: var(--space-unit);
+  gap: var(--space-unit);
+  background: var(--color-line);
+}
+
+.segmented__option {
+  position: relative;
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--space-8);
+  padding: 0 var(--space-3);
+  background: var(--color-panel-sunken);
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.segmented__input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.segmented__amount::before {
+  content: "· ";
+}
+
+.segmented__option:has(:checked) {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.segmented__option:has(:checked) .picoin-amount {
+  color: inherit;
+}
+
+.segmented__option:has(:disabled) {
+  background: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+.segmented__option:has(:focus-visible) {
+  z-index: 1;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (width < 720px) {
+  .segmented--vertical-on-phone {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .segmented--vertical-on-phone .segmented__option {
+    justify-content: space-between;
+    min-height: var(--space-touch-min);
+    padding: var(--space-2) var(--space-4);
+    white-space: normal;
+  }
+
+  .segmented--vertical-on-phone .segmented__amount::before {
+    content: none;
+  }
+}

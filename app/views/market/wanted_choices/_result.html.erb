@@ -1,0 +1,31 @@
+<%# locals: (applied:) %>
+<% received = applied.sold.sum(&:received) + applied.entrusted.sum(&:minted) %>
+<% rows = @result_lines.map { |index, card| [ card, wanted_result_rows(applied, index, stamp: @settings.stamp(card.rarity.to_sym)) ] } %>
+<% stamps = rows.sum { |_, card_rows| card_rows.sum(&:stamp) } %>
+<%= render PanelComponent.new(brackets: true, class: "wanted-result", role: "status") do %>
+  <div class="wanted-result__head">
+    <h2 id="wanted-result-heading" class="wanted-result__heading" tabindex="-1">
+      <%= wanted_result_heading(@result_lines.size, @result_lines.size - applied.skipped.map(&:line).uniq.size) %>
+    </h2>
+    <p class="wanted-result__received">
+      <span class="wanted-result__received-label"><%= t("market.wanted_choices.result.received") %></span>
+      <%= render PicoinAmountComponent.new(amount: received, size: :large) %>
+    </p>
+    <% if stamps.positive? %>
+      <p class="wanted-result__stamps"><%= t("market.wanted_choices.result.stamp_paid_html", amount: render(PicoinAmountComponent.new(amount: stamps))) %></p>
+    <% end %>
+  </div>
+  <ul class="wanted-result__lines">
+    <% rows.each do |card, card_rows| %>
+      <% card_rows.each do |row| %>
+        <%= render "market/wanted_choices/result_row", row:, card: %>
+      <% end %>
+    <% end %>
+  </ul>
+  <% if @skipped.any? %>
+    <%= render "market/entrustments/stayed", lines: @skipped, count: @skipped.size, cap_left: @cap_before %>
+  <% end %>
+  <div class="wanted-result__back">
+    <%= render ButtonComponent.new(href: market_path) do %><%= t("market.wanted_choices.result.back") %><% end %>
+  </div>
+<% end %>

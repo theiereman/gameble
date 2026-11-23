@@ -1,0 +1,40 @@
+<%# locals: (line:, index:, posted:, shown:, title:, rarity_name:) %>
+<% id = "wanted-line-#{index}" %>
+<% start_refusal = @field_refusals&.dig([ line.ref, :start ]) %>
+<% duration_refusal = @field_refusals&.dig([ line.ref, :duration ]) %>
+<% named = { card: title, rarity: rarity_name.downcase } %>
+<%= tag.div class: "wanted-auction", hidden: !shown, data: { wanted_table_target: "auction" } do %>
+  <div class="sale-field wanted-auction__start">
+    <label for="<%= id %>-start" class="sale-field__label"><%= t("market.sales.new.start_label") %></label>
+    <%= text_field_tag "lines[#{index}][starting_price]", typed_picoins(posted&.starting_price.to_s), id: "#{id}-start", inputmode: "numeric",
+          autocomplete: "off", disabled: !shown, class: class_names("wanted-auction__input", "wanted-auction__input--refused": start_refusal),
+          aria: { label: t("market.wanted_choices.new.start_label", **named), invalid: ("true" if start_refusal),
+                  describedby: [ "#{id}-hint", ("#{id}-start-error" if start_refusal) ].compact.join(" ") },
+          data: { controller: "amount-field", wanted_table_target: "start",
+                  action: "beforeinput->amount-field#remember input->amount-field#group input->wanted-table#typeStart" } %>
+    <p id="<%= id %>-hint" class="sale-field__hint"><%= t("market.sales.strings.minimum_hint", amount: picoins(line.minimum), rarity: sale_rarity_name(line.rarity)) %></p>
+    <% if start_refusal %>
+      <p id="<%= id %>-start-error" class="sale-field__error"><%= start_refusal %></p>
+    <% end %>
+  </div>
+  <%= tag.fieldset id: "#{id}-duration", class: "sale-field sale-durations wanted-auction__durations", role: "radiogroup",
+        aria: { label: t("market.wanted_choices.new.duration_label", **named), invalid: ("true" if duration_refusal),
+                describedby: ("#{id}-duration-error" if duration_refusal) } do %>
+    <legend class="sale-field__label"><%= t("market.sales.new.duration_label") %></legend>
+    <% sale_durations(@settings, checked: posted&.duration_hours.presence || @settings.preselected_duration_hours).each do |duration| %>
+      <label class="sale-durations__choice">
+        <%= radio_button_tag "lines[#{index}][duration_hours]", duration[:hours], duration[:checked], id: nil, disabled: !shown,
+              data: { wanted_table_target: "duration", action: "change->wanted-table#pickDuration" } %>
+        <span><%= duration[:label] %></span>
+      </label>
+    <% end %>
+    <% if duration_refusal %>
+      <p id="<%= id %>-duration-error" class="sale-field__error"><%= duration_refusal %></p>
+    <% end %>
+  <% end %>
+  <p class="wanted-auction__stamp">
+    <span class="sale-field__label"><%= t("market.sales.new.stamp_name") %></span>
+    <%= render PicoinAmountComponent.new(amount: line.stamp * line.copies) %>
+    <span class="wanted-auction__stamp-text"><%= t("market.sales.new.stamp_text") %></span>
+  </p>
+<% end %>

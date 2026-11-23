@@ -3,7 +3,7 @@ import type { Copy } from "./entrust"
 
 function copyOf(row: unknown): Copy | null {
   if (typeof row !== "object" || row === null) return null
-  const { ref, title, rarity, season, free, owned, value } = row as Record<string, unknown>
+  const { ref, title, rarity, season, free, owned, value, seekers } = row as Record<string, unknown>
   if (
     typeof ref !== "string" ||
     typeof title !== "string" ||
@@ -21,6 +21,7 @@ function copyOf(row: unknown): Copy | null {
     free: free as number,
     owned: owned as number,
     value: value as number,
+    seekers: typeof seekers === "number" && Number.isFinite(seekers) ? seekers : 0,
   }
 }
 

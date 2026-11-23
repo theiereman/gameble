@@ -92,6 +92,8 @@
 @import "../styles/market-sale-phone.css";
 @import "../styles/market-sale-order.css";
 @import "../styles/market-wanted.css";
+@import "../styles/segmented.css";
+@import "../styles/market-wanted-table.css";
 @import "../styles/market-suspended.css";
 @import "../styles/market-screen.css";
 @import "../styles/market-desk.css";

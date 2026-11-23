@@ -1,0 +1,10 @@
+<% content_for :title, t("market.entrustments.new.heading") %>
+<% content_for :screen_title, t("market.entrustments.new.heading") %>
+<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
+<section class="market-wanted-choices page page--regular" aria-labelledby="market-wanted-choices-title">
+  <header class="market-entrust__header">
+    <h1 id="market-wanted-choices-title" class="visually-hidden"><%= t("market.entrustments.new.heading") %></h1>
+    <%= render "shell/balance_chip", placement: :header %>
+  </header>
+  <%= render "market/wanted_choices/region" %>
+</section>

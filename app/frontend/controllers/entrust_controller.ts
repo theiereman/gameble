@@ -35,6 +35,7 @@ function copyFrom(element: HTMLElement): Copy {
     free: Number(data.free),
     owned: Number(data.owned),
     value: Number(data.value),
+    seekers: Number(data.seekers ?? 0),
   }
 }
 
@@ -46,6 +47,7 @@ function describe(tick: HTMLElement, { copy, copies }: TickView): void {
   writeData(tick, "free", String(copy.free))
   writeData(tick, "owned", String(copy.owned))
   writeData(tick, "value", String(copy.value))
+  writeData(tick, "seekers", String(copy.seekers ?? 0))
   writeData(tick, "copies", String(copies))
 }
 

@@ -1,0 +1,13 @@
+<%# locals: (lines:, count:, cap_left:) %>
+<div class="entrust-result__stayed">
+  <h3 class="entrust-result__stayed-heading"><%= t("market.entrustments.result.stayed.heading", count:) %></h3>
+  <ul class="entrust-result__stayed-list">
+    <% lines.each do |title, season, copies, value| %>
+      <li class="entrust-result__stayed-line"><%= t("market.entrustments.result.stayed.line_html", title:, season:, count: copies, amount: render(PicoinAmountComponent.new(amount: value))) %></li>
+    <% end %>
+    <% if (more = count - lines.size).positive? %>
+      <li class="entrust-result__stayed-more"><%= t("market.entrustments.result.stayed.more", count: more, number: number_with_delimiter(more)) %></li>
+    <% end %>
+  </ul>
+  <p class="entrust-result__stayed-cap"><%= t("market.entrustments.result.stayed.cap_left_html", amount: render(PicoinAmountComponent.new(amount: cap_left))) %></p>
+</div>

@@ -1,8 +1,12 @@
 <% copies = @ticked[copy.ref].to_i %>
 <% decks = @decks_by_ref[copy.ref] %>
+<% wanted = @wanted[copy.ref] %>
 <%= tag.li class: class_names("entrust-cell", "entrust-cell--#{copy.rarity}", "entrust-cell--picked": copies.positive?),
-      data: { entrust_target: "cell", entrust_grid_target: "cell", **entrust_copy_data(copy), ticked: copies } do %>
+      data: { entrust_target: "cell", entrust_grid_target: "cell", **entrust_copy_data(copy, wanted:), ticked: copies } do %>
   <span class="entrust-cell__check" aria-hidden="true" <%= "hidden" unless copies.positive? %>>✓</span>
+  <% if wanted %>
+    <span class="wanted-badge entrust-cell__wanted" aria-hidden="true"><%= t("market.sales.new.wanted_badge", count: wanted.seekers) %></span>
+  <% end %>
   <% if copy.card %>
     <span class="entrust-cell__art" aria-hidden="true"><%= render CardComponent.new(card: copy.card, size: :s, tilt: false) %></span>
   <% end %>
@@ -14,7 +18,7 @@
     <span class="deck-holding__tag entrust-cell__reserved" aria-hidden="true"><%= t("decks.holding.tag") %></span>
   <% end %>
   <%= tag.button type: "button", class: "entrust-cell__toggle", tabindex: ((@pagy.offset + copy_counter).zero? ? 0 : -1),
-        aria: { pressed: copies.positive?.to_s, disabled: ("true" if copy.free < 1), label: entrust_cell_label(copy, decks) },
+        aria: { pressed: copies.positive?.to_s, disabled: ("true" if copy.free < 1), label: entrust_cell_label(copy, decks, wanted:) },
         data: { action: "entrust-grid#toggle" } %>
   <% if decks %>
     <%= render "decks/holding", names: decks, ref: copy.ref, title: copy.title, class_name: "entrust-cell__decks" %>

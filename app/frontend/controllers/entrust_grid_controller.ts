@@ -10,7 +10,7 @@ const TOGGLE = ".entrust-cell__toggle"
 const BUMP_STEP: Record<string, number> = { "+": 1, "=": 1, "-": -1, _: -1 }
 
 export default class EntrustGridController extends Controller<HTMLElement> {
-  static targets = ["list", "cell", "selectAll", "failed"]
+  static targets = ["list", "cell", "selectAll", "failed", "step"]
 
   declare readonly listTarget: HTMLUListElement
   declare readonly cellTargets: HTMLElement[]
@@ -18,11 +18,13 @@ export default class EntrustGridController extends Controller<HTMLElement> {
   declare readonly selectAllTarget: HTMLButtonElement
   declare readonly hasFailedTarget: boolean
   declare readonly failedTarget: HTMLElement
+  declare readonly hasStepTarget: boolean
+  declare readonly stepTarget: HTMLElement
 
   private drawn = new WeakMap<Element, CellView>()
 
   // Only a cell that just connected or whose view changed is touched: a grid of loaded pages holds thousands.
-  render({ cells, selecting }: GridView): void {
+  render({ cells, selecting, firstOfTwoSteps }: GridView): void {
     for (const cell of this.cellTargets) {
       const view = cells.get(cell.dataset.ref ?? "")
       if (!view || sameCell(this.drawn.get(cell), view)) continue
@@ -34,6 +36,7 @@ export default class EntrustGridController extends Controller<HTMLElement> {
       writeFlag(this.selectAllTarget, "aria-busy", selecting === "loading")
     }
     if (this.hasFailedTarget) writeHidden(this.failedTarget, selecting !== "failed")
+    if (this.hasStepTarget) writeHidden(this.stepTarget, !firstOfTwoSteps)
   }
 
   focusActive(): void {

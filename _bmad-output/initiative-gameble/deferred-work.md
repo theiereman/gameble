@@ -779,6 +779,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-market-volume/story-the-confier-wanted-table-applies-every-choice-in-one-validat-plan.md`
   summary: ApplyWantedChoices' `stamp_not_covered` and `start_below_minimum` refusals reuse keys needing `%{amount}`/`%{rarity}` that `Refused(line:, code:)` does not carry.
   evidence: `t("errors.game.#{code}")` on those codes raises MissingInterpolationArgument; the Confier table view must either get the values on `Refused` or new keys.
+  resolved: the Confier wanted table story (2026-11-23): `Refused` gains `amount:` (the rarity's minimum on `start_below_minimum`, the validation's whole stamp shortfall on `stamp_not_covered`); `Market::WantedChoicesController` interpolates it with the line's rarity name, and the operation test asserts both messages render.
 - source_plan: `_bmad-output/initiative-gameble/epic-market-volume/story-the-confier-wanted-table-applies-every-choice-in-one-validat-plan.md`
   summary: ApplyWantedChoices tests miss the deleted-seller `:player_required` path and `no_rarity` on auction and order lines.
   evidence: apply_wanted_choices_test.rb sets only `banned_at` and asserts `no_rarity` only on an entrust line.

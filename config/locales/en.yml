@@ -3838,6 +3838,8 @@ en:
         sign_in_action: Sign in
         select_all: "Select all (%{number})"
         select_failed: The editions could not be loaded. Nothing was ticked, try again.
+        step_one: "Step 1 of 2"
+        set_apart_sentence: "Other players are looking for them. You will choose what to do with them right after: sell them, or entrust them anyway."
       result:
         close: Dismiss
         copies:
@@ -3893,6 +3895,22 @@ en:
           other: Entrust %{count} copies
           zero: Entrust
         value_text: "%{count} of %{max}"
+        set_apart_heading:
+          zero: "SET ASIDE · %{count} WANTED CARDS"
+          one: "SET ASIDE · %{count} WANTED CARD"
+          other: "SET ASIDE · %{count} WANTED CARDS"
+        set_apart_status:
+          zero: "%{count} set aside"
+          one: "%{count} set aside"
+          other: "%{count} set aside"
+        seekers:
+          zero: "%{count} players want it"
+          one: "%{count} player wants it"
+          other: "%{count} players want it"
+        choose:
+          zero: "CHOOSE FOR THE WANTED CARD ▸"
+          one: "CHOOSE FOR THE WANTED CARD ▸"
+          other: "CHOOSE FOR THE %{count} WANTED CARDS ▸"
     sales:
       create:
         throttled: Slow down, the Archives are counting. Try again in a minute.
@@ -3954,6 +3972,105 @@ en:
         stamp_short: "You are short of %{amount} PiCoins for the stamp."
         status: You receive %{amount} PiCoins
         step: "Step %{step} of 2"
+    wanted_choices:
+      create:
+        throttled: "Slow down, the Archives are counting. Try again in a minute."
+      new:
+        step: "Step 2 of 2"
+        first:
+          zero: "No other copy is entrusted."
+          one: "The other copy is already entrusted: %{amount} PiCoins minted."
+          other: "The %{count} other copies are already entrusted: %{amount} PiCoins minted."
+        intro:
+          zero: "%{count} cards other players want."
+          one: "1 card other players want. Choose what to do with it, then validate."
+          other: "%{count} cards other players want. Choose what to do with each; a single validation applies everything."
+        heads:
+          card: "CARD"
+          seekers: "PLAYERS"
+          order: "BEST ORDER"
+          average: "AVERAGE PRICE"
+          value: "ENTRUSTED"
+          choice: "YOUR CHOICE"
+          receive: "YOU RECEIVE"
+        copies:
+          zero: "×%{count}"
+          one: "×%{count}"
+          other: "×%{count}"
+        no_order: "No order"
+        group: "%{card}, %{rarity}, season %{season}: your choice"
+        choices:
+          order: "TO THE ORDER"
+          auction: "AUCTION"
+          entrust: "ENTRUST"
+        order_label: "To the order, %{amount} PiCoins"
+        entrust_label: "Entrust, %{amount} PiCoins"
+        auction_note: "opens the starting price and the duration under this line"
+        start_label: "Starting price, %{card} %{rarity}"
+        duration_label: "Duration, %{card} %{rarity}"
+        dock:
+          label: "Your choices"
+          now: "YOU RECEIVE NOW"
+          listed: "PUT UP FOR SALE"
+          stamp: "STAMP TO PAY"
+          all: "ENTRUST ALL ANYWAY"
+          finality: "A sale to an order is immediate and cannot be undone. If you leave without validating, these cards stay in your collection."
+          validate:
+            zero: "VALIDATE MY CHOICE"
+            one: "VALIDATE MY CHOICE"
+            other: "VALIDATE THE %{count} CHOICES"
+        changed:
+          zero: "No line changed."
+          one: "1 line changed: %{cards}. Nothing was sold, listed or entrusted."
+          other: "%{count} lines changed: %{cards}. Nothing was sold, listed or entrusted."
+        served_none_left: "This buy order has just been served, and no other reaches this card. Check your choice, then validate again."
+        to_fix:
+          zero: "No price to fix"
+          one: "1 price to fix."
+          other: "%{count} prices to fix."
+        stamps_short: "You are %{amount} PiCoins short for the auction stamps."
+      result:
+        heading:
+          zero: "YOUR CHOICE IS APPLIED"
+          one: "YOUR CHOICE IS APPLIED"
+          other: "YOUR %{count} CHOICES ARE APPLIED"
+        partial: "%{applied} OF %{count} CHOICES APPLIED"
+        received: "You receive now"
+        stamp_paid_html: "Stamp paid: %{amount}."
+        chips:
+          sold: "SOLD"
+          listed: "RUNNING"
+          entrusted: "ENTRUSTED"
+        commission_html: "(Brotherhood Effort: %{amount})"
+        listed_html: "Listed at %{amount}, ending %{end}. Stamp paid: %{stamp}."
+        listed_received_html: "Sold at the starting price, you receive %{amount}."
+        see_listing: "SEE THE LISTING ▸"
+        entrusted_html: "The 100-6-Tron minted %{amount}. The card joins the Archives."
+        gained: "received"
+        stamp: "stamp"
+        back: "BACK TO THE MARKET"
+      strings:
+        amount: "%{amount} PiCoins"
+        now: "now"
+        at_start: "at the start"
+        changed_to: "Your choice is now %{choice}."
+        choice_order: "TO THE ORDER"
+        choice_auction: "AUCTION"
+        choice_entrust: "ENTRUST"
+        sales:
+          zero: "No sale to an order"
+          one: "1 sale to an order"
+          other: "%{count} sales to orders"
+        entrusted:
+          zero: "No card entrusted"
+          one: "1 card entrusted"
+          other: "%{count} cards entrusted"
+        listed:
+          zero: "No card at the starting price"
+          one: "1 card at the starting price, you would receive"
+          other: "%{count} cards at the starting price, you would receive"
+        all_entrust: "ENTRUST ALL ANYWAY · %{amount}"
+        status: "You receive %{amount} now."
   markets:
     shop_panel:
       heading: THE BROTHERHOOD'S SHOP

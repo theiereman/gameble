@@ -1,0 +1,71 @@
+<%# locals: (line:, index:) %>
+<% name = @names.fetch(line.card_season_id) %>
+<% card = @cards[line.card_season_id] %>
+<% changed = @changed.to_h.key?(line.ref) %>
+<% posted = @posted[line.ref] %>
+<% id = "wanted-line-#{index}" %>
+<% order = line.orders.first %>
+<% rarity_name = t("catalog.rarity.#{line.rarity}") %>
+<% line_refusal = @field_refusals&.dig([ line.ref, :line ]) %>
+<%= tag.tbody id:, class: class_names("wanted-line", "wanted-line--#{line.rarity}", "wanted-line--changed": changed),
+      data: wanted_line_data(line, title: name.title, changed:) do %>
+  <tr class="wanted-line__figures">
+    <th scope="row" class="wanted-line__card">
+      <% if card %><img class="wanted-line__thumb" src="<%= card.image_url %>" alt="" width="30" height="30" loading="lazy" decoding="async"><% end %>
+      <span class="wanted-line__name"><%= name.title %></span>
+      <span class="wanted-line__edition"><%= rarity_name %> · <%= t("market.entrustments.new.season", number: name.season_number) %></span>
+      <% if line.copies > 1 %><span class="wanted-line__copies"><%= t("market.wanted_choices.new.copies", count: line.copies) %></span><% end %>
+    </th>
+    <td class="wanted-line__figure">
+      <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.seekers") %></span>
+      <span class="wanted-line__number"><%= line.seekers %></span>
+    </td>
+    <td class="wanted-line__figure">
+      <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.order") %></span>
+      <% if order %>
+        <%= render PicoinAmountComponent.new(amount: order.price) %>
+      <% else %>
+        <span id="<%= id %>-no-order" class="wanted-line__none"><%= t("market.wanted_choices.new.no_order") %></span>
+      <% end %>
+    </td>
+    <td class="wanted-line__figure">
+      <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.average") %></span>
+      <%= render AveragePriceComponent.new(price: line.price, compact: true, flag_few_sales: false) %>
+    </td>
+    <td class="wanted-line__figure">
+      <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.value") %></span>
+      <%= render PicoinAmountComponent.new(amount: line.value * line.copies) %>
+    </td>
+    <td class="wanted-line__choice">
+      <%= render SegmentedComponent.new(name: "lines[#{index}][choice]", id: "#{id}-choice", vertical_on_phone: true,
+            label: t("market.wanted_choices.new.group", card: name.title, rarity: rarity_name.downcase, season: name.season_number),
+            describedby: [ ("wanted-dock-refusal #{id}-changed" if changed), ("#{id}-no-order" unless order) ].compact.join(" ").presence,
+            options: wanted_choice_options(line, choice: (posted&.choice unless changed), note_id: "#{id}-auction-note")) %>
+      <span id="<%= id %>-auction-note" class="visually-hidden"><%= t("market.wanted_choices.new.auction_note") %></span>
+    </td>
+    <td class="wanted-line__receive">
+      <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.receive") %></span>
+      <span class="wanted-line__amount" data-wanted-table-target="receive" hidden>
+        <%= render PicoinAmountComponent.new(amount: 0) %>
+        <span class="wanted-line__when"></span>
+      </span>
+    </td>
+  </tr>
+  <tr class="wanted-line__more">
+    <td colspan="7">
+      <%= hidden_field_tag "lines[#{index}][ref]", line.ref, id: nil %>
+      <%= hidden_field_tag "lines[#{index}][copies]", line.copies, id: nil %>
+      <% line.orders.each do |drawn| %>
+        <%= hidden_field_tag "lines[#{index}][orders][]", drawn.token, id: nil %>
+      <% end %>
+      <%= render "market/wanted_choices/auction_fields", line:, index:, posted:, shown: posted&.choice == "auction" && !changed,
+            title: name.title, rarity_name: %>
+      <% if changed %>
+        <p id="<%= id %>-changed" class="wanted-line__changed"><%= @changed[line.ref] %> <span class="wanted-line__changed-to"></span></p>
+      <% end %>
+      <% if line_refusal %>
+        <p class="wanted-line__refusal"><%= line_refusal %></p>
+      <% end %>
+    </td>
+  </tr>
+<% end %>

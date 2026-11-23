@@ -679,7 +679,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     rows = response.parsed_body
     assert_equal 61, rows.size
-    assert_equal({ "ref" => ref(@rare), "title" => "Blue Depths", "rarity" => "rare", "season" => 1, "free" => 2, "owned" => 3, "value" => 50 }, rows.first)
+    assert_equal({ "ref" => ref(@rare), "title" => "Blue Depths", "rarity" => "rare", "season" => 1, "free" => 2, "owned" => 3, "value" => 50, "seekers" => 0 }, rows.first)
     assert_not_includes rows.map { it["ref"] }, ref(@common)
 
     get market_entrustment_matches_path(locale: :en, filter: { query: "", rarities: [ "rare" ] })

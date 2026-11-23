@@ -24,12 +24,20 @@
   <div class="entrust-recap__submit" data-entrust-recap-target="submitSlot">
     <%= render ButtonComponent.new(type: :submit, disabled: !@open, describedby: ("market-suspended-banner entrust-not-returned" if @suspended) || "entrust-not-returned") do %><%= t("market.entrustments.strings.submit", count: 0) %><% end %>
   </div>
+  <div class="entrust-recap__set-apart" data-entrust-recap-target="setApart" hidden>
+    <p class="entrust-recap__set-apart-heading" data-entrust-recap-target="setApartHeading"></p>
+    <ul class="entrust-recap__set-apart-lines" data-entrust-recap-target="setApartLines"></ul>
+    <p class="entrust-recap__set-apart-sentence"><%= t("market.entrustments.new.set_apart_sentence") %></p>
+  </div>
   <p class="visually-hidden" role="status" aria-live="polite" data-entrust-recap-target="status"></p>
   <template data-entrust-recap-target="lineTemplate">
     <li class="entrust-recap__line"><span class="entrust-recap__name"></span><span class="entrust-recap__count"></span><span class="entrust-recap__amount"></span><span class="entrust-recap__stays" hidden></span></li>
   </template>
   <template data-entrust-recap-target="stepperTemplate">
     <div class="entrust-recap__stepper"><%= render "trades/stepper", controller: "entrust-recap", stepper: entrust_line_stepper %></div>
+  </template>
+  <template data-entrust-recap-target="setApartTemplate">
+    <li class="entrust-recap__set-apart-line"><span class="entrust-recap__set-apart-name"></span><span class="entrust-recap__set-apart-seekers"></span></li>
   </template>
   <template data-entrust-recap-target="amountTemplate"><%= render PicoinAmountComponent.new(amount: 0) %></template>
 <% end %>

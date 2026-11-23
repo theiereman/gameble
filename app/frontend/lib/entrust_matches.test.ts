@@ -5,7 +5,8 @@ const row = { ref: "portal:1", title: "Portal", rarity: "rare", season: 1, free:
 
 describe("the matching editions the server answers", () => {
   it("reads each row as a copy", () => {
-    expect(matchesOf([row])).toEqual([row])
+    expect(matchesOf([{ ...row, seekers: 2 }])).toEqual([{ ...row, seekers: 2 }])
+    expect(matchesOf([row])).toEqual([{ ...row, seekers: 0 }])
     expect(matchesOf([])).toEqual([])
   })
 

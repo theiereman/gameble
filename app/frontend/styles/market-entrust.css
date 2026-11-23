@@ -251,3 +251,15 @@
   position: relative;
   z-index: 5;
 }
+
+.entrust-grid__step {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.entrust-grid__step[hidden] {
+  display: none;
+}

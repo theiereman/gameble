@@ -10,6 +10,7 @@ export type Copy = {
   free: number
   owned: number
   value: number
+  seekers?: number
 }
 
 export type EntrustFilter = {
@@ -39,12 +40,15 @@ export type EntrustState = {
 export type PreviewLine = {
   copy: Copy
   copies: number
+  setApart: number
   entrusted: number
   stayed: number
 }
 
 export type Preview = {
   lines: readonly PreviewLine[]
+  setApart: readonly PreviewLine[]
+  setApartCount: number
   received: number
   count: number
   stayedCount: number
@@ -174,22 +178,29 @@ export function tickedCopies(state: EntrustState): Copy[] {
     .sort(listOrder)
 }
 
-// The operation's rule: copies counted in list order, a line that does not fit stays and a cheaper one after it may pass.
+// One copy per player who wants it is set apart for the wanted table; the rest follows the operation's rule:
+// copies counted in list order, a line that does not fit stays and a cheaper one after it may pass.
 export function preview(state: EntrustState): Preview {
   let left = state.capLeft
-  const lines: PreviewLine[] = []
+  const all: PreviewLine[] = []
   for (const copy of tickedCopies(state)) {
     const copies = state.ticked[copy.ref] ?? 0
-    const entrusted = Math.min(copies, Math.floor(left / copy.value))
+    const setApart = Math.min(copies, copy.seekers ?? 0)
+    const entrusted = Math.min(copies - setApart, Math.floor(left / copy.value))
     left -= entrusted * copy.value
-    lines.push({ copy, copies, entrusted, stayed: copies - entrusted })
+    all.push({ copy, copies, setApart, entrusted, stayed: copies - setApart - entrusted })
   }
+  const lines = all.filter((line) => line.copies > line.setApart)
+  const setApart = all.filter((line) => line.setApart > 0)
+  const setApartCount = setApart.reduce((sum, line) => sum + line.setApart, 0)
   const received = state.capLeft - left
   const count = lines.reduce((sum, line) => sum + line.entrusted, 0)
   const rare = lines.filter((line) => line.entrusted > 0 && RARE_OR_BETTER.includes(line.copy.rarity))
   const full = state.capLeft <= 0
   return {
     lines,
+    setApart,
+    setApartCount,
     received,
     count,
     stayedCount: lines.reduce((sum, line) => sum + line.stayed, 0),
@@ -198,7 +209,7 @@ export function preview(state: EntrustState): Preview {
     rareNames: rare.map((line) => line.copy.title),
     rareCount: rare.reduce((sum, line) => sum + line.entrusted, 0),
     full,
-    canValidate: lines.length > 0 && !full,
-    pending: lines.length > 0,
+    canValidate: (lines.length > 0 && !full) || setApartCount > 0,
+    pending: all.length > 0,
   }
 }

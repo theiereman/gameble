@@ -3,6 +3,7 @@
   <%= tag.section class: "entrust-grid", aria: { label: t("market.entrustments.new.grid_label") },
         data: { controller: "entrust-grid next-page", action: "focusout->next-page#focusLeft" } do %>
     <div class="entrust-grid__head">
+      <p class="entrust-grid__step" data-entrust-grid-target="step" <%= "hidden" unless @ticked_copies.any? { |copy, _| @wanted.key?(copy.ref) } %>><%= t("market.entrustments.new.step_one") %></p>
       <p id="entrust-results-status" class="copy-grid__count" role="status"><%= copy_matches(@pagy.count) %></p>
       <% if @card_slug.nil? && @pagy.count.positive? %>
         <%= tag.button t("market.entrustments.new.select_all", number: number_with_delimiter(@pagy.count)), type: "button",

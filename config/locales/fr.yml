@@ -2922,6 +2922,8 @@ fr:
         sign_in_action: "Se connecter"
         select_all: "Tout cocher (%{number})"
         select_failed: "Les éditions n'ont pas pu être chargées. Rien n'a été coché, réessayez."
+        step_one: "Étape 1 sur 2"
+        set_apart_sentence: "D'autres joueurs les cherchent. Vous choisirez quoi en faire juste après : les vendre, ou les confier quand même."
       result:
         close: "Fermer"
         copies:
@@ -2981,6 +2983,22 @@ fr:
           one: "Confier 1 exemplaire"
           other: "Confier %{count} exemplaires"
         value_text: "%{count} sur %{max}"
+        set_apart_heading:
+          zero: "MISES DE CÔTÉ · %{count} CARTE VOULUE"
+          one: "MISE DE CÔTÉ · %{count} CARTE VOULUE"
+          other: "MISES DE CÔTÉ · %{count} CARTES VOULUES"
+        set_apart_status:
+          zero: "%{count} mise de côté"
+          one: "%{count} mise de côté"
+          other: "%{count} mises de côté"
+        seekers:
+          zero: "%{count} joueur la veut"
+          one: "%{count} joueur la veut"
+          other: "%{count} joueurs la veulent"
+        choose:
+          zero: "CHOISIR POUR LA CARTE VOULUE ▸"
+          one: "CHOISIR POUR LA CARTE VOULUE ▸"
+          other: "CHOISIR POUR LES %{count} CARTES VOULUES ▸"
     sales:
       create:
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
@@ -3044,6 +3062,105 @@ fr:
         stamp_short: "Il vous manque %{amount} PiCoins pour le timbre."
         status: "Vous recevez %{amount} PiCoins"
         step: "Étape %{step} sur 2"
+    wanted_choices:
+      create:
+        throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
+      new:
+        step: "Étape 2 sur 2"
+        first:
+          zero: "Aucun autre exemplaire n'est confié."
+          one: "L'autre exemplaire est déjà confié : %{amount} PiCoins fabriqués."
+          other: "Les %{count} autres exemplaires sont déjà confiés : %{amount} PiCoins fabriqués."
+        intro:
+          zero: "%{count} carte que d'autres joueurs veulent."
+          one: "1 carte que d'autres joueurs veulent. Choisissez quoi en faire, puis validez."
+          other: "%{count} cartes que d'autres joueurs veulent. Choisissez quoi faire de chacune ; une seule validation applique tout."
+        heads:
+          card: "CARTE"
+          seekers: "JOUEURS"
+          order: "MEILLEUR ORDRE"
+          average: "PRIX MOYEN"
+          value: "CONFIÉE"
+          choice: "VOTRE CHOIX"
+          receive: "VOUS RECEVEZ"
+        copies:
+          zero: "×%{count}"
+          one: "×%{count}"
+          other: "×%{count}"
+        no_order: "Aucun ordre"
+        group: "%{card}, %{rarity}, saison %{season} : votre choix"
+        choices:
+          order: "À L'ORDRE"
+          auction: "ENCHÈRES"
+          entrust: "CONFIER"
+        order_label: "À l'ordre, %{amount} PiCoins"
+        entrust_label: "Confier, %{amount} PiCoins"
+        auction_note: "ouvre le prix de départ et la durée sous cette ligne"
+        start_label: "Prix de départ, %{card} %{rarity}"
+        duration_label: "Durée, %{card} %{rarity}"
+        dock:
+          label: "Vos choix"
+          now: "VOUS RECEVEZ MAINTENANT"
+          listed: "MIS EN VENTE"
+          stamp: "TIMBRE À PAYER"
+          all: "TOUT CONFIER QUAND MÊME"
+          finality: "Une vente à un ordre est immédiate et ne peut pas être annulée. Si vous partez sans valider, ces cartes restent dans votre collection."
+          validate:
+            zero: "VALIDER MON CHOIX"
+            one: "VALIDER MON CHOIX"
+            other: "VALIDER LES %{count} CHOIX"
+        changed:
+          zero: "Aucune ligne n'a changé."
+          one: "1 ligne a changé : %{cards}. Rien n'a été vendu, mis en vente ni confié."
+          other: "%{count} lignes ont changé : %{cards}. Rien n'a été vendu, mis en vente ni confié."
+        served_none_left: "Cet ordre d'achat vient d'être servi, et aucun autre n'atteint cette carte. Vérifiez votre choix, puis validez de nouveau."
+        to_fix:
+          zero: "Aucun prix à corriger"
+          one: "1 prix à corriger."
+          other: "%{count} prix à corriger."
+        stamps_short: "Il vous manque %{amount} PiCoins pour les timbres des enchères."
+      result:
+        heading:
+          zero: "VOTRE CHOIX EST APPLIQUÉ"
+          one: "VOTRE CHOIX EST APPLIQUÉ"
+          other: "VOS %{count} CHOIX SONT APPLIQUÉS"
+        partial: "%{applied} CHOIX SUR %{count} APPLIQUÉS"
+        received: "Vous recevez maintenant"
+        stamp_paid_html: "Timbre payé : %{amount}."
+        chips:
+          sold: "VENDUE"
+          listed: "EN COURS"
+          entrusted: "CONFIÉE"
+        commission_html: "(Effort de la Confrérie : %{amount})"
+        listed_html: "Mise en vente à %{amount}, fin %{end}. Timbre payé : %{stamp}."
+        listed_received_html: "Vendue au prix de départ, vous recevez %{amount}."
+        see_listing: "VOIR L'ANNONCE ▸"
+        entrusted_html: "Le 100-6-Tron a fabriqué %{amount}. La carte rejoint les Archives."
+        gained: "reçus"
+        stamp: "timbre"
+        back: "RETOUR AU MARCHÉ"
+      strings:
+        amount: "%{amount} PiCoins"
+        now: "maintenant"
+        at_start: "au départ"
+        changed_to: "Votre choix passe à %{choice}."
+        choice_order: "À L'ORDRE"
+        choice_auction: "ENCHÈRES"
+        choice_entrust: "CONFIER"
+        sales:
+          zero: "Aucune vente à un ordre"
+          one: "1 vente à un ordre"
+          other: "%{count} ventes aux ordres"
+        entrusted:
+          zero: "Aucune carte confiée"
+          one: "1 carte confiée"
+          other: "%{count} cartes confiées"
+        listed:
+          zero: "Aucune carte au prix de départ"
+          one: "1 carte au prix de départ, vous recevriez"
+          other: "%{count} cartes au prix de départ, vous recevriez"
+        all_entrust: "TOUT CONFIER QUAND MÊME · %{amount}"
+        status: "Vous recevez maintenant %{amount}."
   markets:
     shop_panel:
       heading: "BOUTIQUE DE LA CONFRÉRIE"

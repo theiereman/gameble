@@ -20,7 +20,9 @@ module Game
       Listed = Data.define(:line, :listing)
       Entrusted = Data.define(:line, :copies, :minted)
       Skipped = Data.define(:line, :copies)
-      Refused = Data.define(:line, :code)
+      Refused = Data.define(:line, :code, :amount) do
+        def initialize(line:, code:, amount: nil) = super
+      end
       Changed = Data.define(:line, :order)
 
       def call(player:, lines:, settings_token:)
@@ -128,17 +130,27 @@ module Game
       def fields_valid(lines, own, rarities, settings, funds)
         short = lines.group_by(&:card_season_id).select { |card_season_id, same| same.sum(&:copies) > free_copies(own[card_season_id]) }
         stamps = 0
+        stamps_short = lines.select(&:auction?).sum { stamps_of(it, rarities[it.card_season_id], settings) } - funds
         refused = lines.flat_map do |line|
           rarity = rarities[line.card_season_id]
           codes = [ (:not_enough_copies if short.key?(line.card_season_id)), (:no_rarity unless rarity) ]
           if line.auction?
             codes.concat(listing_codes(line, rarity, settings))
-            stamps += settings.stamp(rarity) * line.copies if rarity
+            stamps += stamps_of(line, rarity, settings)
             codes << :stamp_not_covered if stamps > funds
           end
-          codes.compact.map { Refused.new(line: line.index, code: it) }
+          codes.compact.map { Refused.new(line: line.index, code: it, amount: refusal_amount(it, rarity, settings, stamps_short)) }
         end
         refused.empty? ? Success() : Failure([ :invalid_choices, refused ])
+      end
+
+      def stamps_of(line, rarity, settings) = rarity ? settings.stamp(rarity) * line.copies : 0
+
+      def refusal_amount(code, rarity, settings, stamps_short)
+        case code
+        when :start_below_minimum then settings.minimum_price(rarity)
+        when :stamp_not_covered then stamps_short
+        end
       end
 
       def free_copies(holding) = holding ? holding.quantity - holding.reserved : 0

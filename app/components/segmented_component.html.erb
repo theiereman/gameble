@@ -1,0 +1,12 @@
+<%= tag.div class: classes, role: "radiogroup", aria: { label:, describedby: }.compact, **html_options do %>
+  <% options.each do |option| %>
+    <label class="segmented__option">
+      <%= tag.input type: "radio", name:, value: option.value, checked: option.checked, disabled: option.disabled, class: "segmented__input",
+            aria: { label: option.accessible, describedby: option.describedby }.compact, data: option.data %>
+      <span class="segmented__label"><%= option.label %></span>
+      <% if option.amount %>
+        <span class="segmented__amount" aria-hidden="true"><%= render PicoinAmountComponent.new(amount: option.amount) %></span>
+      <% end %>
+    </label>
+  <% end %>
+<% end %>

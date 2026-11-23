@@ -26,6 +26,10 @@ const STRINGS: EntrustStrings = {
   status: { one: "%{count} copy, %{amount}", other: "%{count} copies, %{amount}", zero: "0 copies, %{amount}" },
   barCount: { one: "%{count} copy", other: "%{count} copies", zero: "0 copies" },
   more: { one: "and %{count} more", other: "and %{count} more", zero: "" },
+  setApartHeading: { one: "SET ASIDE · 1 WANTED CARD", other: "SET ASIDE · %{count} WANTED CARDS", zero: "" },
+  setApartStatus: { one: "%{count} set aside", other: "%{count} set aside", zero: "" },
+  seekers: { one: "%{count} player wants it", other: "%{count} players want it", zero: "" },
+  choose: { one: "CHOOSE FOR THE WANTED CARD ▸", other: "CHOOSE FOR THE %{count} WANTED CARDS ▸", zero: "" },
 }
 
 const RARE: Copy = { ref: "rare:1", title: "Rare", rarity: "rare", season: 1, free: 2, owned: 2, value: 5000 }
@@ -86,5 +90,49 @@ describe("the grid view", () => {
     expect(sameCell(cell, { ...cell, stepper: cell.stepper && { ...cell.stepper } })).toBe(true)
     expect(sameCell(cell, { ...cell, copies: 2 })).toBe(false)
     expect(sameCell(undefined, cell)).toBe(false)
+  })
+})
+
+describe("wanted copies in the recap", () => {
+  const PYRE: Copy = { ...RARE, ref: "pyre:1", title: "Pyre", free: 2, seekers: 1 }
+  const COMMON: Copy = {
+    ref: "common:1",
+    title: "Common",
+    rarity: "common",
+    season: 1,
+    free: 3,
+    owned: 3,
+    value: 10,
+    seekers: 0,
+  }
+
+  it("sets one copy apart per seeker and counts the rest only", () => {
+    const view = recapViewOf(start([PYRE, COMMON], 1_200_000, { "pyre:1": 2, "common:1": 3 }), STRINGS, forms)
+    expect(view.setApart).toEqual({
+      heading: "SET ASIDE · 1 WANTED CARD",
+      lines: [{ ref: "pyre:1", rarity: "rare", label: "Pyre, season 1", seekers: "1 player wants it" }],
+    })
+    expect(view.lines.map((line) => [line.ref, line.count])).toEqual([
+      ["pyre:1", "×1"],
+      ["common:1", "×3"],
+    ])
+    expect(view.received).toBe(5030)
+    expect(view.label).toBe("Entrust 4 copies")
+    expect(view.status).toBe("4 copies, 5,030 PiCoins, 1 set aside")
+    expect(view.finality).toBe(true)
+  })
+
+  it("leads straight to the table when only wanted copies are ticked, even with a full cap", () => {
+    const view = recapViewOf(start([PYRE], 0, { "pyre:1": 1 }), STRINGS, forms)
+    expect(view.lines).toEqual([])
+    expect(view.prompt).toBe(false)
+    expect(view.label).toBe("CHOOSE FOR THE WANTED CARD ▸")
+    expect(view.disabled).toBe(false)
+    expect(view.finality).toBe(false)
+  })
+
+  it("shows the first of two steps in the grid while a wanted copy is ticked", () => {
+    expect(gridViewOf(start([PYRE, COMMON], 1_000, { "pyre:1": 1 }), STRINGS).firstOfTwoSteps).toBe(true)
+    expect(gridViewOf(start([PYRE, COMMON], 1_000, { "common:1": 1 }), STRINGS).firstOfTwoSteps).toBe(false)
   })
 })

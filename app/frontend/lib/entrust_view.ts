@@ -1,4 +1,4 @@
-import { preview, tickedCopies, type Copy, type EntrustState, type Selecting } from "./entrust"
+import { preview, tickedCopies, type Copy, type EntrustState, type PreviewLine, type Selecting } from "./entrust"
 import { writeText } from "./dom_writes"
 import { t, type Template } from "./i18n"
 import { picoins } from "./picoins"
@@ -20,6 +20,10 @@ export type EntrustStrings = {
   status: Template
   barCount: Template
   more: Template
+  setApartHeading: Template
+  setApartStatus: Template
+  seekers: Template
+  choose: Template
 }
 
 export type CellView = {
@@ -33,6 +37,7 @@ export type CellView = {
 export type GridView = {
   cells: ReadonlyMap<string, CellView>
   selecting: Selecting
+  firstOfTwoSteps: boolean
 }
 
 export type TickView = { copy: Copy; copies: number }
@@ -47,9 +52,15 @@ export type LineView = {
   state: "fits" | "partial" | "stays"
 }
 
+export type SetApartLineView = { ref: string; rarity: string; label: string; seekers: string }
+
+export type SetApartView = { heading: string; lines: readonly SetApartLineView[] }
+
 export type RecapView = {
   prompt: boolean
   lines: readonly LineView[]
+  setApart: SetApartView | null
+  finality: boolean
   received: number
   capBefore: number
   capUsed: number
@@ -98,7 +109,8 @@ export function gridViewOf(state: EntrustState, strings: EntrustStrings): GridVi
       stepper: copies > 0 && copy.free > 1 ? stepperOf(strings, copy.title, copies, copy.free) : null,
     })
   }
-  return { cells, selecting: state.selecting }
+  const firstOfTwoSteps = Object.keys(state.ticked).some((ref) => (state.copies[ref]?.seekers ?? 0) > 0)
+  return { cells, selecting: state.selecting, firstOfTwoSteps }
 }
 
 // What the form posts: every ticked edition, in the list's order.
@@ -138,16 +150,19 @@ export function recapViewOf(
   const result = preview(state)
   const mintedToday = Math.max(dailyCap - state.capLeft, 0)
   const staying = result.lines.filter((line) => line.stayed > 0)
-  const status = t(strings.status, {
-    count: result.count,
-    amount: t(accessible, { amount: picoins(result.received, { locale }) }),
-  })
+  const status = [
+    t(strings.status, { count: result.count, amount: t(accessible, { amount: picoins(result.received, { locale }) }) }),
+    ...(result.setApartCount > 0 ? [t(strings.setApartStatus, { count: result.setApartCount })] : []),
+  ].join(", ")
+  const onlyWanted = result.lines.length === 0 && result.setApartCount > 0
   return {
-    prompt: result.lines.length === 0,
+    prompt: result.lines.length === 0 && result.setApartCount === 0,
+    setApart: setApartViewOf(result.setApart, result.setApartCount, strings),
+    finality: !onlyWanted,
     lines: result.lines.slice(0, RECAP_LINES).map(({ copy, copies, entrusted, stayed }) => ({
       ref: copy.ref,
       label: t(strings.line, { title: copy.title, season: copy.season }),
-      count: t(strings.count, { count: copies }),
+      count: t(strings.count, { count: entrusted + stayed }),
       amount: entrusted > 0 ? entrusted * copy.value : null,
       stays: stayed > 0 ? t(strings.stays, { count: stayed }) : null,
       stepper: copy.free > 1 ? stepperOf(strings, copy.title, copies, copy.free) : null,
@@ -169,9 +184,22 @@ export function recapViewOf(
     rare:
       result.rareCount > 0 ? t(strings.rareNote, { count: result.rareCount, cards: names(result.rareNames) }) : null,
     more: result.lines.length > RECAP_LINES ? t(strings.more, { count: result.lines.length - RECAP_LINES }) : null,
-    label: t(strings.submit, { count: result.count }),
+    label: onlyWanted ? t(strings.choose, { count: result.setApartCount }) : t(strings.submit, { count: result.count }),
     disabled: !open || !result.canValidate,
     status,
     bar: { count: t(strings.barCount, { count: result.count }), amount: result.received },
+  }
+}
+
+function setApartViewOf(lines: readonly PreviewLine[], count: number, strings: EntrustStrings): SetApartView | null {
+  if (count === 0) return null
+  return {
+    heading: t(strings.setApartHeading, { count }),
+    lines: lines.slice(0, RECAP_LINES).map(({ copy }) => ({
+      ref: copy.ref,
+      rarity: copy.rarity,
+      label: t(strings.line, { title: copy.title, season: copy.season }),
+      seekers: t(strings.seekers, { count: copy.seekers ?? 0 }),
+    })),
   }
 }

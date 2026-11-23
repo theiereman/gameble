@@ -40,6 +40,9 @@ Rails.application.routes.draw do
     get "market/entrust/cards/:slug" => "market/entrustments#new", as: :new_market_card_entrustment
     get "market/entrust/matching" => "market/entrustments#matching", as: :market_entrustment_matches
     post "market/entrust" => "market/entrustments#create", as: :market_entrustments
+    # Confier's second step: what to do with each wanted copy set apart, the copies named in the address.
+    get "market/entrust/wanted" => "market/wanted_choices#new", as: :new_market_wanted_choice
+    post "market/entrust/wanted" => "market/wanted_choices#create", as: :market_wanted_choices
     get "market/sell" => "market/sales#new", as: :new_market_sale
     get "market/sell/cards/:slug" => "market/sales#new", as: :new_market_card_sale
     post "market/sell" => "market/sales#create", as: :market_sales

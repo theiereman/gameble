@@ -124,8 +124,13 @@ class Game::Market::ApplyWantedChoicesTest < ActiveSupport::TestCase
     hold(@seller, @common.id, 1)
     fund!(@seller, 30)
 
-    assert_equal [ :invalid_choices, [ Choices::Refused.new(line: 1, code: :stamp_not_covered), Choices::Refused.new(line: 2, code: :stamp_not_covered) ] ],
-      refused([ auction(@rare), auction(@rare), auction(@common, price: 13) ])
+    failure = refused([ auction(@rare), auction(@rare), auction(@common, price: 13) ])
+
+    short = 2 * @settings.stamp(:rare) + @settings.stamp(:common) - 30
+    assert_equal [ :invalid_choices, [ Choices::Refused.new(line: 1, code: :stamp_not_covered, amount: short),
+      Choices::Refused.new(line: 2, code: :stamp_not_covered, amount: short) ] ], failure
+    assert_equal "Il vous manque #{short} PiCoins pour le timbre.",
+      I18n.with_locale(:fr) { Choices.failure_message(:stamp_not_covered, amount: failure.last.first.amount) }
   end
 
   test "several copies on one order line serve the drawn orders best first and entrust the copy left without one" do
@@ -206,8 +211,10 @@ class Game::Market::ApplyWantedChoicesTest < ActiveSupport::TestCase
     failure = refused([ auction(@rare, price: "abc"), auction(@rare, price: 50), auction(@common, hours: 5), entrust(@uncommon), auction(@uncommon),
       entrust(legendary) ])
 
-    assert_equal [ :invalid_choices, [ [ 0, :invalid_price ], [ 1, :start_below_minimum ], [ 2, :invalid_duration ], [ 3, :not_enough_copies ],
-      [ 4, :not_enough_copies ], [ 5, :no_rarity ] ].map { |line, code| Choices::Refused.new(line:, code:) } ], failure
+    assert_equal [ :invalid_choices, [ [ 0, :invalid_price ], [ 1, :start_below_minimum, @settings.minimum_price(:rare) ], [ 2, :invalid_duration ],
+      [ 3, :not_enough_copies ], [ 4, :not_enough_copies ], [ 5, :no_rarity ] ].map { |line, code, amount| Choices::Refused.new(line:, code:, amount:) } ], failure
+    assert_equal "Au moins #{@settings.minimum_price(:rare)} pour une rare.",
+      I18n.with_locale(:fr) { Choices.failure_message(:start_below_minimum, amount: failure.last[1].amount, rarity: "rare") }
   end
 
   test "a malformed line is refused before anything is read" do

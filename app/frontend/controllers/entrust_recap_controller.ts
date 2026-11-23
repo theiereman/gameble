@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
-import { writeText } from "../lib/dom_writes"
+import { writeData, writeText } from "../lib/dom_writes"
 import type { Layout } from "../lib/entrust"
-import { drawAmount, type AmountForms, type LineView, type RecapView } from "../lib/entrust_view"
+import { drawAmount, type AmountForms, type LineView, type RecapView, type SetApartView } from "../lib/entrust_view"
 import { litSegments, segmentSteps } from "../lib/gauge"
 import { motionReduced } from "../lib/motion"
 import { keepStepperFocus, quantityFromButton, quantityFromKey, reflectStepper, STEPPER } from "../lib/stepper"
@@ -39,6 +39,10 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     "barTotal",
     "stepperTemplate",
     "more",
+    "setApart",
+    "setApartHeading",
+    "setApartLines",
+    "setApartTemplate",
   ]
   static values = { locale: String, accessible: String, reasonId: String }
 
@@ -64,6 +68,11 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
   declare readonly stepperTemplateTarget: HTMLTemplateElement
   declare readonly hasMoreTarget: boolean
   declare readonly moreTarget: HTMLElement
+  declare readonly hasSetApartTarget: boolean
+  declare readonly setApartTarget: HTMLElement
+  declare readonly setApartHeadingTarget: HTMLElement
+  declare readonly setApartLinesTarget: HTMLElement
+  declare readonly setApartTemplateTarget: HTMLTemplateElement
   declare readonly localeValue: string
   declare readonly accessibleValue: string
   declare readonly reasonIdValue: string
@@ -145,6 +154,8 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     this.reflectNote(this.overTarget, view.over)
     this.reflectNote(this.rareTarget, view.rare)
     this.fullTarget.hidden = !view.full
+    this.sentenceTarget.hidden = !view.finality
+    if (this.hasSetApartTarget) this.reflectSetApart(view.setApart)
     this.reflectSubmit(view)
     this.postStatus(view.status)
   }
@@ -193,9 +204,28 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     if (!button) return
     writeText(button, label)
     button.disabled = disabled
-    const described = [this.sentenceTarget, ...(this.rareTarget.hidden ? [] : [this.rareTarget])].map((note) => note.id)
+    const described = [this.sentenceTarget, this.rareTarget].filter((note) => !note.hidden).map((note) => note.id)
     if (this.reasonIdValue && document.getElementById(this.reasonIdValue)) described.push(this.reasonIdValue)
     button.setAttribute("aria-describedby", described.join(" "))
+  }
+
+  private reflectSetApart(view: SetApartView | null): void {
+    this.setApartTarget.hidden = view === null
+    if (view === null) return
+    writeText(this.setApartHeadingTarget, view.heading)
+    const list = this.setApartLinesTarget
+    const lines = Array.from(list.children)
+    lines.slice(view.lines.length).forEach((line) => line.remove())
+    view.lines.forEach((line, index) => {
+      const node =
+        (lines[index] as HTMLElement | undefined) ?? cloneFirstElement<HTMLElement>(this.setApartTemplateTarget)
+      if (!node) return
+      if (!node.parentElement) list.append(node)
+      writeData(node, "ref", line.ref)
+      writeData(node, "rarity", line.rarity)
+      writeText(node.querySelector(".entrust-recap__set-apart-name"), line.label)
+      writeText(node.querySelector(".entrust-recap__set-apart-seekers"), line.seekers)
+    })
   }
 
   // Lines are matched by ref and never rebuilt, so a pressed stepper keeps its node and its focus.

@@ -3,6 +3,7 @@ module Market
     include PublicRead
     include CopyGrid
     include DeckHoldingLoading
+    include SetApart
 
     SELECTION_SEPARATOR = ",".freeze
     SELECTION_PAIR = /\A(?<ref>[^:,=\s]+:\d+)=(?<copies>\d+)\z/
@@ -24,20 +25,28 @@ module Market
       @settings = Game::Market::CurrentSettings.call
       @card_slug = asked_card_slug(params[:card])
       copies = listed? ? Game::Market::EntrustableCopies.call(current_player, settings: @settings, card_slug: @card_slug, filter: asked_filter, cards: false) : []
-      render json: copies.map { { ref: it.ref, title: it.title, rarity: it.rarity, season: it.season_number, free: it.free, owned: it.owned, value: it.value } }
+      wanted = Game::Market::WantedCopies.call(current_player).index_by(&:ref)
+      render json: copies.map { helpers.entrust_copy_data(it, wanted: wanted[it.ref]) }
     end
 
     def create
       authorize %i[market entrustment], :create?
-      ids = Game::Market::EntrustableCopies.resolve(ticked.keys)
-      lines = most_valuable_first(ticked.filter_map { |ref, copies| [ ref, ids[ref], copies ] if ids.key?(ref) })
-      result = Game::Market::EntrustCards.new.call(player: current_player, lines:, settings_token: params[:settings].to_s)
-      return answer_quick_entrustment(result) if request.format.json?
+      return answer_quick_entrustment(entrust(ticked)) if request.format.json?
 
+      set_apart, rest = split_wanted(ticked)
+      return entrust_then_choose(set_apart, rest) if set_apart.any?
+
+      result = entrust(ticked)
       result.success? ? show_entrusted(result.value!) : show_refusal(result.failure)
     end
 
     private
+      def entrust(posted)
+        ids = Game::Market::EntrustableCopies.resolve(posted.keys)
+        lines = most_valuable_first(posted.filter_map { |ref, copies| [ ref, ids[ref], copies ] if ids.key?(ref) })
+        Game::Market::EntrustCards.new.call(player: current_player, lines:, settings_token: params[:settings].to_s)
+      end
+
       def answer_quick_entrustment(result)
         return head(:created) if result.success?
 
@@ -71,6 +80,7 @@ module Market
         @card_slug = card_slug
         @filter = asked_filter
         @cap_left = listed? ? Game::Market::CapLeft.call(current_player.id, settings: @settings) : 0
+        @wanted = Game::Market::WantedCopies.call(current_player).index_by(&:ref)
         load_grid
         load_deck_holding
         @ticked_copies = keep_ticks ? ticked_copies : []

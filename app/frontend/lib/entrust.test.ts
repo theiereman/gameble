@@ -212,3 +212,22 @@ describe("preview", () => {
     expect(result.capLeft).toBe(35_000)
   })
 })
+
+describe("wanted copies set apart", () => {
+  it("sets apart one copy per seeker, never more than ticked, and walks the cap with the rest", () => {
+    const pyre = copy("rare", { ref: "pyre:1", seekers: 2 })
+    const result = preview(start([pyre, copy("common")], 6_000, { "pyre:1": 3, "common:1": 2 }))
+    expect(result.setApart.map((line) => [line.copy.ref, line.setApart])).toEqual([["pyre:1", 2]])
+    expect(result.setApartCount).toBe(2)
+    expect(result.lines.map((line) => [line.copy.ref, line.entrusted, line.stayed])).toEqual([
+      ["pyre:1", 1, 0],
+      ["common:1", 1, 1],
+    ])
+    expect(result.count).toBe(2)
+  })
+
+  it("can validate with only copies set apart, a full cap included", () => {
+    const result = preview(start([copy("rare", { seekers: 5 })], 0, { "rare:1": 2 }))
+    expect([result.lines.length, result.setApartCount, result.canValidate]).toEqual([0, 2, true])
+  })
+})

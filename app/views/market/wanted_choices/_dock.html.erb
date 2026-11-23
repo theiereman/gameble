@@ -1,0 +1,44 @@
+<%= render PanelComponent.new(tag: :aside, class: "wanted-dock dock", aria: { labelledby: "wanted-dock-heading" },
+      data: { controller: "wanted-dock", wanted_dock_locale_value: I18n.locale, wanted_dock_accessible_value: t("market.wanted_choices.strings.amount") }) do %>
+  <h2 id="wanted-dock-heading" class="visually-hidden"><%= t("market.wanted_choices.new.dock.label") %></h2>
+  <div class="wanted-dock__totals">
+    <div class="wanted-dock__total wanted-dock__total--now">
+      <span class="wanted-dock__label"><%= t("market.wanted_choices.new.dock.now") %></span>
+      <%= render PicoinAmountComponent.new(amount: 0, size: :large, data: { wanted_dock_target: "now" }) %>
+      <span class="wanted-dock__parts">
+        <span class="wanted-dock__part" data-wanted-dock-target="salesPart" hidden>
+          <span data-wanted-dock-target="salesCount"></span> <%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "salesAmount" }) %>
+        </span>
+        <span class="wanted-dock__part" data-wanted-dock-target="entrustedPart" hidden>
+          <span data-wanted-dock-target="entrustedCount"></span> <%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "entrustedAmount" }) %>
+        </span>
+      </span>
+    </div>
+    <div class="wanted-dock__total">
+      <span class="wanted-dock__label"><%= t("market.wanted_choices.new.dock.listed") %></span>
+      <span class="wanted-dock__parts">
+        <span data-wanted-dock-target="listedCount"></span> <%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "listedAmount" }) %>
+      </span>
+    </div>
+    <div class="wanted-dock__total">
+      <span class="wanted-dock__label"><%= t("market.wanted_choices.new.dock.stamp") %></span>
+      <%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "stamps" }) %>
+      <span class="wanted-dock__parts"><%= t("market.sales.new.stamp_text") %></span>
+    </div>
+  </div>
+  <p class="wanted-dock__over" data-wanted-dock-target="over" hidden></p>
+  <p id="wanted-dock-refusal" class="wanted-dock__refusal" tabindex="-1" data-wanted-dock-target="refusal" <%= "hidden" if @dock_refusal.blank? %>><%= @dock_refusal %></p>
+  <p id="wanted-finality" class="wanted-dock__sentence"><%= t("market.wanted_choices.new.dock.finality") %></p>
+  <p id="wanted-not-returned" class="visually-hidden"><%= t("market.entrustments.new.not_returned") %></p>
+  <div class="wanted-dock__actions">
+    <span class="wanted-dock__all">
+      <%= render ButtonComponent.new(variant: :secondary, type: :submit, name: "all", value: "1", disabled: !@open,
+            describedby: [ ("market-suspended-banner" if @suspended), "wanted-not-returned" ].compact.join(" ")) do %><%= t("market.wanted_choices.new.dock.all") %><% end %>
+    </span>
+    <span class="wanted-dock__validate">
+      <%= render ButtonComponent.new(type: :submit, disabled: !@open,
+            describedby: [ ("market-suspended-banner" if @suspended), "wanted-finality" ].compact.join(" ")) do %><%= t("market.wanted_choices.new.dock.validate", count: @lines.size) %><% end %>
+    </span>
+  </div>
+  <p class="visually-hidden" role="status" aria-live="polite" data-wanted-dock-target="status"></p>
+<% end %>

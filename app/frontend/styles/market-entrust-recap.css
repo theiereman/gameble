@@ -210,3 +210,68 @@
 [data-layout="wide"] .entrust-recap__amount {
   margin-left: 0;
 }
+
+.entrust-recap__set-apart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+.entrust-recap__set-apart[hidden] {
+  display: none;
+}
+
+.entrust-recap__set-apart-heading {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.entrust-recap__set-apart-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entrust-recap__set-apart-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  font: var(--font-body-small);
+}
+
+.entrust-recap__set-apart-name {
+  color: var(--color-text-max);
+  font-weight: var(--font-weight-bold);
+}
+
+.entrust-recap__set-apart-line[data-rarity="rare"] .entrust-recap__set-apart-name {
+  color: var(--color-rarity-rare);
+}
+
+.entrust-recap__set-apart-line[data-rarity="epic"] .entrust-recap__set-apart-name {
+  color: var(--color-rarity-epique);
+}
+
+.entrust-recap__set-apart-line[data-rarity="legendary"] .entrust-recap__set-apart-name {
+  color: var(--color-gold);
+}
+
+.entrust-recap__set-apart-seekers {
+  color: var(--color-muted);
+}
+
+.entrust-recap__set-apart-sentence {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body-small);
+}
