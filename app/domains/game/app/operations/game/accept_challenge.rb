@@ -13,8 +13,9 @@ module Game
         step not_seated(player)
         step own_deck(player, deck_token)
         step friends_to_duel(player, seats[:challenger].player_id)
-        decks = [ ready_deck(seats[:challenger].player_id, seats[:challenger].deck_token), ready_deck(player.id, deck_token) ]
-        step(decks.all?(&:success?) ? start(player, duel, seats, decks.map(&:value!), deck_token) : lapse(player, duel, seats))
+        acceptor_deck = step ready_deck(player.id, deck_token)
+        challenger_deck = ready_deck(seats[:challenger].player_id, seats[:challenger].deck_token)
+        step(challenger_deck.success? ? start(player, duel, seats, [ challenger_deck.value!, acceptor_deck ], deck_token) : lapse(player, duel, seats))
       end
       step duel.started? ? Success(duel) : Failure(:deck_not_ready)
     end

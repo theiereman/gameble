@@ -3,7 +3,7 @@ require_relative "../../support/game_packs"
 require_relative "../../support/live_duels"
 
 # Challenging a friend and accepting the challenge: the seats, the frozen decks, the draws and one event each; a
-# refusal writes nothing, except an acceptance finding a deck no longer ready, which lapses the challenge.
+# refusal writes nothing, except an acceptance finding the challenger's deck no longer ready, which lapses the challenge.
 class Game::DuelChallengeOperationsTest < ActiveSupport::TestCase
   include GamePacks
   include LiveDuels
@@ -152,13 +152,16 @@ class Game::DuelChallengeOperationsTest < ActiveSupport::TestCase
     assert_empty game_events(@hugo, Game::DuelChallengeAccepted)
   end
 
-  test "an acceptance with a deck of the acceptor not ready lapses the challenge too" do
+  test "an acceptance with a deck of the acceptor no longer ready is refused and leaves the challenge standing" do
     duel = challenge.value!
     Game::DeckCard.where(deck_id: @hugo_deck.id).order(:slot).first.destroy!
+    assert_refused(:deck_not_ready, duel) { accept(duel) }
 
-    assert_equal :deck_not_ready, accept(duel).failure
+    Game::DeleteDeck.new.call(player: @hugo, token: @hugo_deck.token).value!
+    assert_refused(:deck_not_found, duel) { accept(duel) }
 
-    assert_equal "lapsed", duel.reload.state
+    assert_equal [ "challenged", 0 ], [ duel.reload.state, duel.move_number ]
+    assert_empty game_events(@hugo, Game::DuelChallengeLapsed)
   end
 
   test "an acceptance with an unknown, stale or foreign deck token is refused and leaves the challenge standing" do
