@@ -2455,7 +2455,7 @@ en:
       friends_waiting:
         one: ", %{number} trade waiting"
         other: ", %{number} trades waiting"
-      label: Trades
+      label: Trade
       market: Market
       market_outbid:
         one: ", %{number} auction outbid"
@@ -4380,7 +4380,7 @@ en:
           one: "%{number} special capsule"
           other: "%{number} special capsules"
         support: Support
-        trades: Trades
+        trades: Trade
       showcase:
         empty:
           open: Open a capsule
@@ -5512,7 +5512,7 @@ en:
       landing: Home
       me: My profile
       sets: Sets
-      trades: Trades
+      trades: Trade
     ticker:
       open: Open the activity feed
     toast:

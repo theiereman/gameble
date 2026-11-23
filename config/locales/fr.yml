@@ -286,7 +286,7 @@ fr:
         one: "%{number} capsule à ouvrir"
         other: "%{number} capsules à ouvrir"
       sets: "Sets"
-      trades: "Échanges"
+      trades: "Commerce"
       duels: "Duels"
       me: "Mon profil"
       landing: "Accueil"
@@ -344,7 +344,7 @@ fr:
           zero: "%{owned} carte unique sur %{total}"
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
-        trades: "Échanges"
+        trades: "Commerce"
         duels: "Duels"
         feed: "Fil d'activité"
         invitations_waiting:
@@ -5017,7 +5017,7 @@ fr:
     throttled: "Trop de coups en une minute. Réessayez dans un instant."
   exchanges:
     tabs:
-      label: "Échanges"
+      label: "Commerce"
       friends: "Entre amis"
       market: "Marché"
       friends_waiting:

@@ -32,7 +32,7 @@ enum Tabs {
             HotwireTab(title: Gameble.text("Bridge", "Pont"), image: UIImage(named: "tab-hub"), url: Gameble.url("")),
             HotwireTab(title: Gameble.text("Capsule", "Capsule"), image: UIImage(named: "tab-capsule"), url: Gameble.url("/booster")),
             HotwireTab(title: Gameble.text("Sets", "Sets"), image: UIImage(named: "tab-sets"), url: Gameble.url("/library")),
-            HotwireTab(title: Gameble.text("Trades", "Échanges"), image: UIImage(named: "tab-trades"), url: Gameble.url("/exchanges")),
+            HotwireTab(title: Gameble.text("Trade", "Commerce"), image: UIImage(named: "tab-trades"), url: Gameble.url("/exchanges")),
             HotwireTab(title: Gameble.text("Duels", "Duels"), image: UIImage(named: "tab-duels"), url: Gameble.url("/duels"))
         ]
     }

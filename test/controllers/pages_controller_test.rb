@@ -179,7 +179,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/library/cards']", 0
     # 03: the trades, their badge hidden when nothing waits.
     assert_select ".hub-menu a.menu-item[href='/fr/exchanges'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
-      assert_select ".menu-item__label", "Échanges"
+      assert_select ".menu-item__label", "Commerce"
       assert_select "#menu-trades-badge.stream-slot", 1
       assert_select ".menu-item__badge, .visually-hidden", 0
     end

@@ -12,7 +12,7 @@ class ExchangesControllerTest < ActionDispatch::IntegrationTest
     @player = accounts_players(:player)
   end
 
-  def subtabs = css_select("nav.exchanges-tabs[aria-label='Échanges'] a.exchanges-tabs__tab")
+  def subtabs = css_select("nav.exchanges-tabs[aria-label='Commerce'] a.exchanges-tabs__tab")
 
   test "the first time, the trades tab opens the market" do
     sign_in(@player)
@@ -77,7 +77,7 @@ class ExchangesControllerTest < ActionDispatch::IntegrationTest
 
     get market_path(locale: :en)
 
-    assert_select "nav.exchanges-tabs[aria-label=Trades]", 1
+    assert_select "nav.exchanges-tabs[aria-label=Trade]", 1
     assert_select "h1.market-teaser__title[tabindex='-1']"
   end
 

@@ -80,7 +80,7 @@ class DuelsTest < ApplicationSystemTestCase
     sign_in(@player)
     resize_to(*PHONE)
 
-    tab("Trades").click
+    tab("Trade").click
 
     assert_current_path market_path(locale: :en)
     assert_selector "nav.exchanges-tabs a.exchanges-tabs__tab[aria-current=page]", text: "MARKET"
@@ -95,10 +95,10 @@ class DuelsTest < ApplicationSystemTestCase
 
     tab("Bridge").click
     assert_current_path home_path(locale: :en)
-    tab("Trades").click
+    tab("Trade").click
 
     assert_current_path trades_path(locale: :en)
-    assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: "TRADES"
+    assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: "TRADE"
   end
 
   test "on a phone, a visitor keeps two tabs and the market shows no sub-tab bar" do
@@ -115,11 +115,11 @@ class DuelsTest < ApplicationSystemTestCase
     assert_no_selector ".tab-bar"
   end
 
-  test "on desktop, the hub's menu reads 03 Trades and 04 Duels" do
+  test "on desktop, the hub's menu reads 03 Trade and 04 Duels" do
     sign_in(@player)
 
     within(".hub-menu") do
-      assert_selector "a.menu-item[aria-keyshortcuts='3'][href='/en/exchanges']", text: /03\s*TRADES/
+      assert_selector "a.menu-item[aria-keyshortcuts='3'][href='/en/exchanges']", text: /03\s*TRADE\b/
       assert_selector "a.menu-item[aria-keyshortcuts='4'][href='/en/duels']", text: /04\s*DUELS/
     end
   end

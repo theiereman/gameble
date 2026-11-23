@@ -6,7 +6,7 @@ import { serverTemplate } from "../lib/server_html"
 
 const markup = (current: string, kept: string): string => `
   <main id="main">
-    <nav aria-label="Trades" data-controller="exchanges-tabs" data-exchanges-tabs-url-value="/en/exchanges/tab"
+    <nav aria-label="Trade" data-controller="exchanges-tabs" data-exchanges-tabs-url-value="/en/exchanges/tab"
          data-exchanges-tabs-current-value="${current}" data-exchanges-tabs-kept-value="${kept}">
       <a id="friends" href="/en/trades" ${current === "friends" ? 'aria-current="page"' : ""} data-action="exchanges-tabs#follow">Between friends</a>
       <a id="market" href="/en/market" ${current === "market" ? 'aria-current="page"' : ""} data-action="exchanges-tabs#follow">Market</a>
