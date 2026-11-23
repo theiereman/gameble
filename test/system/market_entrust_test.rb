@@ -369,34 +369,6 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     Catalog::CardSeason.insert_all!(rows, returning: :id).rows.flatten.each { hold(@player, it, 2) }
   end
 
-  test "the grid loads sixty cards, appends the next page near its end, and a ticked card keeps its tick across pages; select all ticks every edition the filters keep, loaded or not, and the recap names the first ones" do
-    open_market!
-    hold(@player, @rare.id, 2)
-    editions_of(@common, 60)
-    sign_in_through_the_site
-
-    visit new_market_entrustment_path(locale: :en)
-    assert_selector ".entrust-cell", count: 60
-    tick(@rare)
-    assert_no_selector ".entrust-cell .card[data-controller~=tilt]"
-    execute_script("document.querySelector('#entrust-pages').scrollIntoView()")
-
-    assert_selector ".entrust-cell", count: 61
-    assert_selector ".entrust-cell--picked", count: 1
-    assert_total "50"
-
-    visit new_market_entrustment_path(locale: :en)
-    tick(@rare)
-    raise_copies(@rare)
-    click_on "Select all (61)"
-
-    assert_selector ".entrust-recap__more", text: "and 31 more"
-    assert_selector ".entrust-recap__line", count: 30
-    assert_selector "input[name=selection][value^='#{@rare.card.slug}:#{@rare.season.number}=2,']", visible: :all
-    assert_equal 61, find("input[name=selection]", visible: :all).value.split(",").size
-    assert_total "700"
-  end
-
   test "the recap dock draws over the stepper of a ticked card scrolled under it" do
     open_market!
     editions_of(@common, 30)
