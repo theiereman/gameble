@@ -52,12 +52,12 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     [ @rare, @uncommon, @epic, @common ].each { tick(it) }
     cell(@common).find(".stepper__button--more").click
 
-    assert_selector ".entrust-grid__step", text: "Step 1 of 2"
+    assert_selector ".entrust-grid__step", text: /\AStep 1 of 2\z/i
     assert_selector ".entrust-recap__set-apart-heading", text: "SET ASIDE · 3 WANTED CARDS"
     assert_selector ".entrust-recap__set-apart-line", count: 3
     click_on "Entrust 2 copies"
 
-    assert_selector ".wanted-strip__step", text: "Step 2 of 2"
+    assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
     assert_selector ".wanted-strip__first", text: "The 2 other copies are already entrusted: 20 PiCoins minted."
     assert_selector "#market-wanted-heading:focus"
     within(line(@rare)) { assert_selector "input[value=order]:checked", visible: :all }
@@ -84,7 +84,7 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     tick(@rare)
     click_on "CHOOSE FOR THE WANTED CARD ▸"
 
-    assert_selector ".wanted-strip__step", text: "Step 2 of 2"
+    assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
     within(line(@rare)) { assert_selector "input[value=order]:checked", visible: :all }
     @order.update_columns(status: "withdrawn")
     click_on "VALIDATE MY CHOICE"
