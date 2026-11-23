@@ -109,6 +109,12 @@ class Game::Market::BuyFromArchivesTest < ActiveSupport::TestCase
     assert_equal made, result.value!
   end
 
+  test "a repeated purchase token naming another edition is refused and moves nothing" do
+    buy.value!
+
+    refused(:invalid_purchase_token, card_season_id: catalog_card_seasons(:common_card_one).id)
+  end
+
   test "a second purchase token buys a second copy" do
     buy
 

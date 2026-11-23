@@ -1,7 +1,7 @@
 module Game
   module Market
     # A player buys one copy of an edition from the Archives at the Archive price of the version in force; the PiCoins are destroyed.
-    # A purchase token already used by this player answers the purchase it made, moving nothing.
+    # A purchase token already used by this player answers the purchase it made, moving nothing, and refuses another edition.
     class BuyFromArchives < Operation
       include AuctionSettlement
 
@@ -12,7 +12,7 @@ module Game
         transaction do
           step lock_bank(player)
           made = ArchiveWithdrawal.find_by(player_id: player.id, purchase_token:)
-          next made if made
+          next step(replayed(made, card_season_id)) if made
 
           settings = step current_settings(settings_token.to_s)
           price = step archive_price(settings, card_season_id)
@@ -34,6 +34,8 @@ module Game
       private
 
       def readable_token(token) = token.match?(ArchiveWithdrawal::PURCHASE_TOKEN_FORMAT) ? Success(token) : Failure(:invalid_purchase_token)
+
+      def replayed(made, card_season_id) = made.card_season_id == card_season_id ? Success(made) : Failure(:invalid_purchase_token)
 
       def current_settings(settings_token)
         settings = CurrentSettings.call
