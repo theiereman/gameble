@@ -85,8 +85,7 @@ module MarketOrdersHelper
   end
 
   def order_listing_name(row)
-    seller = row.seller.removed? ? t("player_name.anonymous") : Accounts::PersonaName.clean(row.seller.persona_name) || t("shell.player.fallback_name")
-    t("market.orders.new.listing_name", rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, name: seller,
+    t("market.orders.new.listing_name", rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, name: duel_plain_name(row.seller),
       amount: picoins(row.current_price))
   end
 end
