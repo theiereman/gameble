@@ -6,6 +6,7 @@ module Game
       transaction do
         BankLock.acquire(player.id)
         CustomSet.steam_library.where(player_id: player.id).delete_all
+        Market::RefreshWanted.call(player)
       end
     end
   end

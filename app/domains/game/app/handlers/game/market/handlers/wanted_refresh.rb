@@ -15,6 +15,7 @@ module Game
           Game::SlotBought => ->(data) { data.fetch(:goal_id) ? [ data.fetch(:player_id) ] : [] },
           Game::CustomSetEdited => [ :player_id ],
           Game::CustomSetDeleted => [ :player_id ],
+          Game::LibrarySetSynced => [ :player_id ],
           Game::Market::OrderPlaced => [ :player_id ],
           Game::Market::OrderCancelled => [ :player_id ],
           Game::Market::OrderExpired => [ :player_id ],

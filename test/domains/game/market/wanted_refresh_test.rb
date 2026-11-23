@@ -199,13 +199,29 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
     assert_empty rows
   end
 
+  test "a synced Steam library set wants its new games, an erased one nothing" do
+    library_set = create_library_set(@player)
+    Game::AddGoal.new.call(player: @player, custom_set: library_set.token).value!
+    assert_equal fixture_card_ids.first(3).sort, rows.map(&:first)
+
+    Game::SyncLibrarySet.new.call(player: @player, token: library_set.token, card_ids: fixture_card_ids.values_at(0, 3, 4)).value!
+
+    assert_equal fixture_card_ids.values_at(0, 3, 4).sort, rows.map(&:first)
+    assert_fresh(@player)
+
+    Game::EraseLibrarySet.new.call(player: @player).value!
+
+    assert_empty rows
+  end
+
   test "a published season that drops a goal rebuilds the rows once its jobs run" do
     insert_set([ @common.id, @rare.id ], { complete: 2 }, key: "cosy", params: { "theme" => "cosy" })
     aim(key: "cosy")
     custom_set = create_custom_set(@player, card_ids: fixture_card_ids.values_at(2, 3, 4))
     Game::AddGoal.new.call(player: @player, custom_set: custom_set.token).value!
+    assert_includes rows.map(&:first), @common.card_id
 
-    publish_sets_draft
+    assert_enqueued_with(job: Game::Market::RebuildAllWantedJob) { publish_sets_draft }
     perform_enqueued_jobs(only: Game::Market::RebuildAllWantedJob)
 
     assert_empty Game::Goal.where(player_id: @player.id, set_key: "cosy")
@@ -264,19 +280,11 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
     assert_equal goal_rows(@common, @rare), rows
 
     Game::Market::Wanted.where(player_id: @player.id).delete_all
-    assert_enqueued_with(job: Game::Market::RebuildWantedJob, args: [ @player.id ]) do
+    assert_enqueued_with(job: Game::Market::RefreshWantedJob, args: [ @player.id ]) do
       Accounts::UnbanPlayer.new.call(staff: accounts_players(:administrator), player: @player.reload).value!
     end
-    perform_enqueued_jobs(only: Game::Market::RebuildWantedJob)
 
     assert_equal goal_rows(@common, @rare), rows
-  end
-
-  test "the rebuild job skips a missing or a deleted player" do
-    deleted = Accounts::Player.create!(deleted_at: 1.day.ago)
-
-    assert_nothing_raised { [ 0, deleted.id ].each { Game::Market::RebuildWantedJob.perform_now(it) } }
-    assert_empty rows(deleted)
   end
 
   test "the account's release clears its rows" do

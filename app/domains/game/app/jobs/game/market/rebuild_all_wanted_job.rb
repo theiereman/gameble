@@ -4,14 +4,16 @@ module Game
       queue_as :default
 
       def perform
+        failed_player_ids = []
         Accounts::PlayersInBatches.call do |players|
           players.each do |player|
-            result = RebuildWanted.new.call(player:)
-            result.value! unless result.failure? && result.failure == :player_required
+            RefreshWantedJob.refresh(player)
           rescue StandardError => error
             Rails.error.report(error, context: { player_id: player.id })
+            failed_player_ids << player.id
           end
         end
+        failed_player_ids
       end
     end
   end
