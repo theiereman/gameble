@@ -36,7 +36,7 @@ module Game
     end
 
     def self.by_value(caller_card, answer_card, stat, direction)
-      order = exact_value(caller_card, stat) <=> exact_value(answer_card, stat)
+      order = (exact_value(caller_card, stat) <=> exact_value(answer_card, stat)).to_i
       order = -order if (stat == :discovery) ^ (direction == :low)
       return NO_POINT if order.zero?
 
