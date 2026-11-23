@@ -181,15 +181,6 @@
   }
 }
 
-.all-cards-tile::after {
-  content: "▸";
-  position: absolute;
-  top: var(--space-4);
-  right: var(--space-5);
-  color: var(--color-accent);
-  font: var(--font-number);
-}
-
 .all-cards-tile__summary {
   display: flex;
   flex: 1;

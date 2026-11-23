@@ -107,11 +107,6 @@
   font: var(--font-label);
 }
 
-.wanted-panel__chevron {
-  flex: none;
-  color: var(--color-accent);
-}
-
 .wanted-panel__foot {
   display: flex;
   justify-content: flex-end;
