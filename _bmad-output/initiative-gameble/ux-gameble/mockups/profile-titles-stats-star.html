@@ -105,7 +105,20 @@ figure{margin:0}figcaption{margin-bottom:8px;font:700 11px/15px JB,monospace;let
 .sp-g{stroke:var(--li2);stroke-width:1}.sp-o{fill:none;stroke:var(--li);stroke-width:2}.sp-m{fill:none;stroke:var(--go);stroke-width:3}
 .sp-l{fill:var(--m);font:10px JB,monospace}.sp-lm{fill:var(--go);font:700 10px JB,monospace}
 .events{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--m)}.events b{color:var(--tb)}
-</style></head><body><div class="sheet">
+
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;width:1180px}
+.cmp>div{background:var(--pn);border:2px solid var(--li);padding:16px 20px}
+.cmp h3{font:700 11px/16px JB,monospace;letter-spacing:2px;color:var(--ac);text-transform:uppercase;margin:0 0 10px}
+.cmp .row{display:flex;align-items:center;gap:8px;margin:10px 0;color:var(--t)}
+.ptitle--b{background:var(--go);color:#120d05;border-color:var(--go)}.ptitle--b::before{content:"★ "}
+.ptitle--c{border-color:var(--go);color:var(--go)}.ptitle--c::before{content:""}
+.ptitle--c::after{content:" ◆";}
+.leg{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--m);margin:6px 0}
+.tick{display:inline-block;width:2px;height:14px;background:var(--m)}.tick--n{background:var(--go)}
+.hatch{display:inline-block;width:24px;height:10px;background:repeating-linear-gradient(90deg,rgba(244,197,66,.35) 0 4px,transparent 4px 8px)}
+.state{margin-top:12px;padding-top:8px;border-top:1px solid var(--li2)}
+.phone .card{margin-bottom:12px}.phone .cards{display:block}
+.phone .race li{grid-template-columns:20px 64px 1fr 36px}</style></head><body><div class="sheet">
 <h1>Titres de la Confrérie : l'étoile des services</h1>
 <p class="intro">Le titre est le poste du joueur dans le service où son grade est le plus haut. Cliquer le titre, partout où il apparaît (profil, fil, échanges), ouvre l'étoile : une branche par service, de longueur égale au percentile parmi les membres actifs, avec les chiffres bruts dessous. Le prochain échelon n'est visible que du joueur lui-même. Noms et chiffres fictifs.</p>
 
@@ -273,4 +286,21 @@ figure{margin:0}figcaption{margin-bottom:8px;font:700 11px/15px JB,monospace;let
 <div class="card card--wide" style="grid-column:span 3"><p class="card__t">Évolution, 12 dernières semaines <small>position parmi les membres actifs</small></p><svg class="spark" viewBox="0 0 680 120" preserveAspectRatio="none"><line class="sp-g" x1="20" x2="580" y1="85" y2="85"/><line class="sp-g" x1="20" x2="580" y1="60" y2="60"/><line class="sp-g" x1="20" x2="580" y1="35" y2="35"/><line class="sp-g" x1="20" x2="580" y1="10" y2="10"/><polyline class="sp-o" points="20,80 71,75 122,69 173,62 224,58 275,53 325,50 376,47 427,44 478,42 529,40 580,38"/><polyline class="sp-o" points="20,90 71,86 122,80 173,77 224,72 275,69 325,65 376,62 427,60 478,58 529,56 580,55"/><polyline class="sp-o" points="20,100 71,98 122,95 173,90 224,86 275,83 325,80 376,77 427,75 478,73 529,71 580,70"/><polyline class="sp-m" points="20,70 71,62 122,55 173,50 224,44 275,40 325,36 376,31 427,27 478,24 529,21 580,19"/><text class="sp-lm" x="586" y="23">Exploration</text><text class="sp-l" x="586" y="42">Archives</text><text class="sp-l" x="586" y="58">Échanges</text><text class="sp-l" x="586" y="73">Bourse</text><text class="sp-l" x="0" y="13">top</text></svg>
 <div class="events"><span><b>S-9</b> Promotion : Cartographe</span><span><b>S-3</b> Promotion : Cartographe senior</span><span><b>S-2</b> Haut fait obtenu : 1er du classement des pionniers</span></div></div>
 </div></div></div></figure></div></section>
+
+<section class="dec"><h2 class="dec-t">6. À confirmer : chip du siège et repères des jauges</h2>
+<p class="why">Trois choix visuels. Le chip du siège doit se lire d'un coup d'œil dans le fil sans ressembler à un bouton principal. Les repères de jauge doivent dire « où est mon seuil » et « où est le prochain » sans légende. Aucun nouveau jeton : l'or est déjà dans le jeu.</p>
+<div class="frames"><figure><figcaption>6a · Le chip du siège (même ligne de fil, trois variantes)</figcaption><div class="cmp"><div><h3>Poste (référence)</h3><div class="row"><span class="who">Marlowe</span><a class="ptitle">Cartographe senior</a></div><div class="row"><span class="who">Pernille</span><a class="ptitle">Responsable de la Bourse</a></div></div>
+<div><h3>A · contour or et étoile (maquette actuelle)</h3><div class="row"><span class="who">Ondine</span><a class="ptitle ptitle--seat">Direction des échanges</a></div></div>
+<div><h3>B · plein or</h3><div class="row"><span class="who">Ondine</span><a class="ptitle ptitle--b">Direction des échanges</a></div></div>
+<div><h3>C · contour or sans étoile</h3><div class="row"><span class="who">Ondine</span><a class="ptitle ptitle--c">Direction des échanges</a></div></div></div></figure>
+<figure><figcaption>6b · Repères d'une jauge</figcaption><div class="cmp"><div><h3>Légende (jamais affichée, c'est le principe)</h3>
+<p class="leg"><span class="tick"></span> seuil du grade actuel (gris)</p><p class="leg"><span class="tick tick--n"></span> seuil du prochain grade (or)</p><p class="leg"><span class="hatch"></span> montée du seuil sur 4 semaines</p></div>
+<div><h3>Trois états</h3>
+<div class="state"><p class="card__t">En cours <small>il en manque 360</small></p><div class="gauge"><span class="gauge__fill" style="--v:70%"></span><span class="gauge__ghost" style="--from:88%;--len:4%"></span><span class="gauge__mk" style="--at:52%"></span><span class="gauge__mk gauge__mk--next" style="--at:92%"></span></div></div>
+<div class="state"><p class="card__t">À la limite <small>le seuil monte plus vite que vous</small></p><div class="gauge"><span class="gauge__fill" style="--v:88%"></span><span class="gauge__ghost" style="--from:88%;--len:5%"></span><span class="gauge__mk" style="--at:52%"></span><span class="gauge__mk gauge__mk--next" style="--at:92%"></span></div></div>
+<div class="state"><p class="card__t">Condition remplie</p><div class="gauge"><span class="gauge__fill" style="--v:100%;background:var(--lime)"></span><span class="gauge__mk" style="--at:52%"></span><span class="gauge__mk gauge__mk--next" style="--at:92%"></span></div></div></div></div></figure>
+<figure><figcaption>6c · Mes indicateurs sur téléphone</figcaption><div class="phone"><div class="phone__scr" style="justify-content:flex-start;padding:14px;overflow:auto"><p class="kicker">Mes indicateurs</p><p class="msub">Mis à jour cette nuit</p>
+<div class="cards"><div class="card"><p class="card__t">Découvertes de pionnier</p><p class="big">1 120</p><div class="gauge"><span class="gauge__fill" style="--v:70%"></span><span class="gauge__ghost" style="--from:88%;--len:4%"></span><span class="gauge__mk" style="--at:52%"></span><span class="gauge__mk gauge__mk--next" style="--at:92%"></span></div><span class="chip chip--run">◌ En cours, il en manque 360</span></div>
+<div class="card"><p class="card__t">Course au Comité</p><ol class="race"><li><span class="race__rk">1</span><span>Aurèle</span><span class="race__bar"><i style="--v:100%"></i></span><span class="race__n">412</span></li><li class="me"><span class="race__rk">2</span><span>Vous</span><span class="race__bar"><i style="--v:80%"></i></span><span class="race__n">328</span></li><li><span class="race__rk">3</span><span>Ondine</span><span class="race__bar"><i style="--v:77%"></i></span><span class="race__n">316</span></li></ol><span class="chip chip--warn">▼ Ondine est à 12 derrière vous</span></div>
+<div class="card"><p class="card__t">Évolution, 12 semaines</p><p class="drift">Une courbe par service, la vôtre en or</p></div></div></div></div></figure></div></section>
 </div></body></html>
