@@ -52,6 +52,19 @@ class CardWantedLineTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__wanted-line", "1 player wants it · no buy order"
   end
 
+  test "the line counts the seekers of the edition shown, not of another edition held" do
+    season = Catalog::Season.create!(number: 2)
+    rare_portal = Catalog::CardSeason.create!(card_id: @portal.card_id, season:, prestige_score: 0.9, rating: 95.5, rarity: :rare, number: 4)
+    hold(@player, rare_portal.id, 1)
+    want_by_goal(accounts_players(:moderator))
+    Game::Market::Wanted.insert_all([ { player_id: accounts_players(:administrator).id, card_id: @portal.card_id, reason: "order", rarities: [ 3 ] } ])
+    sign_in(@player)
+
+    get card_season_path(locale: :en, slug: "portal", number: 1)
+
+    assert_select ".card-detail__wanted-line", "1 player wants it · no buy order"
+  end
+
   test "nobody wanting the card draws no line" do
     sign_in(@player)
 

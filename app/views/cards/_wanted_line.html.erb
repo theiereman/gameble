@@ -1,5 +1,6 @@
-<%# locals: (copies:) %>
-<% seekers = t("markets.wanted.seekers", count: copies.first.seekers) %>
+<%# locals: (copies:, card_season_id:) %>
+<% shown = copies.find { it.card_season_id == card_season_id } || copies.first %>
+<% seekers = t("markets.wanted.seekers", count: shown.seekers) %>
 <% best = copies.filter_map(&:order).map(&:price).max %>
 <p class="card-detail__wanted">
   <span class="wanted-badge"><%= t("card_details.wanted.badge") %></span>
