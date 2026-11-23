@@ -256,4 +256,17 @@ class Market::WantedChoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#wanted-result-heading", "2 CHOIX SUR 3 APPLIQUÉS"
     assert_select ".wanted-result .entrust-result__stayed-line", /saison 1.{3}1 exemplaire reste dans votre collection/
   end
+
+  test "a line the cap lets only part of through counts as applied" do
+    @settings = open_market!(first_opened_at: 1.day.ago, daily_cap: @settings.entrustment(:common))
+    Game::Holding.where(player_id: @player.id, card_season_id: @common.id).update_all(quantity: 2)
+    sign_in(@player)
+
+    validate([ line(@rare, "order", orders: [ @order.token ]), line(@common, "entrust").merge(copies: 2) ], selected: [ @rare, @common ])
+
+    assert_response :success
+    assert_equal 1, deposited(@common)
+    assert_select "#wanted-result-heading", "VOS 2 CHOIX SONT APPLIQUÉS"
+    assert_select ".wanted-result .entrust-result__stayed-line", /saison 1.{3}1 exemplaire reste dans votre collection/
+  end
 end

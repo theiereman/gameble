@@ -5,7 +5,7 @@
 <%= render PanelComponent.new(brackets: true, class: "wanted-result", role: "status") do %>
   <div class="wanted-result__head">
     <h2 id="wanted-result-heading" class="wanted-result__heading" tabindex="-1">
-      <%= wanted_result_heading(@result_lines.size, @result_lines.size - applied.skipped.map(&:line).uniq.size) %>
+      <%= wanted_result_heading(rows.size, rows.count { |_, card_rows| card_rows.any? }) %>
     </h2>
     <p class="wanted-result__received">
       <span class="wanted-result__received-label"><%= t("market.wanted_choices.result.received") %></span>
