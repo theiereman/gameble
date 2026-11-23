@@ -3,7 +3,7 @@ title: 'Sign in with Apple'
 type: 'feature'
 ticket: '4'
 created: '2026-11-04'
-status: 'in-progress'
+status: done
 baseline_revision: 'dc14af1e4ee85275be0aa28f0ac69d5994fec333'
 route: 'oneshot'
 route_source: 'auto'

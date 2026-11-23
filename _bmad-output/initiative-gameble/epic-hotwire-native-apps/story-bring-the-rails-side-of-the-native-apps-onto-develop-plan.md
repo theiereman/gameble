@@ -3,7 +3,7 @@ title: 'Bring the Rails side of the native apps onto develop'
 type: 'feature'
 ticket: '1'
 created: '2026-11-04'
-status: 'built'
+status: done
 baseline_revision: '63f772b3de0be0467534736fb7d4f625c77a2fa9'
 route: 'oneshot'
 route_source: 'auto'

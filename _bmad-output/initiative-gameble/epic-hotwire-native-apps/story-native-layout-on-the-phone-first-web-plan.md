@@ -3,7 +3,7 @@ title: 'Native layout on the phone-first web'
 type: 'feature'
 ticket: '2'
 created: '2026-11-04'
-status: 'built'
+status: done
 baseline_revision: '084722f6ecb383274c8c827ca3742966f7d03395'
 route: 'oneshot'
 route_source: 'auto'
