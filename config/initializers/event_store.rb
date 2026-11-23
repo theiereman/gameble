@@ -64,5 +64,8 @@ Rails.configuration.to_prepare do
   # A player hears on their phone of a card their goals miss going on sale, at most once an hour.
   event_store.subscribe(WantedCardNotice, to: WantedCardNotice::EVENTS)
 
+  # What happens in the game is counted for Sentry once its transaction commits; no player is named.
+  event_store.subscribe(Game::Handlers::Metrics, to: Game::Handlers::Metrics::EVENTS)
+
   Rails.configuration.event_store = event_store
 end
