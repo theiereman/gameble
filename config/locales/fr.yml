@@ -219,6 +219,9 @@ fr:
       duels: "Duels"
       order: "Ordre d'achat"
       my_orders: "Mes ordres"
+      shop: "Boutique"
+      entrust: "Confier"
+      slot: "Emplacement"
     rarity:
       label: "Raretés"
       legend: "Raretés"

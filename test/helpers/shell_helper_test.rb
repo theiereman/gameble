@@ -65,6 +65,9 @@ class ShellHelperTest < ActionView::TestCase
       %w[friend_profiles show] => "Profile", %w[public_profiles show] => "Profile", %w[public_profiles set] => "Set",
       %w[settings show] => "Profile", %w[feeds show] => "Feed", %w[pages legal] => "Legal notice", %w[pages how_it_works] => "How it works", %w[own_profiles show] => "My profile",
       %w[decks new] => "Deck", %w[decks show] => "Deck", %w[duels show] => "Duels",
+      %w[market/orders new] => "Buy order", %w[market/my_orders show] => "My orders", %w[market/shops show] => "Shop",
+      %w[market/archive_purchases new] => "Shop", %w[market/entrustments new] => "Entrust", %w[market/wanted_choices new] => "Entrust",
+      %w[slot_purchases new] => "Slot",
       %w[back_office/dashboard show] => "Back-office", %w[back_office/import_runs index] => "Back-office",
       %w[pages home] => nil, %w[invite_links show] => nil
     }
@@ -107,7 +110,8 @@ class ShellHelperTest < ActionView::TestCase
 
     { %w[trades index] => "page", %w[markets show] => "page", %w[market/my_bids show] => "page", %w[market/my_sales show] => "page",
       %w[trades show] => "true", %w[trades new] => "true", %w[trades edit] => "true", %w[trades choose] => "true",
-      %w[market/listings show] => "true", %w[pages home] => nil, %w[duels show] => nil }.each do |(path, action), current|
+      %w[market/listings show] => "true", %w[market/shops show] => "true", %w[market/archive_purchases new] => "true",
+      %w[pages home] => nil, %w[duels show] => nil }.each do |(path, action), current|
       assert_equal current.to_s, tabs_on(path, action)[:trades].to_s, "#{path}##{action}"
     end
     { %w[duels show] => "page", %w[decks new] => "true", %w[decks show] => "true", %w[trades index] => nil }.each do |(path, action), current|

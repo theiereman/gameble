@@ -5458,6 +5458,7 @@ en:
       collection: Collection
       decks: Deck
       duels: Duels
+      entrust: Entrust
       exchange: Exchange
       feed: Feed
       friends: Friends
@@ -5473,7 +5474,9 @@ en:
       profile: Profile
       set: Set
       sets: Sets
+      shop: Shop
       sign_in: Sign in
+      slot: Slot
       trades: Trades
     sign_in:
       acceptance_html: By signing in you accept the %{terms} and acknowledge the %{privacy}.
