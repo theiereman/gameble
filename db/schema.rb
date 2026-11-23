@@ -963,7 +963,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_190004) do
     t.bigint "order_id"
     t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing_alone", unique: true, where: "(order_id IS NULL)"
     t.index ["player_id", "order_id"], name: "index_game_market_notices_listed_above_order", unique: true, where: "((kind)::text = 'listed_above_order'::text)"
-    t.index ["player_id", "order_id"], name: "index_game_market_notices_order_end", unique: true, where: "((kind)::text = ANY ((ARRAY['order_served'::character varying, 'order_expired'::character varying])::text[]))"
+    t.index ["player_id", "order_id"], name: "index_game_market_notices_order_end", unique: true, where: "((kind)::text = ANY (ARRAY[('order_served'::character varying)::text, ('order_expired'::character varying)::text]))"
     t.check_constraint "amount IS NULL OR amount >= 0", name: "game_market_notices_amount_check"
     t.check_constraint "kind::text ~ '^(outbid|won|sold|unsold|lead_voided|withdrawn|wanted|order_served|order_expired|listed_above_order)$'::text", name: "game_market_notices_kind_check"
     t.check_constraint "listing_id IS NOT NULL OR order_id IS NOT NULL", name: "game_market_notices_subject_check"
