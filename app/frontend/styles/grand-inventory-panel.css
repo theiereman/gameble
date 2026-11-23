@@ -10,13 +10,19 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-5);
+}
+
+.grand-inventory-panel .hub-linked__link {
+  display: inline;
+}
+
+.grand-inventory-panel .hub-linked__arrow {
+  margin-inline: var(--space-2) calc(-6px - var(--space-2));
+  vertical-align: middle;
 }
 
 .grand-inventory-panel__count {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
   color: var(--color-text-bright);
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
