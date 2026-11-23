@@ -60,8 +60,7 @@ The title, its grades, seats, star and metrics, and the feed, bell, achievement 
 
 ## Notes
 
-- Decision: release 1.3.x, beside market volume and before the duels (1.4.0); first set at 1.5.0, moved earlier by the author (2026-11-23).
-- Open question: duels are not in production before 1.4.0, so the Stratégie service has no activity and its top feat is withheld; whether Stratégie shows before duels open.
+- Decision: release 1.5.0, after the duels (1.4.0) and market volume (1.3.x); briefly moved to 1.3.x, then back (author, 2026-11-23).
 - Decision: the architecture spine and EXPERIENCE.md are brought up to date before the build, through bmad-architecture (grade and threshold storage, the nightly job, the weekly snapshot, seats) and bmad-ux (picker, star, Mes indicateurs, season recap section); the build waits on both (author, 2026-11-23).
 - Decision: the tracer bullet is entry 1, measures to thresholds to stored grade to the title on the public profile; entries 3, 4 and 5 can run beside each other after entry 2, then entries 6 and 7 in separate lanes (2026-11-23).
 - Decision: a closing refactor sweep, entry 9 (2026-11-23).

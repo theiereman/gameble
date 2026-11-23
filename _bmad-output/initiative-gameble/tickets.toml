@@ -359,7 +359,7 @@ after = [{ epic = 38, needs = "the ledger, Mint, the reconciliation, versioned s
 
 [[epic]]
 id = 47
-release = "1.3.x"
+release = "1.5.0"
 slug = "epic-brotherhood-titles"
 title = "The Brotherhood names its members"
 covers = ["CAP-22", "CAP-13", "CAP-17", "CAP-23"]
