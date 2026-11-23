@@ -290,7 +290,7 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     get new_market_card_order_path(locale: :fr, slug: "blue-depths")
 
     assert_select ".order-form__lead", "Aucune annonce de joueur pour Profondeurs bleues."
-    assert_select ".order-archive .order-listing__edition", /Rare · S1\s+ARCHIVES/
+    assert_select ".order-archive[data-archive-offer='blue-depths-1'] .order-listing__edition", /Rare · S1\s+ARCHIVES/
     assert_select ".order-archive .order-listing__facts", /prix fixe\s+500/
     assert_select ".order-archive a.button[href=?][data-turbo-frame=archive-purchase][data-action='purchase-dialog#open'][aria-label=?]",
       new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1),

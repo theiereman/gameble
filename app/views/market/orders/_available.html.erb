@@ -22,7 +22,7 @@
     <ul class="order-listings">
       <% archive_offers.each do |row| %>
         <% amount = picoins(row.price) %>
-        <li class="order-listing order-archive">
+        <%= tag.li class: "order-listing order-archive", data: { archive_offer: archive_offer_key(row.card) } do %>
           <p class="order-listing__edition">
             <%= t("market.orders.new.edition", rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number) %>
             <span class="archive-offer__tag archive-offer__tag--archives"><%= t("market.orders.new.archives") %></span>
@@ -33,7 +33,7 @@
                 aria_label: t("market.orders.new.buy_label", card: card.title, rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, amount:)) do %>
             <%= t("market.orders.new.buy", amount:) %>
           <% end %>
-        </li>
+        <% end %>
       <% end %>
     </ul>
   <% else %>

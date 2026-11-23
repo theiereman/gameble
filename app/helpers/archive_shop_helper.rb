@@ -1,5 +1,9 @@
 module ArchiveShopHelper
-  def archive_offer_dom_id(card) = "archive-offer-#{card.id}-#{card.season_number}"
+  def archive_offer_key(card) = "#{card.id}-#{card.season_number}"
+
+  def archive_offer_dom_id(card) = "archive-offer-#{archive_offer_key(card)}"
+
+  def archive_offer_selector(card) = "[data-archive-offer='#{archive_offer_key(card)}']"
 
   def archive_offer_path(card, buyable:)
     buyable ? new_market_archive_purchase_path(slug: card.id, number: card.season_number) : card_season_path(slug: card.id, number: card.season_number)

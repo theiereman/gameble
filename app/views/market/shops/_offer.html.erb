@@ -2,7 +2,7 @@
 <% card = row.card %>
 <% mark = marks.for(card) %>
 <% wanted = marks.any? && mark.wanted? %>
-<%= tag.li id: (archive_offer_dom_id(card) if tile_id), class: "listing-tile archive-offer" do %>
+<%= tag.li id: (archive_offer_dom_id(card) if tile_id), class: "listing-tile archive-offer", data: { archive_offer: archive_offer_key(card) } do %>
   <%= link_to archive_offer_path(card, buyable:), class: "listing-tile__link archive-offer__link",
         aria: { label: archive_offer_label(row, wanted:, buyable:, stock:) },
         data: (buyable ? { turbo_frame: "archive-purchase", action: "purchase-dialog#open" } : {}) do %>

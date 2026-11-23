@@ -116,13 +116,13 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, @stock.reload.quantity
   end
 
-  test "the last copy bought removes its tile" do
+  test "the last copy bought removes its offer wherever it is drawn" do
     @stock.update!(quantity: 1)
     sign_in(@player)
 
     buy
 
-    assert_select "turbo-stream[action=remove][target=archive-offer-blue-depths-1]"
+    assert_select "turbo-stream[action=remove][targets=?]", "[data-archive-offer='blue-depths-1']"
   end
 
   test "a copy taken meanwhile is refused, nothing charged, and the confirmation says so" do
@@ -133,7 +133,7 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_content
     assert_includes frame.inner_html, "Cette carte n'est plus disponible. Un autre joueur vient de prendre le dernier exemplaire. Rien n'est débité."
-    assert_select "turbo-stream[action=remove][target=archive-offer-blue-depths-1]"
+    assert_select "turbo-stream[action=remove][targets=?]", "[data-archive-offer='blue-depths-1']"
   end
 
   test "a price changed meanwhile is refused and the new price drawn with a fresh token" do

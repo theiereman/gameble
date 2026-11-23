@@ -98,6 +98,7 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
     assert_select "#market-tiles .archive-offer__fixed", text: "prix fixe", count: 2
     assert_select "#market-tiles .archive-offer__stock", 0
     assert_select "[id^='archive-offer-']", 0
+    assert_select "#market-tiles .archive-offer[data-archive-offer='blue-depths-1']"
     [ @common, @rare ].each { |card| assert_no_match(/(?:data-[a-z-]+|id|name|value|href)="[^"]*\b#{card.id}\b/, response.body) }
   end
 
