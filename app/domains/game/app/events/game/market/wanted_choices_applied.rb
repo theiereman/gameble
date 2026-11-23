@@ -8,6 +8,10 @@ module Game
         new(data: { seller_id:, sales: only(sales, SALE_KEYS), listing_ids:, entrusted: only(entrusted, ENTRUSTED_KEYS) })
       end
 
+      def self.buyer_ids(data) = data.fetch(:sales).map { it.fetch(:buyer_id) }
+
+      def self.player_ids(data) = [ data.fetch(:seller_id), *buyer_ids(data) ]
+
       def self.only(rows, keys) = rows.map { |row| keys.index_with { row.fetch(it) } }
       private_class_method :only
     end

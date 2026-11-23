@@ -93,7 +93,7 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
 
     find(".market-filters__wanted", text: /wanted cards 1/i).click
     assert_selector ".listing-tile", count: 1
-    assert_selector ".listing-tile a[aria-label$='missing from your goals']"
+    assert_selector ".listing-tile a[aria-label$=', wanted']"
     assert_checked_field "wanted", visible: :all
 
     find(".market-filters__wanted", text: /wanted cards/i).click

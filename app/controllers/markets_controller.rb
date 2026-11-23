@@ -19,7 +19,7 @@ class MarketsController < ApplicationController
       wanted_card_ids: wanted_card_ids)
     load_set_choices
     @listings = Game::Market::OpenListings.call(sort: @sort, page: @page, locale: I18n.locale, filters: @filters)
-    @marks = ListingMarks.for(current_player, @listings.rows, goal_marks)
+    @marks = ListingMarks.for(current_player, @listings.rows, goal_marks, wanted_card_ids)
     @stands = Game::Market::BidStands.call(current_player, tokens: @listings.rows.map(&:token))
     respond_to do |format|
       format.html do
@@ -38,11 +38,11 @@ class MarketsController < ApplicationController
     end
 
     def wanted_card_ids
-      @wanted_card_ids ||= goal_marks.needs.flat_map(&:missing_card_ids).uniq.sort
+      @wanted_card_ids ||= Game::Market::WantedCardIds.call(current_player)
     end
 
     def load_wanted_count
-      return unless goal_marks.any?
+      return if wanted_card_ids.empty?
 
       @wanted_count = Game::Market::OpenListings.count(locale: I18n.locale, filters: Game::Market::ListingFilters.wanted(wanted_card_ids))
     end

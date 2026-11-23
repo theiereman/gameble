@@ -50,8 +50,8 @@ module MarketHelper
   end
 
   def listing_ownership_state(mark)
-    if mark.owned? then :owned
-    elsif mark.wanted? then :wanted
+    if mark.wanted? then :wanted
+    elsif mark.owned? then :owned
     else :missing
     end
   end

@@ -41,6 +41,7 @@ class Game::Market::WantedNoticesTest < ActiveSupport::TestCase
     [ @wanting, @holder, @seller ].each { aim(it) }
     Game::Goal.create!(player_id: accounts_players(:banned).id, position: 1, set_kind: "theme", set_key: "roguelike")
     hold(@holder, @card.id, 1)
+    Game::Market::RebuildWanted.new.call(player: @holder).value!
 
     list
 

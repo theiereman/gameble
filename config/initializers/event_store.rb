@@ -15,6 +15,7 @@ Rails.configuration.to_prepare do
   # A deleted account's game is released within the deletion.
   event_store.subscribe(Game::Handlers::PlayerDeleted, to: [ Accounts::PlayerDeleted ])
   event_store.subscribe(Game::Handlers::PlayerBanned, to: [ Accounts::PlayerBanned ])
+  event_store.subscribe(Game::Handlers::PlayerUnbanned, to: [ Accounts::PlayerUnbanned ])
   event_store.subscribe(Game::Handlers::VisibilityChanged, to: [ Accounts::VisibilityChanged ])
   # A player who turns the Steam library sync off has the set and its games erased within the change.
   event_store.subscribe(Game::Handlers::SteamLibrarySyncChanged, to: [ Accounts::SteamLibrarySyncChanged ])
@@ -33,6 +34,8 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::DuelStatsFeed, to: [ Game::DuelStatsComputed ])
   event_store.subscribe(Game::Handlers::TradeAccepted, to: [ Game::TradeAccepted ])
   event_store.subscribe(Game::Handlers::GoalsReached, to: Game::Handlers::GoalsReached::EVENTS)
+  # The wanted rows are rebuilt after GoalsReached has dropped the goals the event completed.
+  event_store.subscribe(Game::Market::Handlers::WantedRefresh, to: Game::Market::Handlers::WantedRefresh::EVENTS)
   event_store.subscribe(Game::Handlers::SetTierFeed, to: Game::Handlers::SetTierFeed::EVENTS)
   event_store.subscribe(Game::Handlers::Achievements, to: Game::Handlers::Achievements::EVENTS.keys)
   event_store.subscribe(Game::Handlers::CardBacks, to: Game::Handlers::CardBacks::EVENTS.keys)

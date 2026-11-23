@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_20_193001) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1072,6 +1072,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_193001) do
     t.check_constraint "available >= 0 AND committed >= 0", name: "game_market_wallets_balance_check"
   end
 
+  create_table "game_market_wanted", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "card_id", null: false
+    t.string "reason", null: false
+    t.integer "rarities", limit: 2, array: true
+    t.index ["card_id"], name: "index_game_market_wanted_on_card_id"
+    t.index ["player_id", "card_id", "reason"], name: "index_game_market_wanted_uniqueness", unique: true
+    t.check_constraint "(reason::text = 'goal'::text) = (rarities IS NULL)", name: "game_market_wanted_rarities_check"
+    t.check_constraint "reason::text ~ '^(goal|order)$'::text", name: "game_market_wanted_reason_check"
+  end
+
   create_table "game_packs", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.string "token", null: false
@@ -1394,6 +1405,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_193001) do
   add_foreign_key "game_market_tied_accounts", "accounts_players", column: "high_account_id"
   add_foreign_key "game_market_tied_accounts", "accounts_players", column: "low_account_id"
   add_foreign_key "game_market_wallets", "accounts_players", column: "player_id"
+  add_foreign_key "game_market_wanted", "accounts_players", column: "player_id"
+  add_foreign_key "game_market_wanted", "catalog_cards", column: "card_id"
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"

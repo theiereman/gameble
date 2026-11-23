@@ -12,6 +12,9 @@ module Game
         Game::TradeAccepted => [ :proposer_id, :recipient_id ],
         Game::Market::AuctionSold => [ :seller_id, :winner_id ],
         Game::Market::CardsEntrusted => [ :player_id ],
+        Game::Market::OrderServed => [ :buyer_id, :seller_id ],
+        Game::Market::WantedChoicesApplied => Game::Market::WantedChoicesApplied.method(:player_ids),
+        Game::Market::ArchivePurchased => [ :player_id ],
         Game::FeedEntryReacted => [ :player_id, :author_id, :partner_id ],
         Game::InvitationAccepted => [ :sender_id, :recipient_id ],
         Game::ShowcaseCardAdded => [ :player_id ],
@@ -28,7 +31,7 @@ module Game
       def self.call(event)
         return if removed_reaction?(event)
 
-        EVENTS.fetch(event.class).map { event.data.fetch(it) }.compact.uniq.each { GrantAchievementsJob.perform_later(it) }
+        NamedPlayers.of(event, EVENTS).each { GrantAchievementsJob.perform_later(it) }
       end
 
       def self.removed_reaction?(event) = event.is_a?(Game::FeedEntryReacted) && event.data.fetch(:kind).nil?

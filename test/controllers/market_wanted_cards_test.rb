@@ -3,13 +3,15 @@ require_relative "../support/game_sets"
 require_relative "../support/holdings"
 require_relative "../support/market"
 require_relative "../support/market_listings"
+require_relative "../support/market_auctions"
 require_relative "../support/steam_sign_in"
 
-# The market tells a signed-in player, on each listing, whether they own the card, and marks the cards their
-# goals miss; a chip keeps only those, with their count.
+# The market tells a signed-in player, on each listing, whether they own the card, and marks the cards they want, by a goal
+# missing them or an open order; a chip keeps only those, with their count.
 class MarketWantedCardsTest < ActionDispatch::IntegrationTest
   include GameSets
   include Holdings
+  include MarketAuctions
   include MarketListings
   include MarketSettings
   include SteamSignIn
@@ -41,7 +43,7 @@ class MarketWantedCardsTest < ActionDispatch::IntegrationTest
     assert_select ".listing-tile__link--wanted", 1
     assert_select ".listing-tile__link--wanted .goal-bookmark", 1
     assert_select ".listing-tile .goal-bookmark", 1
-    assert_select ".listing-tile__link[aria-label$='manque à vos objectifs']", 1
+    assert_select ".listing-tile__link[aria-label$=', voulue']", 1
     assert_select ".listing-tile__link[aria-label$='2 exemplaires dans votre collection']", 1
     assert_select ".market-filters__wanted", /Cartes voulues\s+1/
   end
@@ -55,6 +57,23 @@ class MarketWantedCardsTest < ActionDispatch::IntegrationTest
     assert_equal [ "Wanted" ], marks
     assert_select ".market-filters__wanted input[checked]"
     assert_select "a[href*='wanted=1']"
+  end
+
+  test "an open order without a goal marks its game wanted, and the chip counts and keeps it" do
+    settings = Game::Market::CurrentSettings.call
+    fund!(@player, 1_000)
+    Game::Market::PlaceOrder.new.call(player: @player, card_id: @other.card_id, price: 900, settings_token: settings.token).value!
+    sign_in(@player)
+
+    get market_path(locale: :fr)
+
+    assert_equal [ "Non possédée", "Possédée ×2", "Voulue" ], marks
+    assert_select ".listing-tile__link[aria-label$=', voulue']", 1
+    assert_select ".market-filters__wanted", /Cartes voulues\s+1/
+
+    get market_path(locale: :fr, wanted: "1")
+
+    assert_equal [ "Voulue" ], marks
   end
 
   test "without a goal the tiles still tell what the player owns, without the chip" do

@@ -3931,7 +3931,7 @@ en:
           other: "%{count} copies in your collection"
           zero: no copy in your collection
         wanted: Wanted
-        wanted_spoken: missing from your goals
+        wanted_spoken: wanted
       stand:
         leading_amount: max
         leading_spoken: "you are leading with a maximum of %{amount}"

@@ -2964,7 +2964,7 @@ fr:
           one: "%{count} exemplaire dans votre collection"
           other: "%{count} exemplaires dans votre collection"
         wanted: "Voulue"
-        wanted_spoken: "manque à vos objectifs"
+        wanted_spoken: "voulue"
       stand:
         leading_amount: "max"
         leading_spoken: "vous êtes en tête avec un maximum de %{amount}"
