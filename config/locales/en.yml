@@ -58,11 +58,11 @@ en:
       close: Close
       kept: 'Kept, without your Steam id or your name: your past trades, your past duels, your first
         discoveries, your contributions to the weekly mission, your market history (listings,
-        bids, entrusted cards, notices and PiCoin movements, your wallet emptied), reports,
+        bids, buy orders and sales to orders, entrusted cards, Archive purchases, notices and PiCoin movements, your wallet emptied), reports,
         the moderation history, the market''s alt-account signals, settings versions and
         chart publications and the log of game actions. This cannot be undone.'
       label: Type %{word} to confirm
-      market_html: "Your balance of %{balance} PiCoins is destroyed without refund once your running listings are withdrawn and your bids released."
+      market_html: "Your balance of %{balance} PiCoins is destroyed without refund once your running listings are withdrawn, your bids released and your open buy orders withdrawn."
       note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
         the time of your last visit, your last data export, the announcements you closed, the release notes you saw and your latest activity,
         your collection, your showcase, your set tiers, your custom sets, your decks, your bought slots, your goals, your achievements, your
@@ -4606,9 +4606,10 @@ en:
           given above.
         market_deletion: 'On the market, deleting your account deletes your market
           notices and the feed entries announcing your sales, erases your name from
-          the bid histories, withdraws your open listings and releases your maximums.
-          Your PiCoin balance is destroyed without refund, once your listings and
-          leading bids are resolved. The PiCoin record is kept without identity, for
+          the bid histories, withdraws your open listings and your open buy orders and releases your maximums.
+          A suspended account''s open buy orders are withdrawn too and their PiCoins returned to its balance.
+          Your PiCoin balance is destroyed without refund, once your listings, leading
+          bids and buy orders are resolved. The PiCoin record is kept without identity, for
           the period stated above.'
         market_visibility: 'On the market, your profile name appears on your listings,
           in the bid histories where you bid and in the feed entries announcing your
@@ -4650,8 +4651,8 @@ en:
             weekly mission, the log of game actions): as long as the game exists,
             without a Steam id or a name.'
           logs: 'the server''s logs: 30 days;'
-          market: 'your wallet, your PiCoin entries, your listings, your bids and
-            your market notices: as long as the account exists; when the account is
+          market: 'your wallet, your PiCoin entries, your listings, your bids, your
+            buy orders, your sales to orders, your Archive purchases and your market notices: as long as the account exists; when the account is
             deleted, the market notices and the feed entries announcing your sales
             are deleted, your name is erased from the bid histories and the balance
             is destroyed, but the PiCoin record stays, without identity, as long as
@@ -4675,7 +4676,8 @@ en:
           access: 'access: from the settings, with "Export" under "My data", which
             downloads a copy of your data in a reusable file, your sign-in methods
             and your Steam library list, and your market data: your wallet, your PiCoin
-            entries, your listings and your bids with your own maximums, included;'
+            entries, your listings, your bids with your own maximums, your buy orders, your
+            sales to orders, your Archive purchases and your bought slots, included;'
           authority: CNIL
           banned_html: 'suspended account: it can no longer sign in; the reason for
             the suspension is shown when you try to sign in; write to %{contact} to
@@ -4739,7 +4741,7 @@ en:
             one;
           market: 'your market activity: your PiCoin wallet (available and committed
             balance), every PiCoin entry, your listings, your bids with the maximums
-            you set, and your market notices;'
+            you set, your buy orders, your sales to orders, your Archive purchases, your bought slots, and your market notices;'
           moderation: the reports you make, those aimed at your profile (their author
             is not disclosed to you) and the moderation decisions that concern you,
             with their reason;
@@ -4812,7 +4814,7 @@ en:
           that does so may be suspended.'
         title: Terms of use
       title: Legal notice and privacy
-      updated: 'Last updated: 10 November 2026'
+      updated: 'Last updated: 23 November 2026'
   own_profiles:
     avatar_sheet:
       heading: Avatar

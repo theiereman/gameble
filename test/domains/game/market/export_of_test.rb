@@ -4,12 +4,14 @@ require_relative "../../../support/market"
 require_relative "../../../support/market_listings"
 require_relative "../../../support/market_auctions"
 require_relative "../../../support/market_bidding"
+require_relative "../../../support/market_orders"
 
 class Game::Market::ExportOfTest < ActiveSupport::TestCase
   include Holdings
   include MarketAuctions
   include MarketBidding
   include MarketListings
+  include MarketOrders
   include MarketSettings
 
   setup do
@@ -41,5 +43,30 @@ class Game::Market::ExportOfTest < ActiveSupport::TestCase
     assert_equal [ @card.id ], result.card_season_ids
     assert_empty result.bids
     assert_empty Game::Market::ExportOf::ListingRow.members & %i[leader_id leader_maximum winner_id]
+  end
+
+  test "a buyer's orders, a seller's sales to orders, Archive purchases and bought slots, the cards to look up, no buyer on a sale" do
+    rare = catalog_card_seasons(:rare_card_one)
+    open = order!(@bidder, rare, 900)
+    served = order!(@bidder, @card, 300)
+    served.update_columns(status: "served", seller_id: @seller.id, served_card_season_id: @card.id, served_at: Time.current, average_after_sale: 300)
+    Game::Market::ArchiveWithdrawal.create!(player_id: @seller.id, card_season_id: rare.id, settings_id: Game::Market::CurrentSettings.call.id,
+      purchase_token: SecureRandom.base58(24), price: 100)
+    Game::CapacitySlot.create!(player_id: @seller.id, kind: "goal", bought: 2)
+
+    buyer = Game::Market::ExportOf.call(@bidder)
+    seller = Game::Market::ExportOf.call(@seller)
+
+    assert_equal [ [ open.token, "blue-depths", "open", nil ], [ served.token, "tin-soldier", "served", @card.id ] ],
+      buyer.orders.map { [ it.token, it.card_slug, it.status, it.served_card_season_id ] }
+    assert_equal [ nil, @listing.token, nil, nil ], buyer.entries.map(&:listing_token)
+    assert_equal [ nil, nil, open.token, served.token ], buyer.entries.map(&:order_token)
+    assert_equal [ @card.id ], buyer.card_season_ids
+    assert_equal [ [ @card.id, 300 ] ], seller.sales_to_orders.map { [ it.card_season_id, it.price ] }
+    assert_empty Game::Market::ExportOf::SaleToOrderRow.members & %i[token player_id buyer_id order_token]
+    assert_equal [ [ rare.id, 100 ] ], seller.archive_purchases.map { [ it.card_season_id, it.price ] }
+    assert_equal [ [ "goal", 2 ] ], seller.bought_slots.map { [ it.kind, it.bought ] }
+    assert_equal [ @card.id, rare.id ], seller.card_season_ids
+    assert_empty seller.orders
   end
 end

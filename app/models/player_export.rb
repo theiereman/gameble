@@ -56,6 +56,10 @@ class PlayerExport
       picoinEntries: game.market.entries.map { picoin_entry(it) },
       listings: game.market.listings.map { listing(it) },
       bids: game.market.bids.map { bid(it) },
+      buyOrders: game.market.orders.map { buy_order(it) },
+      salesToOrders: game.market.sales_to_orders.map { { card: card(it.card_season_id), price: it.price, soldAt: time(it.served_at) } },
+      archivePurchases: game.market.archive_purchases.map { { card: card(it.card_season_id), price: it.price, boughtAt: time(it.created_at) } },
+      boughtSlots: game.market.bought_slots.map { { kind: it.kind, bought: it.bought } },
       reportsFiled: accounts.reports_filed.map { { reason: it.reason, createdAt: time(it.created_at) } },
       reportsReceived: accounts.reports_received.map do
         { reason: it.reason, createdAt: time(it.created_at), handledAt: time(it.handled_at) }
@@ -159,7 +163,13 @@ class PlayerExport
     end
 
     def picoin_entry(entry)
-      { kind: entry.kind, availableDelta: entry.available_delta, committedDelta: entry.committed_delta, listing: entry.listing_token, at: time(entry.created_at) }
+      { kind: entry.kind, availableDelta: entry.available_delta, committedDelta: entry.committed_delta, listing: entry.listing_token, order: entry.order_token,
+        at: time(entry.created_at) }
+    end
+
+    def buy_order(order)
+      { token: order.token, game: order.card_slug, status: order.status, price: order.price, placedAt: time(order.created_at),
+        expiresAt: time(order.expires_at), servedCard: order.served_card_season_id && card(order.served_card_season_id), servedAt: time(order.served_at) }
     end
 
     def listing(listing)

@@ -2,10 +2,12 @@ require "test_helper"
 require_relative "../support/steam_sign_in"
 require_relative "../support/market"
 require_relative "../support/market_auctions"
+require_relative "../support/market_orders"
 
-# The delete dialog names what becomes of a player's balance, running listings and bids.
+# The delete dialog names what becomes of a player's balance, running listings, bids and buy orders.
 class SettingsDeleteDialogTest < ActionDispatch::IntegrationTest
   include MarketAuctions
+  include MarketOrders
   include MarketSettings
   include SteamSignIn
 
@@ -26,7 +28,7 @@ class SettingsDeleteDialogTest < ActionDispatch::IntegrationTest
     fund!(@player, 5_000)
 
     get settings_path(locale: :en)
-    assert_select "#delete-dialog-market", text: /Your balance of .*5,000.* PiCoins is destroyed without refund once your running listings are withdrawn and your bids released\./
+    assert_select "#delete-dialog-market", text: /Your balance of .*5,000.* PiCoins is destroyed without refund once your running listings are withdrawn, your bids released and your open buy orders withdrawn\./
     assert_select "#delete-confirmation[aria-describedby='delete-dialog-note delete-dialog-market delete-dialog-kept']"
 
     get settings_path(locale: :fr)
@@ -39,5 +41,16 @@ class SettingsDeleteDialogTest < ActionDispatch::IntegrationTest
     assert_select "#delete-dialog-note", text: /purchases announced in the feed/
     get settings_path(locale: :fr)
     assert_select "#delete-dialog-note", text: /achats annoncés dans le fil/
+  end
+
+  test "a player whose whole balance is held by an open buy order reads it withdrawn, in both languages" do
+    fund!(@player, 900)
+    order!(@player, catalog_card_seasons(:rare_card_one), 900)
+
+    get settings_path(locale: :en)
+    assert_select "#delete-dialog-market", text: /your open buy orders withdrawn\./
+
+    get settings_path(locale: :fr)
+    assert_select "#delete-dialog-market", text: /vos ordres d'achat en cours retirés\./
   end
 end

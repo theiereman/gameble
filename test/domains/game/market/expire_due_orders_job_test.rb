@@ -70,4 +70,24 @@ class Game::Market::ExpireDueOrdersJobTest < ActiveSupport::TestCase
 
     assert_equal "expired", order.reload.status
   end
+
+  test "a deleted owner's due order is left to the withdrawal, without a report" do
+    order = due!(@cards.first)
+    @buyer.update_columns(deleted_at: Time.current, steam_id: nil)
+
+    assert_no_difference(-> { Game::Market::LedgerEntry.count }) do
+      assert_no_error_reported { Game::Market::ExpireDueOrdersJob.perform_now }
+    end
+
+    assert_equal "open", order.reload.status
+  end
+
+  test "a banned owner's due order still expires" do
+    order = due!(@cards.first)
+    @buyer.update_columns(banned_at: Time.current)
+
+    Game::Market::ExpireDueOrdersJob.perform_now
+
+    assert_equal "expired", order.reload.status
+  end
 end

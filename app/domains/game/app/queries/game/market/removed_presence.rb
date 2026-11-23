@@ -5,6 +5,10 @@ module Game
         Listing.open_now.joins(:seller).merge(Accounts::Player.removed).pluck(:id, :seller_id)
       end
 
+      def self.orders
+        Order.where(status: "open").joins(:player).merge(Accounts::Player.removed).pluck(:id, :player_id)
+      end
+
       def self.wallets
         Wallet.where("available > 0 AND committed = 0").where(player_id: Accounts::Player.where.not(deleted_at: nil).select(:id))
           .where.not(player_id: Listing.open_now.select(:seller_id)).where.not(player_id: Listing.open_now.where.not(leader_id: nil).select(:leader_id)).pluck(:player_id)

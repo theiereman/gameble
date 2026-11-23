@@ -4,6 +4,7 @@ require_relative "../../../support/holdings"
 require_relative "../../../support/market"
 require_relative "../../../support/market_listings"
 require_relative "../../../support/market_auctions"
+require_relative "../../../support/market_orders"
 
 class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
   include SingletonStub
@@ -11,6 +12,7 @@ class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
   include Holdings
   include MarketAuctions
   include MarketListings
+  include MarketOrders
   include MarketSettings
 
   setup do
@@ -126,6 +128,62 @@ class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
     Game::Market::DropPresenceJob.perform_now
 
     assert_no_difference([ -> { Game::Market::LedgerEntry.count }, -> { Game::Market::Bid.count } ]) do
+      assert_no_error_reported { Game::Market::DropPresenceJob.perform_now }
+    end
+  end
+
+  test "a banned owner's open orders are withdrawn and the money stays in the wallet" do
+    first = order!(@leader, @card, 900)
+    second = order!(@leader, @other_card, 300, expires_at: 1.minute.ago)
+    @leader.update_columns(banned_at: Time.current)
+
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_equal %w[withdrawn withdrawn], [ first, second ].map { it.reload.status }
+    assert_equal [ 100_000, 0 ], Game::Market::Wallet.find_by!(player_id: @leader.id).attributes.values_at("available", "committed")
+  end
+
+  test "a deleted owner's order is withdrawn and the balance forfeited in the same pass" do
+    order = order!(@leader, @card, 900)
+    @leader.update_columns(deleted_at: Time.current, steam_id: nil)
+
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_equal "withdrawn", order.reload.status
+    assert_equal [ 0, 0 ], Game::Market::Wallet.find_by!(player_id: @leader.id).attributes.values_at("available", "committed")
+    assert_equal 100_000, Game::Market::LedgerEntry.where(player_id: @leader.id, kind: "forfeit").sole.available_delta.abs
+    assert Game::Market::ReconcileWallets.call.balanced?
+  end
+
+  test "a present owner's order is left alone" do
+    order = order!(@leader, @card, 900)
+
+    assert_no_difference(-> { Game::Market::LedgerEntry.count }) { Game::Market::DropPresenceJob.perform_now }
+
+    assert_equal "open", order.reload.status
+  end
+
+  test "an order that raises does not stop the others and is reported with its id" do
+    first = order!(@leader, @card, 900)
+    second = order!(@leader, @other_card, 300)
+    @leader.update_columns(banned_at: Time.current)
+    real = Game::Market::WithdrawOrder.new
+    failing = ->(**arguments) { arguments[:order_id] == first.id ? raise("boom") : real.call(**arguments) }
+
+    report = assert_error_reported(RuntimeError) do
+      stub_singleton(Game::Market::WithdrawOrder, :new, -> { failing }) { Game::Market::DropPresenceJob.perform_now }
+    end
+
+    assert_equal first.id, report.context[:order_id]
+    assert_equal %w[open withdrawn], [ first, second ].map { it.reload.status }
+  end
+
+  test "a second run after withdrawing orders changes nothing" do
+    order!(@leader, @card, 900)
+    @leader.update_columns(deleted_at: Time.current, steam_id: nil)
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_no_difference(-> { Game::Market::LedgerEntry.count }) do
       assert_no_error_reported { Game::Market::DropPresenceJob.perform_now }
     end
   end

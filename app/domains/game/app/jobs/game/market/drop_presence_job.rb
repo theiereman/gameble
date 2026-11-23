@@ -6,6 +6,7 @@ module Game
       def perform
         drop(RemovedPresence.sellers, WithdrawListing, WithdrawListing::NOT_WITHDRAWABLE)
         drop(RemovedPresence.leaders(now: Time.current), VoidLead, VoidLead::LEAD_NOT_VOIDABLE)
+        withdraw(RemovedPresence.orders)
         forfeit(RemovedPresence.wallets)
       end
 
@@ -17,6 +18,16 @@ module Game
           result.value! unless ForfeitBalance::SKIPPED.include?(result)
         rescue StandardError => error
           Rails.error.report(error, context: { player_id: player.id })
+        end
+      end
+
+      def withdraw(orders)
+        owners = Accounts::Player.where(id: orders.map(&:last)).index_by(&:id)
+        orders.each do |order_id, player_id|
+          result = WithdrawOrder.new.call(player: owners[player_id], order_id:)
+          result.value! unless result == WithdrawOrder::NOT_WITHDRAWABLE
+        rescue StandardError => error
+          Rails.error.report(error, context: { order_id: })
         end
       end
 

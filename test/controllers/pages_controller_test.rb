@@ -26,26 +26,26 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       "terms.no_property" => "Les cartes, capsules et dos de cartes sont des éléments du jeu\u202F: ils ne sont pas votre propriété et n'ont aucune valeur en argent, ni dans Gameble ni en dehors. Leur prix en PiCoins n'est qu'une règle du jeu.",
       "terms.real_money" => "Il est interdit d'échanger des cartes ou des PiCoins contre de l'argent réel, dans Gameble ou en dehors\u202F: ni vente, ni achat, ni cession, ni intermédiaire. Un compte qui le fait peut être suspendu.",
       "terms.picoins" => "Les PiCoins sont la monnaie du jeu\u202F: ils ne se gagnent qu'en confiant des cartes à la Confrérie ou en vendant aux enchères, ne s'achètent jamais et ne se retirent jamais.",
-      "privacy.stored.market" => "votre activité sur le marché\u202F: votre portefeuille de PiCoins (solde disponible et solde engagé), chaque mouvement de PiCoins, vos annonces, vos enchères avec les maximums que vous avez fixés, et vos notifications du marché\u202F;",
+      "privacy.stored.market" => "votre activité sur le marché\u202F: votre portefeuille de PiCoins (solde disponible et solde engagé), chaque mouvement de PiCoins, vos annonces, vos enchères avec les maximums que vous avez fixés, vos ordres d'achat, vos ventes à des ordres, vos achats aux Archives, vos emplacements achetés, et vos notifications du marché\u202F;",
       "privacy.stored.signals" => "des signaux de comptes multiples, calculés chaque jour à partir de votre activité de capsules, d'échanges, de ventes et d'enchères, que seul le personnel de modération consulte, et dont aucune décision n'est tirée automatiquement\u202F;",
       "privacy.market_visibility" => "Sur le marché, votre nom de profil figure sur vos annonces, dans l'historique des enchères où vous misez et dans les entrées du fil qui annoncent vos ventes, visibles de tous, y compris des visiteurs non connectés, quel que soit le réglage de votre profil. Vos maximums, eux, ne sont jamais montrés aux autres joueurs.",
-      "privacy.retention.market" => "votre portefeuille, vos mouvements de PiCoins, vos annonces, vos enchères et vos notifications du marché\u202F: tant que le compte existe\u202F; à la suppression du compte, les notifications du marché et les entrées du fil qui annoncent vos ventes sont supprimées, votre nom est effacé des historiques d'enchères et le solde est détruit, mais le registre des PiCoins reste, sans identité, tant que le jeu existe\u202F;",
+      "privacy.retention.market" => "votre portefeuille, vos mouvements de PiCoins, vos annonces, vos enchères, vos ordres d'achat, vos ventes à des ordres, vos achats aux Archives et vos notifications du marché\u202F: tant que le compte existe\u202F; à la suppression du compte, les notifications du marché et les entrées du fil qui annoncent vos ventes sont supprimées, votre nom est effacé des historiques d'enchères et le solde est détruit, mais le registre des PiCoins reste, sans identité, tant que le jeu existe\u202F;",
       "privacy.retention.signals" => "les signaux de comptes multiples\u202F: remplacés chaque jour, ils ne gardent que les faits du dernier calcul\u202F;",
-      "privacy.market_deletion" => "Sur le marché, la suppression de votre compte supprime vos notifications du marché et les entrées du fil qui annoncent vos ventes, efface votre nom des historiques d'enchères, retire vos annonces en cours et libère vos maximums. Votre solde de PiCoins est détruit sans remboursement, une fois vos annonces et vos enchères en tête réglées. Le registre des PiCoins est conservé sans identité, pendant la durée indiquée plus haut.",
-      "updated" => "Dernière mise à jour\u202F: 10 novembre 2026"
+      "privacy.market_deletion" => "Sur le marché, la suppression de votre compte supprime vos notifications du marché et les entrées du fil qui annoncent vos ventes, efface votre nom des historiques d'enchères, retire vos annonces et vos ordres d'achat en cours et libère vos maximums. Les ordres d'achat en cours d'un compte suspendu sont aussi retirés et leurs PiCoins rendus à son solde. Votre solde de PiCoins est détruit sans remboursement, une fois vos annonces, vos enchères en tête et vos ordres d'achat réglés. Le registre des PiCoins est conservé sans identité, pendant la durée indiquée plus haut.",
+      "updated" => "Dernière mise à jour\u202F: 23 novembre 2026"
     },
     "en" => {
       "terms.no_money" => "No real money flows through it: nothing is bought with money, and cards are sold for PiCoins, the game's currency, never for money.",
       "terms.no_property" => "Cards, capsules and card backs are parts of the game: they are not your property and have no value in money, in Gameble or outside it. Their price in PiCoins is only a rule of the game.",
       "terms.real_money" => "Trading cards or PiCoins for real money is forbidden, in Gameble or outside it: no sale, no purchase, no transfer, no go-between. An account that does so may be suspended.",
       "terms.picoins" => "PiCoins are the game's currency: they are earned only by entrusting cards to the Brotherhood or by selling at auction, and they are never bought and never withdrawn.",
-      "privacy.stored.market" => "your market activity: your PiCoin wallet (available and committed balance), every PiCoin entry, your listings, your bids with the maximums you set, and your market notices;",
+      "privacy.stored.market" => "your market activity: your PiCoin wallet (available and committed balance), every PiCoin entry, your listings, your bids with the maximums you set, your buy orders, your sales to orders, your Archive purchases, your bought slots, and your market notices;",
       "privacy.stored.signals" => "alt-account signals, worked out each day from your capsule, trade, sale and bid activity, which only the moderation staff read and from which no decision is taken automatically;",
       "privacy.market_visibility" => "On the market, your profile name appears on your listings, in the bid histories where you bid and in the feed entries announcing your sales, visible to everyone, signed-out visitors included, whatever your profile setting. Your maximums, though, are never shown to other players.",
-      "privacy.retention.market" => "your wallet, your PiCoin entries, your listings, your bids and your market notices: as long as the account exists; when the account is deleted, the market notices and the feed entries announcing your sales are deleted, your name is erased from the bid histories and the balance is destroyed, but the PiCoin record stays, without identity, as long as the game exists;",
+      "privacy.retention.market" => "your wallet, your PiCoin entries, your listings, your bids, your buy orders, your sales to orders, your Archive purchases and your market notices: as long as the account exists; when the account is deleted, the market notices and the feed entries announcing your sales are deleted, your name is erased from the bid histories and the balance is destroyed, but the PiCoin record stays, without identity, as long as the game exists;",
       "privacy.retention.signals" => "alt-account signals: replaced every day, they keep only the facts of the latest calculation;",
-      "privacy.market_deletion" => "On the market, deleting your account deletes your market notices and the feed entries announcing your sales, erases your name from the bid histories, withdraws your open listings and releases your maximums. Your PiCoin balance is destroyed without refund, once your listings and leading bids are resolved. The PiCoin record is kept without identity, for the period stated above.",
-      "updated" => "Last updated: 10 November 2026"
+      "privacy.market_deletion" => "On the market, deleting your account deletes your market notices and the feed entries announcing your sales, erases your name from the bid histories, withdraws your open listings and your open buy orders and releases your maximums. A suspended account's open buy orders are withdrawn too and their PiCoins returned to its balance. Your PiCoin balance is destroyed without refund, once your listings, leading bids and buy orders are resolved. The PiCoin record is kept without identity, for the period stated above.",
+      "updated" => "Last updated: 23 November 2026"
     }
   }.freeze
 
@@ -731,7 +731,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__contact a[href=?]", "mailto:contact@example.test", "contact@example.test"
     assert_select ".legal__host-name", "Example Hosting"
     assert_select ".legal__host-address", "1 rue de l'Exemple, 75000 Paris"
-    assert_select ".legal__access", 'access: from the settings, with "Export" under "My data", which downloads a copy of your data in a reusable file, your sign-in methods and your Steam library list, and your market data: your wallet, your PiCoin entries, your listings and your bids with your own maximums, included;'
+    assert_select ".legal__access", 'access: from the settings, with "Export" under "My data", which downloads a copy of your data in a reusable file, your sign-in methods and your Steam library list, and your market data: your wallet, your PiCoin entries, your listings, your bids with your own maximums, your buy orders, your sales to orders, your Archive purchases and your bought slots, included;'
     assert_select ".legal__access a", false
   end
 
@@ -751,7 +751,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__updated", "Dernière mise à jour\u202F: 10 novembre 2026"
+    assert_select ".legal__updated", "Dernière mise à jour\u202F: 23 novembre 2026"
     %w[.legal__moderation .legal__notice .legal__rectification .legal__objection .legal__death .legal__banned].each do |line|
       assert_select "#{line} a.legal__link[href=?]", "mailto:contact@example.test", "contact@example.test"
     end
@@ -819,11 +819,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     configure_legal
     wording = {
       en: { paragraph: [ "market notices and the feed entries announcing your sales", "erases your name from the bid histories", "balance is destroyed without refund",
-                         "once your listings and leading bids are resolved", "without identity" ],
+                         "once your listings, leading bids and buy orders are resolved", "withdraws your open listings and your open buy orders", "without identity" ],
             retention: [ "market notices and the feed entries announcing your sales are deleted", "your name is erased from the bid histories", "the balance is destroyed" ],
             signals: "replaced every day", not_erased: /erases your name from (your )?(market )?notices/ },
       fr: { paragraph: [ "notifications du marché et les entrées du fil qui annoncent vos ventes", "efface votre nom des historiques d'enchères", "détruit sans remboursement",
-                         "une fois vos annonces et vos enchères en tête réglées", "sans identité" ],
+                         "une fois vos annonces, vos enchères en tête et vos ordres d'achat réglés", "retire vos annonces et vos ordres d'achat en cours", "sans identité" ],
             retention: [ "les notifications du marché et les entrées du fil qui annoncent vos ventes sont supprimées", "votre nom est effacé des historiques d'enchères", "le solde est détruit" ],
             signals: "remplacés chaque jour", not_erased: /efface votre nom des notifications/ }
     }
@@ -843,8 +843,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "the access right names the Steam library and the market data the export covers, in both languages" do
     configure_legal
     words = {
-      fr: [ "la liste de votre bibliothèque Steam", "votre portefeuille", "vos mouvements de PiCoins", "vos annonces", "vos enchères avec vos propres maximums" ],
-      en: [ "your Steam library list", "your wallet", "your PiCoin entries", "your listings", "your bids with your own maximums" ]
+      fr: [ "la liste de votre bibliothèque Steam", "votre portefeuille", "vos mouvements de PiCoins", "vos annonces", "vos enchères avec vos propres maximums", "vos ordres d'achat", "vos ventes à des ordres", "vos achats aux Archives", "vos emplacements achetés" ],
+      en: [ "your Steam library list", "your wallet", "your PiCoin entries", "your listings", "your bids with your own maximums", "your buy orders", "your sales to orders", "your Archive purchases", "your bought slots" ]
     }
 
     words.each do |locale, terms|
@@ -883,12 +883,12 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
             retention: "la liste des jeux de votre bibliothèque Steam\u202F: tant que le compte existe et que la synchronisation est activée\u202F; elle est effacée aussitôt que vous désactivez «\u202FSynchroniser mes jeux Steam\u202F» dans les paramètres ou supprimez votre compte\u202F;",
             list: "la liste de votre bibliothèque Steam", setting: "synchronisation des jeux Steam", objection: "désactivez «\u202FSynchroniser mes jeux Steam\u202F»",
             service: "Steam (Valve) gère la connexion et fournit votre nom de profil et, une fois par jour tant que la synchronisation est activée, les jeux de votre bibliothèque Steam\u202F;",
-            updated: "Dernière mise à jour\u202F: 10 novembre 2026" },
+            updated: "Dernière mise à jour\u202F: 23 novembre 2026" },
       en: { stored: 'if you sign in with Steam and leave "Sync my Steam games" on in the settings: the list of the catalog games your Steam library holds, read from Steam once a day for your "My Steam library" set, with the date of its last sync and, when Steam stops sharing your library, since when;',
             retention: 'the list of your Steam library\'s games: as long as the account exists and the sync is on; it is erased at once when you turn "Sync my Steam games" off in the settings or delete your account;',
             list: "your Steam library list", setting: "Steam games sync", objection: 'turn "Sync my Steam games" off',
             service: "Steam (Valve) handles sign-in and provides your profile name and, once a day while the sync is on, the games of your Steam library;",
-            updated: "Last updated: 10 November 2026" }
+            updated: "Last updated: 23 November 2026" }
     }
 
     library.each do |locale, copy|

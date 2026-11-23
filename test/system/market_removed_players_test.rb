@@ -5,6 +5,7 @@ require_relative "../support/market"
 require_relative "../support/market_listings"
 require_relative "../support/market_auctions"
 require_relative "../support/market_bidding"
+require_relative "../support/market_orders"
 
 # A banned or deleted player's market presence is dropped by the minute job, and the players left behind see it.
 class MarketRemovedPlayersSystemTest < ApplicationSystemTestCase
@@ -14,6 +15,7 @@ class MarketRemovedPlayersSystemTest < ApplicationSystemTestCase
   include MarketAuctions
   include MarketBidding
   include MarketListings
+  include MarketOrders
   include MarketSettings
 
   setup do
@@ -78,5 +80,21 @@ class MarketRemovedPlayersSystemTest < ApplicationSystemTestCase
     assert_equal [ 0, 0 ], figures(@leader)
     assert_nil @listing.reload.leader_id
     assert_equal 1, Game::Market::LedgerEntry.where(player_id: @leader.id, kind: "forfeit").count
+  end
+
+  test "a player with an open buy order reads it withdrawn in the delete dialog, and once deleted the job withdraws it and forfeits the balance" do
+    order = order!(@leader, catalog_card_seasons(:rare_card_one), 900)
+    sign_in_through_the_site(@leader)
+    visit settings_path(locale: :en)
+    click_on "Delete my account"
+    assert_selector "#delete-dialog-market", text: /your open buy orders withdrawn\./
+
+    assert Accounts::DeletePlayer.new.call(player: @leader).success?
+    perform_enqueued_jobs(only: Game::Market::RefreshWantedJob)
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_equal "withdrawn", order.reload.status
+    assert_equal [ 0, 0 ], figures(@leader)
+    assert_empty Game::Market::Wanted.where(player_id: @leader.id)
   end
 end

@@ -6,7 +6,7 @@ module Game
       BATCH_SIZE = 100
 
       def perform
-        Order.due(Time.current).in_batches(of: BATCH_SIZE) do |batch|
+        Order.due(Time.current).where.not(player_id: Accounts::Player.where.not(deleted_at: nil).select(:id)).in_batches(of: BATCH_SIZE) do |batch|
           orders = batch.pluck(:id, :player_id)
           owners = Accounts::Player.where(id: orders.map(&:last)).index_by(&:id)
           orders.each do |order_id, player_id|

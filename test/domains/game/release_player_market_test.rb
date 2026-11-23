@@ -1,9 +1,14 @@
 require "test_helper"
 require_relative "../../support/market"
+require_relative "../../support/market_auctions"
 require_relative "../../support/market_listings"
+require_relative "../../support/market_orders"
 
 class Game::ReleasePlayerMarketTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+  include MarketAuctions
   include MarketListings
+  include MarketOrders
   include MarketSettings
 
   setup do
@@ -38,5 +43,29 @@ class Game::ReleasePlayerMarketTest < ActiveSupport::TestCase
     assert Game::ReleasePlayer.new.call(player: @player).success?
 
     assert_equal 1_000, Game::Market::Wallet.find_by!(player_id: @player.id).available
+  end
+
+  test "after the deletion and the presence job, no wanted, tied-account or slot row names the player; orders, withdrawals and entries keep them" do
+    card = catalog_card_seasons(:rare_card_one)
+    settings = Game::Market::CurrentSettings.call
+    fund!(@player, 5_000)
+    order = order!(@player, card, 900)
+    Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: card.id, settings_id: settings.id, purchase_token: SecureRandom.base58(24), price: 100)
+    Game::CapacitySlot.create!(player_id: @player.id, kind: "goal", bought: 1)
+    low, high = [ @player, @other ].sort_by(&:id)
+    Game::Market::TiedAccount.create!(low_account: low, high_account: high, signal: "one_way_trades", facts: {}, refreshed_at: Time.current)
+
+    assert Accounts::DeletePlayer.new.call(player: @player).success?
+    perform_enqueued_jobs(only: Game::Market::RefreshWantedJob)
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_equal "withdrawn", order.reload.status
+    assert_equal [ 0, 0 ], Game::Market::Wallet.find_by!(player_id: @player.id).attributes.values_at("available", "committed")
+    assert_empty Game::Market::Wanted.where(player_id: @player.id)
+    assert_empty Game::Market::TiedAccount.where(low_account_id: @player.id).or(Game::Market::TiedAccount.where(high_account_id: @player.id))
+    assert_empty Game::CapacitySlot.where(player_id: @player.id)
+    assert_equal [ @player.id ], Game::Market::Order.where(id: order.id).pluck(:player_id)
+    assert_equal 1, Game::Market::ArchiveWithdrawal.where(player_id: @player.id).count
+    assert_equal %w[forfeit hold mint release], Game::Market::LedgerEntry.where(player_id: @player.id).distinct.order(:kind).pluck(:kind)
   end
 end
