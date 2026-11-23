@@ -258,6 +258,16 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_market_card_order_path(locale: :en, slug: "tin-soldier")
   end
 
+  test "a throttled post returns to the form keeping where it was opened from and its goal chain" do
+    sign_in(@player)
+
+    with_counting_rate_limit(Market::OrdersController) do
+      11.times { post market_card_orders_path(locale: :en, slug: "tin-soldier"), params: { price: "abc", from: "card", goal: "1", of: "3" } }
+    end
+
+    assert_redirected_to new_market_card_order_path(locale: :en, slug: "tin-soldier", from: "card", goal: "1", of: "3")
+  end
+
   test "with no listing, the form lists the Archives' editions of the game, each opening the purchase confirmation" do
     open_market!(first_opened_at: 1.day.ago, archive_price_rare: 500)
     Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)

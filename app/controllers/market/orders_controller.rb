@@ -4,7 +4,8 @@ module Market
 
     BACK_FROM = %w[my_orders card].freeze
 
-    throttle_player to: 10, only: :create, path: -> { new_market_card_order_path(slug: params[:slug].to_s) }, alert: "market.orders.create.throttled"
+    throttle_player to: 10, only: :create, alert: "market.orders.create.throttled",
+      path: -> { new_market_card_order_path(slug: params[:slug].to_s, **%i[from goal of].index_with { params[it].to_s }.compact_blank) }
 
     def new
       authorize %i[market order], :new?
