@@ -27,6 +27,16 @@ class AltSignalSentenceComponentTest < ViewComponent::TestCase
       sentence("bids_on_tied_seller", { "listings" => 2, "bids" => 5 })
   end
 
+  test "an Archive purchase of a tied deposit reads its card, its season undelimited and its deposit day" do
+    facts = { "card" => "tin-soldier", "season" => 1979, "price" => 1500, "deposited" => 2, "deposited_on" => "2026-11-03" }
+
+    assert_equal "Bought tin-soldier (season 1979) from the Archives for 1,500 PiCoins in the last 30 days; the other account, which another signal ties " \
+      "to it, entrusted that edition. Copies entrusted: 2, last on November 3, 2026.", sentence("archive_purchase_of_tied_deposit", facts)
+    I18n.with_locale(:fr) do
+      assert_match(/\(saison 1979\).*la dernière fois le 1er novembre 2026\.\z/, sentence("archive_purchase_of_tied_deposit", facts.merge("deposited_on" => "2026-11-01")))
+    end
+  end
+
   test "every signal has a sentence and a name in both languages" do
     %i[en fr].each do |locale|
       Game::Market::AltSignals::SIGNALS.each do |signal|
