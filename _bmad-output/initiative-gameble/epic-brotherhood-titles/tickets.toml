@@ -1,0 +1,101 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The nightly job grades every member and the public profile shows the post"
+description = "Tracer through every layer: a query of the five service measures, days of service and activity, a nightly job that stores each service's floating thresholds and raises each member's stored grade (never lowering it), and the public profile showing the worn post's French job title."
+verify = "Job tests on fixtures give the expected grade per service, a raised threshold lowers no stored grade, an inactive or grade-1 member shows no title, and a system test reads the post on a public profile."
+covers = ["R1", "R2", "R4"]
+after = []
+hitl = false
+risk = "high"
+unknown = "The storage of grades and thresholds is set by the bmad-architecture pass that precedes the build."
+
+[[entry]]
+id = 2
+type = "story"
+title = "The post replaces the per-set titles everywhere, with the staff titles"
+description = "Shows the worn post in the feed, trades, friend profile and settings, applies the strict mutation rule, offers staff their staff title, shrinks the picker to the post, no title or the staff title, and retires the per-set titles and their stored choice expand/contract; hitl: the author supplies the English job titles."
+verify = "System tests of the picker and of the four title places; no screen shows a per-set title; a tie between two services keeps the current post."
+covers = ["R4", "R5"]
+after = [1]
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Promotions reach the feed or the bell, and the first run announces the reorganisation"
+description = "A promotion publishes an event whose handlers make a promotion feed entry from grade 3 and a bell notice below it; the job's first run grades silently and publishes the Direction's announcement once."
+verify = "A promotion from 2 to 3 makes one feed entry, from 1 to 2 only a bell notice, and the first run makes no promotion entry and exactly one announcement."
+covers = ["R6"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Grade 5 needs the service's top feat, and the week's first pioneer earns one"
+description = "Grade 5 waits on the service's top-feat achievement, and a new achievement, frozen every Monday like the Chattomètre's verdict, goes to the week's first player on the pioneer ranking; hitl: the author approves its French and English titles."
+verify = "A member at p97 without the feat stays at grade 4 and reaches 5 the night after earning it; the week's first pioneer, ties broken as the pioneer board breaks them, gets the achievement once."
+covers = ["R3"]
+after = [1]
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Clicking a title opens the service star"
+description = "A dialog, a bottom sheet on a phone, opened from any title: the member's percentile per service as a server-rendered five-branch radar, each service's post and raw figure, and any seat, shown only where the viewer may see the profile."
+verify = "A system test opens the star from the feed and from a profile; a private profile's title opens nothing; the percentiles shown equal the query's."
+covers = ["R7"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "A weekly snapshot feeds Mes indicateurs on the owner's profile"
+description = "Stores each active member's percentile and figure per service and each threshold every week, and shows the owner alone the career track, a gauge per next-grade condition with the threshold's 4-week rise, the nearest mutation and the 12-week evolution with promotions and feats marked."
+verify = "The panel shows only on the owner's own profile; the threshold rise equals the gap between two snapshots; the evolution reads 12 snapshots."
+covers = ["R8", "R9"]
+after = [1, 4, 5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Publishing a season names the Comité de direction"
+description = "At a season publication, each service's number one over the season that ended among members of grade 3 or more takes the seat and wears 'Direction de …' until the next one, a seat with no candidate stays vacant, the dethroned holder returns to their grade with a bell notice, the season recap gains the Comité section and the Direction publishes one feed entry."
+verify = "Publishing a season on fixtures seats the right number one per service, leaves a candidate-less seat vacant, returns the previous holder to their grade with one notice, and shows the Comité on the recap and once in the feed."
+covers = ["R10", "R11"]
+after = [2, 3]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Mes indicateurs shows the race for the seat"
+description = "Adds the season race to the owner's panel: the service's number one, the member and the member behind, with the gap, ranked as the seat award ranks them."
+verify = "The ranks and gaps shown equal those the seat award would compute at that moment."
+covers = ["R12"]
+after = [6, 7]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the build records and the review findings deferred during the epic."
+verify = "bin/ci, the JavaScript tests and the system tests of the screens the epic touched pass."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8]
+hitl = false
+risk = "low"

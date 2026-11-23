@@ -356,3 +356,10 @@ slug = "epic-market-volume"
 title = "Market volume"
 covers = ["CAP-44", "CAP-45", "CAP-46", "CAP-47", "CAP-48", "CAP-49", "CAP-27", "CAP-28", "CAP-37", "CAP-40"]
 after = [{ epic = 38, needs = "the ledger, Mint, the reconciliation, versioned settings with ChangeSettings, Confier and its recap, the balance chip, the Archives' deposits and stocks, the card detail's market actions" }, { epic = 39, needs = "listings with their settlement index and settlement step, ListCard, EditionPrice, Mettre en vente, MES ENCHÈRES' rows and the market chip row" }, { epic = 37, needs = "the Reactor, the Bourse's destroyed legend, EditionSales and the edition chart" }, { epic = 40, needs = "the bell's market lines and their push, the sale feed entry, DropPresenceJob, the forfeit and the market export" }, { epic = 41, needs = "the daily snapshot and DailyFigures, the health page, the alt signals and their pair ties" }, { epic = 42, needs = "the deck limit in CreateDeck and the deck list, deck blocks named on the sale and entrust screens (decks touch the slots)" }]
+
+[[epic]]
+id = 47
+release = "1.5.0"
+slug = "epic-brotherhood-titles"
+title = "The Brotherhood names its members"
+covers = ["CAP-22", "CAP-13", "CAP-17", "CAP-23"]
