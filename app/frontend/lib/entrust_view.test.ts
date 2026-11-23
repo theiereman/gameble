@@ -111,10 +111,11 @@ describe("wanted copies in the recap", () => {
     expect(view.setApart).toEqual({
       heading: "SET ASIDE · 1 WANTED CARD",
       lines: [{ ref: "pyre:1", rarity: "rare", label: "Pyre, season 1", seekers: "1 player wants it" }],
+      more: null,
     })
-    expect(view.lines.map((line) => [line.ref, line.count])).toEqual([
-      ["pyre:1", "×1"],
-      ["common:1", "×3"],
+    expect(view.lines.map((line) => [line.ref, line.count, line.stepper?.value])).toEqual([
+      ["pyre:1", "×2", 2],
+      ["common:1", "×3", 3],
     ])
     expect(view.received).toBe(5030)
     expect(view.label).toBe("Entrust 4 copies")
@@ -129,6 +130,22 @@ describe("wanted copies in the recap", () => {
     expect(view.label).toBe("CHOOSE FOR THE WANTED CARD ▸")
     expect(view.disabled).toBe(false)
     expect(view.finality).toBe(false)
+  })
+
+  it("leads to the table when the cap entrusts nothing of the other ticked copies", () => {
+    const view = recapViewOf(start([PYRE, COMMON], 0, { "pyre:1": 1, "common:1": 1 }), STRINGS, forms)
+    expect(view.lines.map((line) => line.state)).toEqual(["stays"])
+    expect(view.label).toBe("CHOOSE FOR THE WANTED CARD ▸")
+    expect(view.finality).toBe(false)
+    expect(view.disabled).toBe(false)
+  })
+
+  it("draws the first set-apart lines and counts the rest", () => {
+    const wanted = Array.from({ length: RECAP_LINES + 2 }, (_, index) => ({ ...PYRE, ref: `pyre:${index}` }))
+    const ticked = Object.fromEntries(wanted.map((copy) => [copy.ref, 1]))
+    const view = recapViewOf(start(wanted, 1_200_000, ticked), STRINGS, forms)
+    expect(view.setApart?.lines).toHaveLength(RECAP_LINES)
+    expect(view.setApart?.more).toBe("and 2 more")
   })
 
   it("shows the first of two steps in the grid while a wanted copy is ticked", () => {

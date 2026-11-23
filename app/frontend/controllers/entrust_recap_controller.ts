@@ -43,6 +43,7 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     "setApartHeading",
     "setApartLines",
     "setApartTemplate",
+    "setApartMore",
   ]
   static values = { locale: String, accessible: String, reasonId: String }
 
@@ -73,6 +74,8 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
   declare readonly setApartHeadingTarget: HTMLElement
   declare readonly setApartLinesTarget: HTMLElement
   declare readonly setApartTemplateTarget: HTMLTemplateElement
+  declare readonly hasSetApartMoreTarget: boolean
+  declare readonly setApartMoreTarget: HTMLElement
   declare readonly localeValue: string
   declare readonly accessibleValue: string
   declare readonly reasonIdValue: string
@@ -213,6 +216,7 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     this.setApartTarget.hidden = view === null
     if (view === null) return
     writeText(this.setApartHeadingTarget, view.heading)
+    if (this.hasSetApartMoreTarget) this.reflectNote(this.setApartMoreTarget, view.more)
     const list = this.setApartLinesTarget
     const lines = Array.from(list.children)
     lines.slice(view.lines.length).forEach((line) => line.remove())

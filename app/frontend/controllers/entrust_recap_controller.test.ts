@@ -34,6 +34,7 @@ const MARKUP = `
     <div id="set-apart" data-entrust-recap-target="setApart" hidden>
       <p data-entrust-recap-target="setApartHeading"></p>
       <ul id="set-apart-lines" data-entrust-recap-target="setApartLines"></ul>
+      <p id="set-apart-more" data-entrust-recap-target="setApartMore" hidden></p>
     </div>
     <template data-entrust-recap-target="setApartTemplate">
       <li><span class="entrust-recap__set-apart-name"></span><span class="entrust-recap__set-apart-seekers"></span></li>
@@ -215,6 +216,20 @@ describe("the submit button", () => {
     recap.render(view({ disabled: true, label: "Entrust" }))
     const button = document.querySelector("button")!
     expect([button.textContent, button.disabled]).toEqual(["Entrust", true])
+  })
+})
+
+describe("the set-apart copies", () => {
+  const setApartLine = { ref: "a:1", rarity: "rare", label: "A, season 1", seekers: "1 player wants it" }
+
+  it("says how many set-apart lines the recap leaves out, and nothing once they all fit", () => {
+    recap.render(
+      view({ setApart: { heading: "SET ASIDE · 31 WANTED CARDS", lines: [setApartLine], more: "and 1 more" } }),
+    )
+    expect(document.getElementById("set-apart-more")!.hidden).toBe(false)
+    expect(document.getElementById("set-apart-more")!.textContent).toBe("and 1 more")
+    recap.render(view({ setApart: { heading: "SET ASIDE · 1 WANTED CARD", lines: [setApartLine], more: null } }))
+    expect(document.getElementById("set-apart-more")!.hidden).toBe(true)
   })
 })
 

@@ -54,7 +54,7 @@ export type LineView = {
 
 export type SetApartLineView = { ref: string; rarity: string; label: string; seekers: string }
 
-export type SetApartView = { heading: string; lines: readonly SetApartLineView[] }
+export type SetApartView = { heading: string; lines: readonly SetApartLineView[]; more: string | null }
 
 export type RecapView = {
   prompt: boolean
@@ -154,7 +154,7 @@ export function recapViewOf(
     t(strings.status, { count: result.count, amount: t(accessible, { amount: picoins(result.received, { locale }) }) }),
     ...(result.setApartCount > 0 ? [t(strings.setApartStatus, { count: result.setApartCount })] : []),
   ].join(", ")
-  const onlyWanted = result.lines.length === 0 && result.setApartCount > 0
+  const onlyWanted = result.count === 0 && result.setApartCount > 0
   return {
     prompt: result.lines.length === 0 && result.setApartCount === 0,
     setApart: setApartViewOf(result.setApart, result.setApartCount, strings),
@@ -162,7 +162,7 @@ export function recapViewOf(
     lines: result.lines.slice(0, RECAP_LINES).map(({ copy, copies, entrusted, stayed }) => ({
       ref: copy.ref,
       label: t(strings.line, { title: copy.title, season: copy.season }),
-      count: t(strings.count, { count: entrusted + stayed }),
+      count: t(strings.count, { count: copies }),
       amount: entrusted > 0 ? entrusted * copy.value : null,
       stays: stayed > 0 ? t(strings.stays, { count: stayed }) : null,
       stepper: copy.free > 1 ? stepperOf(strings, copy.title, copies, copy.free) : null,
@@ -201,5 +201,6 @@ function setApartViewOf(lines: readonly PreviewLine[], count: number, strings: E
       label: t(strings.line, { title: copy.title, season: copy.season }),
       seekers: t(strings.seekers, { count: copy.seekers ?? 0 }),
     })),
+    more: lines.length > RECAP_LINES ? t(strings.more, { count: lines.length - RECAP_LINES }) : null,
   }
 }
