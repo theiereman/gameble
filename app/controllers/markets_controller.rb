@@ -2,8 +2,7 @@ class MarketsController < ApplicationController
   include PublicRead
   include Market::DeskLoading
   include GoalMarksLoading
-
-  MAX_PAGE = 100_000
+  include Market::Storefront
 
   def show
     authorize :market, :show?
@@ -12,10 +11,10 @@ class MarketsController < ApplicationController
     return unless state.first_opened?
 
     @suspended = state.suspended?
-    @buyable = current_player.present? && state.open?
+    @buyable = buyable?(state)
 
     @sort = params[:sort].presence_in(helpers.sort_options) || Game::Market::OpenListings::DEFAULT_SORT
-    @page = params[:page].to_s.to_i.clamp(1, MAX_PAGE)
+    @page = asked_page
     @options = Game::Market::ListingFilterOptions.call
     @filters = Game::Market::ListingFilters.from(params, genres: @options.genres, seasons: @options.seasons, viewer: current_player,
       wanted_card_ids: wanted_card_ids)
@@ -53,10 +52,6 @@ class MarketsController < ApplicationController
     def load_searched
       card_season_id = @filters.searched_card(I18n.locale)
       @searched = Catalog::CardViews.call([ card_season_id ], locale: I18n.locale)[card_season_id] if card_season_id
-    end
-
-    def wanted_card_ids
-      @wanted_card_ids ||= Game::Market::WantedCardIds.call(current_player)
     end
 
     def load_wanted_count

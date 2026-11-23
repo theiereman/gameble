@@ -25,8 +25,7 @@ module Market
       @settings = Game::Market::CurrentSettings.call
       @card_slug = asked_card_slug(params[:card])
       copies = listed? ? Game::Market::EntrustableCopies.call(current_player, settings: @settings, card_slug: @card_slug, filter: asked_filter, cards: false) : []
-      wanted = Game::Market::WantedCopies.call(current_player).index_by(&:ref)
-      render json: copies.map { helpers.entrust_copy_data(it, wanted: wanted[it.ref]) }
+      render json: copies.map { helpers.entrust_copy_data(it, wanted: wanted_by_ref[it.ref]) }
     end
 
     def create
@@ -80,7 +79,7 @@ module Market
         @card_slug = card_slug
         @filter = asked_filter
         @cap_left = listed? ? Game::Market::CapLeft.call(current_player.id, settings: @settings) : 0
-        @wanted = Game::Market::WantedCopies.call(current_player).index_by(&:ref)
+        @wanted = wanted_by_ref
         load_grid
         load_deck_holding
         @ticked_copies = keep_ticks ? ticked_copies : []

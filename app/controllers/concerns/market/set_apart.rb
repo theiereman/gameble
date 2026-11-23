@@ -1,15 +1,18 @@
 module Market
-  # Confier's first step when wanted copies are ticked: one copy per player who wants it is set apart for the wanted table,
+  # The entrusting screen's first step when wanted copies are ticked: one copy per player who wants it is set apart for the wanted table,
   # the rest is entrusted at once, and the table opens with the set-apart copies in its address.
   module SetApart
     extend ActiveSupport::Concern
 
     private
       def split_wanted(posted)
-        wanted = Game::Market::WantedCopies.call(current_player).index_by(&:ref)
-        set_apart = posted.to_h { |ref, copies| [ ref, [ copies.to_i, wanted[ref]&.seekers.to_i ].min ] }.select { |_, copies| copies.positive? }
+        set_apart = posted.to_h { |ref, copies| [ ref, [ copies.to_i, wanted_by_ref[ref]&.seekers.to_i ].min ] }.select { |_, copies| copies.positive? }
         rest = posted.to_h { |ref, copies| [ ref, copies.to_i - set_apart.fetch(ref, 0) ] }.select { |_, copies| copies.positive? }
         [ set_apart, rest ]
+      end
+
+      def wanted_by_ref
+        @wanted_by_ref ||= Game::Market::WantedCopies.call(current_player).index_by(&:ref)
       end
 
       def entrust_then_choose(set_apart, rest)

@@ -2,8 +2,8 @@ module Market
   class ShopsController < ApplicationController
     include PublicRead
     include GoalMarksLoading
+    include Storefront
 
-    MAX_PAGE = 100_000
     FILTER_PARAMS = %i[q rarity season wanted].freeze
 
     def show
@@ -28,20 +28,16 @@ module Market
         raise ActiveRecord::RecordNotFound unless state.first_opened?
 
         @suspended = state.suspended?
-        @buyable = current_player.present? && state.open?
+        @buyable = buyable?(state)
       end
 
       def load_filters
         @sort = params[:sort].presence_in(Game::Market::ArchiveOffers::SORTS.keys) || Game::Market::ArchiveOffers::DEFAULT_SORT
-        @page = params[:page].to_s.to_i.clamp(1, MAX_PAGE)
+        @page = asked_page
         @rarities = Game::Market::ArchiveOffers.priced_rarities(@settings)
         @seasons = Game::Market::ListingFilterOptions.call.seasons
         filters = Game::Market::ListingFilters.from(params.slice(*FILTER_PARAMS), seasons: @seasons, wanted_card_ids:)
         @filters = filters.with(rarities: filters.rarities & @rarities)
-      end
-
-      def wanted_card_ids
-        @wanted_card_ids ||= Game::Market::WantedCardIds.call(current_player)
       end
 
       def load_wanted_count
