@@ -32,12 +32,16 @@ export default class extends Controller<HTMLElement> {
   // Turbo disables the pressed button while its form submits, which drops the focus, and renders the answer a repaint later.
   private readonly streamed = (event: Event): void => {
     const detail = (event as CustomEvent<{ newStream: Element; render: StreamRender }>).detail
-    if (!this.focused || !targetsControl(detail.newStream, this.element.id)) return
+    if (!this.focused || !this.answersPress(detail.newStream)) return
     const render = detail.render
     detail.render = async (stream) => {
       await render(stream)
       this.focusButton()
     }
+  }
+
+  private answersPress(stream: Element): boolean {
+    return targetsControl(stream, this.element.id) || targetsControl(stream, "toasts")
   }
 
   private focusButton(): void {
