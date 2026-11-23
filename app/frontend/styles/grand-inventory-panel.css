@@ -14,15 +14,13 @@
 }
 
 .grand-inventory-panel__count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   color: var(--color-text-bright);
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
   white-space: nowrap;
-}
-
-.grand-inventory-panel__arrow {
-  margin-inline-start: var(--space-2);
-  vertical-align: middle;
 }
 
 .grand-inventory-panel__latest {

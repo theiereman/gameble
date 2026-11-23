@@ -7,7 +7,7 @@
     <h2 id="grand-inventory-panel-title" class="hub-section-title">
       <%= link_to grand_inventory_path, class: "hub-linked__link" do %><%= t("pages.home.grand_inventory.title") %><% end %>
     </h2>
-    <span class="grand-inventory-panel__count" aria-hidden="true"><%= number_with_delimiter(found) %> / <%= number_with_delimiter(total) %><%= pixel_icon("arrow-small-right", class: "hub-linked__arrow grand-inventory-panel__arrow") %></span>
+    <span class="grand-inventory-panel__count" aria-hidden="true"><%= number_with_delimiter(found) %> / <%= number_with_delimiter(total) %><%= pixel_icon("arrow-small-right", class: "hub-linked__arrow") %></span>
     <span class="visually-hidden"><%= t("pages.home.grand_inventory.spoken", count: found, found: number_with_delimiter(found), total: number_with_delimiter(total)) %></span>
   </div>
   <%= render GaugeComponent.new(lit: GaugeComponent.lit(found, total)) %>
