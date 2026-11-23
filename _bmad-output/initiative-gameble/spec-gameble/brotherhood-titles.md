@@ -22,11 +22,11 @@ English titles (author, 2026-11-23):
 
 | Service | Grade 2 | Grade 3 | Grade 4 | Grade 5 | Seat |
 |---|---|---|---|---|---|
-| Archives | Junior Archivist | Archivist | Senior Archivist | Head of the Archives | Archives Directorate |
-| Bourse | Junior Accountant | Accountant | Senior Accountant | Head of the Exchange | Exchange Directorate |
-| Échanges | Junior Trade Specialist | Trade Specialist | Senior Trade Specialist | Head of Trades | Trades Directorate |
-| Exploration | Junior Cartographer | Cartographer | Senior Cartographer | Head of Exploration | Exploration Directorate |
-| Stratégie | Junior Strategist | Strategist | Senior Strategist | Head of Strategy | Strategy Directorate |
+| Archives | Junior Archivist | Archivist | Senior Archivist | Head of the Archives | Director of the Archives |
+| Bourse | Junior Accountant | Accountant | Senior Accountant | Head of the Exchange | Director of the Exchange |
+| Échanges | Junior Trade Specialist | Trade Specialist | Senior Trade Specialist | Head of Trades | Director of Trades |
+| Exploration | Junior Cartographer | Cartographer | Senior Cartographer | Head of Exploration | Director of Exploration |
+| Stratégie | Junior Strategist | Strategist | Senior Strategist | Head of Strategy | Director of Strategy |
 
 Staff: "Archives Curator" (administrator), "Officer" (moderator). Until the duels beta, Stratégie stops at grade 4: its top feat is withheld (author, 2026-11-23).
 
