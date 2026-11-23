@@ -1,10 +1,18 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 require_relative "../support/feed_reactions"
+require_relative "../support/market"
+require_relative "../support/market_auctions"
+require_relative "../support/market_listings"
+require_relative "../support/market_orders"
 
 class BellsControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
   include FeedReactions
+  include MarketAuctions
+  include MarketListings
+  include MarketOrders
+  include MarketSettings
 
   FRAME = "turbo-frame#bell-items[target=_top]".freeze
 
@@ -124,6 +132,34 @@ class BellsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#{FRAME} li[data-bell-key='invitation:#{invitation.token}'][data-bell-read=true]"
     assert_select "#{FRAME} li#bell-daily[data-bell-read=false]"
+  end
+
+  test "the market slot shows an order line to its Annonce, then one grouped wanted line, read once marked on any device" do
+    open_market!
+    fund!(@hugo, 10_000)
+    rare = catalog_card_seasons(:rare_card_one)
+    order = order!(@hugo, rare, 100)
+    order!(@hugo, catalog_card_seasons(:common_card_one), 100)
+    Game::Market::RebuildWanted.new.call(player: @hugo).value!
+    above = listing!(seller: @max, card_season: rare, starting_price: 150)
+    Game::Market::Notice.record(player_id: @hugo.id, listing_id: above.id, order_id: order.id, kind: "listed_above_order", other_player_id: @max.id,
+      amount: 150, at: Time.utc(2026, 11, 10, 12))
+    wanted = listing!(seller: @max, card_season: catalog_card_seasons(:common_card_one))
+    Game::Market::Notice.record(player_id: @hugo.id, listing_id: wanted.id, kind: "wanted", amount: 13)
+    sign_in(@hugo)
+
+    get_bell
+
+    grouped = "wanted:grouped:#{wanted.created_at.utc.iso8601(6)}"
+    assert_equal [ "order:#{order.token}:2026-11-10T12:00:00.000000Z", grouped ], line_keys.grep(/\A(order|wanted):/)
+    assert_select "#{FRAME} li a[href='/en/market/listings/#{above.token}']", text: /Blue Depths is on sale for .+, above your order\./
+    assert_select "#{FRAME} li[data-bell-key='#{grouped}'][data-bell-read=false] a[href='/en/market?wanted=1']",
+      text: /Tin Soldier, a card you want, is on sale\./
+
+    Game::MarkBellRead.new.call(player: @hugo, keys: [ grouped ]).value!
+    get_bell
+
+    assert_select "#{FRAME} li[data-bell-key='#{grouped}'][data-bell-read=true]"
   end
 
   test "a visit outside a frame is sent home" do

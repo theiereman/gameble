@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_23_160002) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_190004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -955,14 +955,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_160002) do
 
   create_table "game_market_notices", force: :cascade do |t|
     t.bigint "player_id", null: false
-    t.bigint "listing_id", null: false
+    t.bigint "listing_id"
     t.string "kind", null: false
     t.bigint "other_player_id"
     t.bigint "amount"
     t.datetime "noticed_at", null: false
-    t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing", unique: true
+    t.bigint "order_id"
+    t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing_alone", unique: true, where: "(order_id IS NULL)"
+    t.index ["player_id", "order_id"], name: "index_game_market_notices_listed_above_order", unique: true, where: "((kind)::text = 'listed_above_order'::text)"
+    t.index ["player_id", "order_id"], name: "index_game_market_notices_order_end", unique: true, where: "((kind)::text = ANY ((ARRAY['order_served'::character varying, 'order_expired'::character varying])::text[]))"
     t.check_constraint "amount IS NULL OR amount >= 0", name: "game_market_notices_amount_check"
-    t.check_constraint "kind::text ~ '^(outbid|won|sold|unsold|lead_voided|withdrawn|wanted)$'::text", name: "game_market_notices_kind_check"
+    t.check_constraint "kind::text ~ '^(outbid|won|sold|unsold|lead_voided|withdrawn|wanted|order_served|order_expired|listed_above_order)$'::text", name: "game_market_notices_kind_check"
+    t.check_constraint "listing_id IS NOT NULL OR order_id IS NOT NULL", name: "game_market_notices_subject_check"
   end
 
   create_table "game_market_orders", force: :cascade do |t|
@@ -1418,6 +1422,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_160002) do
   add_foreign_key "game_market_notices", "accounts_players", column: "other_player_id"
   add_foreign_key "game_market_notices", "accounts_players", column: "player_id"
   add_foreign_key "game_market_notices", "game_market_listings", column: "listing_id"
+  add_foreign_key "game_market_notices", "game_market_orders", column: "order_id"
   add_foreign_key "game_market_orders", "accounts_players", column: "player_id"
   add_foreign_key "game_market_orders", "accounts_players", column: "seller_id"
   add_foreign_key "game_market_orders", "catalog_card_seasons", column: "served_card_season_id"

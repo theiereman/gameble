@@ -155,6 +155,61 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
     end
   end
 
+  def open_bell
+    find(".bell__button").click
+    assert_selector "#bell-panel:popover-open"
+  end
+
+  test "a listing above an order shows under MY ORDERS and in the bell, and the bell tells of the order served" do
+    order = order!(@player, catalog_card_seasons(:common_card_one), 100)
+    Game::Market::RebuildWanted.new.call(player: @player).value!
+    lister = accounts_players(:administrator).tap { it.update!(persona_name: "Eve") }
+    fund!(lister, 1_000)
+    hold(lister, catalog_card_seasons(:common_card_one).id, 1)
+    listing = Game::Market::ListCard.new.call(player: lister, card_season_id: catalog_card_seasons(:common_card_one).id, starting_price: 150,
+      duration_hours: 24, settings_token: Game::Market::CurrentSettings.call.token).value!
+    sign_in_through_the_site(@player)
+
+    visit market_my_orders_path(locale: :en)
+
+    assert_selector ".market-row__note", text: /Eve is selling Tin Soldier for 150.*, above your order\./
+    assert_selector ".market-row__note a.button--link[href='#{market_listing_path(locale: :en, token: listing.token)}']", text: "SEE THE LISTING ▸"
+    open_bell
+    within("#bell-panel") { assert_selector ".bell__line", text: /Tin Soldier is on sale for 150.*, above your order\./ }
+
+    serve!(order, catalog_card_seasons(:common_card_one))
+    visit market_my_orders_path(locale: :en)
+    open_bell
+
+    within("#bell-panel") do
+      assert_selector ".bell__line", text: /Your order on Tin Soldier was filled: the card joins your collection\./
+      assert_no_selector ".bell__line", text: /above your order/
+    end
+  end
+
+  test "the wanted cards on sale are one bell line, read once marked read on reload" do
+    lister = accounts_players(:administrator)
+    [ :common_card_one, :rare_card_one ].each do |name|
+      order!(@player, catalog_card_seasons(name), 300)
+      listing = listing!(seller: lister, card_season: catalog_card_seasons(name), starting_price: 200)
+      Game::Market::Notice.record(player_id: @player.id, listing_id: listing.id, kind: "wanted", amount: 200)
+    end
+    Game::Market::RebuildWanted.new.call(player: @player).value!
+    sign_in_through_the_site(@player)
+
+    open_bell
+    within("#bell-panel") do
+      assert_selector ".bell__line[data-bell-read=false]", text: "2 cards you are looking for are on sale."
+      click_button "Mark all as read"
+    end
+    eventually("the read reaches the server") { Game::BellRead.exists?(player_id: @player.id, key: "wanted:grouped") }
+
+    visit home_path(locale: :en)
+    open_bell
+
+    assert_selector "#bell-panel .bell__line[data-bell-key^='wanted:grouped:'][data-bell-read=true]", visible: :all
+  end
+
   test "a visitor sees MY ORDERS greyed and is led to the landing from the form" do
     visit market_path(locale: :en)
     assert_selector ".market-screen__chips .tabs__tab--disabled", text: "MY ORDERS"

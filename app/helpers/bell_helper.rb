@@ -1,8 +1,8 @@
 module BellHelper
-  MARKET_TARGETS = { outbid: :annonce, won: :annonce, sold: :sales, unsold: :sales, lead_voided: :sales, withdrawn: :annonce, wanted: :annonce }.freeze
+  MARKET_TARGETS = { outbid: :annonce, won: :annonce, sold: :sales, unsold: :sales, lead_voided: :sales, withdrawn: :annonce }.freeze
 
-  BellLine = Data.define(:key, :path, :href, :sentence, :action, :lasting, :dom_id, :reactions, :subject) do
-    def initialize(lasting: false, dom_id: nil, reactions: {}, subject: nil, **line) = super(lasting:, dom_id:, reactions:, subject:, **line)
+  BellLine = Data.define(:key, :path, :href, :sentence, :action, :lasting, :dom_id, :reactions, :subject, :read) do
+    def initialize(lasting: false, dom_id: nil, reactions: {}, subject: nil, read: false, **line) = super(lasting:, dom_id:, reactions:, subject:, read:, **line)
   end
 
   def bell_lines(items)
@@ -13,6 +13,8 @@ module BellHelper
       *items.reactions.map { bell_reaction_line(it) },
       *items.duels.map { bell_duel_line(it) },
       *items.market.filter_map { bell_market_line(it) },
+      *items.orders.map { bell_order_line(it) },
+      (bell_wanted_line(items.wanted) if items.wanted),
       (bell_daily_line(items.daily) if items.daily),
       bell_goal_line(items.goal)
     ].compact
@@ -66,6 +68,21 @@ module BellHelper
     sentence = t("shell.bell.market.#{notice.kind}_html", card: notice.card, amount: render(PicoinAmountComponent.new(amount: notice.amount.to_i)),
       name: (render(PlayerNameComponent.new(player: notice.other, viewer: nil, linked: false)) if notice.other))
     BellLine.new(key: "market:#{notice.token}:#{notice.noticed_at.utc.iso8601(6)}", path:, href: path, sentence:, action: t("shell.bell.see"))
+  end
+
+  def bell_order_line(notice)
+    path = case notice.kind
+    when :order_served then card_season_path(slug: notice.edition.id, number: notice.edition.season_number)
+    when :order_expired then market_my_orders_path
+    else market_listing_path(token: notice.listing_token)
+    end
+    sentence = t("shell.bell.market.#{notice.kind}_html", card: notice.card, amount: render(PicoinAmountComponent.new(amount: notice.amount.to_i)))
+    BellLine.new(key: "order:#{notice.token}:#{notice.noticed_at.utc.iso8601(6)}", path:, href: path, sentence:, action: t("shell.bell.see"))
+  end
+
+  def bell_wanted_line(wanted)
+    BellLine.new(key: "#{Game::BellRead::GROUPED_WANTED_KEY}:#{wanted.newest_at.utc.iso8601(6)}", path: nil, href: market_path(wanted: "1"),
+      sentence: t("shell.bell.market.wanted_grouped", count: wanted.count, card: wanted.card), action: t("shell.bell.see"), read: wanted.seen)
   end
 
   def bell_reaction_subject(subject)

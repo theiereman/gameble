@@ -49,6 +49,7 @@ module MarketOrdersHelper
 
   def order_row_note(row)
     case row.status
+    when "open" then order_listed_above_note(row) if row.listed_above
     when "served"
       return unless row.served
 
@@ -56,6 +57,14 @@ module MarketOrdersHelper
         rarity: CardStrings.new.rarity_name(row.served.rarity), season: row.served.season_number)
     when "expired", "cancelled" then t("market.my_orders.returned")
     end
+  end
+
+  def order_listed_above_note(row)
+    above = row.listed_above
+    line = t("market.my_orders.listed_above_html", name: render(PlayerNameComponent.new(player: above.seller, viewer: current_player)),
+      card: row.card.title, amount: render(PicoinAmountComponent.new(amount: above.amount)))
+    link = render(ButtonComponent.new(variant: :link, href: market_listing_path(token: above.token)).with_content(t("market.my_orders.see_listing")))
+    safe_join([ line, link ], " ")
   end
 
   def order_cancel_dialog_id(token) = "cancel-order-#{token}"

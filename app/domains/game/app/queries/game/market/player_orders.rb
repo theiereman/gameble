@@ -7,21 +7,23 @@ module Game
       ENDED_STATUSES = %w[served expired cancelled].freeze
 
       Groups = Data.define(:in_progress, :recent)
-      Row = Data.define(:token, :card, :price, :expires_at, :rarities, :duration_days, :status, :ended_at, :seller, :served)
+      Row = Data.define(:token, :card, :price, :expires_at, :rarities, :duration_days, :status, :ended_at, :seller, :served, :listed_above)
+      ListedAbove = Data.define(:seller, :amount, :token)
 
       def self.call(player:, locale:, now: Time.current)
         orders = shown(player, now).order(:expires_at, :id).joins(:settings)
           .pluck(:id, :token, :card_id, :price, :expires_at, "game_market_settings.order_duration_days", :status, :updated_at, :seller_id, :served_card_season_id)
         faces = Catalog::LatestPublishedCardSeasons.call(orders.map(&:third))
         cards = Catalog::CardViews.call(faces.values + orders.filter_map(&:last), locale:)
-        sellers = Accounts::Player.where(id: orders.map { |*, seller_id, _served| seller_id }.compact).index_by(&:id)
+        above = listed_above(player, orders.map(&:first))
+        sellers = Accounts::Player.where(id: orders.map { |*, seller_id, _served| seller_id }.compact + above.values.map(&:first)).index_by(&:id)
         rarities = OrderRarities.call(orders.map(&:first))
         rows = orders.filter_map do |id, token, card_id, price, expires_at, duration_days, status, updated_at, seller_id, served_card_season_id|
           card = cards[faces[card_id]]
           next unless card
 
           Row.new(token:, card:, price:, expires_at:, rarities: rarities[id], duration_days:, status:, ended_at: (updated_at unless status == "open"),
-            seller: sellers[seller_id], served: cards[served_card_season_id])
+            seller: sellers[seller_id], served: cards[served_card_season_id], listed_above: above_row(above[id], sellers))
         end
         in_progress, recent = rows.partition { it.status == "open" }
         Groups.new(in_progress:, recent: recent.sort_by(&:ended_at).reverse)
@@ -32,6 +34,18 @@ module Game
         mine.where(status: "open").or(mine.where(status: ENDED_STATUSES, updated_at: (now - RECENT_FOR)..))
       end
       private_class_method :shown
+
+      def self.listed_above(player, order_ids)
+        Notice.listed_above_order.where(player_id: player.id, order_id: order_ids).joins(:listing).merge(Listing.open_now)
+          .pluck(:order_id, :other_player_id, :amount, "game_market_listings.token").to_h { |order_id, *rest| [ order_id, rest ] }
+      end
+      private_class_method :listed_above
+
+      def self.above_row(above, sellers)
+        seller_id, amount, token = above
+        ListedAbove.new(seller: sellers[seller_id], amount:, token:) if above
+      end
+      private_class_method :above_row
 
       def self.open_on(player, card_id) = Order.find_by(player_id: player.id, card_id:, status: "open")
     end

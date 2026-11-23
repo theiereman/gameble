@@ -40,6 +40,20 @@ class MarketPushNoticeJobTest < ActiveJob::TestCase
     assert_equal @phone.to_global_id.to_s, device["_aj_globalid"]
   end
 
+  test "an owner's devices hear of the order served, never of a listing above it" do
+    order = Game::Market::Order.create!(player: @outbid, card_id: catalog_card_seasons(:common_card_one).card_id, settings: Game::Market::CurrentSettings.call,
+      price: 100, expires_at: 7.days.from_now)
+    Game::Market::Notice.record(player_id: @outbid.id, listing_id: @listing.id, order_id: order.id, kind: "listed_above_order", amount: 20_000)
+    perform_configured([ { player_id: @outbid.id, order_id: order.id } ])
+    assert_empty pushes
+
+    Game::Market::Notice.record(player_id: @outbid.id, order_id: order.id, kind: "order_expired", amount: 100)
+    perform_configured([ { player_id: @outbid.id, order_id: order.id } ])
+
+    _class_name, attributes, _device = pushes.sole[:args]
+    assert_equal "Order expired", attributes["title"]
+  end
+
   test "a player without a device, an unconfigured platform or only a wanted line receive nothing" do
     Game::Market::Notice.record(player_id: @outbid.id, listing_id: @listing.id, kind: "wanted", amount: 20_000)
     perform_configured(notice)

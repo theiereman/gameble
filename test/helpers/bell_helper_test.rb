@@ -74,12 +74,46 @@ class BellHelperTest < ActionView::TestCase
     end
   end
 
-  test "a wanted card on sale names the card and its starting price, and leads to the Annonce" do
-    line = bell_market_line(market_notice(kind: :wanted, other: nil, amount: 1_300))
+  def order_notice(kind:, amount: 1_300, at: Time.utc(2026, 11, 10, 12, 0, 0))
+    edition = Catalog::CardViews.call([ catalog_card_seasons(:portal_one).id ], locale: :en).values.sole
+    Game::Market::OrderNoticeLines::Line.new(kind:, token: "ord", listing_token: "lst", card: "Portal", edition:, other: nil, amount:, noticed_at: at)
+  end
 
-    assert_equal market_listing_path(token: "tok"), line.path
-    assert_includes line.sentence, "Portal, missing from your goals, is on sale from"
-    I18n.with_locale(:fr) { assert_includes bell_market_line(market_notice(kind: :wanted, other: nil)).sentence, "Portal, qui manque à vos objectifs, est en vente" }
+  test "a served order leads to the edition received, in both languages" do
+    line = bell_order_line(order_notice(kind: :order_served))
+    edition = order_notice(kind: :order_served).edition
+
+    assert_equal [ card_season_path(slug: edition.id, number: edition.season_number), "order:ord:2026-11-10T12:00:00.000000Z" ], [ line.href, line.key ]
+    assert_equal "Your order on Portal was filled: the card joins your collection.", text_of(line.sentence)
+    I18n.with_locale(:fr) do
+      assert_equal "Votre ordre sur Portal est servi\u202f: la carte rejoint votre collection.", text_of(bell_order_line(order_notice(kind: :order_served)).sentence)
+    end
+  end
+
+  test "an expired order leads to My orders with the amount released, and a listing above it to the Annonce, without the seller" do
+    expired = bell_order_line(order_notice(kind: :order_expired))
+    above = bell_order_line(order_notice(kind: :listed_above_order))
+
+    assert_equal [ market_my_orders_path, market_listing_path(token: "lst") ], [ expired.href, above.href ]
+    assert_includes text_of(expired.sentence), "Your order on Portal expired. Your"
+    assert_includes text_of(above.sentence), "Portal is on sale for"
+    assert_includes text_of(above.sentence), ", above your order."
+    I18n.with_locale(:fr) { assert_includes text_of(bell_order_line(order_notice(kind: :listed_above_order)).sentence), "Portal est en vente à" }
+  end
+
+  def grouped(count:, seen: false) = Game::Market::GroupedWanted::Grouped.new(count:, card: "Portal", newest_at: Time.utc(2026, 11, 10, 12), seen:)
+
+  test "the grouped wanted line counts the cards on sale, opens the wanted market and carries its seen state" do
+    line = bell_wanted_line(grouped(count: 2))
+
+    assert_equal [ "wanted:grouped:2026-11-10T12:00:00.000000Z", market_path(wanted: "1"), false ], [ line.key, line.href, line.read ]
+    assert_equal "2 cards you are looking for are on sale.", line.sentence
+    assert_equal "Portal, a card you want, is on sale.", bell_wanted_line(grouped(count: 1)).sentence
+    assert bell_wanted_line(grouped(count: 2, seen: true)).read
+    I18n.with_locale(:fr) do
+      assert_equal "2 cartes que vous cherchez sont en vente.", bell_wanted_line(grouped(count: 2)).sentence
+      assert_equal "Portal, une carte que vous voulez, est en vente.", bell_wanted_line(grouped(count: 1)).sentence
+    end
   end
 
   test "a withdrawn listing tells its leader the amount is available again and leads to the Annonce" do
@@ -101,11 +135,12 @@ class BellHelperTest < ActionView::TestCase
     assert_includes bell_market_line(market_notice(other: removed)).sentence, I18n.t("player_name.anonymous")
   end
 
-  test "a market line comes after the reaction lines and before the daily capsule" do
-    items = Game::BellItems::Result.new(trades: [], updates: [], invitations: [], reactions: [], market: [ market_notice ], daily: nil, duels: [],
+  test "the market slot shows the listing lines, then the order lines, then the grouped wanted line, before the daily capsule" do
+    items = Game::BellItems::Result.new(trades: [], updates: [], invitations: [], reactions: [], market: [ market_notice ],
+      orders: [ order_notice(kind: :order_expired) ], wanted: grouped(count: 2), daily: nil, duels: [],
       goal: Game::BellItems::GoalLine.new(week_start: Date.new(2026, 11, 9), reward_ready: false, target: 10, reached: false))
 
-    assert_equal [ "market", "mission" ], bell_lines(items).map { it.key.split(":").first }
+    assert_equal [ "market", "order", "wanted", "mission" ], bell_lines(items).map { it.key.split(":").first }
   end
 
   TOKEN = "a" * 24

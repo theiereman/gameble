@@ -1,5 +1,5 @@
 module WantedCardNotice
-  EVENTS = [ Game::Market::CardListed ].freeze
+  EVENTS = [ Game::Market::CardListed, Game::Market::WantedChoicesApplied ].freeze
 
   QUIET_FOR = 1.hour
 
@@ -8,7 +8,7 @@ module WantedCardNotice
 
   class << self
     def call(event)
-      BATCH.add([ event.data[:listing_id] ])
+      BATCH.add(event.is_a?(Game::Market::WantedChoicesApplied) ? event.data[:listing_ids] : [ event.data[:listing_id] ])
     end
 
     def notification(listed, locale)

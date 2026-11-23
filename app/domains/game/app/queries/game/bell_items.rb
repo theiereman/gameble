@@ -9,7 +9,7 @@ module Game
     ReactionLine = Data.define(:token, :name, :others, :count, :noticed_at, :kinds, :subject)
     ReactionSubject = Data.define(:card, :partner_card, :set)
     DuelLine = Data.define(:token, :opponent, :kind, :outcome, :score, :other_score, :ended_at)
-    Result = Data.define(:trades, :updates, :invitations, :reactions, :market, :daily, :goal, :duels)
+    Result = Data.define(:trades, :updates, :invitations, :reactions, :market, :orders, :wanted, :daily, :goal, :duels)
     FINISHED_FOR = 7.days
 
     def self.call(player, now: Time.current, locale: I18n.locale)
@@ -26,6 +26,8 @@ module Game
         invitations: invitations.map { InvitationLine.new(token: it.token, player: senders[it.sender_id]) },
         reactions: reaction_lines(ReactionUpdates.call(player, now:), locale),
         market: Market::MarketNotices.call(player:, locale:),
+        orders: Market::OrderNoticeLines.call(player:, locale:),
+        wanted: Market::GroupedWanted.call(player:, locale:),
         daily: daily(player, now),
         goal: goal(player, now),
         duels: duels.map { duel_line(it, senders) }

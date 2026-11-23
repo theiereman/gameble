@@ -2,10 +2,12 @@ require "test_helper"
 require_relative "../../support/steam_sign_in"
 require_relative "../../support/market"
 require_relative "../../support/market_auctions"
+require_relative "../../support/market_listings"
 require_relative "../../support/market_orders"
 
 class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
   include MarketAuctions
+  include MarketListings
   include MarketOrders
   include MarketSettings
   include SteamSignIn
@@ -54,6 +56,24 @@ class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action=?]", market_order_cancellation_path(locale: :en, token: order.token)
     assert_select ".order-result", 0
     assert_no_match(/order[\w-]*[-_\/]#{order.id}\b/, response.body)
+  end
+
+  test "an open order with a listing above its price shows who sells it, for how much, and a link to the Annonce, in both languages" do
+    order = place(100)
+    seller = accounts_players(:moderator)
+    seller.update_columns(persona_name: "Max")
+    listing = listing!(seller:, card_season: catalog_card_seasons(:common_card_one), starting_price: 150)
+    Game::Market::Notice.record(player_id: @player.id, listing_id: listing.id, order_id: order.id, kind: "listed_above_order", other_player_id: seller.id,
+      amount: 150)
+    sign_in(@player)
+
+    get market_my_orders_path(locale: :en)
+    assert_select ".market-row__note", text: /Max is selling Tin Soldier for 150.*, above your order\./m
+    assert_select ".market-row__note a.button--link[href=?]", market_listing_path(locale: :en, token: listing.token), "SEE THE LISTING ▸"
+
+    get market_my_orders_path(locale: :fr)
+    assert_select ".market-row__note", text: /Max vend Soldat de plomb à 150.*, au-dessus de votre ordre\./m
+    assert_select ".market-row__note a.button--link", "VOIR L'ANNONCE ▸"
   end
 
   def ended!(card_season, status, ended_at)

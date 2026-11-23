@@ -59,6 +59,20 @@ class Game::MarkBellReadTest < ActiveSupport::TestCase
     assert_equal 1, Game::BellRead.where(player_id: @max.id).count
   end
 
+  test "any grouped wanted key is remembered as the one grouped key, at the later read" do
+    mark([ "wanted:grouped:2026-11-16T17:00:00.000000Z", "wanted:grouped" ], now: NOW)
+    mark([ "wanted:grouped:2026-11-16T17:30:00.000000Z" ], now: NOW - 1.minute)
+
+    assert_equal [ [ "wanted:grouped", NOW ] ], Game::BellRead.where(player_id: @hugo.id).pluck(:key, :read_at)
+  end
+
+  test "the grouped wanted read is never forgotten" do
+    mark([ "wanted:grouped" ], now: NOW - 1.day)
+    (Game::BellRead::KEPT_PER_PLAYER + 1).times.each_slice(50) { |slice| mark(slice.map { "mission:#{it}" }) }
+
+    assert_includes Game::BellReadKeys.call(@hugo), "wanted:grouped"
+  end
+
   test "a visitor reads nothing" do
     assert_equal :player_required, mark([ "trade:abc:1" ], nil).failure
   end

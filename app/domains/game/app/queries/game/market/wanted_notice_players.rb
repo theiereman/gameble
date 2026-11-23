@@ -3,7 +3,7 @@ module Game
     module WantedNoticePlayers
       Listed = Data.define(:token, :card_season_id, :player_ids)
 
-      def self.call(listing_id) = Notice.where(listing_id:, kind: "wanted").order(:player_id).pluck(:player_id)
+      def self.call(listing_ids) = Notice.where(listing_id: listing_ids, kind: %w[wanted listed_above_order]).distinct.order(:player_id).pluck(:player_id)
 
       def self.first_in(listing_id, quiet_for:)
         token, card_season_id = Listing.where(id: listing_id).pick(:token, :card_season_id)

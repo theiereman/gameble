@@ -16,6 +16,12 @@ fr:
     market_lead_voided:
       body: "Le joueur en tête sur %{card} a été retiré. L'enchère repart de son prix de départ."
       title: "Enchère relancée"
+    market_order_expired:
+      body: "Votre ordre sur %{card} a expiré. Vos %{amount} sont de nouveau disponibles."
+      title: "Ordre expiré"
+    market_order_served:
+      body: "Votre ordre sur %{card} est servi : la carte rejoint votre collection."
+      title: "Ordre servi"
     market_outbid:
       body: "%{name} a dépassé votre maximum sur %{card}."
       title: "Vous avez été dépassé"
@@ -151,7 +157,13 @@ fr:
         withdrawn_html: "%{card} a été retirée du marché. Vos %{amount} sont de nouveau disponibles."
         sold_html: "%{card} s'est vendue. Vous recevez %{amount}."
         unsold_html: "%{card} n'a reçu aucune offre. La carte vous est rendue."
-        wanted_html: "%{card}, qui manque à vos objectifs, est en vente à partir de %{amount}."
+        order_served_html: "Votre ordre sur %{card} est servi : la carte rejoint votre collection."
+        order_expired_html: "Votre ordre sur %{card} a expiré. Vos %{amount} sont de nouveau disponibles."
+        listed_above_order_html: "%{card} est en vente à %{amount}, au-dessus de votre ordre."
+        wanted_grouped:
+          zero: "Aucune carte que vous cherchez n'est en vente."
+          one: "%{card}, une carte que vous voulez, est en vente."
+          other: "%{count} cartes que vous cherchez sont en vente."
       daily: "Votre capsule du jour est prête."
       mission: "Mission de la semaine : ouvrir %{target} capsules ensemble."
       mission_reached: "La mission de la semaine est accomplie : %{target} capsules ouvertes ensemble."
@@ -2717,7 +2729,9 @@ fr:
         closing: "Annulation sans frais. Un ordre n'enchérit jamais à votre place."
         heading: "ORDRE PASSÉ SUR %{card}"
         reached: "Raretés atteintes"
+      listed_above_html: "%{name} vend %{card} à %{amount}, au-dessus de votre ordre."
       returned: "PiCoins rendus"
+      see_listing: "VOIR L'ANNONCE ▸"
       served_html: "Vendue par %{name} · %{rarity} S%{season}"
       show:
         empty: "Vous n'avez passé aucun ordre."

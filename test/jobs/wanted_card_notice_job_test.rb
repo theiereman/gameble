@@ -42,6 +42,14 @@ class WantedCardNoticeJobTest < ActiveJob::TestCase
     assert_equal @phone.to_global_id.to_s, device["_aj_globalid"]
   end
 
+  test "the listings of a Confier validation each enqueue the wanted notice" do
+    lines = [ { card_season_id: @card.id, copies: 2, choice: "auction", starting_price: @settings.minimum_price_common, duration_hours: 24 } ]
+
+    applied = Game::Market::ApplyWantedChoices.new.call(player: @seller, lines:, settings_token: @settings.token).value!
+
+    applied.listed.each { assert_enqueued_with(job: WantedCardNoticeJob, args: [ it.listing.id ]) }
+  end
+
   test "a second wanted card within the hour stays in the bell without a push" do
     perform_configured(list)
     clear_enqueued_jobs

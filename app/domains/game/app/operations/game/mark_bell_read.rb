@@ -21,8 +21,10 @@ module Game
       return Failure(:invalid_keys) unless keys.is_a?(Array) && keys.size.between?(1, KEYS_PER_CALL)
       return Failure(:invalid_keys) unless keys.all? { it.is_a?(String) && KEY_FORMAT.match?(it) }
 
-      Success(keys.uniq)
+      Success(keys.map { grouped_wanted?(it) ? BellRead::GROUPED_WANTED_KEY : it }.uniq)
     end
+
+    def grouped_wanted?(key) = key == BellRead::GROUPED_WANTED_KEY || key.start_with?("#{BellRead::GROUPED_WANTED_KEY}:")
 
     def write(player, keys, now)
       BellRead.upsert_all(keys.map { { player_id: player.id, key: it, read_at: now } }, unique_by: %i[player_id key],
@@ -33,7 +35,7 @@ module Game
 
     def forget_oldest(player)
       kept = BellRead.where(player_id: player.id).order(read_at: :desc, id: :desc).limit(BellRead::KEPT_PER_PLAYER).select(:id)
-      BellRead.where(player_id: player.id).where.not(id: kept).delete_all
+      BellRead.where(player_id: player.id).where.not(id: kept).where.not(key: BellRead::GROUPED_WANTED_KEY).delete_all
     end
   end
 end

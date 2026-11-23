@@ -52,6 +52,30 @@ class MarketPushNoticeTest < ActiveSupport::TestCase
     assert_empty MarketPushNotice.notices(Game::Market::ListingWithdrawn.new(data: { listing_id: 7, leader_id: nil }))
   end
 
+  test "a served or expired order is pushed to its owner, and each sale of a Confier validation to its buyer" do
+    assert_equal [ { player_id: 2, order_id: 9 } ],
+      MarketPushNotice.notices(Game::Market::OrderServed.new(data: { order_id: 9, buyer_id: 2, seller_id: 1, card_season_id: 5, price: 100 }))
+    assert_equal [ { player_id: 2, order_id: 9 } ],
+      MarketPushNotice.notices(Game::Market::OrderExpired.new(data: { order_id: 9, player_id: 2, card_id: 5, amount: 100 }))
+    sales = [ { order_id: 9, buyer_id: 2, card_season_id: 5, price: 100 }, { order_id: 10, buyer_id: 3, card_season_id: 5, price: 90 } ]
+    assert_equal [ { player_id: 2, order_id: 9 }, { player_id: 3, order_id: 10 } ],
+      MarketPushNotice.notices(Game::Market::WantedChoicesApplied.with(seller_id: 1, sales:, listing_ids: [ 4 ], entrusted: []))
+  end
+
+  test "an order notification leads to the edition received, or to My orders once expired" do
+    edition = Catalog::CardViews.call([ catalog_card_seasons(:portal_one).id ], locale: :en).values.sole
+    line = Game::Market::OrderNoticeLines::Line.new(kind: :order_served, token: "ord", listing_token: nil, card: "Portal", edition:, other: nil,
+      amount: 1_200, noticed_at: Time.current)
+    served = MarketPushNotice.notification(line, locale: "fr")
+
+    assert_equal [ "Ordre servi", "Votre ordre sur Portal est servi\u202f: la carte rejoint votre collection." ], [ served.title, served.body ]
+    assert_equal({ path: "/fr/cards/#{edition.id}/seasons/#{edition.season_number}" }, served.data)
+    expired = MarketPushNotice.notification(line.with(kind: :order_expired), locale: "en")
+    assert_equal "Order expired", expired.title
+    assert_match(/\AYour order on Portal expired\. Your 1,200 PiCoins are available again\.\z/, expired.body)
+    assert_equal "/en/market/my-orders", expired.data[:path]
+  end
+
   test "the notification is written in the device's locale and leads to the listing, or to the sales for what concerns the seller" do
     line = Game::Market::MarketNotices::Line.new(kind: :won, token: "abc", card: "Portal", other: nil, amount: 1_200, noticed_at: Time.current)
     won = MarketPushNotice.notification(line, locale: "fr")

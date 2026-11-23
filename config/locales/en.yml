@@ -15,6 +15,12 @@ en:
     market_lead_voided:
       body: "The leading player on %{card} was removed. The auction restarts from its starting price."
       title: Auction restarted
+    market_order_expired:
+      body: "Your order on %{card} expired. Your %{amount} are available again."
+      title: Order expired
+    market_order_served:
+      body: "Your order on %{card} was filled: the card joins your collection."
+      title: Order filled
     market_outbid:
       body: "%{name} went past your maximum on %{card}."
       title: You were outbid
@@ -3690,7 +3696,9 @@ en:
         closing: Free cancellation. An order never bids for you.
         heading: "ORDER PLACED ON %{card}"
         reached: Rarities reached
+      listed_above_html: "%{name} is selling %{card} for %{amount}, above your order."
       returned: PiCoins returned
+      see_listing: SEE THE LISTING ▸
       served_html: "Sold by %{name} · %{rarity} S%{season}"
       show:
         empty: You have placed no order.
@@ -5177,10 +5185,16 @@ en:
         other: What is new, %{count} unseen
       market:
         lead_voided_html: "The leading player on %{card} was removed. The auction restarts from its starting price."
+        listed_above_order_html: "%{card} is on sale for %{amount}, above your order."
+        order_expired_html: "Your order on %{card} expired. Your %{amount} are available again."
+        order_served_html: "Your order on %{card} was filled: the card joins your collection."
         outbid_html: "%{name} went past your maximum on %{card}."
         sold_html: "%{card} sold. You receive %{amount}."
         unsold_html: "%{card} received no offers. The card is returned to you."
-        wanted_html: "%{card}, missing from your goals, is on sale from %{amount}."
+        wanted_grouped:
+          one: "%{card}, a card you want, is on sale."
+          other: "%{count} cards you are looking for are on sale."
+          zero: No card you are looking for is on sale.
         withdrawn_html: "%{card} was withdrawn from the market. Your %{amount} are available again."
         won_html: "You won %{card} for %{amount}."
       mission: "This week's mission: open %{target} capsules together."

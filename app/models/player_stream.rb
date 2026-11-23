@@ -87,9 +87,12 @@ module PlayerStream
       when Game::Market::ListingCancelled
         market_notices(bidders_of(data))
       when Game::Market::OrderServed
-        balance_notices(data.values_at(:buyer_id, :seller_id))
+        balance_notices(data.values_at(:buyer_id, :seller_id)) + market_notices([ data[:buyer_id] ])
+      when Game::Market::OrderExpired
+        [ balance_notice(data[:player_id]) ] + market_notices([ data[:player_id] ])
       when Game::Market::WantedChoicesApplied
-        balance_notices([ data[:seller_id] ] + data[:sales].map { it[:buyer_id] })
+        buyer_ids = Game::Market::WantedChoicesApplied.buyer_ids(data)
+        balance_notices([ data[:seller_id] ] + buyer_ids) + market_notices(buyer_ids + Game::Market::WantedNoticePlayers.call(data[:listing_ids]))
       when *BALANCE_EVENTS
         [ balance_notice(data[:player_id]) ]
       when *CUT_OFF_EVENTS

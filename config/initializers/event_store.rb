@@ -44,7 +44,9 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Market::Handlers::OutcomeNotices, to: [ Game::Market::AuctionSold, Game::Market::AuctionUnsold ])
   event_store.subscribe(Game::Market::Handlers::RemovalNotices, to: [ Game::Market::LeadVoided, Game::Market::ListingWithdrawn ])
   # A card listed on the market is noticed by the players whose goals miss it, before PlayerStream refreshes their bell.
-  event_store.subscribe(Game::Market::Handlers::WantedNotices, to: [ Game::Market::CardListed ])
+  event_store.subscribe(Game::Market::Handlers::WantedNotices, to: [ Game::Market::CardListed, Game::Market::WantedChoicesApplied ])
+  # An order's owner hears of its serving or expiry, and a listing above it is forgotten once the listing or the order ends.
+  event_store.subscribe(Game::Market::Handlers::OrderNotices, to: Game::Market::Handlers::OrderNotices::EVENTS)
   event_store.subscribe(LiveStream, to: LiveStream::EVENTS)
   event_store.subscribe(ReactionStream, to: ReactionStream::EVENTS)
   event_store.subscribe(Game::Handlers::PlayerActivity, to: Game::Handlers::PlayerActivity::EVENTS.keys)

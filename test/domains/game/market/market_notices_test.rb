@@ -57,6 +57,19 @@ class Game::Market::MarketNoticesTest < ActiveSupport::TestCase
     assert_equal [ outbid.token ], lines.map(&:token)
   end
 
+  test "the wanted notices and the order notices are left to their own lines" do
+    kept = listing
+    noticed = listing
+    notice(@reader, kept, at: 2.hours.ago)
+    notice(@reader, noticed, at: 1.hour.ago, kind: "wanted")
+    order = Game::Market::Order.create!(player: @reader, card_id: @card.card_id, settings: Game::Market::CurrentSettings.call, price: 100,
+      expires_at: 7.days.from_now)
+    Game::Market::Notice.record(player_id: @reader.id, listing_id: noticed.id, order_id: order.id, kind: "listed_above_order", amount: 20_000)
+    Game::Market::Notice.record(player_id: @reader.id, order_id: order.id, kind: "order_expired", amount: 100)
+
+    assert_equal [ kept.token ], Game::Market::MarketNotices.call(player: @reader, locale: :en).map(&:token)
+  end
+
   test "at most five come back, the newest" do
     listings = Array.new(6) { listing }
     listings.each_with_index { |listing, index| notice(@reader, listing, at: index.hours.ago) }

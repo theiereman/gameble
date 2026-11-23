@@ -1,8 +1,9 @@
 module MarketPushNotice
   EVENTS = [ Game::Market::BidPlaced, Game::Market::AuctionSold, Game::Market::AuctionUnsold, Game::Market::ListingWithdrawn,
-    Game::Market::LeadVoided ].freeze
+    Game::Market::LeadVoided, Game::Market::OrderServed, Game::Market::OrderExpired, Game::Market::WantedChoicesApplied ].freeze
 
   KINDS = %w[outbid won sold unsold lead_voided withdrawn].freeze
+  ORDER_KINDS = %w[order_served order_expired].freeze
   SALES_KINDS = %w[sold unsold lead_voided].freeze
 
   BATCHES = :market_push_notice_batches
@@ -15,14 +16,12 @@ module MarketPushNotice
 
     def notices(event)
       data = event.data
-      listing_id = data[:listing_id]
-      players = case event
-      when Game::Market::BidPlaced then data[:outbid_player_id] == data[:bidder_id] ? [] : [ data[:outbid_player_id] ]
-      when Game::Market::AuctionSold then data.values_at(:winner_id, :seller_id)
-      when Game::Market::AuctionUnsold, Game::Market::LeadVoided then [ data[:seller_id] ]
-      when Game::Market::ListingWithdrawn then [ data[:leader_id] ]
+      case event
+      when Game::Market::OrderServed then [ { player_id: data[:buyer_id], order_id: data[:order_id] } ]
+      when Game::Market::OrderExpired then [ { player_id: data[:player_id], order_id: data[:order_id] } ]
+      when Game::Market::WantedChoicesApplied then data[:sales].map { { player_id: it[:buyer_id], order_id: it[:order_id] } }
+      else listing_players(event, data).compact.map { { player_id: it, listing_id: data[:listing_id] } }
       end
-      players.compact.map { { player_id: it, listing_id: } }
     end
 
     def notification(line, locale:)
@@ -37,9 +36,23 @@ module MarketPushNotice
 
     private
 
+    def listing_players(event, data)
+      case event
+      when Game::Market::BidPlaced then data[:outbid_player_id] == data[:bidder_id] ? [] : [ data[:outbid_player_id] ]
+      when Game::Market::AuctionSold then data.values_at(:winner_id, :seller_id)
+      when Game::Market::AuctionUnsold, Game::Market::LeadVoided then [ data[:seller_id] ]
+      when Game::Market::ListingWithdrawn then [ data[:leader_id] ]
+      end
+    end
+
     def path(line, locale)
       helpers = Rails.application.routes.url_helpers
-      SALES_KINDS.include?(line.kind.to_s) ? helpers.market_my_sales_path(locale:) : helpers.market_listing_path(locale:, token: line.token)
+      case line.kind.to_s
+      when "order_served" then helpers.card_season_path(locale:, slug: line.edition.id, number: line.edition.season_number)
+      when "order_expired" then helpers.market_my_orders_path(locale:)
+      when *SALES_KINDS then helpers.market_my_sales_path(locale:)
+      else helpers.market_listing_path(locale:, token: line.token)
+      end
     end
 
     def name(player) = player && Accounts::PersonaName.clean(player.persona_name) || I18n.t("shell.player.fallback_name")

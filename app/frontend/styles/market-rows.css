@@ -171,6 +171,11 @@
   font: var(--font-body);
 }
 
+.market-row__note .button {
+  position: relative;
+  z-index: 1;
+}
+
 .market-row__received {
   color: var(--color-gold);
 }
