@@ -45,7 +45,7 @@ class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#my-orders-in-progress-heading", "IN PROGRESS"
     assert_select ".market-row", 1
-    assert_select "a.market-row__title[href=?]", new_market_card_order_path(locale: :en, slug: "tin-soldier"), "Tin Soldier"
+    assert_select "a.market-row__title[href=?]", new_market_card_order_path(locale: :en, slug: "tin-soldier", from: "my_orders"), "Tin Soldier"
     assert_select ".market-row__editions", "every edition"
     assert_select ".market-row .order-pill", 3
     assert_select ".market-row .order-pill .visually-hidden", "Rare"

@@ -3,12 +3,14 @@ require_relative "../support/steam_sign_in"
 require_relative "../support/market"
 require_relative "../support/market_auctions"
 require_relative "../support/market_orders"
+require_relative "../support/market_listings"
 require_relative "../support/holdings"
 
 class MarketOrdersSystemTest < ApplicationSystemTestCase
   include SteamSignIn
   include Holdings
   include MarketAuctions
+  include MarketListings
   include MarketOrders
   include MarketSettings
 
@@ -71,6 +73,31 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
     assert_no_selector ".empty-state__line", text: "You have placed no order."
     assert_selector available("1,000")
     committed("0 committed")
+  end
+
+  test "the form lists what is for sale now, and reopened from MY ORDERS shows the running order instead of the field" do
+    seller = accounts_players(:moderator).tap { it.update!(persona_name: "Ada") }
+    first = listing!(seller:, card_season: catalog_card_seasons(:common_card_one), current_price: 40, hours: 2)
+    second = listing!(seller:, card_season: catalog_card_seasons(:common_card_one), current_price: 60, hours: 24)
+    sign_in_through_the_site(@player)
+
+    visit new_market_card_order_path(locale: :en, slug: "tin-soldier")
+
+    assert_selector "#order-form-available", text: "AVAILABLE NOW"
+    assert_selector ".order-listing", count: 2
+    assert_selector "a.button--link[href='#{market_listing_path(locale: :en, token: first.token)}']", text: "SEE THE LISTING"
+    assert_selector "a.button--link[href='#{market_listing_path(locale: :en, token: second.token)}']", text: "SEE THE LISTING"
+    fill_in "order-price", with: "300"
+    find(".order-form__submit").click
+
+    assert_selector "#order-result-heading:focus", text: "ORDER PLACED ON Tin Soldier"
+    find("section[aria-labelledby=my-orders-in-progress-heading] a.market-row__title", text: "Tin Soldier").click
+
+    assert_selector "#order-running", text: "You already have an order on Tin Soldier: 300, 7 d left."
+    assert_selector "a.button--link[href='#{market_my_orders_path(locale: :en)}']", text: "MY ORDERS"
+    assert_no_selector "#order-price"
+    assert_no_selector ".order-form__submit"
+    assert_selector ".top-bar__phone-back", text: "My orders", visible: :all
   end
 
   test "served, expired and cancelled orders show under RECENTLY ENDED with what became of them" do

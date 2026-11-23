@@ -59,6 +59,8 @@ module ShellHelper
     "market/listings" => :listing,
     "market/my_bids" => :my_bids,
     "market/my_sales" => :my_sales,
+    "market/orders" => :order,
+    "market/my_orders" => :my_orders,
     "market/sales" => :market,
     "achievements" => :achievements,
     "pages#legal" => :legal,

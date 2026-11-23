@@ -233,7 +233,7 @@
     <%= render "cards/action_group", key: :links do %>
     <div class="card-detail__card-links">
       <% if orderable %>
-        <%= render ButtonComponent.new(href: (new_market_card_order_path(slug: view.id) if signed_in), disabled: !signed_in) do %><%= t("card_details.order.button") %><% end %>
+        <%= render ButtonComponent.new(href: (new_market_card_order_path(slug: view.id, from: "card") if signed_in), disabled: !signed_in) do %><%= t("card_details.order.button") %><% end %>
       <% end %>
       <% if share_url %>
         <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"

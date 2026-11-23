@@ -16,7 +16,7 @@ class CardOrderButtonTest < ActionDispatch::IntegrationTest
 
     get card_path(locale: :en, slug: "tin-soldier")
 
-    assert_equal [ new_market_card_order_path(locale: :en, slug: "tin-soldier") ], order_buttons.map { it["href"] }
+    assert_equal [ new_market_card_order_path(locale: :en, slug: "tin-soldier", from: "card") ], order_buttons.map { it["href"] }
     assert_equal 1, css_select(".card-detail .button--primary").size
     assert_equal "Place an order", css_select(".card-detail__card-links .button").first.text.strip
   end

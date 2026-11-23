@@ -1,0 +1,67 @@
+<%# locals: (card:) %>
+<% price = Game::Market::TypedAmount.price(@price_text) %>
+<% reached = order_reached(@minimums, price) %>
+<% lowest = @minimums.values.min %>
+<% closed = !@settings.open %>
+<% closed_refusal = @refusal if @refusal_code == :market_closed %>
+<% field_refusal = @refusal unless closed_refusal %>
+<%= form_with url: market_card_orders_path(slug: card.id), id: "order-form", class: "order-form__form", data: order_form_data(@minimums) do %>
+  <%= hidden_field_tag :settings_token, @settings.token, id: nil %>
+  <%= hidden_field_tag :from, @from, id: nil if @from %>
+  <div class="market-bid__field">
+    <div class="market-bid__field-head">
+      <label for="order-price" class="market-bid__label"><%= t("market.orders.new.price") %></label>
+      <p id="order-lowest" class="market-bid__minimum"><%= t("market.orders.new.at_least", amount: picoins(lowest)) %></p>
+    </div>
+    <%= text_field_tag :price, @price_text, id: "order-price", inputmode: "numeric", autocomplete: "off", disabled: closed,
+          aria: { invalid: (field_refusal ? "true" : nil), describedby: [ "order-lowest", ("order-error" if field_refusal) ].compact.join(" ") },
+          data: { controller: "amount-field", order_form_target: "input",
+                  action: "beforeinput->amount-field#remember input->amount-field#group input->order-form#type keydown->order-form#keydown" } %>
+    <%= tag.p field_refusal, id: "order-error", class: "market-bid__error", role: "alert", data: { order_form_target: "error" },
+          hidden: field_refusal.nil?, tabindex: (-1 if field_refusal), autofocus: field_refusal.present? %>
+  </div>
+  <div class="order-form__reach">
+    <p class="market-bid__label"><%= t("market.orders.new.reached") %></p>
+    <ul class="order-reach" aria-hidden="true">
+      <% @minimums.each do |rarity, minimum| %>
+        <% on = reached.include?(rarity) %>
+        <%= tag.li class: class_names("order-reach__chip", "order-reach__chip--#{rarity}", "order-reach__chip--reached": on),
+              data: { order_form_target: "chip", rarity: } do %>
+          <%= tag.span t("market.orders.new.chip_reached", rarity: CardStrings.new.rarity_name(rarity), amount: picoins(minimum)), data: { reach: "on" }, hidden: !on %>
+          <%= tag.span t("market.orders.new.chip_from", rarity: CardStrings.new.rarity_name(rarity), amount: picoins(minimum)), data: { reach: "off" }, hidden: on %>
+        <% end %>
+      <% end %>
+    </ul>
+    <p class="order-form__sentence" aria-hidden="true" data-order-form-target="sentence"><%= order_reach_sentence(@minimums, price) %></p>
+    <p class="visually-hidden" role="status" aria-live="polite" data-order-form-target="status"></p>
+  </div>
+  <dl class="order-form__facts">
+    <div class="order-form__fact">
+      <dt><%= t("market.orders.new.held_now") %></dt>
+      <dd class="order-form__held"><%= tag.span picoins(price || 0), data: { order_form_target: "amount" } %></dd>
+    </div>
+    <div class="order-form__fact">
+      <dt><%= t("market.orders.new.duration") %></dt>
+      <dd><%= order_days(@settings.order_duration_days) %></dd>
+    </div>
+    <div class="order-form__fact">
+      <dt><%= t("market.orders.new.best_order") %></dt>
+      <dd class="order-form__best">
+        <% if @best_order %>
+          <%= picoins(@best_order) %>
+        <% else %>
+          <span aria-hidden="true">—</span><span class="visually-hidden"><%= t("market.orders.new.no_best_order") %></span>
+        <% end %>
+      </dd>
+    </div>
+  </dl>
+  <p class="market-bid__small"><%= t("market.orders.new.free_cancel_html", amount: tag.span(picoins(price || 0), data: { order_form_target: "amount" })) %></p>
+  <button type="submit" class="button button--primary order-form__submit" data-order-form-target="button" <%= "disabled" if closed %>
+          <%= tag.attributes(aria: { describedby: ("market-suspended-banner" if @suspended) }) %>>
+    <%= t("market.orders.new.submit") %><%= tag.span t("market.orders.new.submit_amount_html", amount: tag.span(picoins(price || 0), data: { order_form_target: "amount" })), data: { order_form_target: "buttonAmount" }, hidden: price.nil? %>
+  </button>
+  <% if closed_refusal %>
+    <p id="order-closed" class="market-bid__error" role="alert" tabindex="-1" autofocus><%= closed_refusal %></p>
+  <% end %>
+  <p class="market-bid__small"><%= t("market.orders.new.available", amount: picoins(@available)) %></p>
+<% end %>

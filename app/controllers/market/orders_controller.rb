@@ -1,5 +1,9 @@
 module Market
   class OrdersController < ApplicationController
+    include GoalMarksLoading
+
+    BACK_FROM = %w[my_orders card].freeze
+
     throttle_player to: 10, only: :create, path: -> { new_market_card_order_path(slug: params[:slug].to_s) }, alert: "market.orders.create.throttled"
 
     def new
@@ -21,7 +25,8 @@ module Market
 
       load_terms
       @price_text = params[:price].to_s
-      @refusal = operation.failure_message(result.failure, **refusal_values(result.failure))
+      @refusal_code = result.failure
+      @refusal = operation.failure_message(@refusal_code, **refusal_values(@refusal_code)) unless @refusal_code == :order_already_open
       render :new, status: :unprocessable_content
     end
 
@@ -35,6 +40,11 @@ module Market
         @suspended = Game::Market::MarketState.call(@settings).suspended?
         @minimums = Game::Market::SettingsRules::RARITIES.index_with { @settings.minimum_price(it) }
         @available = Game::Market::Balance.call(current_player).available
+        @listings = Game::Market::CardListings.call(@detail.card_id, locale: I18n.locale)
+        @best_order = Game::Market::BestVisibleOrder.call(@detail.card_id, viewer: current_player)
+        @running = Game::Market::PlayerOrders.open_on(current_player, @detail.card_id)
+        @goal = goal_marks.needs.find { it.missing_card_ids.include?(@detail.card_id) }
+        @from = params[:from].presence_in(BACK_FROM)
       end
 
       def refusal_values(code)
@@ -43,15 +53,8 @@ module Market
         when :order_below_minimum
           lowest, amount = @minimums.min_by(&:last)
           { amount: helpers.picoins(amount), rarity: CardStrings.new.rarity_name(lowest) }
-        when :order_already_open then running_order_values
         else {}
         end
-      end
-
-      def running_order_values
-        order = Game::Market::PlayerOrders.open_on(current_player, @detail.card_id)
-        days = order ? [ ((order.expires_at - Time.current) / 1.day).ceil, 0 ].max : 0
-        { card: @detail.view.title, amount: helpers.picoins(order&.price || 0), days: }
       end
   end
 end

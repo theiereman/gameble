@@ -1,0 +1,23 @@
+<%# locals: (card:, listings:) %>
+<%= render PanelComponent.new(tag: :section, class: "order-form__panel", aria: { labelledby: "order-form-available" }) do %>
+  <h2 id="order-form-available" class="order-form__kicker"><%= t("market.orders.new.available_now") %></h2>
+  <% if listings.any? %>
+    <p class="order-form__lead"><%= t("market.orders.new.auctions") %></p>
+    <ul class="order-listings">
+      <% listings.each do |row| %>
+        <li class="order-listing">
+          <p class="order-listing__edition"><%= t("market.orders.new.edition", rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number) %></p>
+          <p class="order-listing__seller"><%= t("market.orders.new.sold_by_html", name: render(PlayerNameComponent.new(player: row.seller, viewer: current_player))) %></p>
+          <p class="order-listing__facts">
+            <span><%= t("market.orders.new.current_price") %> <span class="order-listing__price"><%= picoins(row.current_price) %></span></span>
+            <span><%= t("markets.tile.offers", count: row.offers) %></span>
+            <span><%= listing_time_left(listing_seconds_left(row.ends_at)) %></span>
+          </p>
+          <%= render ButtonComponent.new(variant: :link, href: market_listing_path(token: row.token), aria_label: order_listing_name(row)) do %><%= t("market.orders.new.see_listing") %><% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <%= render EmptyStateComponent.new(line: t("market.orders.new.nobody", card: card.title)) %>
+  <% end %>
+<% end %>

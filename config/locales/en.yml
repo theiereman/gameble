@@ -3726,16 +3726,28 @@ en:
       new:
         all_editions: "Every edition of %{card}. The first player who accepts sells you a copy at this price."
         at_least: "At least %{amount}"
+        auctions: "These are auctions: to win one, bid on its listing."
         available: "Available: %{amount} PiCoins. An order never bids for you."
+        available_now: AVAILABLE NOW
+        best_order: Best current order
         chip_from: "%{rarity} from %{amount}"
         chip_reached: "%{rarity} %{amount}"
+        current_price: Current price
         duration: Duration
+        edition: "%{rarity} · S%{season}"
         free_cancel_html: "%{amount} PiCoins will be held, then returned if the order expires or if you cancel it. Free cancellation."
+        goal: "You are missing this card for %{set}"
         heading: BUY ORDER
         heading_for: "Buy order · %{card}"
         held_now: Held now
+        listing_name: "See the listing, %{rarity} season %{season}, sold by %{name}, %{amount} PiCoins"
+        my_orders: MY ORDERS
+        no_best_order: none
+        nobody: "Nobody is selling %{card} right now. A player who has one will see your price when selling or entrusting it."
         price: MY PRICE
         reached: RARITIES REACHED
+        see_listing: SEE THE LISTING
+        sold_by_html: "Sold by %{name}"
         submit: PLACE THE ORDER
         submit_amount_html: " · %{amount}"
         yours: YOUR ORDER
@@ -5219,7 +5231,9 @@ en:
       market: Market
       me: My profile
       my_bids: My bids
+      my_orders: My orders
       my_sales: My sales
+      order: Buy order
       profile: Profile
       set: Set
       sets: Sets

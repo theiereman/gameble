@@ -59,4 +59,25 @@ module MarketOrdersHelper
   end
 
   def order_cancel_dialog_id(token) = "cancel-order-#{token}"
+
+  def order_back(from, card)
+    case from
+    when "my_orders" then [ t("shell.screens.my_orders"), market_my_orders_path ]
+    when "card" then [ t("shell.screens.card"), card_path(slug: card.id) ]
+    else [ t("market.listings.show.back"), market_path ]
+    end
+  end
+
+  def order_back_data(from) = from == "card" ? { controller: "history-back", action: "history-back#back" } : {}
+
+  def order_running_line(order, card_title)
+    days = [ ((order.expires_at - Time.current) / 1.day).ceil, 0 ].max
+    t("errors.game.order_already_open", card: card_title, amount: picoins(order.price), days:)
+  end
+
+  def order_listing_name(row)
+    seller = row.seller.removed? ? t("player_name.anonymous") : Accounts::PersonaName.clean(row.seller.persona_name) || t("shell.player.fallback_name")
+    t("market.orders.new.listing_name", rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, name: seller,
+      amount: picoins(row.current_price))
+  end
 end

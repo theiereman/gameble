@@ -4,7 +4,7 @@
         data: { row_focus_target: ("heading" if focus_heading) }.compact %>
   <ul class="market-rows__list">
     <% rows.each do |row| %>
-      <%= render MarketRowComponent.new(card: row.card, href: new_market_card_order_path(slug: row.card.id), token: row.token,
+      <%= render MarketRowComponent.new(card: row.card, href: new_market_card_order_path(slug: row.card.id, from: "my_orders"), token: row.token,
             status: order_status_label(row.status), tone: order_status_tone(row.status), facts: order_row_facts(row), rarities: row.rarities,
             edition_note: t("market.my_orders.all_editions")) do |component| %>
         <% if (note = order_row_note(row)) %>
