@@ -1,7 +1,7 @@
 module Game
   module Market
-    # The cards a player still wants that are on sale now, from the wanted notices on open listings, a card under one of the player's orders
-    # left out: seen until one of those listings was created after the player last read the grouped line.
+    # The cards a player still wants that are on sale now, from the wanted notices on open listings, a card already noticed as listed above
+    # one of the player's orders left out: seen until one of those listings was created after the player last read the grouped line.
     module GroupedWanted
       Grouped = Data.define(:count, :card, :newest_at, :seen)
 
