@@ -4906,6 +4906,8 @@ en:
   picoin_amount:
     accessible: "%{amount} PiCoins"
   purchase_confirmation:
+    failed: The confirmation could not be loaded.
+    retry: TRY AGAIN
     balance_after: Balance after
     buy: BUY · %{amount}
     cancel: CANCEL

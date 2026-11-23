@@ -1949,6 +1949,8 @@ fr:
   picoin_amount:
     accessible: "%{amount} PiCoins"
   purchase_confirmation:
+    failed: "La confirmation n'a pas pu être chargée."
+    retry: "RÉESSAYER"
     balance_after: "Solde après"
     buy: "ACHETER · %{amount}"
     cancel: "ANNULER"
