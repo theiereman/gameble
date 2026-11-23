@@ -41,6 +41,10 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
 
   def line(card_season) = find(".wanted-line[data-ref='#{card_season.card.slug}:#{card_season.season.number}']")
 
+  def assert_dock_now(figure)
+    assert_selector ".wanted-dock [data-wanted-dock-target=now] .picoin-amount__figure", text: /\A#{figure}\z/
+  end
+
   def open_entrust
     visit new_market_entrustment_path(locale: :en)
     find(".copy-filters .filter-chip__text", text: "2+").click
@@ -63,11 +67,14 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     within(line(@rare)) { assert_selector "input[value=order]:checked", visible: :all }
     within(line(@epic)) { assert_selector "input[value=entrust]:checked", visible: :all }
     within(line(@uncommon)) { assert_selector "input[value=entrust]:checked", visible: :all }
+    assert_dock_now "980"
+    assert_selector ".wanted-dock__all button", text: /ENTRUST ALL ANYWAY · 220/i
 
     within(line(@epic)) do
       find("label", text: "AUCTION").click
       find("input[name$='[starting_price]']").set("5000")
     end
+    assert_dock_now "830"
     click_on "VALIDATE THE 3 CHOICES"
 
     assert_selector "#wanted-result-heading:focus", text: "YOUR 3 CHOICES ARE APPLIED"
@@ -77,6 +84,24 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     assert_selector ".wanted-result__line--entrusted", text: "ENTRUSTED"
     assert_equal [ 1, 1 ], [ Game::Holding.find_by(player_id: @buyer.id, card_season_id: @rare.id).quantity, Game::Market::Listing.where(seller: @camille, status: "open").count ]
     assert_equal 1, Game::Market::ArchiveDeposit.find_by(player_id: @camille.id, card_season_id: @uncommon.id).quantity
+  end
+
+  test "Enter in a starting price keeps the table and entrusts nothing" do
+    open_entrust
+    tick(@epic)
+    click_on "CHOOSE FOR THE WANTED CARD ▸"
+
+    assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
+    within(line(@epic)) do
+      find("label", text: "AUCTION").click
+      find("input[name$='[starting_price]']").set("5000").send_keys(:enter)
+    end
+
+    assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
+    assert_no_selector "#wanted-result-heading"
+    assert_selector ".wanted-dock__all button", text: /ENTRUST ALL ANYWAY/i
+    assert_nil Game::Market::ArchiveDeposit.find_by(player_id: @camille.id, card_season_id: @epic.id)
+    assert_equal 0, Game::Market::Listing.where(seller: @camille).count
   end
 
   test "an order served before the press redraws its line with its new choice and nothing moves" do

@@ -60,5 +60,12 @@ class MarketWantedCopiesSystemTest < ApplicationSystemTestCase
 
     assert_selector "[role=option]", count: 2
     assert_no_selector "#sale-results-status", text: /wanted by other players/
+
+    find(".filter-chip", text: "WANTED BY OTHERS · 1").click
+    assert_selector "[role=option]", count: 1
+    click_on "Clear filters"
+
+    assert_selector "[role=option]", count: 2
+    assert_no_selector "input[name='filter[wanted]']:checked", visible: :all
   end
 end
