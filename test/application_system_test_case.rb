@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "support/chromedriver_stale_nodes"
+require_relative "support/chromedriver_storage_reset"
 
 # CI's runner is slower than a development machine: a page re-rendered with
 # sixty cards, or a redirect after a form, can take more than Capybara's
