@@ -72,6 +72,7 @@ class SlotPurchasesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "English titles name the slot with its ordinal and article" do
+    Game::CapacitySlot.create!(player_id: @player.id, kind: "custom_set", bought: 2)
     sign_in(@player)
 
     confirmation(capacity: "custom-sets", slot: 8, locale: :en)
@@ -94,6 +95,16 @@ class SlotPurchasesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
     forget_market!
     confirmation(capacity: "decks", slot: 4)
+    assert_response :not_found
+  end
+
+  test "a slot beyond the next one is not found, on the confirmation and on a refused purchase" do
+    sign_in(@player)
+
+    confirmation(capacity: "decks", slot: 5)
+    assert_response :not_found
+
+    assert_no_difference(-> { Game::CapacitySlot.count }) { buy(capacity: "decks", slot: 5) }
     assert_response :not_found
   end
 

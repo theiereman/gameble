@@ -57,6 +57,8 @@ class SlotPurchasesController < ApplicationController
     def load_terms
       @settings = Game::Market::CurrentSettings.call || raise(ActiveRecord::RecordNotFound)
       @limit = Game::Capacity.limit(current_player, @kind)
+      raise ActiveRecord::RecordNotFound if @slot > @limit + 1
+
       @available = Game::Market::Balance.call(current_player).available
       @price = @settings.slot_price(@kind, @slot) if @slot == @limit + 1
       @state = if @price.nil? then :closed
