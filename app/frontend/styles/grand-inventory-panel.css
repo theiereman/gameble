@@ -20,6 +20,11 @@
   white-space: nowrap;
 }
 
+.grand-inventory-panel__arrow {
+  margin-inline-start: var(--space-2);
+  vertical-align: middle;
+}
+
 .grand-inventory-panel__latest {
   display: flex;
   align-items: center;
