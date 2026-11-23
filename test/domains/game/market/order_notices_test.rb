@@ -87,6 +87,19 @@ class Game::Market::OrderNoticesTest < ActiveSupport::TestCase
     assert_empty notices("listed_above_order")
   end
 
+  test "a listing's end moves the notice to another listing still above the order" do
+    order = place!(@rare, 100)
+    first = list(starting_price: 150, seller: @other_seller)
+    second = list(starting_price: 200)
+    Game::Market::CancelListing.new.call(player: @seller, listing_id: second.id).value!
+
+    assert_equal [ [ first.id, order.id, @other_seller.id, 150 ] ], notices("listed_above_order").pluck(:listing_id, :order_id, :other_player_id, :amount)
+
+    Game::Market::CancelListing.new.call(player: @other_seller, listing_id: first.id).value!
+
+    assert_empty notices("listed_above_order")
+  end
+
   test "a served order forgets its listing above and notices the price paid" do
     order = place!(@rare, 100)
     list(starting_price: 150)

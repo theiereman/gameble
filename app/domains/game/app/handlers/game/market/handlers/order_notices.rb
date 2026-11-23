@@ -8,12 +8,26 @@ module Game
         def self.call(event)
           data = event.data
           case event
-          when *LISTING_ENDS then Notice.listed_above_order.where(listing_id: data[:listing_id]).delete_all
+          when *LISTING_ENDS then listing_ended(data[:listing_id])
           when OrderServed then served(event, data)
           when WantedChoicesApplied then data[:sales].each { served(event, it) }
           when OrderExpired then expired(event, data)
           else ended(data[:player_id], data[:order_id])
           end
+        end
+
+        def self.listing_ended(listing_id)
+          Notice.listed_above_order.where(listing_id:).includes(:order).each do |notice|
+            above = listing_above(notice.order, except: listing_id)
+            notices = Notice.where(id: notice.id)
+            above ? notices.update_all(listing_id: above.id, other_player_id: above.seller_id, amount: above.starting_price) : notices.delete_all
+          end
+        end
+
+        def self.listing_above(order, except:)
+          editions = Catalog::CardSeason.where(card_id: order.card_id, rarity: OrderRarities.call(order.id).fetch(order.id)).select(:id)
+          Listing.open_now.where(card_season_id: editions).where.not(id: except).where.not(seller_id: order.player_id)
+            .where("starting_price > ?", order.price).order(id: :desc).first
         end
 
         def self.served(event, sale)
@@ -28,7 +42,7 @@ module Game
 
         def self.ended(player_id, order_id) = Notice.listed_above_order.where(player_id:, order_id:).delete_all
 
-        private_class_method :served, :expired, :ended
+        private_class_method :listing_ended, :listing_above, :served, :expired, :ended
       end
     end
   end
