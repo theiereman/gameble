@@ -77,12 +77,12 @@
 .archive-offer__fixed,
 .archive-offer__stock {
   color: var(--color-muted);
-  font-weight: 400;
+  font-weight: var(--font-weight-regular);
 }
 
 .archive-offer__buy {
   color: var(--color-accent);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .shop-panel {
@@ -198,8 +198,7 @@
 
 .purchase-confirmation__price {
   color: var(--color-gold);
-  font: var(--font-number);
-  font-size: 30px;
+  font: var(--font-count-large-phone);
 }
 
 .purchase-confirmation__lead,

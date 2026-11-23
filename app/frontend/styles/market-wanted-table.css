@@ -1,4 +1,4 @@
-/* Confier's second step: the wanted table, its dock and its result. */
+/* The entrust screen's second step: the wanted table, its dock and its result. */
 .market-wanted-choices__region {
   display: contents;
 }
@@ -210,7 +210,7 @@
     var(--dock-shadow);
 }
 
-@media (width >= 720px) {
+@media (min-width: 720px) {
   .wanted-dock {
     position: sticky;
     bottom: 0;
@@ -366,7 +366,7 @@
   justify-content: flex-end;
 }
 
-@media (width < 720px) {
+@media (max-width: 719px) {
   .wanted-table,
   .wanted-table tbody,
   .wanted-table tr,
@@ -440,7 +440,7 @@
   }
 }
 
-@media (width < 720px) and (min-height: 560px) {
+@media (max-width: 719px) and (min-height: 560px) {
   .wanted-dock {
     position: sticky;
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));

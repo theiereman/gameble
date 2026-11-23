@@ -58,7 +58,7 @@
   outline-offset: var(--focus-ring-offset);
 }
 
-@media (width < 720px) {
+@media (max-width: 719px) {
   .segmented--vertical-on-phone {
     display: flex;
     flex-direction: column;
