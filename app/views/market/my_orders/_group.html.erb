@@ -1,16 +1,21 @@
-<%# locals: (rows:, focus_heading:) %>
-<section class="market-rows" aria-labelledby="my-orders-in-progress-heading">
-  <%= tag.h2 t("market.my_orders.groups.in_progress"), id: "my-orders-in-progress-heading", class: "market-rows__heading", tabindex: -1,
+<%# locals: (group:, heading:, rows:, focus_heading:) %>
+<section class="market-rows" aria-labelledby="my-orders-<%= group %>-heading">
+  <%= tag.h2 heading, id: "my-orders-#{group}-heading", class: "market-rows__heading", tabindex: -1,
         data: { row_focus_target: ("heading" if focus_heading) }.compact %>
   <ul class="market-rows__list">
     <% rows.each do |row| %>
       <%= render MarketRowComponent.new(card: row.card, href: new_market_card_order_path(slug: row.card.id), token: row.token,
-            status: t("market.rows.status.in_progress"), tone: :accent, facts: order_row_facts(row), rarities: row.rarities,
+            status: order_status_label(row.status), tone: order_status_tone(row.status), facts: order_row_facts(row), rarities: row.rarities,
             edition_note: t("market.my_orders.all_editions")) do |component| %>
-        <% component.with_action do %>
-          <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: order_cancel_dialog_id(row.token),
-                aria_label: t("market.my_orders.cancel_name", card: row.card.title)) do %><%= t("market.my_orders.cancel") %><% end %>
-          <%= render "market/order_cancellations/dialog", row: %>
+        <% if (note = order_row_note(row)) %>
+          <% component.with_note { note } %>
+        <% end %>
+        <% if row.status == "open" %>
+          <% component.with_action do %>
+            <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: order_cancel_dialog_id(row.token),
+                  aria_label: t("market.my_orders.cancel_name", card: row.card.title)) do %><%= t("market.my_orders.cancel") %><% end %>
+            <%= render "market/order_cancellations/dialog", row: %>
+          <% end %>
         <% end %>
       <% end %>
     <% end %>

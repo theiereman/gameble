@@ -33,6 +33,7 @@ ignore_unused:
   - "back_office.market_health.indicators.*"
   - "back_office.market_health.lines.*"
   - "back_office.market_health.show.snapshot.facts.*"
+  - "market.my_orders.status.*"
   - "back_office.market_signals.sentences.*"
   - "back_office.market_signals.signals.*"
   - "back_office.market_signals.tie_sentences.*"

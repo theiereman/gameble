@@ -1,9 +1,13 @@
 require "test_helper"
 require_relative "../../support/market"
 require_relative "../../support/market_listings"
+require_relative "../../support/market_auctions"
+require_relative "../../support/market_orders"
 
 class Game::CheckMarketHealthJobTest < ActiveSupport::TestCase
+  include MarketAuctions
   include MarketListings
+  include MarketOrders
   include MarketSettings
 
   setup do
@@ -26,6 +30,22 @@ class Game::CheckMarketHealthJobTest < ActiveSupport::TestCase
     listing!(seller: @seller, card_season: @card, ends_at: 6.minutes.ago)
 
     report = assert_error_reported(Game::CheckMarketHealthJob::StaleClose) { Game::CheckMarketHealthJob.perform_now }
+
+    assert_in_delta 360, report.context[:age_seconds], 5
+  end
+
+  test "a buy order due for four minutes reports nothing" do
+    fund!(@seller, 1_000)
+    order!(@seller, @card, 300, expires_at: 4.minutes.ago)
+
+    assert_no_error_reported { Game::CheckMarketHealthJob.perform_now }
+  end
+
+  test "a buy order due for six minutes reports a stale expiry with its age" do
+    fund!(@seller, 1_000)
+    order!(@seller, @card, 300, expires_at: 6.minutes.ago)
+
+    report = assert_error_reported(Game::CheckMarketHealthJob::StaleExpiry) { Game::CheckMarketHealthJob.perform_now }
 
     assert_in_delta 360, report.context[:age_seconds], 5
   end

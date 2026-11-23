@@ -61,5 +61,6 @@
   <section class="stack" aria-labelledby="health-oldest-due-heading" data-health-oldest-due>
     <h2 id="health-oldest-due-heading"><%= t(".oldest_due.heading") %></h2>
     <p><%= @oldest_due_seconds.nil? ? t(".oldest_due.none") : t(".oldest_due.age", age: health_age(@oldest_due_seconds)) %></p>
+    <p data-health-oldest-due-order><%= @oldest_due_order_seconds.nil? ? t(".oldest_due_order.none") : t(".oldest_due_order.age", age: health_age(@oldest_due_order_seconds)) %></p>
   </section>
 </div>

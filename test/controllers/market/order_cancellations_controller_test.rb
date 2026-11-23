@@ -53,6 +53,21 @@ class Market::OrderCancellationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "This order is no longer in progress.", flash[:alert]
   end
 
+  test "an order served a moment before is refused with the served line, in both languages" do
+    @order.update_columns(status: "served", seller_id: accounts_players(:moderator).id, served_card_season_id: catalog_card_seasons(:common_card_one).id,
+      served_at: Time.current, average_after_sale: 300)
+    sign_in(@player)
+
+    cancel
+
+    assert_redirected_to market_my_orders_path(locale: :en)
+    assert_equal "This order has just been served.", flash[:alert]
+    assert_equal [ 700, 300 ], figures(@player)
+
+    cancel(locale: :fr)
+    assert_equal "Cet ordre vient d'être servi.", flash[:alert]
+  end
+
   test "another player's order is refused as not found, and an unknown token is a 404" do
     sign_in(accounts_players(:moderator))
 

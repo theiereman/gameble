@@ -907,8 +907,11 @@ fr:
         intro: "Chaque indicateur est calculé depuis les instantanés de la nuit et s'explique lui-même. Rien sur cette page ne modifie le marché."
         oldest_due:
           age: "L'annonce la plus ancienne à clore a %{age} de retard."
-          heading: "L'annonce la plus ancienne à clore"
+          heading: "Clôtures et expirations en retard"
           none: "Aucune annonce n'est à clore."
+        oldest_due_order:
+          age: "L'ordre d'achat le plus ancien à expirer a %{age} de retard."
+          none: "Aucun ordre d'achat n'est à expirer."
         reconciliation:
           balanced: "Le rapprochement de la nuit du %{day} a trouvé chaque portefeuille et la circulation à l'équilibre."
           difference: "Le rapprochement de la nuit du %{day} a trouvé %{wallets} portefeuilles en écart et %{circulation} PiCoins d'écart de circulation."
@@ -2543,7 +2546,7 @@ fr:
         no_leader: "Prix %{amount}, aucune offre. Fin à %{time}."
     suspended_banner:
       back: "Retour au marché"
-      body: "La Confrérie procède à un audit de ses procédures. Les enchères en cours se terminent normalement. Il n'est plus possible de confier, de vendre ou d'enchérir pour le moment."
+      body: "La Confrérie procède à un audit de ses procédures. Les enchères en cours se terminent normalement et les ordres d'achat restent bloqués jusqu'à leur fin. Il n'est plus possible de confier, de vendre, d'enchérir ou de passer un ordre pour le moment."
       title: "LE MARCHÉ EST SUSPENDU"
     cancellations:
       create:
@@ -2620,6 +2623,7 @@ fr:
       cancel_name: "Annuler l'ordre, %{card}"
       groups:
         in_progress: "EN COURS"
+        recent: "TERMINÉS RÉCEMMENT"
       result:
         available: "%{amount} disponibles"
         balance_after: "Solde après"
@@ -2627,9 +2631,15 @@ fr:
         closing: "Annulation sans frais. Un ordre n'enchérit jamais à votre place."
         heading: "ORDRE PASSÉ SUR %{card}"
         reached: "Raretés atteintes"
+      returned: "PiCoins rendus"
+      served_html: "Vendue par %{name} · %{rarity} S%{season}"
       show:
         empty: "Vous n'avez passé aucun ordre."
         heading: "Mes ordres"
+      status:
+        cancelled: "ANNULÉ"
+        expired: "EXPIRÉ"
+        served: "SERVI"
     order_cancellations:
       create:
         cancelled: "Ordre annulé : vos %{amount} PiCoins vous sont rendus."
@@ -5085,6 +5095,7 @@ fr:
       order_below_minimum: "Au moins %{amount} pour une %{rarity}."
       order_already_open: "Vous avez déjà un ordre sur %{card} : %{amount}, encore %{days} j."
       order_not_open: "Cet ordre n'est plus en cours."
+      order_served: "Cet ordre vient d'être servi."
       order_not_found: "Cet ordre n'existe pas."
       no_rarity: "Une de ces cartes n'a pas encore de rareté : la Confrérie ne peut pas l'estimer."
       not_enough_copies: "Vous n'avez pas autant d'exemplaires libres d'une de ces cartes."

@@ -2,9 +2,11 @@ require "test_helper"
 require_relative "../../support/steam_sign_in"
 require_relative "../../support/market"
 require_relative "../../support/market_auctions"
+require_relative "../../support/market_orders"
 
 class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
   include MarketAuctions
+  include MarketOrders
   include MarketSettings
   include SteamSignIn
 
@@ -52,6 +54,61 @@ class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action=?]", market_order_cancellation_path(locale: :en, token: order.token)
     assert_select ".order-result", 0
     assert_no_match(/order[\w-]*[-_\/]#{order.id}\b/, response.body)
+  end
+
+  def ended!(card_season, status, ended_at)
+    order = order!(@player, card_season, 100)
+    served = { seller_id: @seller.id, served_card_season_id: card_season.id, served_at: ended_at, average_after_sale: 100 } if status == "served"
+    order.update_columns(status:, updated_at: ended_at, **served.to_h)
+    order
+  end
+
+  test "orders ended this week are rows under RECENTLY ENDED, the latest first, with their chip and line and no cancel" do
+    @seller = Accounts::Player.create!(persona_name: "Ada")
+    open = order!(@player, catalog_card_seasons(:legendary_card_one), 100)
+    ended!(catalog_card_seasons(:rare_card_one), "served", 1.hour.ago)
+    ended!(catalog_card_seasons(:common_card_one), "expired", 2.days.ago)
+    ended!(catalog_card_seasons(:uncommon_card_one), "cancelled", 3.hours.ago)
+    ended!(catalog_card_seasons(:portal_one), "expired", 8.days.ago)
+    ended!(catalog_card_seasons(:portal_one), "withdrawn", 1.hour.ago)
+    sign_in(@player)
+
+    get market_my_orders_path(locale: :en)
+
+    assert_select "#my-orders-in-progress-heading", "IN PROGRESS"
+    assert_select "section[aria-labelledby=my-orders-in-progress-heading] .market-row", 1
+    assert_select "form[action=?]", market_order_cancellation_path(locale: :en, token: open.token)
+    assert_select "#my-orders-recent-heading", "RECENTLY ENDED"
+    recent = "section[aria-labelledby=my-orders-recent-heading]"
+    assert_equal [ "Blue Depths", "Green Hills", "Tin Soldier" ], css_select("#{recent} .market-row__title").map { it.text.strip }
+    assert_equal %w[SERVED CANCELLED EXPIRED], css_select("#{recent} .market-row__chip").map { it.text.strip }
+    assert_select recent do
+      assert_select ".market-row__chip--lime", 1
+      assert_select ".market-row__chip--muted", 2
+      assert_select ".market-row__note", 3
+      assert_select ".market-row__note", "Sold by Ada · Rare S1"
+      assert_select ".market-row__note", text: "PiCoins returned", count: 2
+      assert_select "button", false
+      assert_select "form", false
+    end
+
+    get market_my_orders_path(locale: :fr)
+
+    assert_select "#my-orders-recent-heading", "TERMINÉS RÉCEMMENT"
+    assert_equal %w[SERVI ANNULÉ EXPIRÉ], css_select("#{recent} .market-row__chip").map { it.text.strip }
+    assert_select ".market-row__note", "Vendue par Ada · Rare S1"
+    assert_select ".market-row__note", text: "PiCoins rendus", count: 2
+  end
+
+  test "a player whose orders all ended this week sees only RECENTLY ENDED" do
+    ended!(catalog_card_seasons(:common_card_one), "cancelled", 1.hour.ago)
+    sign_in(@player)
+
+    get market_my_orders_path(locale: :en)
+
+    assert_select "#my-orders-in-progress-heading", false
+    assert_select "#my-orders-recent-heading[data-row-focus-target=heading]", "RECENTLY ENDED"
+    assert_select ".empty-state__line", false
   end
 
   test "the order just placed opens the result panel, its heading focused" do

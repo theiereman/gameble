@@ -13,6 +13,7 @@ module Game
       belongs_to :settings, class_name: "Game::Market::Settings"
 
       scope :open_at, ->(now) { where(status: "open").where.not(expires_at: ..now) }
+      scope :due, ->(now) { where(status: "open", expires_at: ..now) }
       scope :reaching, ->(rarity) do
         raise ArgumentError, "unknown rarity: #{rarity.inspect}" unless RARITY_NAMES.include?(rarity.to_s)
 

@@ -37,8 +37,25 @@ module MarketOrdersHelper
     end
   end
 
+  ORDER_TONES = { "open" => :accent, "served" => :lime, "expired" => :muted, "cancelled" => :muted }.freeze
+
   def order_row_facts(row)
-    [ [ t("market.orders.labels.held"), row_amount(row.price) ], [ t("market.orders.labels.end"), row_end(row.expires_at, nil) ] ]
+    [ [ t("market.orders.labels.held"), row_amount(row.price) ], [ t("market.orders.labels.end"), row_end(row.expires_at, row.ended_at) ] ]
+  end
+
+  def order_status_label(status) = status == "open" ? t("market.rows.status.in_progress") : t("market.my_orders.status.#{status}")
+
+  def order_status_tone(status) = ORDER_TONES.fetch(status)
+
+  def order_row_note(row)
+    case row.status
+    when "served"
+      return unless row.served
+
+      t("market.my_orders.served_html", name: render(PlayerNameComponent.new(player: row.seller, viewer: current_player)),
+        rarity: CardStrings.new.rarity_name(row.served.rarity), season: row.served.season_number)
+    when "expired", "cancelled" then t("market.my_orders.returned")
+    end
   end
 
   def order_cancel_dialog_id(token) = "cancel-order-#{token}"

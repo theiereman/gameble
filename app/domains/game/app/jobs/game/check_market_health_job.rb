@@ -5,12 +5,19 @@ module Game
     STALE_AFTER_SECONDS = 5.minutes.to_i
 
     class StaleClose < StandardError; end
+    class StaleExpiry < StandardError; end
 
     def perform
-      age_seconds = Market::OldestDueListing.call
+      report_stale(StaleClose, "an auction", Market::OldestDueListing.call)
+      report_stale(StaleExpiry, "a buy order", Market::OldestDueOrder.call)
+    end
+
+    private
+
+    def report_stale(error, subject, age_seconds)
       return if age_seconds.nil? || age_seconds <= STALE_AFTER_SECONDS
 
-      Rails.error.report(StaleClose.new("an auction has been due for #{age_seconds} seconds"), handled: true, context: { age_seconds: })
+      Rails.error.report(error.new("#{subject} has been due for #{age_seconds} seconds"), handled: true, context: { age_seconds: })
     end
   end
 end

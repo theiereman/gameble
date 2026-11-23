@@ -45,6 +45,16 @@ class Game::Market::CancelOrderTest < ActiveSupport::TestCase
     assert_no_difference(-> { Game::Market::LedgerEntry.count }) { assert_equal :order_not_open, cancel.failure }
   end
 
+  test "an order served before the cancel is refused as served and moves nothing" do
+    @order.update_columns(status: "served", seller_id: accounts_players(:moderator).id, served_card_season_id: catalog_card_seasons(:common_card_one).id,
+      served_at: Time.current, average_after_sale: 300)
+
+    assert_no_difference([ -> { Game::Market::LedgerEntry.count }, -> { Rails.configuration.event_store.read.count } ]) do
+      assert_equal :order_served, cancel.failure
+    end
+    assert_equal "served", @order.reload.status
+  end
+
   test "another player's order or an unknown one is not found" do
     assert_equal :order_not_found, cancel(player: accounts_players(:moderator)).failure
     assert_equal :order_not_found, cancel(order_id: 0).failure

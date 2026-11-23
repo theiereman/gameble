@@ -593,8 +593,11 @@ en:
         intro: "Each indicator is computed from the nightly snapshots and explains itself. Nothing on this page changes the market."
         oldest_due:
           age: "The oldest listing due to close is %{age} overdue."
-          heading: "The oldest listing due to close"
+          heading: "Overdue closes and expiries"
           none: "No listing is due."
+        oldest_due_order:
+          age: "The oldest buy order due to expire is %{age} overdue."
+          none: "No buy order is due."
         reconciliation:
           balanced: "The night's reconciliation of %{day} found every wallet and the circulation balanced."
           difference: "The night's reconciliation of %{day} found %{wallets} wallets off and a circulation difference of %{circulation} PiCoins."
@@ -2397,6 +2400,7 @@ en:
       order_below_minimum: "At least %{amount} for a %{rarity}."
       order_already_open: "You already have an order on %{card}: %{amount}, %{days} d left."
       order_not_open: This order is no longer in progress.
+      order_served: This order has just been served.
       order_not_found: This order does not exist.
       no_rarity: One of these cards has no rarity yet, so the Brotherhood cannot value it.
       not_enough_copies: You do not have that many free copies of one of these cards.
@@ -3519,7 +3523,7 @@ en:
         no_leader: "Price %{amount}, no bids. Ends at %{time}."
     suspended_banner:
       back: Back to the market
-      body: The Brotherhood is auditing its procedures. Auctions in progress end normally. Nothing can be entrusted, sold or bid on for now.
+      body: The Brotherhood is auditing its procedures. Auctions in progress end normally and buy orders stay held until they end. Nothing can be entrusted, sold, bid on or ordered for now.
       title: THE MARKET IS SUSPENDED
     cancellations:
       create:
@@ -3595,6 +3599,7 @@ en:
       cancel_name: "Cancel the order, %{card}"
       groups:
         in_progress: IN PROGRESS
+        recent: RECENTLY ENDED
       result:
         available: "%{amount} available"
         balance_after: Balance after
@@ -3602,9 +3607,15 @@ en:
         closing: Free cancellation. An order never bids for you.
         heading: "ORDER PLACED ON %{card}"
         reached: Rarities reached
+      returned: PiCoins returned
+      served_html: "Sold by %{name} · %{rarity} S%{season}"
       show:
         empty: You have placed no order.
         heading: My orders
+      status:
+        cancelled: CANCELLED
+        expired: EXPIRED
+        served: SERVED
     order_cancellations:
       create:
         cancelled: "Order cancelled: your %{amount} PiCoins are returned to you."

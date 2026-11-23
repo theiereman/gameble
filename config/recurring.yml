@@ -45,6 +45,12 @@ drop_presence: &drop_presence
   queue: default
   schedule: every minute
 
+# A due buy order expires within a minute of its end, its PiCoins released to the buyer.
+expire_due_orders: &expire_due_orders
+  class: Game::Market::ExpireDueOrdersJob
+  queue: default
+  schedule: every minute
+
 check_market_health: &check_market_health
   class: Game::CheckMarketHealthJob
   queue: default
@@ -117,6 +123,7 @@ development:
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
   close_due_auctions: *close_due_auctions
+  expire_due_orders: *expire_due_orders
   drop_presence: *drop_presence
   check_market_health: *check_market_health
   reconcile_wallets: *reconcile_wallets
@@ -136,6 +143,7 @@ production:
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
   close_due_auctions: *close_due_auctions
+  expire_due_orders: *expire_due_orders
   drop_presence: *drop_presence
   check_market_health: *check_market_health
   reconcile_wallets: *reconcile_wallets

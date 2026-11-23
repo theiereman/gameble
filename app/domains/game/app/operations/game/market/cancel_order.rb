@@ -25,7 +25,13 @@ module Game
         order ? Success(order) : Failure(:order_not_found)
       end
 
-      def still_open(order) = order.status == "open" ? Success() : Failure(:order_not_open)
+      def still_open(order)
+        case order.status
+        when "open" then Success()
+        when "served" then Failure(:order_served)
+        else Failure(:order_not_open)
+        end
+      end
     end
   end
 end
