@@ -172,7 +172,7 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
 
     visit market_my_orders_path(locale: :en)
 
-    assert_selector ".market-row__note", text: /Eve is selling Tin Soldier for 150.*, above your order\./
+    assert_selector ".market-row__note", text: /Eve is selling Tin Soldier for\s+150\s*, above your order\./
     assert_selector ".market-row__note a.button--link[href='#{market_listing_path(locale: :en, token: listing.token)}']", text: "SEE THE LISTING ▸"
     open_bell
     within("#bell-panel") { assert_selector ".bell__line", text: /Tin Soldier is on sale for 150.*, above your order\./ }
