@@ -1,6 +1,6 @@
 module Game
   module NewFeedEntries
-    def self.call(pack_ids: [], reposts: [], trade_ids: [], sets: [], listing_ids: [])
+    def self.call(pack_ids: [], reposts: [], trade_ids: [], sets: [], listing_ids: [], order_ids: [])
       scopes = []
       scopes << FeedEntry.where(pack_id: pack_ids) if pack_ids.any?
       scopes << FeedEntry.where(trade_id: trade_ids) if trade_ids.any?
@@ -13,6 +13,7 @@ module Game
         scopes << FeedEntry.where(kind: "set", player_id: reached[:player_id], occurred_at: reached_at)
       end
       scopes << FeedEntry.where(kind: "sale", listing_id: listing_ids) if listing_ids.any?
+      scopes << FeedEntry.where(kind: "sale", order_id: order_ids) if order_ids.any?
       return [] if scopes.empty?
 
       FeedEntries.priced(visible_items(scopes.reduce(:or).where(notable: true).newest_first.to_a))

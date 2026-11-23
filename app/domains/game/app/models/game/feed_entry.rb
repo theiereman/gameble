@@ -87,12 +87,14 @@ module Game
       insert_all([ row ], unique_by: :index_game_feed_entries_one_duel_stats_per_week, record_timestamps: false)
     end
 
-    def self.record_sale(listing_id:, buyer_id:, card_season_id:, price:, settings:, at:)
+    def self.record_sale(buyer_id:, card_season_id:, price:, settings:, at:, listing_id: nil, order_id: nil)
       rarity = Catalog::Rarity::TIERS.key(Catalog::CardSeason.where(id: card_season_id).pick(:rarity)&.to_sym)
       return unless rarity && notable_sale?(rarity, price, settings)
 
-      row = { kind: "sale", player_id: buyer_id, listing_id:, card_season_id:, rarity:, notable: true, occurred_at: at, created_at: at, updated_at: at }
-      insert_all([ row ], unique_by: :index_game_feed_entries_one_sale_per_listing, record_timestamps: false)
+      row = { kind: "sale", player_id: buyer_id, listing_id:, order_id:, card_season_id:, rarity:, notable: true,
+        occurred_at: at, created_at: at, updated_at: at }
+      unique_by = order_id ? :index_game_feed_entries_one_sale_per_order : :index_game_feed_entries_one_sale_per_listing
+      insert_all([ row ], unique_by:, record_timestamps: false)
     end
 
     def self.notable_sale?(rarity, price, settings)

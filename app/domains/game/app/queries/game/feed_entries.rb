@@ -66,12 +66,18 @@ module Game
     private_class_method :listed
 
     def self.priced(items)
-      listing_ids = items.filter_map { it.entry.listing_id }
-      return items if listing_ids.empty?
-
-      prices = Market::Listing.where(id: listing_ids).pluck(:id, :final_price).to_h
-      items.map { it.entry.listing_id ? it.with(price: prices[it.entry.listing_id]) : it }
+      listing_prices = prices(Market::Listing, :final_price, items.filter_map { it.entry.listing_id })
+      order_prices = prices(Market::Order, :price, items.filter_map { it.entry.order_id })
+      items.map do |item|
+        if item.entry.listing_id then item.with(price: listing_prices[item.entry.listing_id])
+        elsif item.entry.order_id then item.with(price: order_prices[item.entry.order_id])
+        else item
+        end
+      end
     end
+
+    def self.prices(model, column, ids) = ids.empty? ? {} : model.where(id: ids).pluck(:id, column).to_h
+    private_class_method :prices
 
     def self.titled(items)
       titles = ActiveProfileTitle.for_players(items.flat_map { [ it.player, it.partner ] }.compact.uniq)

@@ -14,6 +14,7 @@ module MarketSettings
   end
 
   def forget_market!
+    Game::FeedEntry.where.not(order_id: nil).delete_all
     [ Game::Market::LedgerEntry, Game::Market::Order, Game::Market::Wallet, Game::Market::Settings ].each(&:delete_all)
   end
 end

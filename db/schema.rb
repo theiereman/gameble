@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_23_100001) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_150002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -655,11 +655,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_100001) do
     t.uuid "token", default: -> { "gen_random_uuid()" }, null: false
     t.bigint "listing_id"
     t.jsonb "moves"
+    t.bigint "order_id"
     t.index ["kind", "notable", "occurred_at"], name: "index_game_feed_entries_on_kind_and_notable_and_occurred_at"
     t.index ["listing_id"], name: "index_game_feed_entries_one_sale_per_listing", unique: true, where: "((kind)::text = 'sale'::text)"
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
     t.index ["occurred_at"], name: "index_game_feed_entries_one_duel_stats_per_week", unique: true, where: "((kind)::text = 'duel_stats'::text)"
     t.index ["occurred_at"], name: "index_game_feed_entries_one_verdict_per_week", unique: true, where: "((kind)::text = 'verdict'::text)"
+    t.index ["order_id"], name: "index_game_feed_entries_one_sale_per_order", unique: true, where: "((kind)::text = 'sale'::text)"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
     t.index ["partner_id"], name: "index_game_feed_entries_on_partner_id"
     t.index ["player_id", "occurred_at"], name: "index_game_feed_entries_one_set_per_operation", unique: true, where: "((kind)::text = 'set'::text)"
@@ -668,7 +670,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_100001) do
     t.index ["trade_id"], name: "index_game_feed_entries_on_trade_id", unique: true, where: "(trade_id IS NOT NULL)"
     t.check_constraint "(kind::text = 'duel_stats'::text) = (player_id IS NULL) AND (kind::text = 'duel_stats'::text) = (moves IS NOT NULL)", name: "game_feed_entries_duel_stats_check"
     t.check_constraint "(kind::text = 'pull'::text OR kind::text = 'discovery'::text) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
-    t.check_constraint "(kind::text = 'sale'::text) = (listing_id IS NOT NULL)", name: "game_feed_entries_sale_check"
+    t.check_constraint "(kind::text = 'sale'::text) = (listing_id IS NOT NULL OR order_id IS NOT NULL) AND (listing_id IS NULL OR order_id IS NULL)", name: "game_feed_entries_sale_reference_check"
     t.check_constraint "(kind::text = 'set'::text) = (set_id IS NOT NULL AND tier IS NOT NULL AND set_count IS NOT NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text OR kind::text = 'duel_stats'::text) = (card_season_id IS NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text OR kind::text = 'duel_stats'::text) = (rarity IS NULL)", name: "game_feed_entries_set_check"
     t.check_constraint "(kind::text = 'trade'::text) = (trade_id IS NOT NULL AND partner_id IS NOT NULL AND partner_card_season_id IS NOT NULL)", name: "game_feed_entries_trade_check"
     t.check_constraint "(tier IS NULL OR tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text) AND (set_count IS NULL OR set_count > 0)", name: "game_feed_entries_tier_check"
@@ -1357,6 +1359,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_100001) do
   add_foreign_key "game_feed_entries", "accounts_players", column: "partner_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "player_id"
   add_foreign_key "game_feed_entries", "catalog_card_seasons", column: "partner_card_season_id"
+  add_foreign_key "game_feed_entries", "game_market_orders", column: "order_id"
   add_foreign_key "game_feed_entries", "game_packs", column: "pack_id"
   add_foreign_key "game_feed_entries", "game_trades", column: "trade_id"
   add_foreign_key "game_feed_reactions", "accounts_players", column: "player_id"
