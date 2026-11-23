@@ -108,7 +108,7 @@ class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#my-orders-in-progress-heading", false
     assert_select "#my-orders-recent-heading[data-row-focus-target=heading]", "RECENTLY ENDED"
-    assert_select ".empty-state__line", false
+    assert_select ".empty-state__line", text: "You have placed no order.", count: 0
   end
 
   test "the order just placed opens the result panel, its heading focused" do

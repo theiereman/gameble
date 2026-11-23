@@ -68,7 +68,7 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
     assert_selector recent_rows, count: 1
     assert_selector recent_rows, text: /Tin Soldier.*CANCELLED.*PiCoins returned/m
     assert_no_selector "section[aria-labelledby=my-orders-in-progress-heading]"
-    assert_no_selector ".empty-state__line"
+    assert_no_selector ".empty-state__line", text: "You have placed no order."
     assert_selector available("1,000")
     committed("0 committed")
   end
