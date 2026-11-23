@@ -1,4 +1,4 @@
-<%# locals: (filter:, form:, search_id:) %>
+<%# locals: (filter:, form:, search_id:, wanted: nil) %>
 <%= tag.div class: "copy-filters", role: "search", data: { controller: "copy-filters", copy_filters_form_value: form, action: "turbo:frame-load@document->copy-filters#reloaded" } do %>
   <label class="visually-hidden" for="<%= search_id %>"><%= t("market.copy_filters.search_label") %></label>
   <%= search_field_tag "filter[query]", filter.query, id: search_id, form:, class: "filters__search-field", autocomplete: "off",
@@ -23,6 +23,13 @@
             data: { copy_filters_target: "triples", action: "change->copy-filters#changed" } %>
       <span class="filter-chip__text"><%= t("market.copy_filters.triples") %></span>
     </label>
+    <% if wanted %>
+      <label class="filter-chip">
+        <%= check_box_tag "filter[wanted]", "1", filter.wanted?, id: nil, form:, class: "filter-chip__box", aria: { label: t("market.copy_filters.wanted_label", count: wanted) },
+              data: { copy_filters_target: "wanted", action: "change->copy-filters#changed" } %>
+        <span class="filter-chip__text"><%= t("market.copy_filters.wanted", count: number_with_delimiter(wanted)) %></span>
+      </label>
+    <% end %>
   </fieldset>
   <div class="copy-filters__foot">
     <span class="filters__count" data-copy-filters-target="count" <%= "hidden" if filter.count.zero? %>><span class="visually-hidden"><%= t("market.copy_filters.filters_active") %></span> <span data-copy-filters-target="number"><%= filter.count %></span></span>

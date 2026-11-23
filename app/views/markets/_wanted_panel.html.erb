@@ -1,0 +1,38 @@
+<%# locals: (copies:, tiles:, cards:) %>
+<div class="wanted-panel">
+  <%= render PanelComponent.new(tag: :section, class: "wanted-panel__frame", aria: { labelledby: "wanted-panel-heading" }) do %>
+    <h2 id="wanted-panel-heading" class="market-screen__section wanted-panel__heading">
+      <%= t("markets.wanted.heading") %> <span class="wanted-panel__count"><%= number_with_delimiter(copies.size) %></span>
+    </h2>
+    <% if tiles.any? %>
+      <ul class="wanted-panel__list" aria-labelledby="wanted-panel-heading">
+        <% tiles.each do |copy| %>
+          <% card = cards[copy.card_season_id] %>
+          <% next unless card %>
+          <li class="wanted-panel__item">
+            <%= link_to new_market_card_sale_path(slug: card.id, ref: copy.ref), class: "wanted-panel__tile", aria: { label: wanted_tile_label(copy, card) } do %>
+              <span class="wanted-panel__card" aria-hidden="true"><%= render CardComponent.new(card:, size: :s, tilt: false) %></span>
+              <span class="wanted-panel__facts" aria-hidden="true">
+                <span class="wanted-panel__name"><%= card.title %></span>
+                <span class="wanted-panel__seekers"><%= t("markets.wanted.seekers", count: copy.seekers) %></span>
+                <% if copy.order %>
+                  <span class="wanted-panel__order"><%= t("markets.wanted.order") %> <%= render PicoinAmountComponent.new(amount: copy.order.price, compact: true) %></span>
+                <% else %>
+                  <span class="wanted-panel__no-order"><%= t("markets.wanted.no_order") %></span>
+                <% end %>
+              </span>
+              <span class="wanted-panel__chevron" aria-hidden="true">▸</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <%= render EmptyStateComponent.new(line: t("markets.wanted.empty")) %>
+    <% end %>
+  <% end %>
+  <% if copies.any? %>
+    <p class="wanted-panel__foot">
+      <%= render ButtonComponent.new(variant: :link, href: new_market_sale_path(filter: { wanted: "1" }), aria_label: t("markets.wanted.see_all_label")) do %><%= t("markets.wanted.see_all") %><% end %>
+    </p>
+  <% end %>
+</div>

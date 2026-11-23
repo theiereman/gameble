@@ -720,4 +720,63 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_market_sale_path(locale: :en)
   end
+
+  def wanted_by_goal(card_season, *players)
+    Game::Market::Wanted.insert_all(players.map { { player_id: it.id, card_id: card_season.card_id, reason: "goal", rarities: nil } })
+  end
+
+  test "a wanted cell carries its seeker count as a badge and in its name, and the chip counts the wanted editions" do
+    hold(@player, @rare.id, 1)
+    hold(@player, @common.id, 1)
+    wanted_by_goal(@rare, accounts_players(:moderator), accounts_players(:administrator))
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :fr)
+
+    assert_select "[role=option][data-ref=?]", ref(@rare) do |cell|
+      assert_select cell, ".sale-cell__wanted[aria-hidden=true]", "DEMANDÉE · 2"
+      assert_match(/, demandée par 2 joueurs\z/, cell.first["aria-label"])
+    end
+    assert_select "[role=option][data-ref=?] .sale-cell__wanted", ref(@common), false
+    assert_select ".filter-chip input[name='filter[wanted]'][aria-label=?]:not([checked])", "Voulues par d'autres, 1 carte"
+    assert_select ".filter-chip", text: "VOULUES PAR D'AUTRES · 1"
+    assert_no_match(/(?:data-[a-z-]+|id|name|value)="#{@rare.id}"/, response.body)
+  end
+
+  test "the wanted chip keeps the wanted editions, says how many, and the page links carry it" do
+    hold(@player, @rare.id, 1)
+    hold(@player, @common.id, 1)
+    wanted_by_goal(@rare, accounts_players(:moderator))
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en, filter: { wanted: "1" })
+
+    assert_select "[role=option]", 1
+    assert_select "[role=option][data-ref=?]", ref(@rare)
+    assert_select "#sale-results-status", "1 card wanted by other players"
+    assert_select "input[name='filter[wanted]'][checked]"
+    assert_select "#sale-results input[type=hidden][name='filter[wanted]'][value='1']"
+    assert_select ".filters__count:not([hidden])"
+  end
+
+  test "with nothing wanted the wanted chip reads zero and keeps the grid's empty line" do
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :fr, filter: { wanted: "1" })
+
+    assert_select ".filter-chip", text: "VOULUES PAR D'AUTRES · 0"
+    assert_select "#sale-results-status", "Aucune carte voulue par d'autres joueurs"
+    assert_select ".sale-grid__empty"
+  end
+
+  test "the Confier grid offers no wanted chip" do
+    hold(@player, @rare.id, 2)
+    wanted_by_goal(@rare, accounts_players(:moderator))
+    sign_in(@player)
+
+    get new_market_entrustment_path(locale: :en)
+
+    assert_select "input[name='filter[wanted]']", false
+  end
 end

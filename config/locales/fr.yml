@@ -2429,6 +2429,15 @@ fr:
         other: "%{count} nouvelles entrées dans le fil."
   market:
     copy_filters:
+      wanted: "VOULUES PAR D'AUTRES · %{count}"
+      wanted_label:
+        zero: "Voulues par d'autres, %{count} carte"
+        one: "Voulues par d'autres, %{count} carte"
+        other: "Voulues par d'autres, %{count} cartes"
+      wanted_matches:
+        zero: "Aucune carte voulue par d'autres joueurs"
+        one: "%{number} carte voulue par d'autres joueurs"
+        other: "%{number} cartes voulues par d'autres joueurs"
       clear_filters: "Effacer les filtres"
       doubles: "2+"
       triples: "3+"
@@ -2812,6 +2821,11 @@ fr:
       create:
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
       new:
+        wanted_badge: "DEMANDÉE · %{count}"
+        wanted_words:
+          zero: "demandée par %{count} joueur"
+          one: "demandée par %{count} joueur"
+          other: "demandée par %{count} joueurs"
         all_cards: "Toutes les cartes"
         average_price: "Prix moyen"
         back: "◀ Retour aux cartes"
@@ -2867,6 +2881,19 @@ fr:
         status: "Vous recevez %{amount} PiCoins"
         step: "Étape %{step} sur 2"
   markets:
+    wanted:
+      heading: "VOS CARTES VOULUES"
+      empty: "Aucune de vos cartes n'est voulue pour le moment."
+      seekers:
+        zero: "%{count} joueur la veut"
+        one: "%{count} joueur la veut"
+        other: "%{count} joueurs la veulent"
+      order: "Ordre"
+      no_order: "Aucun ordre"
+      tile_label: "%{card}, %{rarity}, saison %{season}, %{seekers}, ordre d'achat %{amount} PiCoins. Mettre en vente"
+      tile_label_no_order: "%{card}, %{rarity}, saison %{season}, %{seekers}, aucun ordre d'achat. Mettre en vente"
+      see_all: "Tout voir"
+      see_all_label: "Tout voir, vos cartes voulues"
     filters:
       hide_mine: "Masquer mes ventes"
       wanted: "Cartes voulues"
@@ -4679,6 +4706,10 @@ fr:
         other: ", %{number} enchères dépassées"
       throttled: "Trop de changements en une minute. Réessayez dans un instant."
   card_details:
+    wanted:
+      badge: "DEMANDÉE"
+      line_html: "%{seekers} · meilleur ordre %{amount}"
+      line_no_order: "%{seekers} · aucun ordre d'achat"
     order:
       button: "Passer un ordre"
     actions:

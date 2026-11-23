@@ -111,6 +111,11 @@ describe("the filters' count", () => {
     expect(filtering({ query: " x ", rarities: [], doubles: false, triples: false })).toBe(true)
     expect(filtering({ query: "  ", rarities: [], doubles: false, triples: false })).toBe(false)
   })
+
+  it("counts the wanted chip where the grid offers it", () => {
+    expect(filterCount({ rarities: ["rare"], doubles: false, triples: false, wanted: true })).toBe(2)
+    expect(filtering({ query: "", rarities: [], doubles: false, triples: false, wanted: true })).toBe(true)
+  })
 })
 
 describe("ticking", () => {

@@ -7,6 +7,7 @@
 <% pioneer = local_assigns.fetch(:pioneer, nil) %>
 <% goals = local_assigns.fetch(:goals, []) %>
 <% entrustment = local_assigns.fetch(:entrustment, nil) %>
+<% wanted = local_assigns.fetch(:wanted, nil) || [] %>
 <% price = local_assigns.fetch(:price, nil) %>
 <% edition_prices = local_assigns.fetch(:edition_prices, {}) %>
 <% trade_holders = local_assigns.fetch(:trade_holders, nil) || [] %>
@@ -222,6 +223,7 @@
           <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("card_details.list.button") %><% end %>
           <p class="card-detail__market-note"><%= t("card_details.entrust.reserved", count: entrustment.reserved) %></p>
         <% else %>
+          <% if wanted.any? %><%= render "cards/wanted_line", copies: wanted %><% end %>
           <%= render ButtonComponent.new(variant: :secondary, href: new_market_card_entrustment_path(slug: view.id)) do %><%= t("card_details.entrust.button") %><% end %>
           <%= render ButtonComponent.new(variant: :secondary, href: new_market_card_sale_path(slug: view.id)) do %><%= t("card_details.list.button") %><% end %>
         <% end %>

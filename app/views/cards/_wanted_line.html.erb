@@ -1,0 +1,13 @@
+<%# locals: (copies:) %>
+<% seekers = t("markets.wanted.seekers", count: copies.first.seekers) %>
+<% best = copies.filter_map(&:order).map(&:price).max %>
+<p class="card-detail__wanted">
+  <span class="wanted-badge"><%= t("card_details.wanted.badge") %></span>
+  <span class="card-detail__wanted-line">
+    <% if best %>
+      <%= t("card_details.wanted.line_html", seekers:, amount: render(PicoinAmountComponent.new(amount: best, class: "card-detail__wanted-order"))) %>
+    <% else %>
+      <%= t("card_details.wanted.line_no_order", seekers:) %>
+    <% end %>
+  </span>
+</p>

@@ -2,12 +2,16 @@
 <% rarity = copy.card.rarity.to_sym %>
 <% tabbable = @chosen_ref ? chosen : (@pagy.offset + copy_counter).zero? %>
 <% decks = @decks_by_ref[copy.ref] %>
+<% wanted = @wanted[copy.ref] %>
 <%= tag.li class: class_names("sale-cell", "sale-cell--#{rarity}", "sale-cell--chosen": chosen), role: "option",
       tabindex: (tabbable ? 0 : -1),
-      aria: { selected: chosen.to_s, disabled: ("true" if copy.free < 1), label: sale_cell_label(copy, @settings, @prices[copy.ref], decks:) },
+      aria: { selected: chosen.to_s, disabled: ("true" if copy.free < 1), label: sale_cell_label(copy, @settings, @prices[copy.ref], decks:, wanted:) },
       data: { listing_form_target: "cell", listing_grid_target: "cell", action: "click->listing-grid#choose",
               **sale_edition_data(copy, @settings, order: @orders[copy.ref]) } do %>
   <span class="sale-cell__check" aria-hidden="true" <%= "hidden" unless chosen %>>✓</span>
+  <% if wanted %>
+    <span class="wanted-badge sale-cell__wanted" aria-hidden="true"><%= t("market.sales.new.wanted_badge", count: wanted.seekers) %></span>
+  <% end %>
   <span class="sale-cell__art" aria-hidden="true"><%= render CardComponent.new(card: copy.card, size: :s, tilt: false) %></span>
   <span class="sale-cell__name" aria-hidden="true"><%= copy.card.title %></span>
   <span class="sale-cell__edition" aria-hidden="true"><%= t("catalog.rarity.#{rarity}") %> · <%= t("market.sales.new.season", number: copy.card.season_number) %></span>

@@ -8,12 +8,13 @@ module Market
     GRID_SIZE = CollectionGridLoading::GRID_SIZE
 
     private
-      def copy_filter(doubles_by_default:)
+      # `wanted_ids`: the editions the wanted chip keeps, on a grid that offers it.
+      def copy_filter(doubles_by_default:, wanted_ids: nil)
         asked = params[:filter]
         return Game::Market::CopyFilter.new(doubles: doubles_by_default) unless asked.respond_to?(:to_unsafe_h)
 
         Game::Market::CopyFilter.new(query: asked[:query].is_a?(String) ? asked[:query] : "", rarities: Array(asked[:rarities]).grep(String),
-          doubles: asked[:doubles].present?, triples: asked[:triples].present?)
+          doubles: asked[:doubles].present?, triples: asked[:triples].present?, wanted_ids: (wanted_ids if asked[:wanted].present?))
       end
 
       # The page links carry the filter alone, whatever else a post sent.

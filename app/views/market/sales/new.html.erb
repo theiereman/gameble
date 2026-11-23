@@ -54,7 +54,7 @@
         <% end %>
         <div class="market-sale__layout">
           <div class="market-sale__main">
-            <%= render "market/copy_filters", filter: @filter, form: "sale-filter", search_id: "sale-search" %>
+            <%= render "market/copy_filters", filter: @filter, form: "sale-filter", search_id: "sale-search", wanted: @wanted.size %>
             <%= render "market/sales/grid" %>
           </div>
           <div class="sale-form dock">

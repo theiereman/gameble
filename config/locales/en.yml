@@ -1419,6 +1419,10 @@ en:
     unlocked:
       title: Card back unlocked
   card_details:
+    wanted:
+      badge: SOUGHT
+      line_html: "%{seekers} · best order %{amount}"
+      line_no_order: "%{seekers} · no buy order"
     order:
       button: Place an order
     actions:
@@ -3406,6 +3410,15 @@ en:
         other: "%{owned} unique cards out of %{total}"
   market:
     copy_filters:
+      wanted: "WANTED BY OTHERS · %{count}"
+      wanted_label:
+        zero: "Wanted by others, %{count} cards"
+        one: "Wanted by others, %{count} card"
+        other: "Wanted by others, %{count} cards"
+      wanted_matches:
+        zero: No card wanted by other players
+        one: "%{number} card wanted by other players"
+        other: "%{number} cards wanted by other players"
       clear_filters: Clear filters
       doubles: 2+
       filters_active: Active filters
@@ -3782,6 +3795,11 @@ en:
       create:
         throttled: Slow down, the Archives are counting. Try again in a minute.
       new:
+        wanted_badge: "SOUGHT · %{count}"
+        wanted_words:
+          zero: "sought by %{count} players"
+          one: "sought by %{count} player"
+          other: "sought by %{count} players"
         all_cards: All cards
         average_price: Average price
         back: "◀ Back to the cards"
@@ -3835,6 +3853,19 @@ en:
         status: You receive %{amount} PiCoins
         step: "Step %{step} of 2"
   markets:
+    wanted:
+      heading: YOUR WANTED CARDS
+      empty: None of your cards is wanted right now.
+      seekers:
+        zero: "%{count} players want it"
+        one: "%{count} player wants it"
+        other: "%{count} players want it"
+      order: Order
+      no_order: No order
+      tile_label: "%{card}, %{rarity}, season %{season}, %{seekers}, buy order %{amount} PiCoins. Put up for sale"
+      tile_label_no_order: "%{card}, %{rarity}, season %{season}, %{seekers}, no buy order. Put up for sale"
+      see_all: See all
+      see_all_label: See all, your wanted cards
     filters:
       clear_search: CLEAR THE SEARCH
       groups:

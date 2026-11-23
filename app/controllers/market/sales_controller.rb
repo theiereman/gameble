@@ -45,7 +45,8 @@ module Market
         @open = @settings&.open.present?
         @suspended = Game::Market::MarketState.call(@settings).suspended?
         @card_slug = card_slug
-        @filter = copy_filter(doubles_by_default: false)
+        @wanted = Game::Market::WantedCopies.call(current_player).index_by(&:ref)
+        @filter = copy_filter(doubles_by_default: false, wanted_ids: @wanted.values.map(&:card_season_id))
         load_grid
         load_deck_holding
         choose(@copies.first.ref) if @pagy.count == 1 && !@filter.narrowing?

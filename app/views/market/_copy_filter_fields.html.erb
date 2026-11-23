@@ -5,3 +5,4 @@
 <% end %>
 <%= hidden_field_tag "filter[doubles]", "1", id: nil if filter.doubles %>
 <%= hidden_field_tag "filter[triples]", "1", id: nil if filter.triples %>
+<%= hidden_field_tag "filter[wanted]", "1", id: nil if filter.wanted? %>

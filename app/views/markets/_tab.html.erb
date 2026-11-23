@@ -7,6 +7,7 @@
       <%= render "markets/mine", desk: %>
     <% end %>
     <% if market_exchange_shown? %><%= render "markets/exchange_preview" %><% end %>
+    <% if @wanted_copies %><%= render "markets/wanted_panel", copies: @wanted_copies, tiles: @wanted_tiles, cards: @wanted_cards %><% end %>
     <%= render "markets/chips", current: %>
     <div class="tabs__panel">
       <%= content %>

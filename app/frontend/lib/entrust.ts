@@ -17,6 +17,7 @@ export type EntrustFilter = {
   rarities: readonly Rarity[]
   doubles: boolean
   triples: boolean
+  wanted?: boolean
 }
 
 export type Layout = "wide" | "phone"
@@ -139,8 +140,9 @@ export function filterCount({
   rarities,
   doubles,
   triples,
-}: Pick<EntrustFilter, "rarities" | "doubles" | "triples">): number {
-  return rarities.length + (doubles ? 1 : 0) + (triples ? 1 : 0)
+  wanted = false,
+}: Pick<EntrustFilter, "rarities" | "doubles" | "triples" | "wanted">): number {
+  return rarities.length + (doubles ? 1 : 0) + (triples ? 1 : 0) + (wanted ? 1 : 0)
 }
 
 export function filtering(filter: EntrustFilter): boolean {
