@@ -6,6 +6,6 @@ class AltSignalSentenceComponent < ViewComponent::Base
   end
 
   def call
-    html_escape t("back_office.market_signals.#{@sentences}.#{@signal}", **@facts.symbolize_keys.transform_values { helpers.number_with_delimiter(it) })
+    html_escape t("back_office.market_signals.#{@sentences}.#{@signal}", **@facts.symbolize_keys.transform_values { it.is_a?(Integer) ? helpers.number_with_delimiter(it) : it })
   end
 end

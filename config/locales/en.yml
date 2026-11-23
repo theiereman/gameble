@@ -624,10 +624,12 @@ en:
     market_signals:
       banned: "banned"
       sentences:
+        archive_purchase_of_tied_deposit: "Bought %{card} (season %{season}) from the Archives for %{price} PiCoins in the last 30 days; the other account, which another signal ties to it, entrusted that edition. Copies entrusted: %{deposited}, last on %{deposited_on}."
         bids_on_tied_seller: "Bids on the other account's listings, which another signal ties to it, in the last 30 days. Listings: %{listings}, bids: %{bids}."
         minimum_price_sales: "Sold to the other account at the minimum price in the last 30 days: %{sales}."
         near_maximum_opening: "Opened %{per_day} capsules or more a day on %{days} of the last 7 days, up to %{peak} in one day."
         one_way_trades: "Trades in the last 7 days where it gave far more than it got: %{trades}. Copies given: %{given}, received: %{received}."
+        order_sale_to_tied_buyer: "Sold %{card} (season %{season}) to the buy order of the other account, which another signal ties to it, for %{price} PiCoins in the last 30 days."
         sales_outside_price: "Sold to the other account in the last 30 days at under half or over twice the edition's average price: %{sales} (%{below} below, %{above} above)."
       show:
         account: "Account"
@@ -635,7 +637,7 @@ en:
         empty: "No account matches a signal."
         facts: "Facts"
         heading: "Alt-account signals"
-        intro: "Accounts that open capsules, trade, sell or bid the way an alt account feeding another would. A signal is a hint, not proof: it changes nothing on the account, and any action goes through the ban on the players page. The signals are replaced every night and no player sees them."
+        intro: "Accounts that open capsules, trade, sell, bid or buy from the Archives the way an alt account feeding another would. A signal is a hint, not proof: it changes nothing on the account, and any action goes through the ban on the players page. The signals are replaced every night and no player sees them."
         other_account: "Other account"
         refreshed_at: "Refreshed"
         signal: "Signal"
@@ -643,10 +645,12 @@ en:
         ties_empty: "No signal ties two accounts."
         ties_heading: "Tied accounts"
       signals:
+        archive_purchase_of_tied_deposit: "Archive purchase of a tied account's deposit"
         bids_on_tied_seller: "Bids on the listing of a tied account"
         minimum_price_sales: "Repeated minimum-price sales"
         near_maximum_opening: "Near-maximum capsule opening"
         one_way_trades: "Repeated one-way trades"
+        order_sale_to_tied_buyer: "Direct sale to a tied account's order"
         sales_outside_price: "Sales outside the market price"
       tie_sentences:
         minimum_price_sales: "Sales between the two accounts at the minimum price in the last 30 days: %{sales}."

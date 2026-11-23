@@ -1,7 +1,9 @@
 module Game
   module Market
     module AltSignals
-      SIGNALS = %w[near_maximum_opening one_way_trades sales_outside_price minimum_price_sales bids_on_tied_seller].freeze
+      SIGNALS = %w[
+        near_maximum_opening one_way_trades sales_outside_price minimum_price_sales bids_on_tied_seller order_sale_to_tied_buyer archive_purchase_of_tied_deposit
+      ].freeze
       TYING = %w[one_way_trades sales_outside_price minimum_price_sales].freeze
 
       OPENING_CAPSULES_PER_DAY = 120
@@ -24,7 +26,9 @@ module Game
 
       def self.call(now: Time.current)
         pairs = OneWayTrades.call(now:) + SalesOutsidePrice.call(now:) + MinimumPriceSales.call(now:)
-        without_deleted_accounts(CapsuleOpening.call(now:) + pairs + TiedBids.call(now:, ties: pairs.to_set(&:pair)))
+        ties = pairs.to_set(&:pair)
+        tied = TiedBids.call(now:, ties:) + OrderSalesToTiedBuyer.call(now:, ties:) + ArchivePurchasesOfTiedDeposit.call(now:, ties:)
+        without_deleted_accounts(CapsuleOpening.call(now:) + pairs + tied)
       end
 
       def self.without_deleted_accounts(detected)

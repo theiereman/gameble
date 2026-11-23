@@ -55,6 +55,31 @@ module BackOffice
       end
     end
 
+    test "staff read a direct sale to a tied account's order and an Archive purchase of a tied deposit with their facts" do
+      Game::Market::AltSignal.create!(account: @alice, signal: "order_sale_to_tied_buyer", other_account: @bob,
+        facts: { "card" => "1984", "season" => 1, "price" => 1_500 }, refreshed_at: @now)
+      Game::Market::AltSignal.create!(account: @bob, signal: "archive_purchase_of_tied_deposit", other_account: @alice,
+        facts: { "card" => "portal", "season" => 2, "price" => 500, "deposited" => 3, "deposited_on" => "2026-11-02" }, refreshed_at: @now)
+      sign_in(accounts_players(:moderator))
+
+      get back_office_market_signals_path(locale: :en)
+
+      assert_select "tr[data-signal=order_sale_to_tied_buyer][data-account-token='#{@alice.token}']" do
+        assert_select "td", "Direct sale to a tied account's order"
+        assert_select "td", /Sold 1984 \(season 1\) to the buy order of the other account, which another signal ties to it, for 1,500 PiCoins/
+        assert_select "a[href='/en/back-office/players?player=#{@bob.token}']"
+      end
+      assert_select "tr[data-signal=archive_purchase_of_tied_deposit][data-account-token='#{@bob.token}']" do
+        assert_select "td", "Archive purchase of a tied account's deposit"
+        assert_select "td", /Bought portal \(season 2\) from the Archives for 500 PiCoins.*Copies entrusted: 3, last on 2026-11-02/
+        assert_select "a[href='/en/back-office/players?player=#{@alice.token}']"
+      end
+
+      get back_office_market_signals_path(locale: :fr)
+
+      assert_select "tr[data-signal=archive_purchase_of_tied_deposit] td", "Achat aux Archives du dépôt d'un compte lié"
+    end
+
     test "with signals but no tie the page says no signal ties two accounts, in French too" do
       Game::Market::TiedAccount.delete_all
       sign_in(accounts_players(:moderator))

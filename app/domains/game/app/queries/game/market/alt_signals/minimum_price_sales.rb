@@ -5,7 +5,7 @@ module Game
         MINIMUM = "CASE catalog_card_seasons.rarity #{Catalog::Rarity::TIERS.map { |tier, name| "WHEN #{tier} THEN game_market_settings.minimum_price_#{name}" }.join(" ")} END".freeze
 
         def self.call(now:)
-          pairs = Listing.sold.where(sold_at: (now - MARKET_WINDOW_DAYS.days)..).where.not(leader_id: nil)
+          pairs = EditionPrice.sales.where(sold_at: (now - MARKET_WINDOW_DAYS.days)..).where.not(leader_id: nil)
             .joins("JOIN catalog_card_seasons ON catalog_card_seasons.id = game_market_listings.card_season_id")
             .joins("JOIN game_market_settings ON game_market_settings.id = game_market_listings.settings_id")
             .where("game_market_listings.final_price = #{MINIMUM}")

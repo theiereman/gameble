@@ -6,9 +6,11 @@ module Game
       MINIMUM_SALES = 3
 
       SALES = <<~SQL.squish.freeze
-        SELECT card_season_id, sold_at, final_price, average_after_sale, 0 AS source, id FROM game_market_listings WHERE status = 'sold'
+        SELECT card_season_id, sold_at, final_price, average_after_sale, 0 AS source, id, seller_id, leader_id, settings_id
+          FROM game_market_listings WHERE status = 'sold'
         UNION ALL
-        SELECT served_card_season_id, served_at, price, average_after_sale, 1, id FROM game_market_orders WHERE status = 'served'
+        SELECT served_card_season_id, served_at, price, average_after_sale, 1, id, seller_id, player_id, settings_id
+          FROM game_market_orders WHERE status = 'served'
       SQL
       NEWEST_FIRST = { sold_at: :desc, source: :desc, id: :desc }.freeze
 

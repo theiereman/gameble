@@ -940,10 +940,12 @@ fr:
     market_signals:
       banned: "banni"
       sentences:
+        archive_purchase_of_tied_deposit: "A acheté %{card} (saison %{season}) aux Archives pour %{price} PiCoins ces 30 derniers jours ; l'autre compte, qu'un autre signal lui lie, a confié cette édition. Exemplaires confiés : %{deposited}, la dernière fois le %{deposited_on}."
         bids_on_tied_seller: "Enchères sur les annonces de l'autre compte, qu'un autre signal lui lie, ces 30 derniers jours. Annonces : %{listings}, enchères : %{bids}."
         minimum_price_sales: "Vendu à l'autre compte au prix minimum ces 30 derniers jours : %{sales}."
         near_maximum_opening: "A ouvert %{per_day} capsules ou plus par jour sur %{days} des 7 derniers jours, jusqu'à %{peak} en un jour."
         one_way_trades: "Échanges des 7 derniers jours où il a donné bien plus qu'il n'a reçu : %{trades}. Exemplaires donnés : %{given}, reçus : %{received}."
+        order_sale_to_tied_buyer: "A vendu %{card} (saison %{season}) à l'ordre d'achat de l'autre compte, qu'un autre signal lui lie, pour %{price} PiCoins ces 30 derniers jours."
         sales_outside_price: "Vendu à l'autre compte ces 30 derniers jours à moins de la moitié ou à plus du double du prix moyen de l'édition : %{sales} (%{below} en dessous, %{above} au-dessus)."
       show:
         account: "Compte"
@@ -951,7 +953,7 @@ fr:
         empty: "Aucun compte ne correspond à un signal."
         facts: "Faits"
         heading: "Signaux de comptes alternatifs"
-        intro: "Des comptes qui ouvrent des capsules, échangent, vendent ou enchérissent comme le ferait un compte alternatif qui alimente un autre. Un signal est un indice, pas une preuve : il ne change rien au compte, et toute action passe par le bannissement de la page des joueurs. Les signaux sont remplacés chaque nuit et aucun joueur ne les voit."
+        intro: "Des comptes qui ouvrent des capsules, échangent, vendent, enchérissent ou achètent aux Archives comme le ferait un compte alternatif qui alimente un autre. Un signal est un indice, pas une preuve : il ne change rien au compte, et toute action passe par le bannissement de la page des joueurs. Les signaux sont remplacés chaque nuit et aucun joueur ne les voit."
         other_account: "Autre compte"
         refreshed_at: "Actualisé"
         signal: "Signal"
@@ -959,10 +961,12 @@ fr:
         ties_empty: "Aucun signal ne lie deux comptes."
         ties_heading: "Comptes liés"
       signals:
+        archive_purchase_of_tied_deposit: "Achat aux Archives du dépôt d'un compte lié"
         bids_on_tied_seller: "Enchères sur l'annonce d'un compte lié"
         minimum_price_sales: "Ventes au prix minimum répétées"
         near_maximum_opening: "Ouverture de capsules proche du maximum"
         one_way_trades: "Échanges à sens unique répétés"
+        order_sale_to_tied_buyer: "Vente directe à l'ordre d'un compte lié"
         sales_outside_price: "Ventes hors du prix du marché"
       tie_sentences:
         minimum_price_sales: "Ventes entre les deux comptes au prix minimum ces 30 derniers jours : %{sales}."
