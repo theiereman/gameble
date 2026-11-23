@@ -36,6 +36,9 @@ module Game
     end
 
     def self.by_value(caller_card, answer_card, stat, direction)
+      calling_valued, answering_valued = [ caller_card, answer_card ].map { !it.stat(stat).value.nil? }
+      return Outcome.new(winner: calling_valued ? :caller : :answerer, decided_on_value: true, margin: BigDecimal(0)) if calling_valued ^ answering_valued
+
       order = (exact_value(caller_card, stat) <=> exact_value(answer_card, stat)).to_i
       order = -order if (stat == :discovery) ^ (direction == :low)
       return NO_POINT if order.zero?

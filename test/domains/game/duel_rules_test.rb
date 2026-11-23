@@ -131,13 +131,15 @@ class Game::DuelRulesTest < ActiveSupport::TestCase
     assert_equal [ :answerer, true, 0 ], outcome(reviewed, unreviewed, :rating, :low)
   end
 
-  test "equal ratings score nothing beside an edition with no rating value, and two without one go to the review count" do
+  test "equal ratings lose the edition with no rating value in either direction, and two without one go to the review count" do
     rated = duel_card(1, rating: 70, values: { rating: 90, popularity: 12 })
     unrated = duel_card(2, rating: 70, values: { rating: nil, popularity: 12 })
     reviewed_unrated = duel_card(3, rating: 70, values: { rating: nil, popularity: 40 })
 
-    assert_equal [ nil, false, 0 ], outcome(rated, unrated, :rating, :high)
-    assert_equal [ nil, false, 0 ], outcome(unrated, rated, :rating, :low)
+    assert_equal [ :caller, true, 0 ], outcome(rated, unrated, :rating, :high)
+    assert_equal [ :answerer, true, 0 ], outcome(unrated, rated, :rating, :low)
+    assert_equal [ :answerer, true, 0 ], outcome(unrated, rated, :rating, :high)
+    assert_equal [ :caller, true, 0 ], outcome(rated, unrated, :rating, :low)
     assert_equal [ :caller, true, 0 ], outcome(reviewed_unrated, unrated, :rating, :high)
   end
 
