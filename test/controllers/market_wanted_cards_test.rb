@@ -9,6 +9,7 @@ require_relative "../support/steam_sign_in"
 # The market tells a signed-in player, on each listing, whether they own the card, and marks the cards they want, by a goal
 # missing them or an open order; a chip keeps only those, with their count.
 class MarketWantedCardsTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
   include GameSets
   include Holdings
   include MarketAuctions
@@ -28,7 +29,9 @@ class MarketWantedCardsTest < ActionDispatch::IntegrationTest
     [ @wanted, @owned, @other ].each_with_index { |card, index| listing!(seller:, card_season: card, hours: 12 + index) }
   end
 
-  def aim = Game::AddGoal.new.call(player: @player, kind: "theme", key: "roguelike").value!
+  def aim = refreshed { Game::AddGoal.new.call(player: @player, kind: "theme", key: "roguelike").value! }
+
+  def refreshed(&) = perform_enqueued_jobs(only: Game::Market::RefreshWantedJob, &)
 
   def marks = css_select(".listing-tile__mark").map { it.text.strip }
 
@@ -62,7 +65,7 @@ class MarketWantedCardsTest < ActionDispatch::IntegrationTest
   test "an open order without a goal marks its game wanted, and the chip counts and keeps it" do
     settings = Game::Market::CurrentSettings.call
     fund!(@player, 1_000)
-    Game::Market::PlaceOrder.new.call(player: @player, card_id: @other.card_id, price: 900, settings_token: settings.token).value!
+    refreshed { Game::Market::PlaceOrder.new.call(player: @player, card_id: @other.card_id, price: 900, settings_token: settings.token).value! }
     sign_in(@player)
 
     get market_path(locale: :fr)

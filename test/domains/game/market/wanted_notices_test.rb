@@ -5,6 +5,7 @@ require_relative "../../../support/holdings"
 require_relative "../../../support/market"
 
 class Game::Market::WantedNoticesTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
   include CustomSets
   include GameSets
   include Holdings
@@ -21,7 +22,9 @@ class Game::Market::WantedNoticesTest < ActiveSupport::TestCase
     insert_set([ @card.id, *unheld_cards(2) ], { complete: 3 }, key: "roguelike", params: { "theme" => "roguelike" })
   end
 
-  def aim(player) = Game::AddGoal.new.call(player:, kind: "theme", key: "roguelike").value!
+  def aim(player) = refreshed { Game::AddGoal.new.call(player:, kind: "theme", key: "roguelike").value! }
+
+  def refreshed(&) = perform_enqueued_jobs(only: Game::Market::RefreshWantedJob, &)
 
   def list(starting_price: @settings.minimum_price_common)
     Game::Market::ListCard.new.call(player: @seller, card_season_id: @card.id, starting_price:, duration_hours: 24, settings_token: @settings.token).value!
@@ -49,7 +52,8 @@ class Game::Market::WantedNoticesTest < ActiveSupport::TestCase
   end
 
   test "a goal on a custom set holding the card notices its player too" do
-    Game::AddGoal.new.call(player: @wanting, custom_set: create_custom_set(@wanting, card_ids: [ @card.card_id, *fixture_card_ids.excluding(@card.card_id).first(2) ]).token).value!
+    custom_set = create_custom_set(@wanting, card_ids: [ @card.card_id, *fixture_card_ids.excluding(@card.card_id).first(2) ])
+    refreshed { Game::AddGoal.new.call(player: @wanting, custom_set: custom_set.token).value! }
 
     list
 

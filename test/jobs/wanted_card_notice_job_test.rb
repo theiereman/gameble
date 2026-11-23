@@ -18,7 +18,7 @@ class WantedCardNoticeJobTest < ActiveJob::TestCase
     Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @seller.id, amount: 1_000, settings_id: @settings.id))
     hold(@seller, @card.id, 2)
     insert_set([ @card.id, *unheld_cards(2) ], { complete: 3 }, key: "roguelike", params: { "theme" => "roguelike" })
-    Game::AddGoal.new.call(player: @wanting, kind: "theme", key: "roguelike").value!
+    perform_enqueued_jobs(only: Game::Market::RefreshWantedJob) { Game::AddGoal.new.call(player: @wanting, kind: "theme", key: "roguelike").value! }
     @phone = Accounts::RegisterPushDevice.new.call(player: @wanting, platform: "apple", token: "wanting-phone", locale: "en").value!
   end
 

@@ -8,7 +8,8 @@ require_relative "../../../support/market"
 require_relative "../../../support/market_auctions"
 require_relative "../../../support/market_listings"
 
-# After every change to a player's goals, custom sets, holdings or orders, their wanted rows are those a fresh rebuild writes.
+# After every change to a player's goals, custom sets, holdings or orders, once the refresh jobs it queued ran, their wanted
+# rows are those a fresh rebuild writes.
 class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include CustomSets
@@ -35,7 +36,10 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
 
   def place_order(player, card, price) = Game::Market::PlaceOrder.new.call(player:, card_id: card.card_id, price:, settings_token: @settings.token).value!
 
-  def rows(player = @player) = Game::Market::Wanted.where(player_id: player.id).order(:card_id, :reason).pluck(:card_id, :reason, :rarities)
+  def rows(player = @player)
+    perform_enqueued_jobs(only: Game::Market::RefreshWantedJob)
+    Game::Market::Wanted.where(player_id: player.id).order(:card_id, :reason).pluck(:card_id, :reason, :rarities)
+  end
 
   def goal_row(card) = [ card.card_id, "goal", nil ]
 
@@ -221,6 +225,7 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
 
   test "a slot bought with a goal refreshes its player, one bought without a goal does not" do
     aim
+    assert_equal goal_rows(@common, @rare), rows
     Game::Goal.where(player_id: @player.id).delete_all
 
     publish_locked(Game::SlotBought.with(player_id: @player.id, kind: "deck"), @player)
@@ -254,6 +259,7 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
 
   test "a ban leaves the rows, an unban rebuilds them once its job runs" do
     aim
+    assert_equal goal_rows(@common, @rare), rows
     Accounts::BanPlayer.new.call(staff: accounts_players(:administrator), player: @player, reason: "Cheating").value!
     assert_equal goal_rows(@common, @rare), rows
 

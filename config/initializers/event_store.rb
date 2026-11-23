@@ -34,7 +34,7 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::DuelStatsFeed, to: [ Game::DuelStatsComputed ])
   event_store.subscribe(Game::Handlers::TradeAccepted, to: [ Game::TradeAccepted ])
   event_store.subscribe(Game::Handlers::GoalsReached, to: Game::Handlers::GoalsReached::EVENTS)
-  # The wanted rows are rebuilt after GoalsReached has dropped the goals the event completed.
+  # Each player an event names has their wanted rows rebuilt by a job once it commits, never within the request.
   event_store.subscribe(Game::Market::Handlers::WantedRefresh, to: Game::Market::Handlers::WantedRefresh::EVENTS)
   event_store.subscribe(Game::Handlers::SetTierFeed, to: Game::Handlers::SetTierFeed::EVENTS)
   event_store.subscribe(Game::Handlers::Achievements, to: Game::Handlers::Achievements::EVENTS.keys)

@@ -978,6 +978,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_150002) do
     t.check_constraint "status::text ~ '^(open|served|expired|cancelled|withdrawn)$'::text", name: "game_market_orders_status_check"
   end
 
+  create_table "game_market_pending_wanted_refreshes", id: false, force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.index ["player_id"], name: "index_game_market_pending_wanted_refreshes_on_player_id", unique: true
+  end
+
   create_table "game_market_settings", force: :cascade do |t|
     t.string "token", null: false
     t.bigint "entrustment_common", null: false
@@ -1403,6 +1408,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_150002) do
   add_foreign_key "game_market_orders", "catalog_card_seasons", column: "served_card_season_id"
   add_foreign_key "game_market_orders", "catalog_cards", column: "card_id"
   add_foreign_key "game_market_orders", "game_market_settings", column: "settings_id"
+  add_foreign_key "game_market_pending_wanted_refreshes", "accounts_players", column: "player_id"
   add_foreign_key "game_market_settings", "accounts_players", column: "author_id"
   add_foreign_key "game_market_settings", "game_market_settings", column: "replaces_id"
   add_foreign_key "game_market_tied_accounts", "accounts_players", column: "high_account_id"

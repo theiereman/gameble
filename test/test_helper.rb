@@ -36,6 +36,13 @@ module ActiveSupport
     # The draw pool is held per process and outlives the transaction each test rolls back.
     setup { Game::DrawPool.reset! }
 
+    # A test that commits for real leaves the pending wanted refreshes of its events, which no job clears here.
+    # Cleared before its teardown, which may delete the players they name.
+    def before_teardown
+      super
+      Game::Market::PendingWantedRefresh.delete_all unless use_transactional_tests
+    end
+
     # Add more helper methods to be used by all tests here...
   end
 end

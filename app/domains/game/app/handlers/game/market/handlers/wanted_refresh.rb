@@ -23,7 +23,8 @@ module Game
         EVENTS = PLAYERS.keys.freeze
 
         def self.call(event)
-          Accounts::Player.where(id: Game::Handlers::NamedPlayers.of(event, PLAYERS)).order(:id).each { RefreshWanted.call(it) }
+          players = Accounts::Player.in_good_standing.where(id: Game::Handlers::NamedPlayers.of(event, PLAYERS)).order(:id).pluck(:id)
+          PendingWantedRefresh.mark(players).each { RefreshWantedJob.perform_later(it) }
         end
       end
     end

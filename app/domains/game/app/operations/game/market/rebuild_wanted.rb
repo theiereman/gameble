@@ -6,6 +6,7 @@ module Game
 
         transaction do
           step lock_bank(player)
+          PendingWantedRefresh.where(player_id: player.id).delete_all
           RefreshWanted.call(player)
           player
         end

@@ -40,6 +40,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_capacity_slots" => { fr: [ "vos emplacements achetés" ], en: [ "your bought slots" ] },
     "game_goals" => { fr: [ "vos objectifs" ], en: [ "your goals" ] },
     "game_market_wanted" => { fr: [ "vos objectifs" ], en: [ "your goals" ] },
+    "game_market_pending_wanted_refreshes" => { fr: [ "vos objectifs" ], en: [ "your goals" ] },
     "game_achievement_unlocks" => { fr: [ "vos succès" ], en: [ "your achievements" ] },
     "game_packs" => { fr: [ "vos capsules, ouvertes ou non" ], en: [ "your capsules, opened or not" ] },
     "game_fortunes" => { fr: [ "vos scores de chance" ], en: [ "your luck scores" ] },

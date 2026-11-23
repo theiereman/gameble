@@ -29,6 +29,7 @@ module Game
         CapacitySlot.where(player_id: player.id).delete_all
         Holding.where(player_id: player.id).delete_all
         Market::RefreshWanted.call(player)
+        Market::PendingWantedRefresh.where(player_id: player.id).delete_all
         AchievementUnlock.where(player_id: player.id).delete_all
         CardBackUnlock.where(player_id: player.id).delete_all
         FriendCode.where(player_id: player.id).delete_all
