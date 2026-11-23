@@ -23,6 +23,7 @@ export default class WantedDockController extends Controller<HTMLElement> {
     "over",
     "refusal",
     "status",
+    "all",
   ]
   static values = { locale: String, accessible: String }
 
@@ -38,6 +39,7 @@ export default class WantedDockController extends Controller<HTMLElement> {
   declare readonly stampsTarget: HTMLElement
   declare readonly overTarget: HTMLElement
   declare readonly statusTarget: HTMLElement
+  declare readonly allTarget: HTMLElement
   declare readonly hasRefusalTarget: boolean
   declare readonly refusalTarget: HTMLElement
   declare readonly localeValue: string
@@ -46,16 +48,18 @@ export default class WantedDockController extends Controller<HTMLElement> {
   private posted?: string
   private waiting?: string
   private timer?: ReturnType<typeof setTimeout>
+  private refusalTimer?: ReturnType<typeof setTimeout>
 
   // A refused validation's line is read out once the redrawn table settles.
   connect(): void {
     const refusal =
       this.hasRefusalTarget && !this.refusalTarget.hidden ? (this.refusalTarget.textContent ?? "").trim() : ""
-    if (refusal) this.timer = setTimeout(() => writeText(this.statusTarget, refusal), STATUS_DELAY)
+    if (refusal) this.refusalTimer = setTimeout(() => writeText(this.statusTarget, refusal), STATUS_DELAY)
   }
 
   disconnect(): void {
     clearTimeout(this.timer)
+    clearTimeout(this.refusalTimer)
   }
 
   render(sums: Totals, strings: WantedStrings): void {
@@ -73,8 +77,10 @@ export default class WantedDockController extends Controller<HTMLElement> {
     writeHidden(this.overTarget, sums.over === 0)
     if (sums.over > 0)
       writeText(this.overTarget, t(strings.overCap, { count: sums.over, cards: sums.overTitles.join(", ") }))
-    const all = this.element.querySelector(".wanted-dock__all button")
-    writeText(all, t(strings.allEntrust, { amount: picoins(sums.allEntrust, { locale: this.localeValue }) }))
+    writeText(
+      this.allTarget.querySelector("button"),
+      t(strings.allEntrust, { amount: picoins(sums.allEntrust, { locale: this.localeValue }) }),
+    )
     this.postStatus(
       t(strings.status, {
         amount: t(this.accessibleValue, { amount: picoins(sums.now, { locale: this.localeValue }) }),

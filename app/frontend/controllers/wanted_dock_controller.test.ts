@@ -18,7 +18,7 @@ const MARKUP = (refusal: string): string => `
     ${amount("stamps")}
     <p id="over" data-wanted-dock-target="over" hidden></p>
     <p id="refusal" data-wanted-dock-target="refusal" ${refusal ? "" : "hidden"}>${refusal}</p>
-    <span class="wanted-dock__all"><button type="submit" name="all" value="1">ENTRUST ALL ANYWAY</button></span>
+    <span class="wanted-dock__all" data-wanted-dock-target="all"><button type="submit" name="all" value="1">ENTRUST ALL ANYWAY</button></span>
     <p id="status" role="status" aria-live="polite" data-wanted-dock-target="status"></p>
   </aside>`
 
@@ -114,5 +114,17 @@ describe("the wanted table's dock", () => {
     await mount("1 line changed: Pyre. Nothing was sold, listed or entrusted.")
     vi.advanceTimersByTime(STATUS_DELAY)
     expect(text("status")).toBe("1 line changed: Pyre. Nothing was sold, listed or entrusted.")
+  })
+
+  it("still reads out the refusal when a choice changes within the delay", async () => {
+    const dock = await mount("1 line changed: Pyre. Nothing was sold, listed or entrusted.")
+    dock.render(sums(), STRINGS)
+    dock.render(sums({ now: 60 }), STRINGS)
+    vi.advanceTimersByTime(STATUS_DELAY - 1)
+    dock.render(sums({ now: 70 }), STRINGS)
+    vi.advanceTimersByTime(1)
+    expect(text("status")).toBe("1 line changed: Pyre. Nothing was sold, listed or entrusted.")
+    vi.advanceTimersByTime(STATUS_DELAY)
+    expect(text("status")).toBe("You receive 70 PiCoins now.")
   })
 })

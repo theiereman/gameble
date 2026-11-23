@@ -31,7 +31,7 @@
   <p id="wanted-finality" class="wanted-dock__sentence"><%= t("market.wanted_choices.new.dock.finality") %></p>
   <p id="wanted-not-returned" class="visually-hidden"><%= t("market.entrustments.new.not_returned") %></p>
   <div class="wanted-dock__actions">
-    <span class="wanted-dock__all">
+    <span class="wanted-dock__all" data-wanted-dock-target="all">
       <%= render ButtonComponent.new(variant: :secondary, type: :submit, name: "all", value: "1", disabled: !@open,
             describedby: [ ("market-suspended-banner" if @suspended), "wanted-not-returned" ].compact.join(" ")) do %><%= t("market.wanted_choices.new.dock.all") %><% end %>
     </span>
