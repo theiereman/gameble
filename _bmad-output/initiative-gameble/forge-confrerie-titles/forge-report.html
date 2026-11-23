@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forge report: Brotherhood job titles</title>
+<style>
+:root{--bg:#f4efe4;--ink:#2a2420;--mute:#6f655b;--wax:#9c1f1f;--wax2:#c23a2e;--line:#d8cdb8;--card:#fffaf0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 Georgia,serif}
+main{max-width:920px;margin:auto;padding:40px 24px 80px}
+header{display:flex;gap:32px;align-items:center;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:24px}
+h1{font-size:34px;line-height:1.15;margin:0}h2{font-size:20px;margin:36px 0 10px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.kick{font:700 12px/1 ui-monospace,monospace;letter-spacing:3px;text-transform:uppercase;color:var(--wax)}
+.lead{color:var(--mute);margin:8px 0 0;max-width:560px}
+ul{padding-left:20px}li{margin:4px 0}
+table{border-collapse:collapse;width:100%;font-size:13px;background:var(--card)}th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:#efe5d2}
+.cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.p{background:var(--card);border:1px solid var(--line);padding:12px 14px}.p b{display:block}.p i{color:var(--mute);font-size:13px}
+.kill li::marker{content:"✕  ";color:var(--wax)}.weak li::marker{content:"⚠  ";color:#a86b00}
+svg.seal{flex:none;filter:drop-shadow(0 6px 8px rgba(80,10,10,.35))}
+@media (max-width:640px){header{flex-direction:column;align-items:flex-start}}
+</style></head><body><main>
+<header>
+<svg class="seal" width="170" height="170" viewBox="0 0 200 200" role="img" aria-label="Hardened seal">
+<path d="M100 8c14 0 18 10 30 13s24-4 32 7 2 22 8 33 18 16 16 30-14 16-17 28 5 24-5 33-21 2-32 8-15 18-29 19-17-11-29-14-25 4-33-6-1-22-7-33-18-15-17-29 13-17 16-29-5-24 5-33 21-3 32-9 16-17 30-18z" fill="var(--wax)"/>
+<circle cx="100" cy="100" r="66" fill="none" stroke="var(--wax2)" stroke-width="3"/>
+<circle cx="100" cy="100" r="58" fill="none" stroke="#7a1616" stroke-width="1.5" stroke-dasharray="3 4"/>
+<text x="100" y="92" text-anchor="middle" fill="#f6d9c8" font-family="Georgia,serif" font-size="13" letter-spacing="3">THE BROTHERHOOD</text>
+<text x="100" y="118" text-anchor="middle" fill="#fff3ea" font-family="Georgia,serif" font-weight="700" font-size="25" letter-spacing="2">HARDENED</text>
+<text x="100" y="138" text-anchor="middle" fill="#f6d9c8" font-family="Georgia,serif" font-size="11" letter-spacing="2">2026 · 11 · 23</text>
+</svg>
+<div><p class="kick">Forge report</p><h1>Brotherhood job titles</h1>
+<p class="lead">Generic per-set profile titles give way to a corporate hierarchy: five services, five grades, floating thresholds that favour early members, and a Comité de direction contested at every season.</p></div>
+</header>
+
+<h2>Outcome</h2>
+<p>Hardened. The forged idea is <code>forge-confrerie-titles.md</code>; the mock is <code>ux-gameble/.working/profile-titles-stats-star.html</code>; production calibration ran on 33 members.</p>
+
+<h2>Locked decisions</h2>
+<table><tr><th>Service</th><th>Measure</th><th>Grades 2–4</th><th>Grade 5</th><th>Seat</th></tr>
+<tr><td>Archives</td><td>sets completed</td><td>Archiviste junior → senior</td><td>Responsable des Archives</td><td>Direction des Archives</td></tr>
+<tr><td>Bourse</td><td>turnover in PiCoins</td><td>Comptable junior → senior</td><td>Responsable de la Bourse</td><td>Direction de la Bourse</td></tr>
+<tr><td>Échanges</td><td>trades accepted</td><td>Spécialiste des échanges junior → senior</td><td>Responsable des échanges</td><td>Direction des échanges</td></tr>
+<tr><td>Exploration</td><td>pioneer discoveries</td><td>Cartographe junior → senior</td><td>Responsable de l'Exploration</td><td>Direction de l'Exploration</td></tr>
+<tr><td>Stratégie</td><td>duels finished</td><td>Stratège junior → senior</td><td>Responsable de la Stratégie</td><td>Direction de la Stratégie</td></tr></table>
+<ul>
+<li>Grades at p50 / p75 / p90 / p97 of active members, with 14 / 30 / 90 / 180 days of service; the top also needs a service feat. Never demoted; thresholds float upward.</li>
+<li>The worn post is the highest grade; mutation only on a strictly higher grade elsewhere. Inactive members are "en disponibilité".</li>
+<li>Seats awarded at each season publication to the season's number one, from grade 3; the dethroned return to their grade.</li>
+<li>Staff: Conservateur des Archives, Officier. No gender agreement, no middle-dot format, plain French job words.</li>
+<li>Set titles removed under a "reorganisation of services"; a quiet launch, promotions from grade 3 in the feed.</li>
+<li>Service star on every title; owner-only performance metrics with gauges, the seat race and a 12-week evolution.</li>
+</ul>
+
+<h2>Rejected, and why</h2>
+<ul class="kill">
+<li>Per-set titles: generic, about 60 per player.</li>
+<li>Composed titles, parallel ladders by choice: too many titles; assignment and mutation are the satire.</li>
+<li>Demotion, monthly review, double threshold: a multinational inflates titles, it does not cut them.</li>
+<li>Grandiloquent and English titles (Plénipotentiaire, Trader, Head of): too abstract or not plain French.</li>
+<li>Grand Maître and Directeur: too grand, faceless Direction; gender agreement.</li>
+<li>Pioneer of a Legendary as a feat: nearly everyone has it.</li>
+</ul>
+
+<h2>Weak points that survived</h2>
+<ul class="weak">
+<li>33 members: top percentiles are single players; Bourse and Stratégie thresholds are guesses until volume exists.</li>
+<li>Half the active members show no title at launch.</li>
+<li>The 12-week evolution needs a new weekly snapshot.</li>
+<li>CAP-22 and <code>brotherhood-tone.md</code> must change; English titles are not written yet.</li>
+</ul>
+
+<h2>Who pressure-tested it</h2>
+<div class="cast">
+<div class="p"><b>📊 Mary, analyst</b><i>Ran the production numbers; "the Brotherhood values those who bring money in, not those who work."</i></div>
+<div class="p"><b>📋 John, product</b><i>Red marker, scope guard; named the turnover and the quarterly results.</i></div>
+<div class="p"><b>🎨 Sally, UX</b><i>Her "1 DIRECTEUR" post-it went into disponibilité and came back as a Comité of five.</i></div>
+<div class="p"><b>🏗️ Winston, architect</b><i>Turned percentiles into floating thresholds: "les anciens de la boîte".</i></div>
+<div class="p"><b>💻 Amelia, developer</b><i>Held the no-agreement rule; killed Directeur, Chargé, and many more.</i></div>
+<div class="p"><b>😤 Grumbal, adversary</b><i>"33 players is not a distribution, it's an anecdote."</i></div>
+<div class="p"><b>🖋️ Bérénice Vauclair</b><i>Former writer of job descriptions: lateral mutations and service notes.</i></div>
+<div class="p"><b>🃏 Ludovic Ferrand</b><i>TCG veteran: the first title must already cost something.</i></div>
+</div>
+</main></body></html>

@@ -14,7 +14,8 @@ Referenced by Constraints, CAP-11, CAP-12, CAP-13, CAP-17, CAP-23, CAP-24, CAP-2
 - **Not satirical all the time:** it speaks like a genuine institution keeping a positive image. Its hypocrisy shows mostly when it justifies economic decisions, its privileges or its failures, so players first meet a welcoming, passionate organization and discover its profit-driven nature over time.
 - **Writing rules:**
   - Always "vous", never "tu".
-  - Players get no name, rank or form of address in official communications ("Confrère", "Capitaine"). Achievement titles (CAP-17) and profile titles (CAP-22) never address the player.
+  - Official communications never address a player by name, rank or form of address ("Confrère", "Capitaine"). Achievement titles (CAP-17) never address the player.
+  - Players hold a rank in the Brotherhood's hierarchy: the job titles of CAP-22 (`brotherhood-titles.md`), shown to other members. The Brotherhood ignores that rank when it writes to them; the gap between a displayed hierarchy and an institution that does not respect it is part of the satire (author, 2026-11-23).
   - Short, readable, natural texts. Subtle irony over explicit jokes. No long history, dialogue or characters.
   - Both languages keep the humour and the intent rather than a literal translation.
 - **Presence:**

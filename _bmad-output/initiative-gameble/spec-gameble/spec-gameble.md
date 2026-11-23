@@ -2,6 +2,7 @@
 id: SPEC-gameble
 companions:
   - catalog-and-rarity.md
+  - brotherhood-titles.md
   - achievements.md
   - brotherhood-tone.md
   - later-roadmap.md
@@ -134,7 +135,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-13**
   - **intent:** A live Brotherhood feed shows what other players are doing, so the platform feels inhabited.
   - **success:**
-    - The feed shows notable pulls, first discoveries of a card, trades, reposts (CAP-19), set completions and set tiers reached.
+    - The feed shows notable pulls, first discoveries of a card, trades, reposts (CAP-19), set completions and set tiers reached, promotions to a grade 3 job title or higher, and the Direction's seat nominations (CAP-22, `brotherhood-titles.md`).
     - The feed is readable without an account.
     - With few players, it falls back to lower-rarity events and is never empty while any activity exists.
     - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts; a private friend's never show (CAP-8).
@@ -191,10 +192,14 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player can see which of their friends are around.
   - **success:** Friends see each other's status: online, current activity, or last seen. A private friend (CAP-8) shows "profil privé" instead, and never counts among those online. The friends menu item shows how many friends are online.
 - **CAP-22**
-  - **intent:** A player shows their collecting through a profile title and dresses their menus with a rare theme.
+  - **intent:** A player wears a job title that marks the place their long-term investment and feats have earned them in the Brotherhood's hierarchy, and dresses their menus with a rare theme.
   - **success:**
-    - Each tier of a set and its completion unlock a profile title built from a template that needs no grammatical agreement: the tier's rank for a tier ("Adepte · Roguelike"), "Complétiste" for completion ("Complétiste · Dark Souls"). Bronze, silver and gold reached in an earlier season give the titles Apprenti, Adepte and Maître, the same titles as the Apprenti, Adepte and Maître tiers: a set has one title per rank, earned by either (author, 2026-10-19). A title is earned once per set and rank, whatever the seasons; it shows the latest season it was earned in.
-    - The player picks one active title; it shows on their profile, in the feed and in trades.
+    - Five services (Archives, Bourse, Échanges, Exploration, Stratégie) each measure one activity and give five grades; grades 2 to 5 and a seat per service carry a job title, from "Cartographe junior" to "Responsable de l'Exploration" and "Direction de l'Exploration" (`brotherhood-titles.md`, author, 2026-11-23).
+    - A grade needs a percentile of the service's activity among active members and a floor of days of service; the top grade also needs the service's feat. Thresholds float with the population and a grade never drops.
+    - The player wears the post of their highest grade, changing service only when another grade strictly passes it; an inactive member's title is hidden until they return. Set tiers no longer give titles.
+    - At each season publication, each service's number one over the season that ended, from grade 3, takes the service's seat on the Comité de direction until the next publication.
+    - Staff wear "Conservateur des Archives" (administrator) or "Officier" (moderator), or their post. Titles carry no grammatical agreement and the Brotherhood never addresses a player by one.
+    - The title shows alone on the profile, in the feed and in trades; the player may hide it. Clicking it opens the service star: percentile, post and figure per service, visible as the profile is (CAP-8). The player alone sees the next grade's conditions and their performance metrics.
     - Completing 3, 10 and 25 sets, of any kind, unlocks a menu theme each: an accent colour applied to the interface, with contrast checked. Only the player sees it.
 - **CAP-23**
   - **intent:** When a new season is published, a returning player receives the Brotherhood's seasonal allocation: the tiers they reached in the season that ended, the card backs and achievements they unlocked in it, and their tiers in the next season.
@@ -205,6 +210,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - No sentence heads the screen: only its title names the season.
     - A player with no card from an earlier season, traded ones included, sees no allocation.
     - A tier shows no season mark and no count of seasons (author, 2026-10-19), and no season chip appears in the collection grid.
+    - A section names the Comité de direction for the new season (CAP-22, author, 2026-11-23).
 - **CAP-24**
   - **intent:** A signed-out visitor meets a landing that gives the Brotherhood's mission, says what gameble is and makes them want to play.
   - **success:**
