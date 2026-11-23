@@ -28,6 +28,21 @@ module Game
       Success(Aim.new(columns: { set_kind: kind, set_key: key }, complete: card_ids.any? && card_ids.all? { held.key?(it) }))
     end
 
+    def goal_inserted(player, aim)
+      position = step free_position(player)
+      step incomplete(aim)
+      Success(Goal.create!(player_id: player.id, position:, **aim.columns))
+    end
+
+    def free_position(player)
+      position = ((1..Capacity.limit(player, :goal)).to_a - Goal.where(player_id: player.id).pluck(:position)).first
+      position ? Success(position) : Failure(:too_many_goals)
+    end
+
+    def incomplete(aim)
+      aim.complete ? Failure(:goal_set_complete) : Success()
+    end
+
     def goal_columns(player, kind:, key:, custom_set:)
       if !custom_set.nil?
         custom_set_id = own_custom_set(player, custom_set)&.id

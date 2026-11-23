@@ -1,0 +1,9 @@
+<% capacity = SlotPurchasesController::KINDS.key(@kind) %>
+<%= render PurchaseConfirmationComponent.new(
+      title: slot_purchase_title(@kind, @slot), title_id: "slot-purchase-title", state: @state, price: @price, available: @available,
+      refusal: @refusal, url: slot_purchase_path(capacity:, slot: @slot), fields: { settings_token: @settings.token, **@aim }, entrust: @settings.open,
+      missing_line: (t("slot_purchases.confirmation.short_line", amount: picoins(@price - @available)) if @state == :short)) do |confirmation| %>
+  <% confirmation.with_lead do %>
+    <%= t("slot_purchases.confirmation.lead.#{@kind}", free: Game::Capacity::FREE.fetch(@kind), set: @set_name, number: @slot) %>
+  <% end %>
+<% end %>

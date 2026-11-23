@@ -2,6 +2,7 @@ require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/custom_sets"
 require_relative "../support/game_sets"
+require_relative "../support/market"
 require_relative "../support/steam_sign_in"
 
 # Marking and unmarking goals from an album: a Turbo Stream answer redraws
@@ -12,6 +13,7 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
   include CustomSets
   include GameSets
+  include MarketSettings
   include SteamSignIn
 
   STREAM = { "Accept" => "text/vnd.turbo-stream.html, text/html" }.freeze
@@ -73,6 +75,23 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "10 objectifs au plus · Retirez un objectif pour en ajouter un autre.Voir mes objectifs", refusal.text.squish
     assert_equal "/fr/library#goals", refusal.at_css("a.goal-control__link")["href"]
     assert_equal "Marquer comme objectif", control.at_css("button.goal-button").text.squish
+  end
+
+  test "at the free limit with a slot price, a sixth goal redraws the slot purchase opener without the refusal" do
+    open_market!
+    %w[a1 a2 a3 a4 a5 a6].each { theme(it) }
+    %w[a1 a2 a3 a4 a5].each { Game::AddGoal.new.call(player: @player, kind: "theme", key: it).value! }
+    sign_in(@player)
+
+    assert_no_difference -> { writes } do
+      post library_goals_path(locale: :fr), params: { kind: "theme", key: "a6" }, headers: STREAM
+    end
+
+    control = Nokogiri::HTML5.fragment(css_select("turbo-stream template").first.inner_html)
+    opener = control.at_css("#set-album-goal[data-controller='goal-control purchase-dialog'] a.goal-button[aria-haspopup=dialog]")
+    assert_equal "/fr/slots/goals/6?key=a6&kind=theme", opener["href"]
+    assert_equal "", control.at_css("p.goal-control__refusal").text
+    assert control.at_css("dialog#slot-purchase-dialog turbo-frame#slot-purchase[target=_top]")
   end
 
   test "another refusal is a toast" do

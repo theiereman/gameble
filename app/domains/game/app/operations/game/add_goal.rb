@@ -11,23 +11,10 @@ module Game
         existing = Goal.find_by(player_id: player.id, **aim.columns)
         next existing if existing
 
-        position = step free_position(player)
-        step incomplete(aim)
-        goal = Goal.create!(player_id: player.id, position:, **aim.columns)
+        goal = step goal_inserted(player, aim)
         step goal_published(GoalAdded, player, goal)
         goal
       end
-    end
-
-    private
-
-    def free_position(player)
-      position = ((1..Capacity.limit(player, :goal)).to_a - Goal.where(player_id: player.id).pluck(:position)).first
-      position ? Success(position) : Failure(:too_many_goals)
-    end
-
-    def incomplete(aim)
-      aim.complete ? Failure(:goal_set_complete) : Success()
     end
   end
 end

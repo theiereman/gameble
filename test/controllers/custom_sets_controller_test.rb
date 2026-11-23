@@ -4,6 +4,7 @@ require_relative "../support/game_sets"
 require_relative "../support/holdings"
 require_relative "../support/custom_sets"
 require_relative "../support/steam_sign_in"
+require_relative "../support/market"
 
 # A player's own sets through HTTP: the album, its author's only, with the
 # editor and the delete dialog; the editor's games frame, its search, chips
@@ -14,6 +15,7 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
   include Holdings
   include CustomSets
   include SteamSignIn
+  include MarketSettings
 
   STREAM = { "Accept" => "text/vnd.turbo-stream.html, text/html, application/xhtml+xml" }.freeze
 
@@ -317,6 +319,20 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".custom-sets__note", "Visible to you only · 5 / 5 · remove a set to create another"
     assert_select ".custom-sets a.set-tile", 5
     assert_select ".new-set-tile, #custom-set-editor", false
+  end
+
+  test "five sets with a slot price: the new set tile opens the slot purchase, described by its price, with no editor" do
+    open_market!
+    5.times { create_custom_set(@player, name: "Set #{it}") }
+    sign_in(@player)
+
+    get library_path(locale: :fr)
+
+    assert_select "section.custom-sets[data-controller='set-fold purchase-dialog'] dialog#slot-purchase-dialog"
+    assert_select ".custom-sets__note", "Visibles par vous seul · 5 / 5"
+    assert_select "#custom-set-slot-price", text: /\AEmplacements gratuits pris\u202F: le suivant coûte\s+500\s*\.\z/
+    assert_select "a.new-set-tile[href='/fr/slots/custom-sets/6'][aria-haspopup=dialog][aria-describedby=custom-set-slot-price]", /Nouveau set/i
+    assert_select "#custom-set-editor", false
   end
 
   test "a refusal answered as HTML returns where the editor was, with its message" do

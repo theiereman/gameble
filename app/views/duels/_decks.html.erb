@@ -1,24 +1,30 @@
 <%# locals: (decks:, landing:) %>
+<% offer = decks.slot_offer %>
 <%= render PanelComponent.new(tag: :section, class: "duel-decks", aria: { labelledby: "duel-decks-heading" },
-      data: { controller: "row-focus", row_focus_landing_value: landing }.compact) do %>
-  <h2 id="duel-decks-heading" class="duel-decks__heading" tabindex="-1" data-row-focus-target="heading">
-    <span aria-hidden="true"><%= t("duels.decks.heading") %> · <%= t("duels.decks.count", count: decks.count, max: decks.limit) %></span>
-    <span class="visually-hidden"><%= t("duels.decks.heading_spoken", count: decks.count, max: decks.limit) %></span>
-  </h2>
+      data: { controller: class_names("row-focus", "purchase-dialog": offer), row_focus_landing_value: landing }.compact) do %>
+  <div class="duel-decks__head">
+    <h2 id="duel-decks-heading" class="duel-decks__heading" tabindex="-1" data-row-focus-target="heading">
+      <span aria-hidden="true"><%= t("duels.decks.heading") %> · <%= t("duels.decks.count", count: decks.count, max: decks.limit) %></span>
+      <span class="visually-hidden"><%= t("duels.decks.heading_spoken", count: decks.count, max: decks.limit) %></span>
+    </h2>
+    <%= slot_price_line(offer, id: "deck-slot-price", class: "duel-decks__price") if offer %>
+  </div>
   <ul class="duel-decks__list">
     <% decks.rows.each do |row| %>
       <li class="duel-decks__item"><%= render "duels/deck_row", row: %></li>
     <% end %>
-    <% if decks.room_left? %>
+    <% if decks.room_left? || offer %>
       <li class="duel-decks__item">
-        <%= link_to new_deck_path, class: "deck-new" do %>
+        <%= link_to (offer ? slot_purchase_opener_path(offer) : new_deck_path), class: "deck-new",
+              aria: ({ haspopup: "dialog", describedby: "deck-slot-price" } if offer), data: ({ action: "purchase-dialog#open" } if offer) do %>
           <span class="deck-new__plus" aria-hidden="true">+</span>
           <span class="deck-new__label"><%= t("duels.decks.new") %></span>
         <% end %>
       </li>
     <% end %>
   </ul>
-  <% unless decks.room_left? %>
+  <% if !decks.room_left? && !offer %>
     <p class="duel-decks__full"><%= Game::CreateDeck.failure_message(:too_many_decks) %></p>
   <% end %>
+  <%= render "slot_purchases/dialog" if offer %>
 <% end %>

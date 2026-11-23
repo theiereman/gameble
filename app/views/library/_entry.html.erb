@@ -8,6 +8,6 @@
   <%= turbo_frame_tag "set-entry-in-progress", src: in_progress_url, loading: :lazy, class: "set-entry__in-progress", target: "_top" do %>
     <p class="set-entry__loading"><%= t("library.entry.loading") %></p>
   <% end %>
-  <%= render("library/custom_sets", tiles: custom_set_tiles, slots: custom_set_slots, goals:) %>
+  <%= render("library/custom_sets", tiles: custom_set_tiles, slots: custom_set_slots, offer: custom_set_slot, goals:) %>
   <%= render("library/steam_library", tile: steam_library_tile) if steam_library_tile %>
 </div>

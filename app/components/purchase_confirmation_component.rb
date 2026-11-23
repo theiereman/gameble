@@ -1,8 +1,9 @@
 # The body of a dialog confirming a purchase at a fixed price: what is bought, the price, the balance after it, then the buttons
-# the state allows. `state`: :buyable draws the form, :short the missing amount and the way to earn it, :closed only ANNULER.
+# the state allows; a lead, when given, under the title. `state`: :buyable draws the form, :short the missing amount and the way to earn it, :closed only ANNULER.
 class PurchaseConfirmationComponent < ViewComponent::Base
   STATES = %i[buyable short closed].freeze
 
+  renders_one :lead
   renders_one :visual
   renders_one :facts
   renders_one :note

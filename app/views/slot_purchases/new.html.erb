@@ -1,0 +1,4 @@
+<% content_for :title, t("slot_purchases.confirmation.spoken_title.#{@kind}", ordinal: slot_ordinal(@slot, words: true, article: true)) %>
+<%= turbo_frame_tag "slot-purchase", target: "_top" do %>
+  <%= render "slot_purchases/confirmation" %>
+<% end %>

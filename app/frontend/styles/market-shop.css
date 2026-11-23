@@ -202,6 +202,7 @@
   font-size: 30px;
 }
 
+.purchase-confirmation__lead,
 .purchase-confirmation__note,
 .purchase-confirmation__text,
 .purchase-confirmation__missing,
@@ -215,6 +216,7 @@
   font: var(--font-body-small);
 }
 
+.purchase-confirmation__lead,
 .purchase-confirmation__text,
 .purchase-confirmation__missing,
 .purchase-confirmation__loading {

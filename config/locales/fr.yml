@@ -1947,6 +1947,62 @@ fr:
     entrust: "CONFIER DES CARTES"
     no_balance: "aucun"
     price: "Prix"
+  slot_purchases:
+    ordinals:
+      "4":
+        indefinite: "UN 4E"
+        indefinite_words: "Un quatrième"
+        bare: "4E"
+        bare_words: "Quatrième"
+      "5":
+        indefinite: "UN 5E"
+        indefinite_words: "Un cinquième"
+        bare: "5E"
+        bare_words: "Cinquième"
+      "6":
+        indefinite: "UN 6E"
+        indefinite_words: "Un sixième"
+        bare: "6E"
+        bare_words: "Sixième"
+      "7":
+        indefinite: "UN 7E"
+        indefinite_words: "Un septième"
+        bare: "7E"
+        bare_words: "Septième"
+      "8":
+        indefinite: "UN 8E"
+        indefinite_words: "Un huitième"
+        bare: "8E"
+        bare_words: "Huitième"
+      "9":
+        indefinite: "UN 9E"
+        indefinite_words: "Un neuvième"
+        bare: "9E"
+        bare_words: "Neuvième"
+      "10":
+        indefinite: "UN 10E"
+        indefinite_words: "Un dixième"
+        bare: "10E"
+        bare_words: "Dixième"
+    dialog:
+      loading: "Chargement…"
+    confirmation:
+      title:
+        goal: "%{ordinal} OBJECTIF ?"
+        custom_set: "%{ordinal} SET ?"
+        deck: "%{ordinal} DECK ?"
+      spoken_title:
+        goal: "%{ordinal} objectif ?"
+        custom_set: "%{ordinal} set ?"
+        deck: "%{ordinal} deck ?"
+      lead:
+        goal: "Les %{free} premiers objectifs sont gratuits. Un emplacement de plus, gardé pour toujours, et %{set} devient votre objectif %{number}."
+        custom_set: "Les %{free} premiers sets perso sont gratuits. Un emplacement de plus, gardé pour toujours, puis l'éditeur s'ouvre."
+        deck: "Les %{free} premiers decks sont gratuits. Un emplacement de plus, gardé pour toujours, puis le nouveau deck s'ouvre."
+      short_line: "Il vous manque %{amount} PiCoins."
+    price_line_html: "Emplacements gratuits pris : le suivant coûte %{price}."
+    create:
+      throttled: "Trop d'achats d'emplacements en une minute. Réessayez dans un instant."
   pioneer_rankings:
     boards:
       empty:
@@ -4197,6 +4253,10 @@ fr:
       add: "Marquer comme objectif"
       remove: "Objectif %{number} · Retirer"
       remove_label: "Objectif %{number}, %{set}. Retirer des objectifs"
+    bought:
+      title: "%{ordinal} OBJECTIF ACHETÉ"
+      spoken: "%{ordinal} objectif acheté"
+      line: "%{set} est votre objectif %{number}."
     full:
       limit: "10 objectifs au plus"
       hint: "Retirez un objectif pour en ajouter un autre."
@@ -5196,6 +5256,9 @@ fr:
       card_not_showcased: "Cette carte n'est pas dans votre vitrine."
       custom_set_not_found: "Ce set n'existe pas ou n'est pas à vous."
       goal_set_not_found: "Ce set ne fait pas partie de la saison publiée."
+      goal_already_set: "Ce set est déjà un objectif."
+      slot_already_bought: "Cet emplacement est déjà acheté."
+      slot_ceiling: "Vous avez déjà tous les emplacements possibles."
       goal_set_complete: "Ce set est déjà complet."
       library_set_empty: "Votre bibliothèque Steam ne contient encore aucun jeu du catalogue."
       too_many_goals: "10 objectifs au plus. Retirez un objectif pour en ajouter un autre."

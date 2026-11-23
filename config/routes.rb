@@ -123,6 +123,9 @@ Rails.application.routes.draw do
     # set's token, never a position.
     post "library/goals" => "goals#create", as: :library_goals
     delete "library/goals" => "goals#destroy"
+    # The next goal, custom set or deck slot, by its number: the purchase confirmation, then the purchase.
+    get "slots/:capacity/:slot" => "slot_purchases#new", as: :new_slot_purchase, constraints: { capacity: /goals|custom-sets|decks/, slot: /\d+/ }
+    post "slots/:capacity/:slot" => "slot_purchases#create", as: :slot_purchase, constraints: { capacity: /goals|custom-sets|decks/, slot: /\d+/ }
     # One set's album, by kind and key, never by id.
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: Catalog::SetKind::PATTERN }
     get "inventory/:kind/:key" => "brotherhood_sets#show", as: :brotherhood_set, constraints: { kind: Catalog::SetKind::PATTERN }

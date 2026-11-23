@@ -6,6 +6,7 @@
     <div class="deck-editor__name" data-controller="deck-name">
       <label for="deck-name" class="deck-editor__label"><%= t("decks.editor.name_label") %></label>
       <%= text_field_tag :name, deck&.name, id: "deck-name", class: "deck-editor__input", autocomplete: "off", spellcheck: false,
+            autofocus: flash[:slot_bought] == "deck",
             aria: { describedby: "deck-name-refusal" },
             data: { deck_name_target: "input", action: "change->deck-name#commit keydown.enter->deck-name#commit" } %>
       <p id="deck-name-refusal" class="deck-editor__refusal" data-deck-name-target="refusal"></p>

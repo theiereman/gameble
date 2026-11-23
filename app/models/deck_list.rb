@@ -23,6 +23,8 @@ class DeckList
 
   def room_left? = count < limit
 
+  def slot_offer = Game::SlotOffer.call(:deck, limit:, used: count)
+
   private
     def decks = @decks ||= Game::PlayerDecks.listing(@player)
 

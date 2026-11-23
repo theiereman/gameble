@@ -19,6 +19,13 @@
   letter-spacing: var(--tracking-label);
 }
 
+.custom-sets__price {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
 .custom-sets__lock {
   width: 10px;
   height: 12px;
@@ -41,6 +48,7 @@
   color: var(--color-text-bright);
   font: var(--font-body);
   text-align: center;
+  text-decoration: none;
   cursor: pointer;
 }
 

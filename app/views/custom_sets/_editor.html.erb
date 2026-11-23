@@ -1,9 +1,9 @@
-<%# locals: (custom_set: nil, picks: []) %>
+<%# locals: (custom_set: nil, picks: [], open: false) %>
 <% editing = !custom_set.nil? %>
 <% name = editing ? custom_set.name : "" %>
 <% strings = screen_strings("custom_sets.editor.strings") %>
 <% limit = Game::CustomSet::NAME_LIMIT %>
-<%= tag.dialog id: "custom-set-editor", class: "modal modal--wide custom-set-editor", aria: { labelledby: "custom-set-editor-title" },
+<%= tag.dialog id: "custom-set-editor", class: "modal modal--wide custom-set-editor", open:, aria: { labelledby: "custom-set-editor-title" },
       data: { controller: "dialog custom-set-editor", action: "click->custom-set-editor#closeOnScrim cancel->custom-set-editor#cancel close->custom-set-editor#closed",
               custom_set_editor_games_url_value: custom_set_games_path, custom_set_editor_max_value: Game::CustomSet::GAMES.max,
               custom_set_editor_name_limit_value: limit, custom_set_editor_strings_value: strings } do %>

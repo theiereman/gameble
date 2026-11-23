@@ -3,6 +3,7 @@ require_relative "../support/steam_sign_in"
 require_relative "../support/decks"
 require_relative "../support/live_duels"
 require_relative "../support/duels"
+require_relative "../support/market"
 
 # GET /:locale/duels: the DUELS tab's root, the challenge block above the player's decks in creation order, each a link
 # to its editor with its twelve covers, and the way to a new deck while fewer than five. GET /:locale/duels/:token: a
@@ -12,6 +13,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
   include Decks
   include LiveDuels
   include Duels
+  include MarketSettings
 
   setup do
     @player = accounts_players(:player)
@@ -99,6 +101,26 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#duel-decks-heading [aria-hidden=true]", "My decks · 3 / 3"
     assert_select "#duel-decks-heading .visually-hidden", "My decks, 3 of 3"
     assert_select "a[href='/en/duels/decks/new']", 0
+    assert_select ".duel-decks__full", "Five decks at most: delete one to make another."
+  end
+
+  test "three decks with a slot price: + NEW DECK opens the slot purchase, described by its price; five decks: the line again" do
+    open_market!
+    3.times { |index| create_deck("Deck #{index + 1}") }
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    assert_select ".duel-decks[data-controller='row-focus purchase-dialog'] dialog#slot-purchase-dialog"
+    assert_select "a.deck-new[href='/en/slots/decks/4'][aria-haspopup=dialog][aria-describedby=deck-slot-price][data-action='purchase-dialog#open']"
+    assert_select "#duel-decks-heading + p#deck-slot-price", text: /\AFree slots taken: the next one costs\s+1,000\s*\.\z/
+    assert_select ".duel-decks__full", 0
+
+    Game::CapacitySlot.create!(player_id: @player.id, kind: "deck", bought: 2)
+    2.times { |index| create_deck("Deck #{index + 4}") }
+    get duels_path(locale: :en)
+
+    assert_select "a.deck-new, #deck-slot-price, #slot-purchase-dialog", 0
     assert_select ".duel-decks__full", "Five decks at most: delete one to make another."
   end
 

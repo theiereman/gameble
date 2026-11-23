@@ -22,6 +22,7 @@ class LibraryController < ApplicationController
     load_goals
     @goal_slots = Game::Capacity.limit(current_player, :goal)
     @custom_set_slots = Game::Capacity.limit(current_player, :custom_set)
+    @custom_set_slot = Game::SlotOffer.call(:custom_set, limit: @custom_set_slots, used: @custom_set_tiles.size)
     load_unique_cards
     load_latest_cards
     @grand_inventory = Game::GrandInventory.new(seasons: :all)

@@ -1,33 +1,40 @@
-<%# locals: (tiles:, slots:, goals: []) %>
+<%# locals: (tiles:, slots:, offer: nil, goals: []) %>
 <% room = tiles.size < slots %>
 <% folded = tiles.size - CustomSetsHelper::SHOWN_ON_PHONE %>
-<section class="set-entry__section custom-sets" aria-labelledby="custom-sets-title" data-controller="set-fold">
+<section class="set-entry__section custom-sets" aria-labelledby="custom-sets-title" data-controller="<%= class_names("set-fold", "purchase-dialog": offer) %>">
   <div class="custom-sets__head">
     <h2 id="custom-sets-title" class="set-entry__title"><%= t("library.entry.custom_sets.title") %></h2>
     <p class="custom-sets__note">
       <%= pixel_icon("lock", class: "custom-sets__lock") %>
-      <% if room %>
+      <% if room || offer %>
         <%= t("library.entry.custom_sets.count", sets: tiles.size, max: slots) %>
       <% else %>
         <%= t("library.entry.custom_sets.count_full", sets: tiles.size, max: slots) %>
       <% end %>
     </p>
+    <%= slot_price_line(offer, id: "custom-set-slot-price", class: "custom-sets__price") if offer %>
   </div>
   <ul class="set-tiles custom-sets__tiles" data-set-fold-target="list">
     <% tiles.each do |tile| %>
       <li><%= render "library/set_progress_tile", href: set_tile_path(tile), tile:, goal: set_tile_goal(tile, goals) %></li>
     <% end %>
-    <% if room %>
+    <% if room || offer %>
       <li class="custom-sets__add">
-        <button type="button" class="new-set-tile" aria-haspopup="dialog"
-          data-controller="dialog-opener" data-action="dialog-opener#open" data-dialog-opener-dialog-value="custom-set-editor">
+        <% face = capture do %>
           <span class="new-set-tile__plus"><%= pixel_icon("plus") %></span>
           <span class="new-set-tile__text">
             <b class="new-set-tile__title"><%= t("library.entry.custom_sets.new") %></b>
             <span class="new-set-tile__rule"><%= t("library.entry.custom_sets.new_rule", min: Game::CustomSet::GAMES.min, max: Game::CustomSet::GAMES.max,
               sets: slots) %></span>
           </span>
-        </button>
+        <% end %>
+        <% if room %>
+          <button type="button" class="new-set-tile" aria-haspopup="dialog"
+            data-controller="dialog-opener" data-action="dialog-opener#open" data-dialog-opener-dialog-value="custom-set-editor"><%= face %></button>
+        <% else %>
+          <%= link_to face, slot_purchase_opener_path(offer), class: "new-set-tile", aria: { haspopup: "dialog", describedby: "custom-set-slot-price" },
+            data: { action: "purchase-dialog#open" } %>
+        <% end %>
       </li>
     <% end %>
   </ul>
@@ -36,5 +43,6 @@
       <%= t("library.entry.custom_sets.unfold", count: folded) %>
     </button>
   <% end %>
-  <%= render "custom_sets/editor" if room %>
+  <%= render "custom_sets/editor", open: flash[:slot_bought] == "custom_set" if room %>
+  <%= render "slot_purchases/dialog" if offer %>
 </section>

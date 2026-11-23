@@ -2,6 +2,7 @@ require "test_helper"
 require_relative "../support/custom_sets"
 require_relative "../support/game_sets"
 require_relative "../support/library_requests"
+require_relative "../support/market"
 require_relative "../support/steam_sign_in"
 
 # The player's goals in the collection: OBJECTIFS at the head of their own
@@ -13,6 +14,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
   include CustomSets
   include GameSets
   include LibraryRequests
+  include MarketSettings
   include SteamSignIn
 
   def sign_in_origin = "/fr"
@@ -119,6 +121,27 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     assert_select "#set-album-goal.goal-control--set.goal-tone--2 button.goal-button[aria-label='Objectif 2, Roguelike. Retirer des objectifs']",
       /Objectif 2 · Retirer/
     assert_select "#set-album-goal input[name=_method][value=delete]"
+  end
+
+  test "at the free limit, the goal button opens the slot purchase, described by the next slot's price; at the ceiling, the refusal stays" do
+    open_market!(slot_price_goal_6: 750)
+    roguelike
+    keys = %w[a1 a2 a3 a4 a5 a6 a7 a8 a9 a10]
+    keys.each { insert_set(unheld_cards(3), { complete: 3 }, key: it, params: { "theme" => it }) }
+    keys.first(5).each { add(kind: "theme", key: it) }
+    sign_in(@player)
+
+    get library_set_path(locale: :fr, kind: "theme", key: "roguelike")
+    assert_select "#set-album-goal a.goal-button[href=?][aria-haspopup=dialog][aria-describedby=goal-slot-price][data-action='purchase-dialog#open']",
+      "/fr/slots/goals/6?key=roguelike&kind=theme", "Marquer comme objectif"
+    assert_select "#set-album-goal p#goal-slot-price", text: /\AEmplacements gratuits pris\u202F: le suivant coûte\s+750\s*\.\z/
+    assert_select "#set-album-goal form", 0
+
+    Game::CapacitySlot.create!(player_id: @player.id, kind: "goal", bought: 5)
+    keys.drop(5).each { add(kind: "theme", key: it) }
+    get library_set_path(locale: :fr, kind: "theme", key: "roguelike")
+    assert_select "#set-album-goal form[action='/fr/library/goals'] button.goal-button", "Marquer comme objectif"
+    assert_select "#set-album-goal a, #goal-slot-price, #slot-purchase-dialog", 0
   end
 
   test "a complete set's album offers no goal button" do

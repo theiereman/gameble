@@ -5,6 +5,7 @@
       <%= helpers.pixel_icon("close", class: "modal__close-icon") %>
     </button>
   </div>
+  <% if lead? %><p class="purchase-confirmation__lead"><%= lead %></p><% end %>
   <div class="purchase-confirmation__summary">
     <% if visual? %><div class="purchase-confirmation__visual" aria-hidden="true"><%= visual %></div><% end %>
     <dl class="purchase-confirmation__facts">

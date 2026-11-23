@@ -326,8 +326,20 @@
   margin-top: var(--space-3);
 }
 
+.goal-control__refusal--bought {
+  color: var(--color-text);
+}
+
 .goal-control__limit {
   text-transform: uppercase;
+}
+
+.goal-control__price {
+  margin: var(--space-3) 0 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  text-align: right;
 }
 
 .goal-control__link {

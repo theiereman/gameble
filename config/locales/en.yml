@@ -2304,6 +2304,9 @@ en:
       goal_set_complete: This set is already complete.
       library_set_empty: Your Steam library holds no catalog game yet.
       goal_set_not_found: This set is not in the published season.
+      goal_already_set: This set is already a goal.
+      slot_already_bought: This slot is already bought.
+      slot_ceiling: You already have every slot there is.
       game_not_in_catalog: A chosen game is not in the catalog. Reload the page and try again.
       name_required: NAME REQUIRED · Give your set a name.
       name_taken: NAME TAKEN · Another of your sets has this name.
@@ -2892,6 +2895,10 @@ en:
       add: Mark as goal
       remove: Goal %{number} · Remove
       remove_label: Goal %{number}, %{set}. Remove from goals
+    bought:
+      title: "%{ordinal} GOAL BOUGHT"
+      spoken: "%{ordinal} goal bought"
+      line: "%{set} is your goal %{number}."
     card_words: 'goal %{number}: %{set}'
     full:
       hint: Remove a goal to add another one.
@@ -4774,6 +4781,62 @@ en:
     entrust: ENTRUST CARDS
     no_balance: none
     price: Price
+  slot_purchases:
+    ordinals:
+      "4":
+        indefinite: "A 4TH"
+        indefinite_words: "A fourth"
+        bare: "4TH"
+        bare_words: "Fourth"
+      "5":
+        indefinite: "A 5TH"
+        indefinite_words: "A fifth"
+        bare: "5TH"
+        bare_words: "Fifth"
+      "6":
+        indefinite: "A 6TH"
+        indefinite_words: "A sixth"
+        bare: "6TH"
+        bare_words: "Sixth"
+      "7":
+        indefinite: "A 7TH"
+        indefinite_words: "A seventh"
+        bare: "7TH"
+        bare_words: "Seventh"
+      "8":
+        indefinite: "AN 8TH"
+        indefinite_words: "An eighth"
+        bare: "8TH"
+        bare_words: "Eighth"
+      "9":
+        indefinite: "A 9TH"
+        indefinite_words: "A ninth"
+        bare: "9TH"
+        bare_words: "Ninth"
+      "10":
+        indefinite: "A 10TH"
+        indefinite_words: "A tenth"
+        bare: "10TH"
+        bare_words: "Tenth"
+    dialog:
+      loading: Loading…
+    confirmation:
+      title:
+        goal: "%{ordinal} GOAL?"
+        custom_set: "%{ordinal} SET?"
+        deck: "%{ordinal} DECK?"
+      spoken_title:
+        goal: "%{ordinal} goal?"
+        custom_set: "%{ordinal} set?"
+        deck: "%{ordinal} deck?"
+      lead:
+        goal: "The first %{free} goals are free. One more slot, kept for good, and %{set} becomes your goal %{number}."
+        custom_set: "The first %{free} custom sets are free. One more slot, kept for good, then the editor opens."
+        deck: "The first %{free} decks are free. One more slot, kept for good, then the new deck opens."
+      short_line: "You are %{amount} PiCoins short."
+    price_line_html: "Free slots taken: the next one costs %{price}."
+    create:
+      throttled: Too many slot purchases in a minute. Try again in a moment.
   pioneer_rankings:
     boards:
       empty:
