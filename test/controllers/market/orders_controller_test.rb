@@ -7,6 +7,7 @@ require_relative "../../support/market_listings"
 require_relative "../../support/market_orders"
 require_relative "../../support/custom_sets"
 require_relative "../../support/game_sets"
+require_relative "../../support/singleton_stub"
 
 class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
@@ -16,6 +17,7 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
   include MarketOrders
   include MarketAuctions
   include MarketSettings
+  include SingletonStub
   include SteamSignIn
 
   setup do
@@ -117,6 +119,18 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_select "#order-running[tabindex='-1'][autofocus]", "You already have an order on Tin Soldier: 100, 7 d left."
     assert_select "#order-form", 0
+  end
+
+  test "an order refused as already open while none is open any more redraws the form with the retry line" do
+    sign_in(@player)
+
+    stub_singleton(Game::Market::Order, :create!, proc { raise ActiveRecord::RecordNotUnique }) do
+      assert_no_difference(-> { Game::Market::LedgerEntry.count }) { place(price: "200") }
+    end
+
+    assert_response :unprocessable_content
+    assert_select "#order-running", 0
+    assert_select "#order-error", "The Archives are busy right now. Try again in a moment."
   end
 
   test "the open listings of the game are drawn, the soonest to end first, each linked to its listing by token" do

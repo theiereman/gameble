@@ -24,6 +24,7 @@ module Market
       load_terms
       @price_text = params[:price].to_s
       @refusal_code = result.failure
+      @refusal_code = :market_busy if @refusal_code == :order_already_open && @running.nil?
       @refusal = operation.failure_message(@refusal_code, **refusal_values(@refusal_code)) unless @refusal_code == :order_already_open
       render :new, status: :unprocessable_content
     end
