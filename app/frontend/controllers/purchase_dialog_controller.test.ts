@@ -18,6 +18,8 @@ describe("purchase-dialog controller", () => {
           '<dialog data-purchase-dialog-target="dialog" data-action="close->purchase-dialog#closed">' +
           '<div id="frame" data-purchase-dialog-target="frame"><p>Old</p></div>' +
           '<template data-purchase-dialog-target="loading"><p class="loading">Loading</p></template>' +
+          '<template data-purchase-dialog-target="failed"><p class="failed">Not loaded. ' +
+          '<button type="button" data-action="purchase-dialog#retry">Try again</button></p></template>' +
           "</dialog></section>",
       ).content,
     )
@@ -64,6 +66,32 @@ describe("purchase-dialog controller", () => {
     await Promise.resolve()
 
     expect(document.activeElement?.textContent).toBe("Buy?")
+  })
+
+  it.each(["turbo:frame-missing", "turbo:fetch-request-error"])(
+    "writes the failure line with its retry into the frame on %s, and retries on the loading line",
+    async (name) => {
+      click("one")
+      const event = new Event(name, { bubbles: true, cancelable: true })
+      frame().dispatchEvent(event)
+
+      expect(event.defaultPrevented).toBe(true)
+      expect(frame().querySelector(".failed")).not.toBeNull()
+
+      await Promise.resolve()
+      frame().querySelector("button")!.click()
+
+      expect(frame().querySelector(".loading")).not.toBeNull()
+      expect(reload).toHaveBeenCalledTimes(1)
+    },
+  )
+
+  it("leaves a failure to Turbo when the page has no failure line", () => {
+    document.querySelector("[data-purchase-dialog-target='failed']")!.remove()
+    const event = new Event("turbo:frame-missing", { bubbles: true, cancelable: true })
+    frame().dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(false)
   })
 
   it("moves focus to the next tile when the opener left while the dialog was open", () => {

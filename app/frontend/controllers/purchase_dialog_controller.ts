@@ -5,12 +5,14 @@ import { focusTarget, returnPoint, type ReturnPoint } from "../lib/purchase_dial
 type Frame = HTMLElement & { reload(): void }
 
 export default class extends Controller<HTMLElement> {
-  static targets = ["dialog", "frame", "loading", "title", "heading"]
+  static targets = ["dialog", "frame", "loading", "failed", "title", "heading"]
 
   declare readonly dialogTarget: HTMLDialogElement
   declare readonly hasDialogTarget: boolean
   declare readonly frameTarget: Frame
   declare readonly loadingTarget: HTMLTemplateElement
+  declare readonly hasFailedTarget: boolean
+  declare readonly failedTarget: HTMLTemplateElement
   declare readonly headingTarget: HTMLElement
   declare readonly hasHeadingTarget: boolean
 
@@ -29,8 +31,29 @@ export default class extends Controller<HTMLElement> {
     openDialog(this.dialogTarget, opener)
   }
 
+  frameTargetConnected(frame: Frame): void {
+    frame.addEventListener("turbo:fetch-request-error", this.failed)
+    frame.addEventListener("turbo:frame-missing", this.failed)
+  }
+
+  frameTargetDisconnected(frame: Frame): void {
+    frame.removeEventListener("turbo:fetch-request-error", this.failed)
+    frame.removeEventListener("turbo:frame-missing", this.failed)
+  }
+
+  retry(): void {
+    this.frameTarget.replaceChildren(this.loadingTarget.content.cloneNode(true))
+    this.frameTarget.reload()
+  }
+
   titleTargetConnected(title: HTMLElement): void {
     if (this.hasDialogTarget && this.dialogTarget.open) title.focus()
+  }
+
+  private readonly failed = (event: Event): void => {
+    if (!this.hasFailedTarget) return
+    event.preventDefault()
+    this.frameTarget.replaceChildren(this.failedTarget.content.cloneNode(true))
   }
 
   closed(): void {
