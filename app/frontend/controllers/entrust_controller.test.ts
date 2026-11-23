@@ -23,6 +23,10 @@ const STRINGS = {
   status: { one: "%{count} copy, %{amount}", other: "%{count} copies, %{amount}", zero: "0 copies, %{amount}" },
   barCount: { one: "%{count} copy", other: "%{count} copies", zero: "0 copies" },
   more: { one: "and %{count} more", other: "and %{count} more", zero: "" },
+  setApartHeading: { one: "SET ASIDE · 1 WANTED CARD", other: "SET ASIDE · %{count} WANTED CARDS", zero: "" },
+  setApartStatus: { one: "%{count} set aside", other: "%{count} set aside", zero: "" },
+  seekers: { one: "%{count} player wants it", other: "%{count} players want it", zero: "" },
+  choose: { one: "CHOOSE FOR THE WANTED CARD ▸", other: "CHOOSE FOR THE %{count} WANTED CARDS ▸", zero: "" },
 }
 
 const attr = (value: unknown): string => JSON.stringify(value).replace(/"/g, "&quot;")
@@ -54,7 +58,7 @@ const markup = (inSheet: boolean): string => `
         data-entrust-entrust-recap-outlet="#entrust [data-controller~='entrust-recap']">
     <ul>
       <li data-entrust-target="cell" data-ref="a:1" data-title="A" data-rarity="rare" data-season="1" data-free="2" data-owned="2" data-value="5000" data-ticked="1"></li>
-      <li data-entrust-target="cell" data-ref="b:1" data-title="B" data-rarity="rare" data-season="1" data-free="1" data-owned="1" data-value="5000" data-ticked="0"></li>
+      <li data-entrust-target="cell" data-ref="b:1" data-title="B" data-rarity="rare" data-season="1" data-free="1" data-owned="1" data-value="5000" data-seekers="2" data-ticked="0"></li>
     </ul>
     <input id="selection" type="hidden" name="selection" value="a:1=1,off:1=2" data-entrust-target="selection">
     <div id="ticks" data-entrust-target="ticks" hidden>
@@ -190,6 +194,31 @@ describe("a change while the sheet is open", () => {
   })
 })
 
+describe("Esc while cards are ticked", () => {
+  beforeEach(() => mount({ phone: false }))
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  const press = (): KeyboardEvent => {
+    const event = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
+    document.body.dispatchEvent(event)
+    return event
+  }
+
+  it("is swallowed, so it never clears the ticks", () => {
+    expect(press().defaultPrevented).toBe(true)
+  })
+
+  it("reaches an open popover", () => {
+    const query = document.querySelector.bind(document)
+    vi.spyOn(document, "querySelector").mockImplementation(((selector: string) =>
+      selector.includes(":popover-open") ? document.body : query(selector)) as typeof document.querySelector)
+    expect(press().defaultPrevented).toBe(false)
+  })
+})
+
 describe("the status follows the sheet", () => {
   it("calls refreshStatus when the sheet opens and closes", async () => {
     await mount({ phone: true })
@@ -273,6 +302,7 @@ describe("the cells and the posted fields", () => {
     expect(posted()).toBe("b:1=1,off:1=2")
     expect(kept()).toEqual(["off:1=2", "b:1=1"])
     expect(document.querySelector<HTMLElement>("#ticks [data-ref='b:1']")?.dataset.title).toBe("B")
+    expect(document.querySelector<HTMLElement>("#ticks [data-ref='b:1']")?.dataset.seekers).toBe("2")
   })
 
   it("knows the copies of a page appended later and ticks them", async () => {

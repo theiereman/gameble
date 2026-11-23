@@ -85,7 +85,13 @@ export default class WantedTableController extends Controller<HTMLFormElement> {
 
   // Esc here closes an overlay and nothing else: it never drops the choices nor leaves the screen.
   private readonly guardEscape = (event: KeyboardEvent): void => {
-    if (event.key !== "Escape" || !this.state || document.querySelector("dialog[open]") || !pending(this.state)) return
+    if (
+      event.key !== "Escape" ||
+      !this.state ||
+      document.querySelector("dialog[open], :popover-open") ||
+      !pending(this.state)
+    )
+      return
     event.preventDefault()
     event.stopPropagation()
   }
@@ -127,7 +133,7 @@ export default class WantedTableController extends Controller<HTMLFormElement> {
     if (this.state && ref) this.apply(setDuration(this.state, ref, input.value))
   }
 
-  // Enter in a field never submits: the form's first submit button is TOUT CONFIER, which entrusts every line.
+  // Enter in a field never submits: the form's first submit button entrusts every line.
   holdEnter(event: KeyboardEvent): void {
     if (event.target instanceof HTMLInputElement) event.preventDefault()
   }
@@ -162,7 +168,6 @@ export default class WantedTableController extends Controller<HTMLFormElement> {
       if (!picked) continue
       this.reflectLine(line, picked, sums.lines[ref] ?? null, drawing)
     }
-    this.element.toggleAttribute("data-pending-edit", pending(state))
     if (this.hasWantedDockOutlet) this.wantedDockOutlet.render(sums, this.stringsValue)
   }
 
