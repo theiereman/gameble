@@ -66,4 +66,4 @@ The title, its grades, seats, star and metrics, and the feed, bell, achievement 
 - Decision: a closing refactor sweep, entry 9 (2026-11-23).
 - Open question: the English job titles and the new achievement's French and English titles; entry 2 and entry 4 wait on them.
 - Unknown: Bourse and Stratégie thresholds are guesses until those services have production volume; the job recomputes them, so no entry waits on it.
-- Source conflict: architecture-gameble.md, the set-tier read model of profile titles (near line 306) — titles are read from set-tier rows vs stored grades per CAP-22 as rewritten 2026-11-23; settled by the bmad-architecture pass above.
+- Decision: the architecture spine was updated on 2026-11-23 (AD-25 amended; AD-64 grades, AD-65 seats, AD-66 star and metrics); the source conflict is settled. EXPERIENCE.md is still to update through bmad-ux before the build.

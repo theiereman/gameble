@@ -7,7 +7,7 @@ paradigm: 'modular monolith with an operations layer'
 scope: 'gameble as a whole: one Rails application, its four domains, its web layer, the Steam import, the deployment, the market release, the duels release and market volume.'
 status: final
 created: '2026-10-02'
-updated: '2026-11-20'
+updated: '2026-11-23'
 binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28, CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37, CAP-38, CAP-39, CAP-40, CAP-41, CAP-42, CAP-44, CAP-45, CAP-46, CAP-47, CAP-48, CAP-49]
 sources:
   - ../spec-gameble/spec-gameble.md
@@ -301,9 +301,10 @@ graph TD
 
 - **Binds:** CAP-20, CAP-22, CAP-23
 - **Prevents:** two catalogues of backs; unlocks granted from several places; a back or a title duplicated per season.
+- **Amended 2026-11-23:** profile titles leave this decision: they are job titles on stored grades (AD-64). Menu themes and the active theme stay as written.
 - **Rule:**
   - The back catalogue is one constant in `Game`: each back has a key, an exported asset file and an unlock rule. Adding a back is a commit. A set's back unlocks on that set's back tier, once: in each season, the first of the set's tiers whose required count is at least half its distinct cards (`gold` in seasons published before the table). The seasons it was earned in are read from the player's rows of that tier of that set, and the active back records the season whose mark it wears.
-  - Profile titles and menu themes (CAP-22) are read from the player's set-tier rows, not stored as unlocks: a title per distinct set kind, key and title rank across seasons, `bronze` counting as `apprentice`, `silver` as `adept` and `gold` as `master` so that both families give one title per rank, showing the latest season it was reached in, rendered from the rank (its name, `Complétiste` for `complete`) and the set's name, never stored as text; a menu theme when the player's distinct set kinds and keys with a `complete` row reach its count. The active title (set kind, key and title rank) and the active menu theme are columns of `game_player_states`; a menu theme's accent colours are one constant in code, contrast checked.
+  - Menu themes (CAP-22) are read from the player's set-tier rows, not stored as unlocks: a theme when the player's distinct set kinds and keys with a `complete` row reach its count. The active menu theme is a column of `game_player_states`; a theme's accent colours are one constant in code, contrast checked. Profile titles are AD-64's.
   - Unlocks are rows per player and back, unique. The active back is a column of the player's `game_player_states` row. Every account has `standard`.
   - Unlocks are granted only by `Game` handlers on events (AD-10), and by one administrator operation run from the console that grants a back to a group of players, one player per transaction.
   - An unlock is announced by the opening's response (AD-23) or the private stream (AD-13).
@@ -846,6 +847,40 @@ graph TD
   - The sale signals read served orders as sales beside sold listings, and a direct sale to an order of an account tied to the seller is the signal `order_sale_to_tied_buyer` `[ASSUMPTION: the signal's name and its reading of served orders; the decisions name only the Archive signal]`.
 - **Costs:** `AltSignals::SIGNALS`, which `AltSignal` validates against, gains the two signals, each with its label in both locales.
 
+### AD-64 — Job titles are stored grades per service
+
+- **Binds:** CAP-22, CAP-13, CAP-17, CAP-23, CAP-8
+- **Prevents:** a title computed from set tiers in one place and from grades in another; a grade that drops when thresholds float; two writers of a grade; a title stored as text; a first run flooding the feed.
+- **Rule:**
+  - `Game::Services` is one constant: the five services (`archives`, `bourse`, `exchanges`, `exploration`, `strategy`), each with its measure, its top feat's achievement key and its locale keys. `Game::ServiceMeasures`, one query on state tables (AD-37's rule: no event, no stored counter), returns each active member's figure per service, optionally over a time window: sets completed (`game_set_tiers` `complete` rows by `reached_at`), turnover (ledger `sale`, `purchase` and `mint` deltas by `created_at`, absolute), trades accepted (`closed_at`), first discoveries (`discovered_at`), duels finished without practice (`ended_at`). Days of service are distinct `game_daily_bonus_claims.day`. Active means a claim in the last 30 days; banned, deleted and bot accounts never count.
+  - Tables: `game_service_thresholds` (service, grade 2 to 5, value, computed on; replaced daily), `game_service_grades` (player, service, grade; unique per player and service; a grade only rises, written by an upsert that keeps `GREATEST(old, new)`), `game_service_standings` (player, service, figure, percentile; replaced daily for active members), `game_service_snapshots` (the standings copied each Monday by week start, kept 12 weeks plus the current). `game_player_states` gains `worn_service` (nullable) and `title_display` (`post`, `none` or `staff`, default `post`).
+  - `Game::ComputeServiceThresholds` and `Game::GradeMember(player:)` are `ApplicationOperation`s run nightly after the reconciliation by `Game::GradeMembersJob`, which computes thresholds and standings once, then runs one `GradeMember` per active member, each under the player's bank lock. A grade 2 to 5 needs the figure at the threshold of p50, p75, p90 or p97 of active members and the floor of 14, 30, 90 or 180 days; grade 5 also needs the service's top feat unlocked (AD-37). `GradeMember` raises grades, sets `worn_service` to the service of the highest grade, keeping the current one on a tie and replacing it only on a strictly higher grade, and publishes one `Game::MemberGraded` carrying the services and grades raised; it publishes nothing when none was.
+  - The first run, a data step of the 1.5 deploy before the new code takes traffic, passes `retroactive: true` as AD-37's backfill does: handlers write no feed entry or notice, and the same step creates the Direction's one reorganisation announcement through the existing announcement mechanism.
+  - Handlers of `Game::MemberGraded` (AD-10): from grade 3 a `promotion` feed entry, below it a notice to the player in the bell; a retroactive event writes neither. A member inactive for 30 days shows no title (`WornTitle` reads active status) and keeps every grade.
+  - `Game::WornTitle.for_players(players)`, a query on the reading role, replaces `ProfileTitles` and `ActiveProfileTitle`: the staff title from role when `title_display` is `staff` (administrator "Conservateur des Archives", moderator "Officier"), else the seat, else the post of `worn_service` at its grade, none below grade 2 or when inactive or `none`. It returns keys; the text is the locale key `titles.<service>.<grade>` or `titles.<service>.seat`, never stored. `Game::ChooseTitleDisplay` replaces `ChooseProfileTitle`.
+  - Retiring the set-tier titles is expand then contract: first the columns and tables above with the new reads, then a migration dropping `active_title_kind`, `active_title_key`, `active_title_rank` and their check constraint, in its own release step once no code reads them. `game_set_tiers` stays (backs, themes, recap).
+- **Costs:** the feed's `KINDS` gains `promotion` and `nomination`; a bell line for a promotion and one for a dethroned seat holder; grades are not achievements, so `GrantAchievementsJob` ignores `Game::MemberGraded`.
+
+### AD-65 — Seats are awarded once per season publication
+
+- **Binds:** CAP-22, CAP-23, CAP-13
+- **Prevents:** a seat held on a rolling window that flickers; two awards for one publication; a dethroned member's grade lost.
+- **Rule:**
+  - `game_service_seats` has one row per service and published season (unique), with the holder and the season number; the seat of a service is its latest row. A dethroned member keeps their grade rows, so returning to their grade is the absence of a row, not a write.
+  - `Game::SeasonPublished`'s handler enqueues `Game::AwardSeatsJob` after commit, as it does for the duel stats. `Game::AwardSeats(season:)` reads `Game::ServiceMeasures` over the window of the season that ended (previous publication to this one), takes each service's number one among members of grade 3 or more in it (ties by the earlier last counted event, then player id), inserts its rows `ON CONFLICT DO NOTHING` (a second run changes nothing) and publishes one `Game::SeatsAwarded`. A service with no candidate gets no row and the seat is vacant.
+  - Handlers: one `nomination` feed entry by the Direction (no player), a bell notice to each dethroned holder, and the season recap reads the table. `WornTitle` shows the seat title in place of the post.
+- **Costs:** one job and one table; the recap screen's query (AD-11).
+
+### AD-66 — The star and the metrics read stored standings
+
+- **Binds:** CAP-22, CAP-8, CAP-11
+- **Prevents:** a percentile computed per request; a star shown where the profile is private; the owner's figures leaking.
+- **Rule:**
+  - `Game::ServiceStar.for(player, viewer)`, on the reading role, returns each service's grade, post key, figure and percentile from `game_service_standings` and `game_service_grades`, and the seat; nothing when the viewer may not see the profile (CAP-8). The dialog is a GET with no write.
+  - `Game::OwnMetrics.for(player)`, readable only by the player (a Pundit policy), returns the next grade's conditions with the current and next thresholds, the threshold's rise over 4 weeks from `game_service_snapshots`, the nearest mutation, the 12-week series, and the seat race: the number one, the player and the member behind with the gap, computed by `ServiceMeasures` over the current season's window. The chart is a `ChartComponent` of kind `sparkline` or `line` (AD-51).
+  - No database id appears in the dialog or the metrics (AD-15).
+- **Costs:** snapshot copy each Monday by `Game::SnapshotStandingsJob`; the 12-week series has no point before the first snapshot.
+
 ## Consistency Conventions
 
 | Concern | Convention |
@@ -1024,7 +1059,7 @@ gameble/
 | CAP-19 Repost | `Game` | AD-3, AD-10, AD-13 |
 | CAP-20 Card backs | `Game`, booster screen | AD-9, AD-10, AD-16, AD-25, AD-30 |
 | CAP-21 Presence | `Accounts` (last seen), `Game` (activity) | AD-9, AD-10, AD-24 |
-| CAP-22 Titles and menu themes (after the launch) | `Game`, web layer | AD-10, AD-18, AD-25 |
+| CAP-22 Job titles, seats, star and metrics; menu themes | `Game`, web layer | AD-10, AD-18, AD-25, AD-37, AD-64, AD-65, AD-66 |
 | CAP-23 Seasonal allocation (after the launch) | `Game`, web layer | AD-5, AD-9, AD-10, AD-11, AD-18, AD-25 |
 | CAP-25 Roadmap | `Catalog`, back-office | AD-3, AD-18, AD-29 |
 | CAP-27 Custom sets and the Steam library set | `Game`, `Steam` (library read), `app/jobs` (sync) | AD-4, AD-5, AD-14, AD-15, AD-35, AD-36, AD-62 |
