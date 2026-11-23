@@ -1397,6 +1397,11 @@ Mocks: [mockups/market-options.html](mockups/market-options.html), [mockups/mark
   - **Table view:** "VOIR LE TABLEAU" in `{typography.label}` `{colors.accent}`; the table 12px, numbers right-aligned, rows ruled by 2px `{colors.line-soft}`, headers `{colors.muted}`.
 - **Suspended banner:** a 2px `{colors.alert}` frame on a tenth of its colour, title in `{colors.alert}`. Disabled actions use `{colors.disabled-bg}` and `{colors.disabled-text}`, their reason written next to them or in the banner.
 
+### Job title chip and gauge marks (author, 2026-11-23)
+
+- **Title chip:** the same small uppercase chip everywhere a job title shows, in the accent colour on a 1px accent outline. A Comité de direction seat uses the gold already in the game (`{colors.gold}` if tokened, else the existing gold) for outline and text, with no star and no fill: a star lacked contrast. Reference: [mockups/profile-titles-stats-star.html](mockups/profile-titles-stats-star.html), section 1.
+- **Gauge marks:** a 10px bar, filled in the accent colour; a grey tick for the current grade's threshold, a gold tick for the next grade's, and a hatched gold band for the threshold's rise over 4 weeks; a met condition fills in the lime colour. Reference: same mock, sections 5 and 6.
+
 ## Do's and Don'ts
 
 | Do | Don't |

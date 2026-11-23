@@ -18,7 +18,17 @@ Each service has one measure, counted cumulatively since sign-up.
 | Exploration | pioneer first discoveries (CAP-13) | Cartographe junior | Cartographe | Cartographe senior | Responsable de l'Exploration | Direction de l'Exploration |
 | Stratégie | duels finished, practice excluded | Stratège junior | Stratège | Stratège senior | Responsable de la Stratégie | Direction de la Stratégie |
 
-English titles: open.
+English titles (author, 2026-11-23):
+
+| Service | Grade 2 | Grade 3 | Grade 4 | Grade 5 | Seat |
+|---|---|---|---|---|---|
+| Archives | Junior Archivist | Archivist | Senior Archivist | Head of the Archives | Archives Directorate |
+| Bourse | Junior Accountant | Accountant | Senior Accountant | Head of the Exchange | Exchange Directorate |
+| Échanges | Junior Trade Specialist | Trade Specialist | Senior Trade Specialist | Head of Trades | Trades Directorate |
+| Exploration | Junior Cartographer | Cartographer | Senior Cartographer | Head of Exploration | Exploration Directorate |
+| Stratégie | Junior Strategist | Strategist | Senior Strategist | Head of Strategy | Strategy Directorate |
+
+Staff: "Archives Curator" (administrator), "Officer" (moderator). Until the duels beta, Stratégie stops at grade 4: its top feat is withheld (author, 2026-11-23).
 
 ## Grades
 

@@ -54,7 +54,7 @@ The top grade of each service (CAP-22, `brotherhood-titles.md`) needs one achiev
 
 | Title | Type | Condition | Back |
 |---|---|---|---|
-| (to write) | community | Finish a week first on the pioneer ranking, frozen at the week's end like the Chattomètre's employee of the week | |
+| Prospecting Targets Exceeded (FR: Objectifs de prospection dépassés) | community | Finish a week first on the pioneer ranking, frozen at the week's end like the Chattomètre's employee of the week | |
 
 ## Duel achievements (release 1.4)
 
