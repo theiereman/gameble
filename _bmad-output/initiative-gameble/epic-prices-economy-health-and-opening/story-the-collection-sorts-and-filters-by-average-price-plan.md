@@ -1,7 +1,7 @@
 ---
 title: 'The collection sorts and filters by average price'
 type: 'feature'
-ticket: '41.4'
+ticket: '4'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '89b6413ac8057b366ce0ff9ca6ad83e3e30db687'

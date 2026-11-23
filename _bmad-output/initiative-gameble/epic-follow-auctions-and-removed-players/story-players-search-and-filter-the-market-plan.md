@@ -1,7 +1,7 @@
 ---
 title: 'Players search and filter the market'
 type: 'feature'
-ticket: '40.7'
+ticket: '7'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: 'ee385caffd1868936402b29b20042aabb8201400'

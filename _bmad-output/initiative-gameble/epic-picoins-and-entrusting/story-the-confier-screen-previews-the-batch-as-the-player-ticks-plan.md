@@ -1,7 +1,7 @@
 ---
 title: 'The Confier screen previews the batch as the player ticks'
 type: 'feature'
-ticket: '38.5'
+ticket: '5'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '10d2b80544811ede551472acf4fbf6427f618f2d'

@@ -1,7 +1,7 @@
 ---
 title: 'A deleted player''s balance is forfeited and their market traces erased'
 type: 'feature'
-ticket: '40.10'
+ticket: '10'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '7e2188be18f2ebdd2b1b019873346127609b6b3a'

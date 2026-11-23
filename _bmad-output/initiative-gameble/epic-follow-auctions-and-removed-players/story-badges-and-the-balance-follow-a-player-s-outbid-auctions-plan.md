@@ -1,7 +1,7 @@
 ---
 title: 'Badges and the balance follow a player''s outbid auctions'
 type: 'feature'
-ticket: '40.5'
+ticket: '5'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '231c45ca83e64d28ad829604df9e8773aa3139f9'

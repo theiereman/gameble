@@ -1,7 +1,7 @@
 ---
 title: 'A player bids with My maximum'
 type: 'feature'
-ticket: '39.7'
+ticket: '7'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: 'f5b7d792e87f7e996e8cc0c7f5abc2ce04e4c007'

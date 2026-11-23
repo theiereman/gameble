@@ -1,7 +1,7 @@
 ---
 title: 'Refactor sweep'
 type: 'refactor'
-ticket: '41.10'
+ticket: '10'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '9e6f1f46334907c3764cde22988aff6f8b24c15a'

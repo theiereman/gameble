@@ -1,7 +1,7 @@
 ---
 title: 'Copies over the daily cap stay in the collection and the result names them'
 type: 'feature'
-ticket: '38.3'
+ticket: '3'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: 'a159c212dc2bd7ff6358b8173105d7665bb8a19c'

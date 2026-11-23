@@ -1,7 +1,7 @@
 ---
 title: 'Staff see accounts that open or trade like an alt account'
 type: 'feature'
-ticket: '41.7'
+ticket: '7'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '265e0e12dbfb5ca554ea98ff0231161bb96e563d'

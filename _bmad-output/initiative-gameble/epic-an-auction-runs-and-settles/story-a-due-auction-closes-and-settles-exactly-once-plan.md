@@ -1,7 +1,7 @@
 ---
 title: 'A due auction closes and settles exactly once'
 type: 'feature'
-ticket: '39.2'
+ticket: '2'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '690c31e8394f5bbc1b94ffe3852097583d1fb622'

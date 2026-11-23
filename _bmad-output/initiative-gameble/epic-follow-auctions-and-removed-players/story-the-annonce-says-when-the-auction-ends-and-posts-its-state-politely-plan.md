@@ -1,7 +1,7 @@
 ---
 title: 'The Annonce says when the auction ends and posts its state politely'
 type: 'feature'
-ticket: '40.3'
+ticket: '3'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: 'ff100c98f69b131d4a5e003edd4b4e4255117d1f'

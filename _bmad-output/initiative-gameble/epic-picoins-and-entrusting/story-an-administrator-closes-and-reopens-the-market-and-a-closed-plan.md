@@ -1,7 +1,7 @@
 ---
 title: 'An administrator closes and reopens the market, and a closed market refuses entrusting'
 type: 'feature'
-ticket: '38.10'
+ticket: '10'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '059e0eb1f3747ac554983bff74235ec8933650e8'

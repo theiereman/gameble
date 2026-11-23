@@ -1,7 +1,7 @@
 ---
 title: 'A notable sale is recorded as a feed entry'
 type: 'feature'
-ticket: '40.6'
+ticket: '6'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: 'ee385caffd1868936402b29b20042aabb8201400'

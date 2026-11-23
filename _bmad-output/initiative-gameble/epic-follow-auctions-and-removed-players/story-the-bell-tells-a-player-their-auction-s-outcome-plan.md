@@ -1,7 +1,7 @@
 ---
 title: 'The bell tells a player their auction''s outcome'
 type: 'feature'
-ticket: '40.4'
+ticket: '4'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: 'beb2dc7ad2776ec1418d585483a850bd471a923c'

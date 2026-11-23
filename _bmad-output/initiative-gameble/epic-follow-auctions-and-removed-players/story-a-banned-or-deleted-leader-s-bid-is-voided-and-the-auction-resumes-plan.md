@@ -1,7 +1,7 @@
 ---
 title: 'A banned or deleted leader''s bid is voided and the auction resumes'
 type: 'feature'
-ticket: '40.8'
+ticket: '8'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '7e2188be18f2ebdd2b1b019873346127609b6b3a'

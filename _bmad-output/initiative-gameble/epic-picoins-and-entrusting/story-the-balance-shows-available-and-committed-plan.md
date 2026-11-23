@@ -1,7 +1,7 @@
 ---
 title: 'The balance shows available and committed'
 type: 'feature'
-ticket: '38.8'
+ticket: '8'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: 'd6e400a8f01160a3801895026c1408242f9ffe2b'

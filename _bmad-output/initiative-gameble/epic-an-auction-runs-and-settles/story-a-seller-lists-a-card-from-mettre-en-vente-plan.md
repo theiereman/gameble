@@ -1,7 +1,7 @@
 ---
 title: 'A seller lists a card from Mettre en vente'
 type: 'feature'
-ticket: '39.5'
+ticket: '5'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '690c31e8394f5bbc1b94ffe3852097583d1fb622'

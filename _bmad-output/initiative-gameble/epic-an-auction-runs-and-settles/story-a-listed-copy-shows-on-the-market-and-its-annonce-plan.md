@@ -1,7 +1,7 @@
 ---
 title: 'A listed copy shows on the market and its Annonce'
 type: 'feature'
-ticket: '39.1'
+ticket: '1'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '5d682a406943ae1e57fc601b31d6b9082883e929'

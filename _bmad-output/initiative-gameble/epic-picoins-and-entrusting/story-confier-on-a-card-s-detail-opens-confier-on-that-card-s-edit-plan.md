@@ -1,7 +1,7 @@
 ---
 title: "CONFIER on a card's detail opens Confier on that card's editions"
 type: 'feature'
-ticket: '38.7'
+ticket: '7'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '7575ad08a540ba6ca7576e0127e0c41785d126a7'

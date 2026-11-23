@@ -1,7 +1,7 @@
 ---
 title: 'A sale refreshes its edition''s average price'
 type: 'feature'
-ticket: '39.3'
+ticket: '3'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '579532637b130be63c1c49b044afb9ff5190069e'

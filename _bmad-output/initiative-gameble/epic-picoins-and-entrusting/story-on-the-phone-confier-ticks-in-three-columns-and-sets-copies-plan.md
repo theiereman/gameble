@@ -1,7 +1,7 @@
 ---
 title: 'On the phone, Confier ticks in three columns and sets copies in the recap sheet'
 type: 'feature'
-ticket: '38.6'
+ticket: '6'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '975d0cc8dc1aa561a6ac04a9802ed9b7e7bf6642'

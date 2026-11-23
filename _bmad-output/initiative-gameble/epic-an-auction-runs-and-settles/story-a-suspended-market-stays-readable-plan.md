@@ -1,7 +1,7 @@
 ---
 title: 'A suspended market stays readable'
 type: 'feature'
-ticket: '39.11'
+ticket: '11'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: 'c38e74f58ede0041b64a02d0b1d838c2bbd16332'

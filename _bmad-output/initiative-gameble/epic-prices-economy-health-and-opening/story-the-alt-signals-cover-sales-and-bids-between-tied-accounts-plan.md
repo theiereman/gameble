@@ -1,7 +1,7 @@
 ---
 title: 'The alt signals cover sales and bids between tied accounts'
 type: 'feature'
-ticket: '41.8'
+ticket: '8'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '265e0e12dbfb5ca554ea98ff0231161bb96e563d'

@@ -1,7 +1,7 @@
 ---
 title: 'A card''s detail shows its edition''s average price, kept current every night'
 type: 'feature'
-ticket: '41.1'
+ticket: '1'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '231c45ca83e64d28ad829604df9e8773aa3139f9'

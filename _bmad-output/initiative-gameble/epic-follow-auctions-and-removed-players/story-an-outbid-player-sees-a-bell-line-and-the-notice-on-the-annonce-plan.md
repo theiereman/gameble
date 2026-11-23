@@ -1,7 +1,7 @@
 ---
 title: 'An outbid player sees a bell line and the notice on the Annonce'
 type: 'feature'
-ticket: '40.1'
+ticket: '1'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '5918140903aab7936f12e3e3bbc99c8e91f6342e'

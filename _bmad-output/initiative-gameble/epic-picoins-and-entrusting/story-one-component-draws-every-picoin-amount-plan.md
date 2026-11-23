@@ -1,7 +1,7 @@
 ---
 title: 'One component draws every PiCoin amount'
 type: 'feature'
-ticket: '38.4'
+ticket: '4'
 created: '2026-11-10'
 status: 'built'
 baseline_revision: '967d939c53af6f8f3095d9e0f4e45a154cd3cdbe'
