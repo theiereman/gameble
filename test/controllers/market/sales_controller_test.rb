@@ -17,6 +17,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   include MarketOrders
 
   setup do
+    number_orders_far_from_page_numbers
     @player = accounts_players(:player)
     @common = catalog_card_seasons(:common_card_one)
     @rare = catalog_card_seasons(:rare_card_one)
@@ -184,7 +185,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     get new_market_sale_path(locale: :en)
 
-    assert_no_match(/(?:data-(?!step=)[a-z-]+|id|name|value)="#{@rare.id}"/, response.body)
+    assert_no_match(/(?:data-[a-z-]+|id|name|value)="#{@rare.id}"/, response.body)
   end
 
   test "the page reads in French" do
@@ -606,7 +607,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[role=option][data-ref=?][data-order='']", ref(@common)
     assert_select "template[data-listing-form-target=orderTemplate][data-ref=?]", ref(@common)
     assert_includes response.body, "No buy order for this card."
-    assert_no_match(/(?:data-(?!step=)[a-z-]+|id|name|value)="#{order.id}"/, response.body)
+    assert_no_match(/(?:data-[a-z-]+|id|name|value)="#{order.id}"/, response.body)
   end
 
   test "without an order the no-order line takes the banner's place and the listing button stays primary" do
@@ -778,5 +779,11 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     get new_market_entrustment_path(locale: :en)
 
     assert_select "input[name='filter[wanted]']", false
+  end
+
+  private
+
+  def number_orders_far_from_page_numbers
+    Game::Market::Order.connection.execute("SELECT setval(pg_get_serial_sequence('game_market_orders', 'id'), 900000000)")
   end
 end

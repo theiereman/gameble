@@ -36,7 +36,7 @@ class MarketShopSystemTest < ApplicationSystemTestCase
       assert_selector "h2", text: "ACHETER AUX ARCHIVES"
       assert_selector ".purchase-confirmation__price", text: "500"
       click_on "ACHETER · 500"
-      assert_selector "h2", text: "VOUS AVEZ ACHETÉ Profondeurs bleues"
+      assert_selector "h2", text: /\AVOUS AVEZ ACHETÉ Profondeurs bleues\z/i
       assert_link "VOIR LA CARTE"
     end
     assert_selector "#archive-offer-blue-depths-1 .archive-offer__stock", text: "1 en stock"
