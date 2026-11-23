@@ -128,6 +128,34 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
     assert_fresh(@player, @other)
   end
 
+  test "a wanted-table sale that completes the buyer's goal drops it and its rows" do
+    insert_set([ @rare.id ], { complete: 1 }, key: "solo", params: { "theme" => "solo" })
+    hold(@player, @rare.id)
+    aim(@other, key: "solo")
+    order = place_order(@other, @rare, 900)
+    line = { card_season_id: @rare.id, copies: 1, choice: "order", order_tokens: [ order.token ] }
+
+    Game::Market::ApplyWantedChoices.new.call(player: @player, lines: [ line ], settings_token: @settings.token).value!
+
+    assert_empty Game::Goal.where(player_id: @other.id)
+    assert_empty rows(@other)
+    assert_fresh(@player, @other)
+  end
+
+  test "an Archive purchase that completes the buyer's goal drops it and its rows" do
+    insert_set([ @rare.id ], { complete: 1 }, key: "solo", params: { "theme" => "solo" })
+    aim(key: "solo")
+    settings = open_market!(archive_price_rare: 500)
+    Game::Market::ArchiveStock.create!(card_season_id: @rare.id, quantity: 1)
+    assert_equal [ goal_row(@rare) ], rows
+
+    Game::Market::BuyFromArchives.new.call(player: @player, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24), settings_token: settings.token).value!
+
+    assert_empty Game::Goal.where(player_id: @player.id)
+    assert_empty rows
+    assert_fresh(@player)
+  end
+
   test "an entrusted last copy is wanted again" do
     hold(@player, @common.id)
     aim
