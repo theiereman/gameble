@@ -4,6 +4,7 @@ require_relative "../support/market_listings"
 require_relative "../support/steam_sign_in"
 
 class MarketFiltersSystemTest < ApplicationSystemTestCase
+  include ActiveJob::TestHelper
   include MarketListings
   include MarketSettings
   include SteamSignIn
@@ -84,7 +85,7 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
     members = %i[common_card_one rare_card_one].map { catalog_card_seasons(it).id }
     Catalog::SetMembership.insert_all!(members.each_with_index.map { |id, index| { set_id:, card_season_id: id, position: index + 1 } })
     Game::Holding.create!(player_id: buyer.id, card_season_id: members.last, quantity: 1)
-    Game::AddGoal.new.call(player: buyer, kind: "theme", key: "roguelike").value!
+    perform_enqueued_jobs(only: Game::Market::RefreshWantedJob) { Game::AddGoal.new.call(player: buyer, kind: "theme", key: "roguelike").value! }
     sign_in_through_the_site(buyer)
 
     visit market_path(locale: :en)
