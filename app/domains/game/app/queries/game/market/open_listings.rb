@@ -34,8 +34,6 @@ module Game
           Row.new(token:, card:, current_price:, ends_at:, offers: offers[id]) if card
         end
       end
-
-      private_class_method :build
     end
   end
 end

@@ -4,14 +4,14 @@
 <% content_for :screen_title, t(".heading") %>
 <% content_for :back_button, true %>
 <% content_for :phone_back do %><%= phone_back_link back_label, back_path, data: order_back_data(@from) %><% end %>
-<section class="order-form page page--regular" aria-labelledby="order-form-heading">
+<%= tag.section class: "order-form page page--regular", aria: { labelledby: "order-form-heading" }, data: { controller: "purchase-dialog" } do %>
   <h1 id="order-form-heading" class="order-form__title"><%= card.title %></h1>
   <% if @goal %>
     <p class="order-form__goal"><%= goal_bookmark(@goal.position, size: :small) %><span><%= t(".goal", set: goal_set_name(@goal)) %></span></p>
   <% end %>
   <% if @suspended %><%= render "market/suspended_banner" %><% end %>
   <div class="order-form__columns">
-    <%= render "available", card:, listings: @listings %>
+    <%= render "available", card:, listings: @listings, archive_offers: @archive_offers, buyable: @buyable %>
     <%= render PanelComponent.new(tag: :section, class: "order-form__panel", aria: { labelledby: "order-form-yours" }) do %>
       <h2 id="order-form-yours" class="order-form__kicker"><%= t(".yours") %></h2>
       <p class="order-form__lead"><%= t(".all_editions", card: card.title) %></p>
@@ -22,4 +22,5 @@
       <% end %>
     <% end %>
   </div>
-</section>
+  <%= render "market/shops/dialog" if @buyable && @archive_offers.any? %>
+<% end %>

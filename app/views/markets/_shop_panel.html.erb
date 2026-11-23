@@ -1,0 +1,23 @@
+<%# locals: (count:, offers:, marks:, buyable:) %>
+<div class="shop-panel">
+  <%= render PanelComponent.new(tag: :section, class: "shop-panel__frame", aria: { labelledby: "shop-panel-heading" }) do %>
+    <h2 id="shop-panel-heading" class="market-screen__section shop-panel__heading">
+      <%= t("markets.shop_panel.heading") %> <span class="shop-panel__count"><%= t("markets.shop_panel.count", count:) %></span>
+    </h2>
+    <p class="shop-panel__line"><%= t("markets.shop_panel.line") %></p>
+    <% if offers.any? %>
+      <ul class="shop-panel__list" aria-label="<%= t("markets.shop_panel.list_label") %>">
+        <% offers.each do |row| %>
+          <%= render "market/shops/offer", row:, marks:, buyable:, stock: false, tile_id: false, size: :s %>
+        <% end %>
+      </ul>
+    <% else %>
+      <%= render EmptyStateComponent.new(line: t("market.shops.show.empty")) %>
+    <% end %>
+  <% end %>
+  <% if offers.any? %>
+    <p class="shop-panel__foot">
+      <%= render ButtonComponent.new(variant: :link, href: market_shop_path, aria_label: t("markets.shop_panel.see_all_label")) do %><%= t("markets.shop_panel.see_all") %><% end %>
+    </p>
+  <% end %>
+</div>

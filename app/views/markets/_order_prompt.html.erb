@@ -1,0 +1,2 @@
+<%# locals: (card:, buyable:) %>
+<%= render ButtonComponent.new(variant: :secondary, size: :small, href: (new_market_card_order_path(slug: card.id) if buyable), disabled: !buyable) do %><%= t("markets.screen.place_order") %><% end %>

@@ -277,7 +277,7 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".market-filters__mine input[name=hide_mine][checked]"
     assert_equal [ market_listing_path(locale: :en, token: theirs.token) ], tiles.map { it.at_css("a")["href"] }
-    assert_select ".market-screen__section-note", "1"
+    assert_select ".market-screen__section-note", "1 listing"
     assert_select "a[href=?]", market_path(locale: :en, hide_mine: "1", sort: "newest")
   end
 

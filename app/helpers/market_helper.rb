@@ -66,6 +66,12 @@ module MarketHelper
 
   def market_filtered_path(filters, **extra) = market_path(**filters.to_params, **extra.compact)
 
+  def market_found_note(listings, archives)
+    parts = [ t("markets.screen.found_listings", count: listings, number: number_with_delimiter(listings)) ]
+    parts << t("markets.screen.found_archives", count: archives, number: number_with_delimiter(archives)) if archives.positive?
+    parts.join(" · ")
+  end
+
   def clock_data(seconds)
     { controller: "listing-clock", listing_clock_seconds_value: seconds,
       listing_clock_hours_template_value: t("markets.time_left.hours", hours: "%{hours}", minutes: "%{minutes}"),

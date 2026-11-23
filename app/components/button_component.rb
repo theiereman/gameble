@@ -3,7 +3,7 @@ class ButtonComponent < ViewComponent::Base
   SIZES = %i[default small].freeze
 
   def initialize(variant: :primary, href: nil, type: :button, method: nil, params: {}, turbo: true, confirm: nil,
-    size: :default, icon: nil, disabled: false, opens: nil, aria_label: nil, describedby: nil, rel: nil, name: nil, value: nil, aria_disabled: false, formaction: nil, turbo_frame: nil)
+    size: :default, icon: nil, disabled: false, opens: nil, aria_label: nil, describedby: nil, rel: nil, name: nil, value: nil, aria_disabled: false, formaction: nil, turbo_frame: nil, data: {})
     raise ArgumentError, "unknown button variant: #{variant.inspect}" unless VARIANTS.include?(variant)
     raise ArgumentError, "unknown button size: #{size.inspect}" unless SIZES.include?(size)
     raise ArgumentError, "a form button needs an href" if method && href.nil?
@@ -11,6 +11,7 @@ class ButtonComponent < ViewComponent::Base
     raise ArgumentError, "a dialog opener is a plain button" if opens && (href || disabled)
     raise ArgumentError, "only a plain or submit button carries a name and a value" if (name || value) && (href || method || opens)
     raise ArgumentError, "only a submit button carries a form action" if formaction && type != :submit
+    raise ArgumentError, "only a link carries data" if data.any? && (href.nil? || method) && !disabled
     raise ArgumentError, "only a plain or submit button can be aria-disabled" if aria_disabled && (href || method || opens || disabled)
 
     @variant = variant
@@ -32,6 +33,7 @@ class ButtonComponent < ViewComponent::Base
     @aria_disabled = aria_disabled
     @formaction = formaction
     @turbo_frame = turbo_frame
+    @data = data
   end
 
   private
@@ -62,6 +64,7 @@ class ButtonComponent < ViewComponent::Base
       data[:turbo] = false unless @turbo
       data[:turbo_confirm] = @confirm if @confirm
       data[:turbo_frame] = @turbo_frame if @turbo_frame
+      data.merge!(@data)
       data.empty? ? {} : { data: data }
     end
 end

@@ -77,4 +77,25 @@ class Game::Market::ArchiveOffersTest < ActiveSupport::TestCase
     assert_equal({ cards: 0, editions: 0 }, Game::Market::ArchiveOffers.count(settings:, locale: :en).to_h)
     assert_nil Game::Market::ArchiveOffers.find(settings:, card_season_id: @rare.id, locale: :en)
   end
+
+  test "the featured offers put the wanted card first, then the latest entrusted, then the edition, up to the limit" do
+    player = accounts_players(:player)
+    Game::Market::ArchiveDeposit.create!(player_id: player.id, card_season_id: @common.id, quantity: 4, updated_at: 3.days.ago)
+    Game::Market::ArchiveDeposit.create!(player_id: player.id, card_season_id: @rare.id, quantity: 1, updated_at: 1.day.ago)
+
+    featured = ->(**options) { Game::Market::ArchiveOffers.featured(settings: @settings, locale: :en, **options).map { it.card.title } }
+
+    assert_equal [ "Blue Depths", "Tin Soldier" ], featured.call(wanted_card_ids: [])
+    assert_equal [ "Tin Soldier", "Blue Depths" ], featured.call(wanted_card_ids: [ @common.card_id ])
+    assert_equal [ "Blue Depths" ], featured.call(wanted_card_ids: [], limit: 1)
+    assert_empty Game::Market::ArchiveOffers.featured(settings: open_market!, wanted_card_ids: [], locale: :en)
+  end
+
+  test "the offers of one game list its priced editions by price" do
+    offers = Game::Market::ArchiveOffers.for_card(settings: @settings, card_id: @rare.card_id, locale: :en)
+
+    assert_equal [ [ "Blue Depths", 500, 1 ] ], offers.map { [ it.card.title, it.price, it.stock ] }
+    assert_empty Game::Market::ArchiveOffers.for_card(settings: @settings, card_id: @uncommon.card_id, locale: :en)
+    assert_empty Game::Market::ArchiveOffers.for_card(settings: open_market!, card_id: @rare.card_id, locale: :en)
+  end
 end

@@ -1,4 +1,4 @@
-<%# locals: (card:, listings:) %>
+<%# locals: (card:, listings:, archive_offers: [], buyable: false) %>
 <%= render PanelComponent.new(tag: :section, class: "order-form__panel", aria: { labelledby: "order-form-available" }) do %>
   <h2 id="order-form-available" class="order-form__kicker"><%= t("market.orders.new.available_now") %></h2>
   <% if listings.any? %>
@@ -14,6 +14,25 @@
             <span><%= listing_time_left(listing_seconds_left(row.ends_at)) %></span>
           </p>
           <%= render ButtonComponent.new(variant: :link, href: market_listing_path(token: row.token), aria_label: order_listing_name(row)) do %><%= t("market.orders.new.see_listing") %><% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% elsif archive_offers.any? %>
+    <p class="order-form__lead"><%= t("market.orders.new.no_player_listing", card: card.title) %></p>
+    <ul class="order-listings">
+      <% archive_offers.each do |row| %>
+        <% amount = picoins(row.price) %>
+        <li class="order-listing order-archive">
+          <p class="order-listing__edition">
+            <%= t("market.orders.new.edition", rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number) %>
+            <span class="archive-offer__tag archive-offer__tag--archives"><%= t("market.orders.new.archives") %></span>
+          </p>
+          <p class="order-listing__facts"><span><%= t("market.orders.new.fixed") %> <span class="order-listing__price"><%= amount %></span></span></p>
+          <%= render ButtonComponent.new(variant: :secondary, size: :small, href: archive_offer_path(row.card, buyable: true), disabled: !buyable,
+                describedby: ("market-suspended-banner" unless buyable), turbo_frame: "archive-purchase", data: { action: "purchase-dialog#open" },
+                aria_label: t("market.orders.new.buy_label", card: card.title, rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, amount:)) do %>
+            <%= t("market.orders.new.buy", amount:) %>
+          <% end %>
         </li>
       <% end %>
     </ul>

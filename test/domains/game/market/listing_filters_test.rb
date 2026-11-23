@@ -132,4 +132,12 @@ class Game::Market::ListingFiltersTest < ActiveSupport::TestCase
     assert_empty Game::Market::OpenListings.call(sort: "ending", page: 1, locale: :en,
       filters: Game::Market::ListingFilters.from({ wanted: "1" })).rows
   end
+
+  test "a search naming one game finds its latest published edition, none or several find nothing" do
+    assert_equal catalog_card_seasons(:rare_card_one).id, filters(q: "blue depths").searched_card(:en)
+    assert_equal catalog_card_seasons(:rare_card_one).id, filters(q: "profondeurs").searched_card(:fr)
+    assert_nil filters(q: "o").searched_card(:en)
+    assert_nil filters(q: "nothing-matches").searched_card(:en)
+    assert_nil filters.searched_card(:en)
+  end
 end

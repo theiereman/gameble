@@ -41,6 +41,8 @@ module Market
         @minimums = Game::Market::SettingsRules::RARITIES.index_with { @settings.minimum_price(it) }
         @available = Game::Market::Balance.call(current_player).available
         @listings = Game::Market::CardListings.call(@detail.card_id, locale: I18n.locale)
+        @archive_offers = @listings.empty? ? Game::Market::ArchiveOffers.for_card(settings: @settings, card_id: @detail.card_id, locale: I18n.locale) : []
+        @buyable = @settings.open
         @best_order = Game::Market::BestVisibleOrder.call(@detail.card_id, viewer: current_player)
         @running = Game::Market::PlayerOrders.open_on(current_player, @detail.card_id)
         @goal = goal_marks.needs.find { it.missing_card_ids.include?(@detail.card_id) }

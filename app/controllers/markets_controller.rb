@@ -7,10 +7,12 @@ class MarketsController < ApplicationController
 
   def show
     authorize :market, :show?
-    state = Game::Market::MarketState.call
+    @settings = Game::Market::CurrentSettings.call
+    state = Game::Market::MarketState.call(@settings)
     return unless state.first_opened?
 
     @suspended = state.suspended?
+    @buyable = current_player.present? && state.open?
 
     @sort = params[:sort].presence_in(helpers.sort_options) || Game::Market::OpenListings::DEFAULT_SORT
     @page = params[:page].to_s.to_i.clamp(1, MAX_PAGE)
@@ -18,12 +20,13 @@ class MarketsController < ApplicationController
     @filters = Game::Market::ListingFilters.from(params, genres: @options.genres, seasons: @options.seasons, viewer: current_player,
       wanted_card_ids: wanted_card_ids)
     load_set_choices
-    @listings = Game::Market::OpenListings.call(sort: @sort, page: @page, locale: I18n.locale, filters: @filters)
+    @listings = Game::Market::MarketGrid.call(settings: @settings, sort: @sort, page: @page, locale: I18n.locale, filters: @filters)
     @marks = ListingMarks.for(current_player, @listings.rows, goal_marks, wanted_card_ids)
-    @stands = Game::Market::BidStands.call(current_player, tokens: @listings.rows.map(&:token))
+    @stands = Game::Market::BidStands.call(current_player, tokens: @listings.rows.grep(Game::Market::OpenListings::Row).map(&:token))
     respond_to do |format|
       format.html do
         load_desk
+        load_shop_panel
         load_found
         load_wanted_count
         render :screen
@@ -33,8 +36,23 @@ class MarketsController < ApplicationController
   end
 
   private
+    def load_shop_panel
+      @shop_count = Game::Market::ArchiveOffers.count(settings: @settings, locale: I18n.locale).cards
+      @shop_offers = Game::Market::ArchiveOffers.featured(settings: @settings, wanted_card_ids:, locale: I18n.locale)
+      @shop_marks = ListingMarks.for(current_player, @shop_offers, goal_marks, wanted_card_ids)
+    end
+
     def load_found
-      @found = Game::Market::OpenListings.count(locale: I18n.locale, filters: @filters) if @filters.any?
+      return unless @filters.any?
+
+      @found = Game::Market::OpenListings.count(locale: I18n.locale, filters: @filters)
+      @found_offers = Game::Market::MarketGrid.offers_count(settings: @settings, locale: I18n.locale, filters: @filters)
+      load_searched if @found.zero? && @filters.without_query.to_params.empty?
+    end
+
+    def load_searched
+      card_season_id = @filters.searched_card(I18n.locale)
+      @searched = Catalog::CardViews.call([ card_season_id ], locale: I18n.locale)[card_season_id] if card_season_id
     end
 
     def wanted_card_ids

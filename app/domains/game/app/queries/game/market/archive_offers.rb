@@ -37,14 +37,41 @@ module Game
         build(found, locale:).first
       end
 
+      # The panel's offers: the viewer's wanted cards first, then the latest entrusted.
+      def self.featured(settings:, wanted_card_ids:, locale:, limit: 4)
+        return [] if priced_tiers(settings).empty?
+
+        wanted = wanted_card_ids.any? ? ArchiveStock.sanitize_sql_array([ "catalog_card_seasons.card_id IN (?)", wanted_card_ids ]) : "FALSE"
+        found = offers(settings, ListingFilters.none, locale)
+          .order(Arel.sql("CASE WHEN #{wanted} THEN 0 ELSE 1 END, #{entrusted_day_sql} DESC NULLS LAST, game_market_archive_stocks.card_season_id ASC"))
+          .limit(limit).pluck(*columns(settings))
+        build(found, locale:)
+      end
+
+      def self.for_card(settings:, card_id:, locale:)
+        return [] if priced_tiers(settings).empty?
+
+        found = offers(settings, ListingFilters.none, locale).where(catalog_card_seasons: { card_id: })
+          .order(Arel.sql("#{price_sql(settings)} ASC, game_market_archive_stocks.card_season_id ASC")).pluck(*columns(settings))
+        build(found, locale:)
+      end
+
       def self.priced_rarities(settings) = SettingsRules::RARITIES.select { settings.archive_price(it) }.map(&:to_s)
 
       def self.priced_tiers(settings) = Catalog::Rarity::TIERS.select { |_tier, rarity| settings.archive_price(rarity) }
 
+      # The priced stock under the filters; price bounds apply to the fixed price, and hiding one's own sales leaves offers in.
       def self.offers(settings, filters, locale)
         stocks = ArchiveStock.joins("JOIN catalog_card_seasons ON catalog_card_seasons.id = game_market_archive_stocks.card_season_id")
           .where("catalog_card_seasons.rarity IN (?)", priced_tiers(settings).keys)
-        filters.apply(stocks, locale:)
+        stocks = stocks.where("#{price_sql(settings)} >= ?", filters.min_price) if filters.min_price
+        stocks = stocks.where("#{price_sql(settings)} <= ?", filters.max_price) if filters.max_price
+        filters.with(min_price: nil, max_price: nil, hidden_seller: nil).apply(stocks, locale:)
+      end
+
+      def self.entrusted_day_sql
+        "(SELECT date_trunc('day', MAX(d.updated_at)) FROM game_market_archive_deposits d " \
+          "WHERE d.card_season_id = game_market_archive_stocks.card_season_id)"
       end
 
       def self.columns(settings)
@@ -64,7 +91,7 @@ module Game
         end
       end
 
-      private_class_method :priced_tiers, :offers, :columns, :price_sql, :build
+      private_class_method :priced_tiers, :columns, :build
     end
   end
 end

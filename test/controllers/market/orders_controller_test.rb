@@ -255,4 +255,44 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_market_card_order_path(locale: :en, slug: "tin-soldier")
   end
+
+  test "with no listing, the form lists the Archives' editions of the game, each opening the purchase confirmation" do
+    open_market!(first_opened_at: 1.day.ago, archive_price_rare: 500)
+    Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
+    sign_in(@player)
+
+    get new_market_card_order_path(locale: :fr, slug: "blue-depths")
+
+    assert_select ".order-form__lead", "Aucune annonce de joueur pour Profondeurs bleues."
+    assert_select ".order-archive .order-listing__edition", /Rare · S1\s+ARCHIVES/
+    assert_select ".order-archive .order-listing__facts", /prix fixe\s+500/
+    assert_select ".order-archive a.button[href=?][data-turbo-frame=archive-purchase][data-action='purchase-dialog#open'][aria-label=?]",
+      new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1),
+      "Acheter aux Archives, Profondeurs bleues Rare saison 1, 500 PiCoins", text: "ACHETER · 500"
+    assert_select ".order-form[data-controller=purchase-dialog] dialog#archive-purchase-dialog"
+  end
+
+  test "a game with an open listing shows the listing and no Archives line" do
+    open_market!(first_opened_at: 1.day.ago, archive_price_rare: 500)
+    Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
+    listing!(seller: accounts_players(:moderator), card_season: catalog_card_seasons(:rare_card_one))
+    sign_in(@player)
+
+    get new_market_card_order_path(locale: :fr, slug: "blue-depths")
+
+    assert_select ".order-listing", 1
+    assert_select ".order-archive", 0
+    assert_select "dialog#archive-purchase-dialog", 0
+  end
+
+  test "a suspended market keeps the Archives lines with ACHETER disabled" do
+    close_market!(first_opened_at: 1.day.ago, archive_price_rare: 500)
+    Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
+    sign_in(@player)
+
+    get new_market_card_order_path(locale: :fr, slug: "blue-depths")
+
+    assert_select ".order-archive button.button[disabled]", "ACHETER · 500"
+    assert_select "dialog#archive-purchase-dialog", 0
+  end
 end

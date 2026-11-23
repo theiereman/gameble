@@ -3747,6 +3747,11 @@ en:
         listing_name: "See the listing, %{rarity} season %{season}, sold by %{name}, %{amount} PiCoins"
         my_orders: MY ORDERS
         no_best_order: none
+        no_player_listing: No player listing for %{card}.
+        archives: ARCHIVES
+        fixed: fixed price
+        buy: "BUY · %{amount}"
+        buy_label: Buy from the Archives, %{card} %{rarity} season %{season}, %{amount} PiCoins
         nobody: "Nobody is selling %{card} right now. A player who has one will see your price when selling or entrusting it."
         price: MY PRICE
         reached: RARITIES REACHED
@@ -3935,6 +3940,15 @@ en:
         status: You receive %{amount} PiCoins
         step: "Step %{step} of 2"
   markets:
+    shop_panel:
+      heading: THE BROTHERHOOD'S SHOP
+      count:
+        one: "%{count} card in the Archives"
+        other: "%{count} cards in the Archives"
+      line: The Archives resell entrusted cards at a fixed price.
+      list_label: Featured Archive cards
+      see_all: See the whole shop ▸
+      see_all_label: See the whole shop of the Brotherhood
     wanted:
       heading: YOUR WANTED CARDS
       empty: None of your cards is wanted right now.
@@ -4012,6 +4026,15 @@ en:
       sell_short: SELL
       soon_heading: ENDING SOON
       soon_label: Listings ending within the hour
+      found_listings:
+        one: "%{number} listing"
+        other: "%{number} listings"
+      found_archives:
+        one: "%{number} Archive card"
+        other: "%{number} Archive cards"
+      no_listing: No listing for %{card}.
+      no_player_listing: No player listing for %{card}.
+      place_order: PLACE AN ORDER
       soon_note: within the hour
       sort_prefix: "Sort:"
       sorts_label: Sort the listings

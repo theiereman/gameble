@@ -2775,6 +2775,11 @@ fr:
         listing_name: "Voir l'annonce, %{rarity} saison %{season}, vendue par %{name}, %{amount} PiCoins"
         my_orders: "MES ORDRES"
         no_best_order: "aucun"
+        no_player_listing: "Aucune annonce de joueur pour %{card}."
+        archives: "ARCHIVES"
+        fixed: "prix fixe"
+        buy: "ACHETER · %{amount}"
+        buy_label: "Acheter aux Archives, %{card} %{rarity} saison %{season}, %{amount} PiCoins"
         nobody: "Personne ne vend %{card} pour le moment. Un joueur qui en a un verra votre prix en le vendant ou en le confiant."
         price: "MON PRIX"
         reached: "RARETÉS ATTEINTES"
@@ -2970,6 +2975,16 @@ fr:
         status: "Vous recevez %{amount} PiCoins"
         step: "Étape %{step} sur 2"
   markets:
+    shop_panel:
+      heading: "BOUTIQUE DE LA CONFRÉRIE"
+      count:
+        zero: "%{count} carte aux Archives"
+        one: "%{count} carte aux Archives"
+        other: "%{count} cartes aux Archives"
+      line: "Les Archives revendent les cartes confiées, à prix fixe."
+      list_label: "Cartes à la une des Archives"
+      see_all: "Voir toute la boutique ▸"
+      see_all_label: "Voir toute la boutique de la Confrérie"
     wanted:
       heading: "VOS CARTES VOULUES"
       empty: "Aucune de vos cartes n'est voulue pour le moment."
@@ -3014,6 +3029,17 @@ fr:
       soon_heading: "SE TERMINE BIENTÔT"
       soon_note: "dans l'heure"
       soon_label: "Annonces qui se terminent dans l'heure"
+      found_listings:
+        zero: "%{number} annonce"
+        one: "%{number} annonce"
+        other: "%{number} annonces"
+      found_archives:
+        zero: "%{number} carte des Archives"
+        one: "%{number} carte des Archives"
+        other: "%{number} cartes des Archives"
+      no_listing: "Aucune annonce pour %{card}."
+      no_player_listing: "Aucune annonce de joueur pour %{card}."
+      place_order: "PASSER UN ORDRE"
       desk:
         listings:
           zero: "Aucune annonce en cours."

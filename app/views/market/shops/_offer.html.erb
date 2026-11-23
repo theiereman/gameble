@@ -1,8 +1,8 @@
-<%# locals: (row:, marks: ListingMarks::NONE, buyable: false, stock: true) %>
+<%# locals: (row:, marks: ListingMarks::NONE, buyable: false, stock: true, size: :m, tile_id: true) %>
 <% card = row.card %>
 <% mark = marks.for(card) %>
 <% wanted = marks.any? && mark.wanted? %>
-<li id="<%= archive_offer_dom_id(card) %>" class="listing-tile archive-offer">
+<%= tag.li id: (archive_offer_dom_id(card) if tile_id), class: "listing-tile archive-offer" do %>
   <%= link_to archive_offer_path(card, buyable:), class: "listing-tile__link archive-offer__link",
         aria: { label: archive_offer_label(row, wanted:, buyable:, stock:) },
         data: (buyable ? { turbo_frame: "archive-purchase", action: "purchase-dialog#open" } : {}) do %>
@@ -11,7 +11,7 @@
         <span class="archive-offer__tag archive-offer__tag--archives"><%= t("market.shops.offer.archives") %></span>
         <% if wanted %><span class="archive-offer__tag archive-offer__tag--wanted"><%= t("market.shops.offer.wanted") %></span><% end %>
       </span>
-      <%= render CardComponent.new(card:, size: :m, goals: mark.goal_numbers) %>
+      <%= render CardComponent.new(card:, size:, goals: mark.goal_numbers) %>
     </span>
     <span class="listing-tile__facts" aria-hidden="true">
       <span class="listing-tile__line">
@@ -22,4 +22,4 @@
       <% if buyable %><span class="listing-tile__line archive-offer__buy"><%= t("market.shops.offer.buy") %></span><% end %>
     </span>
   <% end %>
-</li>
+<% end %>

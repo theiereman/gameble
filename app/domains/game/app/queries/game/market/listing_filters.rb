@@ -80,6 +80,17 @@ module Game
         about_cards? ? listings.where(card_season_id: card_seasons(locale).select(:id)) : listings
       end
 
+      # The latest published edition of the one game the search names, or nil when it names none or several.
+      def searched_card(locale)
+        return if query.blank?
+
+        editions = Catalog::CardSeason.where.not(rarity: nil).where(season_id: Catalog::Season.published.select(:id)).where(title_match(locale))
+        card_ids = editions.distinct.limit(2).pluck(:card_id)
+        return unless card_ids.one?
+
+        editions.where(card_id: card_ids.first).joins(:season).order(Catalog::Season.arel_table[:number].desc).pick(:id)
+      end
+
       def with(**changes)
         self.class.new(**{ query:, rarities:, sets:, genres:, seasons:, min_price:, max_price:, hidden_seller:, wanted_card_ids: }.merge(changes))
       end
