@@ -28,5 +28,5 @@
     </ul>
   <% end %>
   <%= render "market/shops/pages", offers: @offers, sort: @sort, page: @page, filters: @filters %>
-  <%= render "market/shops/dialog" if @buyable %>
+  <%= render "shell/purchase_dialog", frame: "archive-purchase", loading: t("market.shops.dialog.loading") if @buyable %>
 <% end %>

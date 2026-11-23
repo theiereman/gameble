@@ -26,5 +26,5 @@
   <% if !decks.room_left? && !offer %>
     <p class="duel-decks__full"><%= Game::CreateDeck.failure_message(:too_many_decks) %></p>
   <% end %>
-  <%= render "slot_purchases/dialog" if offer %>
+  <%= render "shell/purchase_dialog", frame: "slot-purchase", target: "_top", loading: t("slot_purchases.dialog.loading") if offer %>
 <% end %>

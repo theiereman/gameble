@@ -44,5 +44,5 @@
     </button>
   <% end %>
   <%= render "custom_sets/editor", open: flash[:slot_bought] == "custom_set" if room %>
-  <%= render "slot_purchases/dialog" if offer %>
+  <%= render "shell/purchase_dialog", frame: "slot-purchase", target: "_top", loading: t("slot_purchases.dialog.loading") if offer %>
 </section>

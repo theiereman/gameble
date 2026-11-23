@@ -27,5 +27,5 @@
       <% end %>
     <% end %>
   </div>
-  <%= render "market/shops/dialog" if @buyable && @archive_offers.any? %>
+  <%= render "shell/purchase_dialog", frame: "archive-purchase", loading: t("market.shops.dialog.loading") if @buyable && @archive_offers.any? %>
 <% end %>
