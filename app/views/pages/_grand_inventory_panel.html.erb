@@ -5,7 +5,7 @@
 <%= render PanelComponent.new(tag: :section, class: "grand-inventory-panel hub-linked", aria: { labelledby: "grand-inventory-panel-title" }) do %>
   <div class="grand-inventory-panel__head">
     <h2 id="grand-inventory-panel-title" class="hub-section-title">
-      <%= link_to grand_inventory_path, class: "hub-linked__link" do %><%= t("pages.home.grand_inventory.title") %>&#8288;<%= pixel_icon("arrow-small-right", class: "hub-linked__arrow") %><% end %>
+      <%= link_to grand_inventory_path, class: "hub-linked__link" do %><%= t("pages.home.grand_inventory.title") %><%= pixel_icon("arrow-small-right", class: "hub-linked__arrow") %><% end %>
     </h2>
     <span class="grand-inventory-panel__count" aria-hidden="true"><%= number_with_delimiter(found) %> / <%= number_with_delimiter(total) %></span>
     <span class="visually-hidden"><%= t("pages.home.grand_inventory.spoken", count: found, found: number_with_delimiter(found), total: number_with_delimiter(total)) %></span>
