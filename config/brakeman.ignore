@@ -1,0 +1,120 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "642fcaa137fd21cbce6e03818f5eedb6552964b6f05d5606f50c1b34e309c6c4",
+      "note": "The only interpolated fragment is price_sql: tier numbers from a constant and prices cast with Integer(); every filter value is bound.",
+      "warning_type": "SQL Injection",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domains/game/app/queries/game/market/archive_offers.rb",
+      "line": 67,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "ArchiveStock.joins(\"JOIN catalog_card_seasons ON catalog_card_seasons.id = game_market_archive_stocks.card_season_id\").where(\"catalog_card_seasons.rarity IN (?)\", priced_tiers(settings).keys).where(\"#{price_sql(settings)} >= ?\", filters.min_price)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Game::Market::ArchiveOffers",
+        "method": "self.offers"
+      },
+      "user_input": "price_sql(settings)",
+      "confidence": "Weak"
+    },
+    {
+      "fingerprint": "944633a346fbddb145b09a9ce6d138fb77e45a95558727d147b2b4fa3feb3f3c",
+      "note": "reaching raises unless the rarity is one of the known rarity names, so only a column name is interpolated.",
+      "warning_type": "SQL Injection",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domains/game/app/models/game/market/order.rb",
+      "line": 20,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "joins(:settings).where(\"game_market_settings.minimum_price_#{rarity} <= game_market_orders.price\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Order",
+        "method": null
+      },
+      "user_input": "rarity",
+      "confidence": "Weak"
+    },
+    {
+      "fingerprint": "9ec4a8964145842d6cfaaf1c0d96abdcea1ff1f15b12cb6919c16deca2f764aa",
+      "note": "The only interpolated fragment is price_sql: tier numbers from a constant and prices cast with Integer(); every filter value is bound.",
+      "warning_type": "SQL Injection",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domains/game/app/queries/game/market/archive_offers.rb",
+      "line": 68,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "ArchiveStock.joins(\"JOIN catalog_card_seasons ON catalog_card_seasons.id = game_market_archive_stocks.card_season_id\").where(\"catalog_card_seasons.rarity IN (?)\", priced_tiers(settings).keys).where(\"#{price_sql(settings)} >= ?\", filters.min_price).where(\"#{price_sql(settings)} <= ?\", filters.max_price)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Game::Market::ArchiveOffers",
+        "method": "self.offers"
+      },
+      "user_input": "price_sql(settings)",
+      "confidence": "Weak"
+    },
+    {
+      "fingerprint": "d92ff685da56101600eeab2e59e7286eef5144249cf699bd1a3e7c078a820466",
+      "note": "reaching raises unless the rarity is one of the known rarity names, so only a column name is interpolated.",
+      "warning_type": "SQL Injection",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domains/game/app/models/game/market/order.rb",
+      "line": 20,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "joins(:settings).where(\"game_market_settings.minimum_price_#{rarity} <= game_market_orders.price\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Game::Market::Order",
+        "method": "reaching"
+      },
+      "user_input": "rarity",
+      "confidence": "Weak"
+    },
+    {
+      "fingerprint": "ef9b0753b0e34c1255fee14cf10b8b05eaef0cff75f68d869721bba89d603e33",
+      "note": "Both subqueries are relations rendered with to_sql, which quotes their bound values; filters accept only listed rarities, genres and seasons, integers and cut text.",
+      "warning_type": "SQL Injection",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domains/game/app/queries/game/market/market_grid.rb",
+      "line": 19,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Listing.from(\"(#{listings_sql(filters, locale)} UNION ALL #{offers_sql(settings, filters, locale)}) AS game_market_listings\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Game::Market::MarketGrid",
+        "method": "self.call"
+      },
+      "user_input": "listings_sql(filters, locale)",
+      "confidence": "Weak"
+    },
+    {
+      "fingerprint": "f887412a5c5ed81101542dc2d86bf94783462a5ebd39e4f0f831f1d00790c341",
+      "note": "ListingFilters.from keeps only listed rarities, genres and seasons, integers and a cut text, and the SQL it feeds binds every value.",
+      "warning_type": "SQL Injection",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/market/shops_controller.rb",
+      "line": 39,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Game::Market::ListingFilters.from(params.slice(:q, :rarity, :season, :wanted), :seasons => Game::Market::ListingFilterOptions.call.seasons, :wanted_card_ids => wanted_card_ids)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Market::ShopsController",
+        "method": "load_filters"
+      },
+      "user_input": "params.slice(:q, :rarity, :season, :wanted)",
+      "confidence": "Medium"
+    }
+  ],
+  "brakeman_version": "8.1.1",
+  "updated": "2026-11-23"
+}

@@ -1,6 +1,6 @@
 # Development image: Ruby and Node only, the code is mounted from the host.
 # Used by compose.dev.yaml, see the comment there.
-ARG RUBY_VERSION=4.0.7
+ARG RUBY_VERSION=4.0.10
 FROM docker.io/library/ruby:$RUBY_VERSION-slim
 
 RUN apt-get update -qq && \

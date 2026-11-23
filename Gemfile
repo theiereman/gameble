@@ -56,7 +56,7 @@ gem "dry-operation", "~> 1.1.0"
 gem "rails_event_store", "~> 3.2.0"
 
 # Build the shared view parts as tested components (AD-16) [https://viewcomponent.org]
-gem "view_component", "~> 4.23.0"
+gem "view_component", "~> 4.24.0"
 
 # Pick the first-visit locale from the browser's Accept-Language (AD-18) [https://github.com/iain/http_accept_language]
 gem "http_accept_language", "~> 2.1.1"
@@ -65,7 +65,7 @@ gem "http_accept_language", "~> 2.1.1"
 gem "pagy", "~> 43.8.2"
 
 # Sign in with Steam over OpenID 2.0, POST-only and CSRF-protected (AD-14) [https://github.com/omniauth/omniauth]
-gem "omniauth", "~> 2.3.1"
+gem "omniauth", "~> 2.4.1"
 gem "omniauth-openid", "~> 2.0.2"
 gem "omniauth-rails_csrf_protection", "~> 2.0.1"
 # ruby-openid needs REXML, which Ruby 4 no longer bundles
@@ -90,7 +90,7 @@ gem "faraday", "~> 2.15.1"
 gem "faraday-retry", "~> 2.4.0"
 
 # Translate and condense release notes in the back office [https://github.com/anthropics/anthropic-sdk-ruby]
-gem "anthropic", "~> 2.7.0"
+gem "anthropic", "~> 2.9.0"
 
 # Read the initiative's epics from its TOML ticket file to create the roadmap milestones [https://github.com/fbernier/tomlrb]
 gem "tomlrb", "~> 3.0.0"
