@@ -88,7 +88,7 @@ export default class WantedTableController extends Controller<HTMLFormElement> {
     if (
       event.key !== "Escape" ||
       !this.state ||
-      document.querySelector("dialog[open], :popover-open") ||
+      document.querySelector("dialog[open], [popover]:not([popover=manual]):popover-open") ||
       !pending(this.state)
     )
       return

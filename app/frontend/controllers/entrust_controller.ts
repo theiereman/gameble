@@ -96,7 +96,12 @@ export default class EntrustController extends Controller<HTMLElement> {
 
   // Esc here closes an overlay and nothing else: it never clears the ticks nor leaves the screen.
   private readonly guardEscape = (event: KeyboardEvent): void => {
-    if (event.key !== "Escape" || !this.state || document.querySelector("dialog[open], :popover-open")) return
+    if (
+      event.key !== "Escape" ||
+      !this.state ||
+      document.querySelector("dialog[open], [popover]:not([popover=manual]):popover-open")
+    )
+      return
     if (Object.keys(this.state.ticked).length === 0) return
     event.preventDefault()
     event.stopPropagation()

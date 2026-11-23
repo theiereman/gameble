@@ -71,7 +71,7 @@ module BackOffice
       end
       assert_select "tr[data-signal=archive_purchase_of_tied_deposit][data-account-token='#{@bob.token}']" do
         assert_select "td", "Archive purchase of a tied account's deposit"
-        assert_select "td", /Bought portal \(season 2\) from the Archives for 500 PiCoins.*Copies entrusted: 3, last on 2026-11-02/
+        assert_select "td", /Bought portal \(season 2\) from the Archives for 500 PiCoins.*Copies entrusted: 3, last on November 2, 2026/
         assert_select "a[href='/en/back-office/players?player=#{@alice.token}']"
       end
 
