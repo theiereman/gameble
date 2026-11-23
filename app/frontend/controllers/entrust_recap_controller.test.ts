@@ -219,20 +219,6 @@ describe("the submit button", () => {
   })
 })
 
-describe("the set-apart copies", () => {
-  const setApartLine = { ref: "a:1", rarity: "rare", label: "A, season 1", seekers: "1 player wants it" }
-
-  it("says how many set-apart lines the recap leaves out, and nothing once they all fit", () => {
-    recap.render(
-      view({ setApart: { heading: "SET ASIDE · 31 WANTED CARDS", lines: [setApartLine], more: "and 1 more" } }),
-    )
-    expect(document.getElementById("set-apart-more")!.hidden).toBe(false)
-    expect(document.getElementById("set-apart-more")!.textContent).toBe("and 1 more")
-    recap.render(view({ setApart: { heading: "SET ASIDE · 1 WANTED CARD", lines: [setApartLine], more: null } }))
-    expect(document.getElementById("set-apart-more")!.hidden).toBe(true)
-  })
-})
-
 describe("the lines", () => {
   it("draws the amount of a line from the server's amount, in its accessible form", () => {
     recap.render(view())
@@ -533,7 +519,16 @@ describe("the copies set apart", () => {
       { ref: "pyre:1", rarity: "rare", label: "Pyre, season 1", seekers: "1 player wants it" },
       { ref: "hades:1", rarity: "epic", label: "Hades, season 1", seekers: "2 players want it" },
     ],
+    more: null,
   }
+
+  it("says how many set-apart lines it leaves out, and nothing once they all fit", () => {
+    recap.render(view({ setApart: { ...setApart, more: "and 1 more" } }))
+    expect(document.getElementById("set-apart-more")!.hidden).toBe(false)
+    expect(document.getElementById("set-apart-more")!.textContent).toBe("and 1 more")
+    recap.render(view({ setApart }))
+    expect(document.getElementById("set-apart-more")!.hidden).toBe(true)
+  })
 
   it("names each wanted card under its heading, and hides once none is left", () => {
     recap.render(view({ setApart }))
