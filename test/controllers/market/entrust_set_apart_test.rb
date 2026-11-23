@@ -91,6 +91,31 @@ class Market::EntrustSetApartTest < ActionDispatch::IntegrationTest
     assert_select ".wanted-strip .entrust-result__stayed-line", /saison 1 : 2 exemplaires restent dans votre collection/
   end
 
+  test "a rest the cap lets only part through names, on the next step, the copies left over" do
+    @settings = open_market!(daily_cap: 60)
+    hold(@player, @rare.id, 2)
+    hold(@player, @common.id, 3)
+
+    entrust(ref(@rare) => 2, ref(@common) => 3)
+
+    assert_equal [ 1, 1 ], [ deposited(@rare), deposited(@common) ]
+    follow_redirect!
+    assert_select ".wanted-strip__first", "Les 2 autres exemplaires sont déjà confiés : 60 PiCoins fabriqués."
+    assert_select ".wanted-strip .entrust-result__stayed-line", /saison 1 : 2 exemplaires restent dans votre collection/
+  end
+
+  test "a table gone before it opens leads to the market, saying what the first step entrusted" do
+    hold(@player, @rare.id, 2)
+    hold(@player, @common.id, 3)
+
+    entrust(ref(@rare) => 2, ref(@common) => 3)
+    Game::Holding.where(player_id: @player.id, card_season_id: @rare.id).update_all("reserved = quantity")
+    follow_redirect!
+
+    assert_redirected_to market_path(locale: :fr)
+    assert_equal "Les 4 autres exemplaires sont déjà confiés : 80 PiCoins fabriqués.", flash[:notice]
+  end
+
   test "a refused rest sets nothing apart and redraws Confier" do
     hold(@player, @rare.id, 1)
     hold(@player, @common.id, 1)

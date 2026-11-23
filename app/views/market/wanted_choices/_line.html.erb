@@ -40,7 +40,7 @@
       <%= render SegmentedComponent.new(name: "lines[#{index}][choice]", id: "#{id}-choice", vertical_on_phone: true,
             label: t("market.wanted_choices.new.group", card: name.title, rarity: rarity_name.downcase, season: name.season_number),
             describedby: [ ("wanted-dock-refusal #{id}-changed" if changed), ("#{id}-no-order" unless order) ].compact.join(" ").presence,
-            options: wanted_choice_options(line, choice: (posted&.choice unless changed), note_id: "#{id}-auction-note")) %>
+            options: wanted_choice_options(line, choice: (posted&.choice unless changed || (posted&.choice == "order" && order.nil?)), note_id: "#{id}-auction-note")) %>
       <span id="<%= id %>-auction-note" class="visually-hidden"><%= t("market.wanted_choices.new.auction_note") %></span>
     </td>
     <td class="wanted-line__receive">

@@ -1,5 +1,5 @@
 module Market
-  # Confier's second step: one line per wanted copy set apart, sold to an order, put up at auction or entrusted in one validation.
+  # The entrusting screen's second step: one line per wanted copy set apart, sold to an order, put up at auction or entrusted in one validation.
   class WantedChoicesController < ApplicationController
     Posted = Data.define(:ref, :copies, :choice, :orders, :starting_price, :duration_hours)
 
@@ -11,7 +11,7 @@ module Market
     def new
       authorize %i[market wanted_choice], :new?
       load_table
-      return redirect_to(market_path, status: :see_other) if @lines.empty?
+      return redirect_to(market_path, status: :see_other, notice: entrusted_first_notice) if @lines.empty?
 
       @first = first_step(flash[:entrusted_first])
       @focus = "market-wanted-heading"
@@ -45,6 +45,11 @@ module Market
         pairs = posted_selection.split(EntrustmentsController::SELECTION_SEPARATOR).filter_map { EntrustmentsController::SELECTION_PAIR.match(it)&.captures }
         ids = Game::Market::EntrustableCopies.resolve(pairs.map(&:first))
         pairs.each_with_object(Hash.new(0)) { |(ref, copies), counts| counts[ids[ref]] += copies.to_i if ids.key?(ref) }
+      end
+
+      def entrusted_first_notice
+        entrusted = flash[:entrusted_first]
+        t("market.wanted_choices.new.first", count: entrusted["copies"].to_i, amount: helpers.picoins(entrusted["minted"].to_i)) if entrusted.is_a?(Hash)
       end
 
       def first_step(entrusted)
@@ -104,7 +109,7 @@ module Market
       end
 
       def refuse_choices(code, details = [])
-        return redirect_to(market_path, status: :see_other) if @lines.empty?
+        return redirect_to(market_path, status: :see_other, alert: Game::Market::ApplyWantedChoices.failure_message(code)) if @lines.empty?
 
         @posted = posted_lines.index_by(&:ref)
         case code
@@ -117,12 +122,18 @@ module Market
       end
 
       def flag_changed(changes)
-        @changed = changes.filter_map { |change| (line = posted_lines[change.line]) && [ line.ref, changed_reason(line, change.order) ] }.to_h
+        @changed = changes.filter_map { |change| (line = posted_lines[change.line]) && drawn?(line.ref) && [ line.ref, changed_reason(line, change.order) ] }.to_h
         titles = @changed.keys.filter_map { @names[posted_ids[it]]&.title }
-        @dock_refusal = t("market.wanted_choices.new.changed", count: @changed.size, cards: titles.join(", "))
+        @dock_refusal = if @changed.any?
+          t("market.wanted_choices.new.changed", count: @changed.size, cards: titles.join(", "))
+        else
+          Game::Market::ApplyWantedChoices.failure_message(:best_order_changed)
+        end
         first = @lines.index { @changed.key?(it.ref) }
         @focus = "wanted-line-#{first}-choice" if first
       end
+
+      def drawn?(ref) = @lines.any? { it.ref == ref }
 
       def changed_reason(line, order)
         return t("market.wanted_choices.new.served_none_left") if order.nil?
@@ -142,7 +153,7 @@ module Market
         @field_refusals = {}
         refusals.each do |refusal|
           ref = posted_lines[refusal.line]&.ref
-          next if refusal.code == :stamp_not_covered || ref.nil?
+          next if refusal.code == :stamp_not_covered || !rarities.key?(ref)
 
           @field_refusals[[ ref, PRICE_FIELDS.fetch(refusal.code, :line) ]] ||= refusal_message(refusal, rarities[ref])
         end
@@ -151,10 +162,8 @@ module Market
       end
 
       def refusal_message(refusal, rarity)
-        values = { amount: (helpers.picoins(refusal.amount) if refusal.amount), rarity: (helpers.sale_rarity_name(rarity) if rarity) }.compact
+        values = refusal.code == :start_below_minimum ? { amount: helpers.picoins(refusal.amount), rarity: helpers.sale_rarity_name(rarity) } : {}
         Game::Market::ApplyWantedChoices.failure_message(refusal.code, **values)
-      rescue I18n::MissingInterpolationArgument
-        Game::Market::ApplyWantedChoices.failure_message(:invalid_choices)
       end
 
       def fields_dock_line(refusals)
@@ -163,6 +172,7 @@ module Market
         [ (t("market.wanted_choices.new.to_fix", count: to_fix) if to_fix.positive?),
           (t("market.wanted_choices.new.stamps_short", amount: helpers.picoins(short.amount)) if short&.amount&.positive?),
           (Game::Market::ApplyWantedChoices.failure_message(:invalid_choices) if @field_refusals.keys.any? { |_, field| field == :line }) ].compact.join(" ")
+          .presence || Game::Market::ApplyWantedChoices.failure_message(:invalid_choices)
       end
 
       def first_invalid_field

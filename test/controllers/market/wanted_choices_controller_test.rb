@@ -81,6 +81,16 @@ class Market::WantedChoicesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to market_path(locale: :fr)
   end
 
+  test "a refusal whose table is gone meanwhile leads to the market with the refusal" do
+    sign_in(@player)
+    Game::Holding.where(player_id: @player.id).update_all("reserved = quantity")
+
+    nothing_moves { validate([ line(@rare, "entrust") ], selected: [ @rare ]) }
+
+    assert_redirected_to market_path(locale: :fr)
+    assert_equal "Certains choix sont à corriger. Rien n'a été vendu, mis en vente ni confié.", flash[:alert]
+  end
+
   test "the table draws each line, best order first, with tokens and no database id, and a GET writes nothing" do
     Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 1_000, sales_used: 5)
     sign_in(@player)
@@ -170,6 +180,45 @@ class Market::WantedChoicesControllerTest < ActionDispatch::IntegrationTest
     short = @settings.stamp(:rare) + @settings.stamp(:uncommon)
     assert_select "#wanted-dock-refusal", "1 prix à corriger. Il vous manque #{short} PiCoins pour les timbres des enchères."
     assert_select "form[data-wanted-table-focus-value=wanted-line-0-start]"
+  end
+
+  test "a refused line the table no longer draws is neither flagged nor counted" do
+    sign_in(@player)
+
+    nothing_moves do
+      validate([ line(@rare, "entrust"), line(@common, "auction", price: "abc", hours: "24") ], selected: [ @rare ])
+    end
+
+    assert_response :unprocessable_content
+    assert_select ".wanted-line", 1
+    assert_select ".wanted-line__refusal, .wanted-auction [aria-invalid=true]", false
+    assert_select "#wanted-dock-refusal", "Certains choix sont à corriger. Rien n'a été vendu, mis en vente ni confié."
+  end
+
+  test "an order served meanwhile on a line the table no longer draws flags no line" do
+    sign_in(@player)
+    @order.update_columns(status: "withdrawn")
+
+    nothing_moves do
+      validate([ line(@rare, "order", orders: [ @order.token ]), line(@common, "entrust") ], selected: [ @common ])
+    end
+
+    assert_response :unprocessable_content
+    assert_select ".wanted-line--changed", false
+    assert_select "#wanted-dock-refusal", "Cet ordre d'achat vient d'être servi. Vérifiez le nouveau meilleur ordre, puis validez de nouveau."
+  end
+
+  test "a posted order choice on a line with no order is redrawn unchosen" do
+    sign_in(@player)
+
+    nothing_moves do
+      validate([ line(@uncommon, "auction", price: "abc", hours: "24"), line(@common, "order") ], selected: [ @common, @uncommon ])
+    end
+
+    assert_response :unprocessable_content
+    assert_select ".wanted-line[data-ref='#{ref(@common)}'] [id$='-choice'] input[value=order][disabled]"
+    assert_select ".wanted-line[data-ref='#{ref(@common)}'] [id$='-choice'] input[checked]", false
+    assert_select ".wanted-line[data-ref='#{ref(@uncommon)}'] [id$='-choice'] input[value=auction][checked]"
   end
 
   test "a stale settings version redraws the table and keeps the choices" do
