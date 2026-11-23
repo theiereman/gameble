@@ -1,6 +1,6 @@
 module Game
   module Market
-    # The Confier wanted table: the set-apart copies still free, one line per edition, best order first, then the most seekers,
+    # The wanted table: the set-apart copies still free, one line per edition, best order first, then the most seekers,
     # the highest entrustment value and the ref; each line is drawn the orders its copies serve, in that order, each order once.
     module WantedTable
       Line = Data.define(:card_season_id, :ref, :rarity, :copies, :seekers, :orders, :price, :value, :minimum, :stamp)
@@ -19,7 +19,9 @@ module Game
             seekers: counts[[ card_id, rarity.to_s ]], orders: [], price: prices.fetch(id, EditionPrices::NO_SALE), value: settings.entrustment(rarity),
             minimum: settings.minimum_price(rarity), stamp: settings.stamp(rarity))
         end
-        assign_orders(lines.sort_by { [ best[it.card_season_id] ? -best[it.card_season_id].price : 1, -it.seekers, -it.value, it.ref ] }, player, now)
+        sorted = lines.sort_by { [ best[it.card_season_id] ? -best[it.card_season_id].price : 1, -it.seekers, -it.value, it.ref ] }
+        drawn = EligibleOrders.draw(sorted.map { [ it.card_season_id, it.copies ] }, except: player.id, now:)
+        sorted.zip(drawn).map { |line, orders| line.with(orders:) }
       end
 
       def self.free_editions(player, copies)
@@ -32,17 +34,6 @@ module Game
             Arel.sql("game_holdings.quantity - game_holdings.reserved"))
       end
       private_class_method :free_editions
-
-      # The operation's greedy draw: each line takes the best orders no earlier line took, one per copy.
-      def self.assign_orders(lines, player, now)
-        assigned = []
-        lines.map do |line|
-          orders = EligibleOrders.call(line.card_season_id, except: player.id, now:).where.not(id: assigned).limit(line.copies).to_a
-          assigned.concat(orders.map(&:id))
-          line.with(orders:)
-        end
-      end
-      private_class_method :assign_orders
     end
   end
 end

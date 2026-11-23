@@ -1,6 +1,6 @@
 module Game
   module Market
-    # The ANNONCES grid: open listings and the Archives' priced stock in one order, so every page continues the one before.
+    # The listings grid: open listings and the Archives' priced stock in one order, so every page continues the one before.
     module MarketGrid
       PER_PAGE = 24
       LISTING = 0

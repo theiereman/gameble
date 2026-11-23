@@ -1,6 +1,6 @@
 module Game
   module Market
-    # The Confier wanted table in one validation: each line's copies sold to the orders the table drew, put up at auction or entrusted,
+    # The wanted table in one validation: each line's copies sold to the orders the table drew, put up at auction or entrusted,
     # all or nothing, in one ledger post so the stamps net against the same validation's proceeds.
     class ApplyWantedChoices < Operation
       include OrderServing
@@ -92,19 +92,18 @@ module Game
       end
 
       def still_drawn(lines, orders, player, now)
-        assigned = []
+        draws = EligibleOrders.draw(lines.map { [ it.card_season_id, it.order_tokens.size ] }, except: player.id, now:)
         sales = []
-        changed = lines.filter_map do |line|
+        changed = lines.zip(draws).filter_map do |line, best_orders|
           first_changed = nil
-          line.order_tokens.each do |token|
-            best = EligibleOrders.call(line.card_season_id, except: player.id, now:).where.not(id: assigned).first
+          line.order_tokens.each_with_index do |token, position|
+            best = best_orders[position]
             drawn = orders[token]
             if drawn && drawn.id == best&.id
               sales << [ line, drawn ]
             else
               first_changed ||= Changed.new(line: line.index, order: best)
             end
-            assigned << best.id if best
           end
           first_changed
         end

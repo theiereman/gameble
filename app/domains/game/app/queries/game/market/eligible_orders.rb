@@ -22,6 +22,19 @@ module Game
         end
       end
 
+      def self.draw(edition_counts, except:, now: Time.current)
+        editions = Catalog::CardSeason.where(id: edition_counts.map(&:first)).where.not(rarity: nil).pluck(:id, :card_id, :rarity).index_by(&:first)
+        taken = []
+        edition_counts.map do |card_season_id, count|
+          _id, card_id, rarity = editions[card_season_id]
+          next [] if rarity.nil? || count.zero?
+
+          orders = eligible([ card_id ], rarity, except:, now:).where.not(id: taken).order(PRIORITY).limit(count).to_a
+          taken.concat(orders.map(&:id))
+          orders
+        end
+      end
+
       def self.eligible(card_ids, rarity, except:, now:)
         Order.open_at(now).where(card_id: card_ids).reaching(rarity).where.not(player_id: except)
           .where.not(player_id: Accounts::Player.removed.select(:id))

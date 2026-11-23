@@ -70,4 +70,22 @@ class Game::Market::EligibleOrdersTest < ActiveSupport::TestCase
     assert_equal({ @rare.id => best, @common.id => common },
       Game::Market::EligibleOrders.best([ @rare.id, @common.id, legendary.id ], except: @seller.id, now: @now))
   end
+
+  test "the draw gives each edition in turn its count of best orders no earlier edition took" do
+    best = order!(funded_buyer, @rare, 900)
+    second = order!(funded_buyer, @rare, 800)
+    third = order!(funded_buyer, @rare, 700)
+    common = order!(funded_buyer, @common, 20)
+
+    drawn = Game::Market::EligibleOrders.draw([ [ @rare.id, 1 ], [ @common.id, 0 ], [ @rare.id, 3 ], [ @common.id, 1 ] ], except: @seller.id, now: @now)
+
+    assert_equal [ [ best ], [], [ second, third ], [ common ] ], drawn
+  end
+
+  test "the draw gives an edition without a rarity no order" do
+    order!(funded_buyer, @rare, 900)
+    @rare.update_columns(rarity: nil)
+
+    assert_equal [ [] ], Game::Market::EligibleOrders.draw([ [ @rare.id, 1 ] ], except: @seller.id, now: @now)
+  end
 end
