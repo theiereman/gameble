@@ -1,0 +1,276 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Étoile des services</title>
+<style>/* Working mock: Brotherhood job titles and the service star that opens from a title. */
+@font-face{font-family:VT323;src:url(../../../../app/frontend/fonts/vt323-latin-400-normal.woff2)}
+@font-face{font-family:JB;src:url(../../../../app/frontend/fonts/jetbrains-mono-latin-400-normal.woff2)}
+@font-face{font-family:JB;font-weight:700;src:url(../../../../app/frontend/fonts/jetbrains-mono-latin-700-normal.woff2)}
+*{box-sizing:border-box}
+:root{--bg:#05070a;--pn:#121a24;--pn2:#0e141b;--pn3:#1b2838;--li:#2a475e;--li2:#1f3346;--ac:#66c0f4;--oa:#0b1520;--t:#c7d5e0;--tb:#e6eef5;--w:#fff;--m:#8f98a0;--lime:#a4d007;--ol:#0f1a03;--go:#f4c542}
+html,body{margin:0;background:var(--bg);color:var(--t);font:13px/19px JB,monospace}
+h1,h2,p,ul{margin:0;padding:0;font-weight:400}ul{list-style:none}button{font:inherit}
+.sheet{padding:28px 24px 80px;max-width:1400px;margin:auto}
+.sheet>h1{font:400 42px/44px VT323,monospace;color:var(--w)}
+.intro{max-width:880px;margin-top:8px;font-size:14px;line-height:22px}
+.dec{margin-top:48px;padding-top:20px;border-top:4px solid var(--li)}
+.dec-t{font:400 32px/36px VT323,monospace;color:var(--go)}
+.why{margin:6px 0 18px;max-width:860px;color:var(--m);font-size:14px;line-height:21px}
+.frames{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+figure{margin:0}figcaption{margin-bottom:8px;font:700 11px/15px JB,monospace;letter-spacing:1px;color:var(--ac);text-transform:uppercase}
+.kicker{font:700 11px/16px JB,monospace;letter-spacing:2px;color:var(--ac);text-transform:uppercase}
+/* feed + profile */
+.feed{width:560px;background:var(--pn);border:2px solid var(--li);padding:12px 16px}
+.entry{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--li2)}.entry:last-child{border:0}
+.av{width:40px;height:40px;background:var(--pn3);flex:none;image-rendering:pixelated;display:grid;place-items:center;color:var(--ac);font:400 24px VT323}
+.who{color:var(--w);font-weight:700}
+.ptitle{display:inline-block;margin-left:8px;padding:0 6px;border:1px solid var(--li);color:var(--ac);font-size:11px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;cursor:pointer}
+.ptitle:hover,.ptitle--focus{background:var(--ac);color:var(--oa)}
+.ptitle--seat{border-color:var(--go);color:var(--go)}
+.ptitle--seat::before{content:"★ "}
+.etext{margin-top:2px}.etime{color:var(--m);font-size:11px}
+.note{background:var(--pn2);border-left:4px solid var(--go);padding:12px 16px}
+.note .who{color:var(--go)}
+/* dialog */
+.dlg{width:520px;background:var(--pn);border:2px solid var(--ac);box-shadow:0 0 0 6px rgba(102,192,244,.08),0 24px 48px #000;padding:20px 24px 24px}
+.dlg--phone{width:360px;padding:16px;border-width:2px 0 0;box-shadow:0 -12px 32px #000}
+.dlg__head{display:flex;justify-content:space-between;align-items:center}
+.x{width:32px;height:32px;background:none;border:2px solid var(--li);color:var(--t);cursor:pointer}
+.dlg__title{margin-top:4px;font:400 40px/40px VT323,monospace;color:var(--w)}
+.dlg--phone .dlg__title{font-size:34px;line-height:34px}
+.dlg__sub{color:var(--m)}
+.seat{margin-top:10px;display:inline-flex;gap:8px;align-items:center;padding:4px 10px;background:var(--go);color:#120d05;font-weight:700;font-size:12px}
+.star{display:flex;justify-content:center;margin:8px 0 4px}
+.rg{fill:none;stroke:var(--li2);stroke-width:1}.rx{stroke:var(--li2);stroke-width:1}
+.rv{fill:rgba(102,192,244,.22);stroke:var(--ac);stroke-width:2;stroke-linejoin:miter}
+.rd{fill:var(--ac)}.rd--top{fill:var(--go)}
+.rl{fill:var(--m);font:15px JB,monospace}.rl--top{fill:var(--go);font-weight:700}
+.svc{border-top:1px solid var(--li2)}
+.svc__row{display:grid;grid-template-columns:96px 1fr auto;grid-template-areas:"name post pc" "name fig fig" "bar bar bar";column-gap:12px;padding:8px 0;border-bottom:1px solid var(--li2)}
+.svc__row--cur .svc__name,.svc__row--cur .svc__post{color:var(--go)}
+.svc__name{grid-area:name;color:var(--ac);font-weight:700;font-size:12px}
+.svc__post{grid-area:post;color:var(--w);font-weight:700}.svc__post--none{color:var(--m);font-weight:400}
+.svc__fig{grid-area:fig;color:var(--m);font-size:12px}
+.svc__pc{grid-area:pc;color:var(--t);font-size:12px}
+.svc__bar{grid-area:bar;height:4px;margin-top:6px;background:var(--li2)}.svc__bar i{display:block;height:100%;width:var(--w);background:var(--ac)}
+.svc__row--cur .svc__bar i{background:var(--go)}
+.next{margin-top:16px;padding:14px 16px;background:var(--pn2);border:1px dashed var(--li)}
+.next__title{margin-top:2px;color:var(--w);font-weight:700;font-size:15px}
+.cond li{display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin-top:10px}
+.cond__lbl{color:var(--t)}.cond__val{color:var(--w);font-weight:700;text-align:right}
+.cond__bar{grid-column:1/-1;height:4px;background:var(--li2)}.cond__bar i{display:block;height:100%;width:var(--w);background:var(--lime)}
+.cond__note{grid-column:1/-1;color:var(--m);font-size:11px}
+.cond--todo .cond__val{color:var(--go)}.cond__ach{grid-column:1/-1;color:var(--m);font-size:12px}
+.dim{position:relative;width:560px;height:240px;background:var(--pn2);border:2px solid var(--li2);overflow:hidden}
+.phone{width:380px;background:#000;border:2px solid #2a2f36;padding:10px;border-radius:20px}
+.phone__scr{height:740px;background:var(--bg);position:relative;overflow:hidden;border-radius:10px;display:flex;flex-direction:column;justify-content:flex-end}
+.phone__scr .dlg--phone{width:100%}
+.grab{width:40px;height:4px;background:var(--li);margin:0 auto 12px}
+
+/* owner metrics */
+.perf{display:grid;grid-template-columns:320px 1fr;gap:24px;width:1180px}
+.pnl{background:var(--pn);border:2px solid var(--li);padding:20px 24px}
+.track{display:flex;align-items:center;justify-content:center;margin:20px 0 8px}
+.gem{width:26px;height:26px;transform:rotate(45deg);background:var(--li2);border:2px solid var(--li)}
+.gem--done{background:var(--li);border-color:var(--ac)}.gem--cur{background:var(--go);border-color:var(--go);box-shadow:0 0 0 4px rgba(244,197,66,.2)}
+.gem--seat{background:none;border:2px dashed var(--go)}
+.link{width:22px;height:2px;background:var(--li)}
+.track-lbl{display:grid;grid-template-columns:repeat(6,1fr);text-align:center;font-size:10px;line-height:13px;color:var(--m);margin-bottom:16px}
+.track-lbl b{color:var(--go)}
+.pcur{text-align:center}.pcur__t{font:400 30px/32px VT323,monospace;color:var(--w)}.pcur__s{color:var(--m);font-size:12px}
+.checks{display:flex;justify-content:center;gap:8px;margin:20px 0 8px}
+.chk{width:20px;height:20px;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--li2);color:var(--m)}.chk--ok{background:var(--lime);color:var(--ol)}
+.checks-t{text-align:center;color:var(--m);font-size:12px}
+.mhead{display:flex;justify-content:space-between;align-items:baseline}
+.msub{color:var(--m);margin:2px 0 16px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--pn2);border:1px solid var(--li2);padding:16px;display:flex;flex-direction:column;gap:10px}
+.card--wide{grid-column:span 2}
+.card__t{color:var(--tb);font-weight:700;display:flex;justify-content:space-between}
+.card__t small{color:var(--m);font-weight:400}
+.big{font:400 40px/36px VT323,monospace;color:var(--w)}.big small{font-size:22px;color:var(--m)}
+.gauge{position:relative;height:10px;background:var(--li2);margin:14px 0 18px}
+.gauge__fill{position:absolute;inset:0 auto 0 0;width:var(--v);background:var(--ac)}
+.gauge__mk{position:absolute;top:-5px;bottom:-5px;width:2px;left:var(--at);background:var(--m)}
+.gauge__mk--next{background:var(--go)}
+.gauge__mk span{position:absolute;top:22px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;color:var(--m)}
+.gauge__mk--next span{color:var(--go)}
+.gauge__ghost{position:absolute;top:0;bottom:0;left:var(--from);width:var(--len);background:repeating-linear-gradient(90deg,rgba(244,197,66,.35) 0 4px,transparent 4px 8px)}
+.chip{align-self:flex-start;display:inline-flex;gap:6px;align-items:center;padding:2px 8px;font-size:11px;font-weight:700}
+.chip--ok{background:rgba(164,208,7,.15);color:var(--lime)}.chip--run{background:var(--li2);color:var(--t)}.chip--warn{background:rgba(232,131,58,.18);color:#e8833a}
+.drift{color:var(--m);font-size:11px}.drift b{color:#e8833a}
+.race{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.race li{display:grid;grid-template-columns:28px 120px 1fr 64px;gap:8px;align-items:center;font-size:12px}
+.race__bar{height:8px;background:var(--li2)}.race__bar i{display:block;height:100%;width:var(--v);background:var(--li)}
+.race li.me{color:var(--go);font-weight:700}.race li.me .race__bar i{background:var(--go)}
+.race__rk{color:var(--m)}.race__n{text-align:right}
+.spark{width:100%;height:120px}
+.sp-g{stroke:var(--li2);stroke-width:1}.sp-o{fill:none;stroke:var(--li);stroke-width:2}.sp-m{fill:none;stroke:var(--go);stroke-width:3}
+.sp-l{fill:var(--m);font:10px JB,monospace}.sp-lm{fill:var(--go);font:700 10px JB,monospace}
+.events{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--m)}.events b{color:var(--tb)}
+</style></head><body><div class="sheet">
+<h1>Titres de la Confrérie : l'étoile des services</h1>
+<p class="intro">Le titre est le poste du joueur dans le service où son grade est le plus haut. Cliquer le titre, partout où il apparaît (profil, fil, échanges), ouvre l'étoile : une branche par service, de longueur égale au percentile parmi les membres actifs, avec les chiffres bruts dessous. Le prochain échelon n'est visible que du joueur lui-même. Noms et chiffres fictifs.</p>
+
+<section class="dec"><h2 class="dec-t">1. Le titre dans le fil</h2>
+<p class="why">Plus de format « Rang · Set » : le titre seul, cliquable. Un siège au Comité de direction se distingue par l'or et l'étoile. Les promotions à partir du grade 3 et les nominations passent dans le fil ; les rétrogradations n'existent pas.</p>
+<div class="frames"><figure><figcaption>Fil d'activité</figcaption><div class="feed">
+<div class="entry"><div class="av">M</div><div><span class="who">Marlowe</span><a class="ptitle ptitle--focus">Cartographe senior</a><p class="etext">a ouvert une capsule : 2 premières découvertes.</p><p class="etime">il y a 4 min</p></div></div>
+<div class="entry"><div class="av">O</div><div><span class="who">Ondine</span><a class="ptitle ptitle--seat">Direction des échanges</a><p class="etext">a conclu un échange avec Marlowe.</p><p class="etime">il y a 12 min</p></div></div>
+<div class="entry"><div class="av">P</div><div><span class="who">Pernille</span><a class="ptitle">Comptable</a><p class="etext">Promotion au poste de Comptable, service de la Bourse.</p><p class="etime">il y a 1 h</p></div></div>
+<div class="entry note"><div class="av">✦</div><div><span class="who">La Direction</span><p class="etext">La Direction a le plaisir d'annoncer la composition du Comité de direction pour la saison 2. Deux postes restent vacants.</p><p class="etime">hier</p></div></div>
+</div></figure></div></section>
+
+<section class="dec"><h2 class="dec-t">2. L'étoile vue par un autre membre</h2>
+<p class="why">Ce que tout le monde voit : où le joueur est, pas ce qui lui manque. La branche du poste porté est en or. « Aucun poste » sous le grade 2.</p>
+<div class="frames"><figure><figcaption>Desktop · dialogue</figcaption><div class="dlg"><header class="dlg__head"><p class="kicker">Poste dans la Confrérie</p><button class="x" aria-label="Fermer">✕</button></header><h2 class="dlg__title">Cartographe senior</h2><p class="dlg__sub">Service de l'Exploration</p><div class="star"><svg viewBox="-70 -6 440 312" width="300" height="300" role="img" aria-label="Étoile des services">
+<polygon points="150.0,124.0 174.7,142.0 165.3,171.0 134.7,171.0 125.3,142.0" class="rg"/>
+<polygon points="150.0,98.0 199.5,133.9 180.6,192.1 119.4,192.1 100.5,133.9" class="rg"/>
+<polygon points="150.0,72.0 224.2,125.9 195.8,213.1 104.2,213.1 75.8,125.9" class="rg"/>
+<polygon points="150.0,46.0 248.9,117.9 211.1,234.1 88.9,234.1 51.1,117.9" class="rg"/>
+<line x1="150" y1="150" x2="150.0" y2="46.0" class="rx"/>
+<line x1="150" y1="150" x2="248.9" y2="117.9" class="rx"/>
+<line x1="150" y1="150" x2="211.1" y2="234.1" class="rx"/>
+<line x1="150" y1="150" x2="88.9" y2="234.1" class="rx"/>
+<line x1="150" y1="150" x2="51.1" y2="117.9" class="rx"/>
+<polygon points="150.0,75.1 189.6,137.1 183.6,196.3 94.4,226.6 130.2,143.6" class="rv"/>
+<rect x="146.0" y="71.1" width="8" height="8" class="rd"/>
+<rect x="185.6" y="133.1" width="8" height="8" class="rd"/>
+<rect x="179.6" y="192.3" width="8" height="8" class="rd"/>
+<rect x="90.4" y="222.6" width="8" height="8" class="rd rd--top"/>
+<rect x="126.2" y="139.6" width="8" height="8" class="rd"/>
+<text x="150.0" y="28.0" text-anchor="middle" class="rl">Archives</text>
+<text x="269.8" y="115.1" text-anchor="start" class="rl">Bourse</text>
+<text x="224.1" y="261.9" text-anchor="start" class="rl">Échanges</text>
+<text x="75.9" y="261.9" text-anchor="end" class="rl rl--top">Exploration</text>
+<text x="30.2" y="115.1" text-anchor="end" class="rl">Stratégie</text>
+</svg></div><ul class="svc">
+<li class="svc__row"><span class="svc__name">Archives</span><span class="svc__post">Archiviste</span><span class="svc__fig">18 sets complétés</span><span class="svc__bar"><i style="--w:72%"></i></span><span class="svc__pc">top 28 %</span></li>
+<li class="svc__row"><span class="svc__name">Bourse</span><span class="svc__post svc__post--none">Aucun poste</span><span class="svc__fig">12 400 PiCoins de chiffre d'affaires</span><span class="svc__bar"><i style="--w:40%"></i></span><span class="svc__pc">top 60 %</span></li>
+<li class="svc__row"><span class="svc__name">Échanges</span><span class="svc__post">Spécialiste des échanges junior</span><span class="svc__fig">32 échanges</span><span class="svc__bar"><i style="--w:55%"></i></span><span class="svc__pc">top 45 %</span></li>
+<li class="svc__row svc__row--cur"><span class="svc__name">Exploration</span><span class="svc__post">Cartographe senior</span><span class="svc__fig">1 120 découvertes</span><span class="svc__bar"><i style="--w:91%"></i></span><span class="svc__pc">top 9 %</span></li>
+<li class="svc__row"><span class="svc__name">Stratégie</span><span class="svc__post svc__post--none">Aucun poste</span><span class="svc__fig">6 duels</span><span class="svc__bar"><i style="--w:20%"></i></span><span class="svc__pc">top 80 %</span></li>
+</ul></div></figure></div></section>
+
+<section class="dec"><h2 class="dec-t">3. L'étoile vue par le joueur lui-même</h2>
+<p class="why">La même fenêtre, plus le prochain échelon et ses trois conditions : seuil d'activité (flottant), jours de service, haut fait du sommet.</p>
+<div class="frames"><figure><figcaption>Desktop · son propre profil</figcaption><div class="dlg"><header class="dlg__head"><p class="kicker">Poste dans la Confrérie</p><button class="x" aria-label="Fermer">✕</button></header><h2 class="dlg__title">Cartographe senior</h2><p class="dlg__sub">Service de l'Exploration</p><div class="star"><svg viewBox="-70 -6 440 312" width="300" height="300" role="img" aria-label="Étoile des services">
+<polygon points="150.0,124.0 174.7,142.0 165.3,171.0 134.7,171.0 125.3,142.0" class="rg"/>
+<polygon points="150.0,98.0 199.5,133.9 180.6,192.1 119.4,192.1 100.5,133.9" class="rg"/>
+<polygon points="150.0,72.0 224.2,125.9 195.8,213.1 104.2,213.1 75.8,125.9" class="rg"/>
+<polygon points="150.0,46.0 248.9,117.9 211.1,234.1 88.9,234.1 51.1,117.9" class="rg"/>
+<line x1="150" y1="150" x2="150.0" y2="46.0" class="rx"/>
+<line x1="150" y1="150" x2="248.9" y2="117.9" class="rx"/>
+<line x1="150" y1="150" x2="211.1" y2="234.1" class="rx"/>
+<line x1="150" y1="150" x2="88.9" y2="234.1" class="rx"/>
+<line x1="150" y1="150" x2="51.1" y2="117.9" class="rx"/>
+<polygon points="150.0,75.1 189.6,137.1 183.6,196.3 94.4,226.6 130.2,143.6" class="rv"/>
+<rect x="146.0" y="71.1" width="8" height="8" class="rd"/>
+<rect x="185.6" y="133.1" width="8" height="8" class="rd"/>
+<rect x="179.6" y="192.3" width="8" height="8" class="rd"/>
+<rect x="90.4" y="222.6" width="8" height="8" class="rd rd--top"/>
+<rect x="126.2" y="139.6" width="8" height="8" class="rd"/>
+<text x="150.0" y="28.0" text-anchor="middle" class="rl">Archives</text>
+<text x="269.8" y="115.1" text-anchor="start" class="rl">Bourse</text>
+<text x="224.1" y="261.9" text-anchor="start" class="rl">Échanges</text>
+<text x="75.9" y="261.9" text-anchor="end" class="rl rl--top">Exploration</text>
+<text x="30.2" y="115.1" text-anchor="end" class="rl">Stratégie</text>
+</svg></div><ul class="svc">
+<li class="svc__row"><span class="svc__name">Archives</span><span class="svc__post">Archiviste</span><span class="svc__fig">18 sets complétés</span><span class="svc__bar"><i style="--w:72%"></i></span><span class="svc__pc">top 28 %</span></li>
+<li class="svc__row"><span class="svc__name">Bourse</span><span class="svc__post svc__post--none">Aucun poste</span><span class="svc__fig">12 400 PiCoins de chiffre d'affaires</span><span class="svc__bar"><i style="--w:40%"></i></span><span class="svc__pc">top 60 %</span></li>
+<li class="svc__row"><span class="svc__name">Échanges</span><span class="svc__post">Spécialiste des échanges junior</span><span class="svc__fig">32 échanges</span><span class="svc__bar"><i style="--w:55%"></i></span><span class="svc__pc">top 45 %</span></li>
+<li class="svc__row svc__row--cur"><span class="svc__name">Exploration</span><span class="svc__post">Cartographe senior</span><span class="svc__fig">1 120 découvertes</span><span class="svc__bar"><i style="--w:91%"></i></span><span class="svc__pc">top 9 %</span></li>
+<li class="svc__row"><span class="svc__name">Stratégie</span><span class="svc__post svc__post--none">Aucun poste</span><span class="svc__fig">6 duels</span><span class="svc__bar"><i style="--w:20%"></i></span><span class="svc__pc">top 80 %</span></li>
+</ul><section class="next"><p class="kicker">Prochain échelon</p><p class="next__title">Responsable de l'Exploration</p>
+<ul class="cond">
+<li><span class="cond__lbl">Découvertes de pionnier</span><span class="cond__val">1 120 / 1 480</span><span class="cond__bar"><i style="--w:76%"></i></span><span class="cond__note">top 3 % des membres actifs</span></li>
+<li><span class="cond__lbl">Jours de service</span><span class="cond__val">172 / 180</span><span class="cond__bar"><i style="--w:96%"></i></span><span class="cond__note">un jour par bonus quotidien réclamé</span></li>
+<li><span class="cond__lbl">Haut fait</span><span class="cond__val">Obtenu ✓</span><span class="cond__ach">Finir une semaine 1er du classement des pionniers</span></li>
+</ul></section></div></figure></div></section>
+
+<section class="dec"><h2 class="dec-t">4. Un siège au Comité de direction</h2>
+<p class="why">Le siège s'affiche à la place du poste. Il se gagne à la publication d'une saison (n° 1 du service sur la saison écoulée, dès le grade 3) et se perd à la suivante ; le détrôné redevient Responsable.</p>
+<div class="frames"><figure><figcaption>Desktop · siège</figcaption><div class="dlg"><header class="dlg__head"><p class="kicker">Poste dans la Confrérie</p><button class="x" aria-label="Fermer">✕</button></header><h2 class="dlg__title">Direction des échanges</h2><p class="dlg__sub">Service des Échanges</p><p class="seat"><span class="seat__mark">★</span>Comité de direction, saison 2</p><div class="star"><svg viewBox="-70 -6 440 312" width="240" height="240" role="img" aria-label="Étoile des services">
+<polygon points="150.0,124.0 174.7,142.0 165.3,171.0 134.7,171.0 125.3,142.0" class="rg"/>
+<polygon points="150.0,98.0 199.5,133.9 180.6,192.1 119.4,192.1 100.5,133.9" class="rg"/>
+<polygon points="150.0,72.0 224.2,125.9 195.8,213.1 104.2,213.1 75.8,125.9" class="rg"/>
+<polygon points="150.0,46.0 248.9,117.9 211.1,234.1 88.9,234.1 51.1,117.9" class="rg"/>
+<line x1="150" y1="150" x2="150.0" y2="46.0" class="rx"/>
+<line x1="150" y1="150" x2="248.9" y2="117.9" class="rx"/>
+<line x1="150" y1="150" x2="211.1" y2="234.1" class="rx"/>
+<line x1="150" y1="150" x2="88.9" y2="234.1" class="rx"/>
+<line x1="150" y1="150" x2="51.1" y2="117.9" class="rx"/>
+<polygon points="150.0,83.4 171.8,142.9 209.3,231.6 114.5,198.8 138.1,146.1" class="rv"/>
+<rect x="146.0" y="79.4" width="8" height="8" class="rd"/>
+<rect x="167.8" y="138.9" width="8" height="8" class="rd"/>
+<rect x="205.3" y="227.6" width="8" height="8" class="rd rd--top"/>
+<rect x="110.5" y="194.8" width="8" height="8" class="rd"/>
+<rect x="134.1" y="142.1" width="8" height="8" class="rd"/>
+<text x="150.0" y="28.0" text-anchor="middle" class="rl">Archives</text>
+<text x="269.8" y="115.1" text-anchor="start" class="rl">Bourse</text>
+<text x="224.1" y="261.9" text-anchor="start" class="rl rl--top">Échanges</text>
+<text x="75.9" y="261.9" text-anchor="end" class="rl">Exploration</text>
+<text x="30.2" y="115.1" text-anchor="end" class="rl">Stratégie</text>
+</svg></div><ul class="svc">
+<li class="svc__row"><span class="svc__name">Archives</span><span class="svc__post">Archiviste</span><span class="svc__fig">15 sets complétés</span><span class="svc__bar"><i style="--w:64%"></i></span><span class="svc__pc">top 36 %</span></li>
+<li class="svc__row"><span class="svc__name">Bourse</span><span class="svc__post svc__post--none">Aucun poste</span><span class="svc__fig">3 100 PiCoins de chiffre d'affaires</span><span class="svc__bar"><i style="--w:22%"></i></span><span class="svc__pc">top 78 %</span></li>
+<li class="svc__row svc__row--cur"><span class="svc__name">Échanges</span><span class="svc__post">Responsable des échanges</span><span class="svc__fig">412 échanges</span><span class="svc__bar"><i style="--w:97%"></i></span><span class="svc__pc">top 3 %</span></li>
+<li class="svc__row"><span class="svc__name">Exploration</span><span class="svc__post">Cartographe</span><span class="svc__fig">640 découvertes</span><span class="svc__bar"><i style="--w:58%"></i></span><span class="svc__pc">top 42 %</span></li>
+<li class="svc__row"><span class="svc__name">Stratégie</span><span class="svc__post svc__post--none">Aucun poste</span><span class="svc__fig">2 duels</span><span class="svc__bar"><i style="--w:12%"></i></span><span class="svc__pc">top 88 %</span></li>
+</ul></div></figure>
+<figure><figcaption>Téléphone · feuille du bas</figcaption><div class="phone"><div class="phone__scr"><div class="dlg dlg--phone"><div class="grab"></div><header class="dlg__head"><p class="kicker">Poste dans la Confrérie</p><button class="x" aria-label="Fermer">✕</button></header><h2 class="dlg__title">Direction des échanges</h2><p class="dlg__sub">Service des Échanges</p><p class="seat"><span class="seat__mark">★</span>Comité de direction, saison 2</p><div class="star"><svg viewBox="-70 -6 440 312" width="220" height="220" role="img" aria-label="Étoile des services">
+<polygon points="150.0,124.0 174.7,142.0 165.3,171.0 134.7,171.0 125.3,142.0" class="rg"/>
+<polygon points="150.0,98.0 199.5,133.9 180.6,192.1 119.4,192.1 100.5,133.9" class="rg"/>
+<polygon points="150.0,72.0 224.2,125.9 195.8,213.1 104.2,213.1 75.8,125.9" class="rg"/>
+<polygon points="150.0,46.0 248.9,117.9 211.1,234.1 88.9,234.1 51.1,117.9" class="rg"/>
+<line x1="150" y1="150" x2="150.0" y2="46.0" class="rx"/>
+<line x1="150" y1="150" x2="248.9" y2="117.9" class="rx"/>
+<line x1="150" y1="150" x2="211.1" y2="234.1" class="rx"/>
+<line x1="150" y1="150" x2="88.9" y2="234.1" class="rx"/>
+<line x1="150" y1="150" x2="51.1" y2="117.9" class="rx"/>
+<polygon points="150.0,83.4 171.8,142.9 209.3,231.6 114.5,198.8 138.1,146.1" class="rv"/>
+<rect x="146.0" y="79.4" width="8" height="8" class="rd"/>
+<rect x="167.8" y="138.9" width="8" height="8" class="rd"/>
+<rect x="205.3" y="227.6" width="8" height="8" class="rd rd--top"/>
+<rect x="110.5" y="194.8" width="8" height="8" class="rd"/>
+<rect x="134.1" y="142.1" width="8" height="8" class="rd"/>
+<text x="150.0" y="28.0" text-anchor="middle" class="rl">Archives</text>
+<text x="269.8" y="115.1" text-anchor="start" class="rl">Bourse</text>
+<text x="224.1" y="261.9" text-anchor="start" class="rl rl--top">Échanges</text>
+<text x="75.9" y="261.9" text-anchor="end" class="rl">Exploration</text>
+<text x="30.2" y="115.1" text-anchor="end" class="rl">Stratégie</text>
+</svg></div><ul class="svc">
+<li class="svc__row"><span class="svc__name">Archives</span><span class="svc__post">Archiviste</span><span class="svc__fig">15 sets complétés</span><span class="svc__bar"><i style="--w:64%"></i></span><span class="svc__pc">top 36 %</span></li>
+<li class="svc__row"><span class="svc__name">Bourse</span><span class="svc__post svc__post--none">Aucun poste</span><span class="svc__fig">3 100 PiCoins de chiffre d'affaires</span><span class="svc__bar"><i style="--w:22%"></i></span><span class="svc__pc">top 78 %</span></li>
+<li class="svc__row svc__row--cur"><span class="svc__name">Échanges</span><span class="svc__post">Responsable des échanges</span><span class="svc__fig">412 échanges</span><span class="svc__bar"><i style="--w:97%"></i></span><span class="svc__pc">top 3 %</span></li>
+<li class="svc__row"><span class="svc__name">Exploration</span><span class="svc__post">Cartographe</span><span class="svc__fig">640 découvertes</span><span class="svc__bar"><i style="--w:58%"></i></span><span class="svc__pc">top 42 %</span></li>
+<li class="svc__row"><span class="svc__name">Stratégie</span><span class="svc__post svc__post--none">Aucun poste</span><span class="svc__fig">2 duels</span><span class="svc__bar"><i style="--w:12%"></i></span><span class="svc__pc">top 88 %</span></li>
+</ul></div></div></div></figure></div></section>
+
+<section class="dec"><h2 class="dec-t">5. Mes indicateurs (profil du joueur, visible de lui seul)</h2>
+<p class="why">Les grades ne redescendent jamais : le seul risque d'être dépassé porte sur le siège de la saison. L'autre menace est le seuil flottant, qui s'éloigne quand la Confrérie progresse. Chaque jauge montre le seuil du grade actuel (gris) et celui du prochain (or) ; la zone hachurée est la montée du seuil sur les 4 dernières semaines.</p>
+<div class="frames"><figure><figcaption>Desktop · Moi › Profil</figcaption><div class="perf">
+<div class="pnl"><p class="kicker">Carrière</p>
+<div class="track"><span class="gem gem--done"></span><span class="link"></span><span class="gem gem--done"></span><span class="link"></span><span class="gem gem--done"></span><span class="link"></span><span class="gem gem--cur"></span><span class="link"></span><span class="gem"></span><span class="link"></span><span class="gem gem--seat"></span></div>
+<div class="pcur"><p class="pcur__t">Cartographe senior</p><p class="pcur__s">Service de l'Exploration, grade 4 sur 5. Le losange pointillé est le siège au Comité.</p></div>
+<div class="checks"><span class="chk chk--ok">✓</span><span class="chk">·</span><span class="chk">·</span></div>
+<p class="checks-t">1 condition sur 3 remplie pour devenir Responsable de l'Exploration.</p>
+</div>
+<div class="pnl"><div class="mhead"><p class="kicker">Mes indicateurs</p><span class="drift">Mis à jour cette nuit</span></div><p class="msub">Les conditions du prochain échelon et la course au Comité de la saison.</p>
+<div class="cards">
+<div class="card"><p class="card__t">Découvertes de pionnier</p><p class="big">1 120</p>
+<div class="gauge"><span class="gauge__fill" style="--v:70%"></span><span class="gauge__ghost" style="--from:88%;--len:4%"></span><span class="gauge__mk" style="--at:52%"><span>840</span></span><span class="gauge__mk gauge__mk--next" style="--at:92%"><span>1 480</span></span></div>
+<p class="drift">Seuil du grade 5 : <b>▲ 60</b> en 4 semaines</p><span class="chip chip--run">◌ En cours, il en manque 360</span></div>
+<div class="card"><p class="card__t">Jours de service</p><p class="big">172<small>/180</small></p>
+<div class="gauge"><span class="gauge__fill" style="--v:95%"></span><span class="gauge__mk" style="--at:50%"><span>90</span></span><span class="gauge__mk gauge__mk--next" style="--at:99%"><span>180</span></span></div>
+<p class="drift">Seuil fixe, un jour par bonus réclamé</p><span class="chip chip--run">◌ Encore 8 jours</span></div>
+<div class="card"><p class="card__t">Haut fait du sommet</p><p class="card__t"><small>Finir une semaine 1er du classement des pionniers</small></p><p class="big">✓</p><p class="drift">Obtenu la semaine du 9 février</p><span class="chip chip--ok">✓ Condition remplie</span></div>
+<div class="card card--wide"><p class="card__t">Course au Comité, Exploration, saison 1 <small>clôture à la publication de la saison 2</small></p>
+<ol class="race">
+<li><span class="race__rk">1</span><span>Aurèle</span><span class="race__bar"><i style="--v:100%"></i></span><span class="race__n">412</span></li>
+<li class="me"><span class="race__rk">2</span><span>Vous</span><span class="race__bar"><i style="--v:80%"></i></span><span class="race__n">328</span></li>
+<li><span class="race__rk">3</span><span>Ondine</span><span class="race__bar"><i style="--v:77%"></i></span><span class="race__n">316</span></li>
+</ol><p class="drift">Découvertes de la saison, membres du grade 3 et plus.</p>
+<span class="chip chip--warn">▼ Ondine est à 12 découvertes derrière vous</span></div>
+<div class="card"><p class="card__t">Mutation possible</p><p class="big">Archives</p><p class="drift">Archiviste (grade 3). Un grade 5 aux Archives vous ferait muter : il faut d'abord dépasser le grade 4 de l'Exploration.</p><span class="chip chip--run">◌ Loin : 18 sets sur 41</span></div>
+<div class="card card--wide" style="grid-column:span 3"><p class="card__t">Évolution, 12 dernières semaines <small>position parmi les membres actifs</small></p><svg class="spark" viewBox="0 0 680 120" preserveAspectRatio="none"><line class="sp-g" x1="20" x2="580" y1="85" y2="85"/><line class="sp-g" x1="20" x2="580" y1="60" y2="60"/><line class="sp-g" x1="20" x2="580" y1="35" y2="35"/><line class="sp-g" x1="20" x2="580" y1="10" y2="10"/><polyline class="sp-o" points="20,80 71,75 122,69 173,62 224,58 275,53 325,50 376,47 427,44 478,42 529,40 580,38"/><polyline class="sp-o" points="20,90 71,86 122,80 173,77 224,72 275,69 325,65 376,62 427,60 478,58 529,56 580,55"/><polyline class="sp-o" points="20,100 71,98 122,95 173,90 224,86 275,83 325,80 376,77 427,75 478,73 529,71 580,70"/><polyline class="sp-m" points="20,70 71,62 122,55 173,50 224,44 275,40 325,36 376,31 427,27 478,24 529,21 580,19"/><text class="sp-lm" x="586" y="23">Exploration</text><text class="sp-l" x="586" y="42">Archives</text><text class="sp-l" x="586" y="58">Échanges</text><text class="sp-l" x="586" y="73">Bourse</text><text class="sp-l" x="0" y="13">top</text></svg>
+<div class="events"><span><b>S-9</b> Promotion : Cartographe</span><span><b>S-3</b> Promotion : Cartographe senior</span><span><b>S-2</b> Haut fait obtenu : 1er du classement des pionniers</span></div></div>
+</div></div></div></figure></div></section>
+</div></body></html>
