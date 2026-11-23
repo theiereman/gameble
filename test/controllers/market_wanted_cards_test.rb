@@ -62,6 +62,17 @@ class MarketWantedCardsTest < ActionDispatch::IntegrationTest
     assert_select "a[href*='wanted=1']"
   end
 
+  test "a card owned with an open order on it reads wanted" do
+    settings = Game::Market::CurrentSettings.call
+    fund!(@player, 1_000)
+    refreshed { Game::Market::PlaceOrder.new.call(player: @player, card_id: @owned.card_id, price: 900, settings_token: settings.token).value! }
+    sign_in(@player)
+
+    get market_path(locale: :fr)
+
+    assert_equal [ "Non possédée", "Voulue", "Non possédée" ], marks
+  end
+
   test "an open order without a goal marks its game wanted, and the chip counts and keeps it" do
     settings = Game::Market::CurrentSettings.call
     fund!(@player, 1_000)
