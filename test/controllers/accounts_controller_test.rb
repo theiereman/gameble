@@ -81,6 +81,8 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
       en: [ "your market history (listings, bids, entrusted cards, notices and PiCoin movements, your wallet emptied)" ] },
     "game_market_orders" => { fr: [ "votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé)" ],
       en: [ "your market history (listings, bids, entrusted cards, notices and PiCoin movements, your wallet emptied)" ] },
+    "game_market_archive_withdrawals" => { fr: [ "votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé)" ],
+      en: [ "your market history (listings, bids, entrusted cards, notices and PiCoin movements, your wallet emptied)" ] },
     "game_market_alt_signals" => { fr: [ "les signaux de comptes alternatifs" ], en: [ "the market's alt-account signals" ] },
     "game_market_tied_accounts" => { fr: [ "les signaux de comptes alternatifs" ], en: [ "the market's alt-account signals" ] },
     "game_market_settings" => { fr: [ "les versions des réglages du marché" ], en: [ "settings versions" ] },

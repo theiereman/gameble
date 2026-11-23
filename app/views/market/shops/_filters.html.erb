@@ -1,0 +1,37 @@
+<%# locals: (filters:, rarities:, seasons:, sort:, wanted_count: nil) %>
+<%= form_with url: market_shop_path, method: :get, class: "filters market-filters market-shop__filters", html: { role: "search" },
+      data: { controller: "market-filters", action: "change->market-filters#changed submit->market-filters#submitted" } do %>
+  <%= hidden_field_tag :sort, sort, id: nil %>
+  <% filters.seasons.each do |number| %><%= hidden_field_tag "season[]", number, id: nil %><% end %>
+  <div class="filters__search">
+    <label class="visually-hidden" for="shop-search"><%= t(".search_label") %></label>
+    <%= search_field_tag "q", filters.query, id: "shop-search", class: "filters__search-field", autocomplete: "off",
+      maxlength: Game::Market::ListingFilters::MAX_QUERY, placeholder: t(".search_label") %>
+  </div>
+  <% if current_player && (wanted_count.to_i.positive? || filters.wanted_only?) %>
+    <label class="filter-chip market-filters__wanted">
+      <%= check_box_tag "wanted", "1", filters.wanted_only?, id: nil, class: "filter-chip__box", aria: { label: t(".wanted_spoken", count: wanted_count.to_i) } %>
+      <span class="filter-chip__text" aria-hidden="true"><%= t(".wanted", count: wanted_count.to_i) %></span>
+    </label>
+  <% end %>
+  <%= render SortComponent.new(prefix: t(".season_prefix"), label: t(".seasons_label"), link_data: { turbo_action: "replace" },
+        options: [ { label: t(".season_all"), href: market_shop_filtered_path(filters.with(seasons: []), sort:), current: filters.seasons.empty? },
+          *seasons.map { |number| { label: number.to_s, href: market_shop_filtered_path(filters.with(seasons: [ number ]), sort:), current: filters.seasons == [ number ] } } ]) %>
+  <%= render SortComponent.new(prefix: t("markets.screen.sort_prefix"), label: t(".sorts_label"), link_data: { turbo_action: "replace" },
+        options: Game::Market::ArchiveOffers::SORTS.keys.map { { label: t(".sorts.#{it}"), href: market_shop_filtered_path(filters, sort: it), current: it == sort } }) %>
+  <% if rarities.any? %>
+    <fieldset class="filters__group market-shop__rarities" data-group="rarity">
+      <legend class="visually-hidden"><%= t("library.filters.groups.rarity") %></legend>
+      <% rarities.each do |rarity| %>
+        <label class="filter-chip">
+          <%= check_box_tag "rarity[]", rarity, filters.rarities.include?(rarity), id: nil, class: "filter-chip__box" %>
+          <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
+        </label>
+      <% end %>
+    </fieldset>
+  <% end %>
+  <div class="market-filters__actions">
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) do %><%= t("library.filters.apply") %><% end %>
+    <%= link_to t("library.filters.clear"), market_shop_path(sort:), class: "filters__clear", hidden: !filters.any? %>
+  </div>
+<% end %>

@@ -101,7 +101,7 @@ module ShellHelper
   def exchanges_tab_current
     if (controller_path == "trades" && action_name == "index") || EXCHANGES_ROOTS.include?(controller_path)
       "page"
-    elsif %w[trades market/listings].include?(controller_path)
+    elsif %w[trades market/listings market/shops market/archive_purchases].include?(controller_path)
       "true"
     end
   end

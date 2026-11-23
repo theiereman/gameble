@@ -1,0 +1,15 @@
+<div class="purchase-confirmation">
+  <div class="modal__head">
+    <h2 id="archive-purchase-title" class="modal__title" tabindex="-1" data-purchase-dialog-target="title"><%= t("market.archive_purchases.result.title", card: @card.title) %></h2>
+    <button type="button" class="modal__close" aria-label="<%= t("purchase_confirmation.close") %>" data-action="dialog#close">
+      <%= pixel_icon("close", class: "modal__close-icon") %>
+    </button>
+  </div>
+  <div class="purchase-confirmation__summary">
+    <div class="purchase-confirmation__visual" aria-hidden="true"><%= render CardComponent.new(card: @card, size: :s, tilt: false) %></div>
+    <p class="purchase-confirmation__text"><%= t("market.archive_purchases.result.paid", amount: picoins(@withdrawal.price)) %></p>
+  </div>
+  <div class="market-dialog__actions">
+    <%= render ButtonComponent.new(href: card_season_path(slug: @card.id, number: @card.season_number), turbo_frame: "_top") do %><%= t("market.archive_purchases.result.see_card") %><% end %>
+  </div>
+</div>

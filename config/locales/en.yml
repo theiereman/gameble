@@ -2411,6 +2411,9 @@ en:
       nothing_fits: No card fits within your cap for today. It renews at 00:00 UTC.
       invalid_choices: Some choices need fixing. Nothing was sold, listed or entrusted.
       invalid_choice: This choice does not exist.
+      not_in_shop: This card is no longer sold by the Archives.
+      out_of_stock: This card is no longer available.
+      invalid_purchase_token: This purchase could not be read. Reload the page.
     steam:
       already_published: The cards of that run are already published in a season,
         officer. Start a new import to fill the next draft.
@@ -3409,6 +3412,69 @@ en:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
   market:
+    archive_purchases:
+      confirmation:
+        card: Card
+        edition: Edition
+        edition_value: "%{rarity} · season %{season}"
+        note: The Brotherhood's fixed price. The card keeps its rarity and season.
+        short_line: "%{card} %{rarity} costs %{price}, you have %{available}."
+        short_title: YOU ARE %{amount} PICOINS SHORT
+        title: BUY FROM THE ARCHIVES?
+      create:
+        throttled: Slow down, the Archives are counting. Try again in a minute.
+      refusals:
+        last_copy: Another player just took the last copy. Nothing is charged.
+      result:
+        paid: You pay %{amount}. The card joins your collection.
+        see_card: SEE THE CARD
+        title: YOU BOUGHT %{card}
+    shops:
+      dialog:
+        loading: Loading…
+      filters:
+        search_label: Search a game
+        season_all: all
+        season_prefix: 'Season:'
+        seasons_label: Choose a season
+        sorts:
+          price_asc: price, low to high
+          price_desc: price, high to low
+        sorts_label: Sort the Archive cards
+        wanted: WANTED · %{count}
+        wanted_spoken:
+          zero: Wanted, %{count} cards
+          one: Wanted, %{count} card
+          other: Wanted, %{count} cards
+      offer:
+        archives: ARCHIVES
+        buy: BUY ▸
+        buy_spoken: Buy
+        fixed: fixed price
+        label: "%{card}, %{rarity}, season %{season}, Brotherhood's Archives, fixed price %{price}"
+        stock:
+          zero: "%{count} in stock"
+          one: "%{count} in stock"
+          other: "%{count} in stock"
+        wanted: WANTED
+        wanted_spoken: wanted
+      show:
+        cards:
+          zero: "%{count} cards"
+          one: "%{count} card"
+          other: "%{count} cards"
+        editions:
+          zero: "%{count} editions"
+          one: "%{count} edition"
+          other: "%{count} editions"
+        empty: No card in the Archives for now.
+        heading: The Brotherhood's Shop
+        line: "“The Archives destroy nothing. They give back, for a fair contribution to the 100-6-Tron.”"
+        list_label: Archive cards
+        no_match: No Archive card matches these filters.
+        pages_label: More Archive cards
+        screen_title: SHOP
+        sign_in: Sign in to buy from the Archives
     copy_filters:
       wanted: "WANTED BY OTHERS · %{count}"
       wanted_label:
@@ -4653,6 +4719,14 @@ en:
         none: No title
   picoin_amount:
     accessible: "%{amount} PiCoins"
+  purchase_confirmation:
+    balance_after: Balance after
+    buy: BUY · %{amount}
+    cancel: CANCEL
+    close: Close
+    entrust: ENTRUST CARDS
+    no_balance: none
+    price: Price
   pioneer_rankings:
     boards:
       empty:

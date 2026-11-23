@@ -57,6 +57,10 @@ Rails.application.routes.draw do
     post "market/order/cards/:slug" => "market/orders#create", as: :market_card_orders
     get "market/my-orders" => "market/my_orders#show", as: :market_my_orders
     post "market/orders/:token/cancellation" => "market/order_cancellations#create", as: :market_order_cancellation
+    # The Brotherhood's shop, selling the Archives' copies at a fixed price, and the purchase of one edition.
+    get "market/shop" => "market/shops#show", as: :market_shop
+    get "market/shop/cards/:slug/seasons/:number" => "market/archive_purchases#new", as: :new_market_archive_purchase, constraints: { number: /\d+/ }
+    post "market/shop/cards/:slug/seasons/:number" => "market/archive_purchases#create", as: :market_archive_purchase, constraints: { number: /\d+/ }
     # The Brotherhood's Exchange: the economy's public charts.
     get "market/exchange" => "market/exchanges#show", as: :market_exchange
     # One published chart, cached by version, embedded by the exchange page.

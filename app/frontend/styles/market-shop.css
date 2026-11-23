@@ -1,0 +1,171 @@
+/* ---- The Brotherhood's shop: Archive offer tiles and the purchase confirmation. ---- */
+
+.market-shop__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.market-shop__line,
+.market-shop__count,
+.market-shop__sign-in {
+  margin: 0;
+}
+
+.market-shop__line {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.market-shop__count {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.market-shop__rarities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.archive-offer__card {
+  position: relative;
+}
+
+.archive-offer__card .card {
+  box-shadow:
+    0 0 0 3px var(--color-outline),
+    0 0 0 5px var(--color-archives),
+    var(--card-face-bevel);
+}
+
+.archive-offer__tags {
+  position: absolute;
+  top: calc(var(--space-3) * -1);
+  left: calc(var(--space-3) * -1);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.archive-offer__tag {
+  padding: 0 var(--space-2);
+  box-shadow: var(--space-1) var(--space-1) 0 var(--color-outline);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.archive-offer__tag--archives {
+  background: var(--color-archives);
+  color: var(--color-on-archives);
+}
+
+.archive-offer__tag--wanted {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.archive-offer__fixed,
+.archive-offer__stock {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+.archive-offer__buy {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.purchase-confirmation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.purchase-confirmation .modal__head {
+  margin: 0;
+}
+
+.purchase-confirmation__summary {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
+.purchase-confirmation__visual {
+  flex: none;
+}
+
+.purchase-confirmation__facts {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+}
+
+.purchase-confirmation__fact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  align-items: baseline;
+  gap: var(--space-4);
+}
+
+.purchase-confirmation__fact dt {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.purchase-confirmation__fact dd {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-body);
+}
+
+.purchase-confirmation__price {
+  color: var(--color-gold);
+  font: var(--font-number);
+  font-size: 30px;
+}
+
+.purchase-confirmation__note,
+.purchase-confirmation__text,
+.purchase-confirmation__missing,
+.purchase-confirmation__refusal,
+.purchase-confirmation__loading {
+  margin: 0;
+}
+
+.purchase-confirmation__note {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.purchase-confirmation__text,
+.purchase-confirmation__missing,
+.purchase-confirmation__loading {
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.purchase-confirmation__refusal {
+  color: var(--color-alert);
+  font: var(--font-body);
+}
+
+@media (max-width: 719px) {
+  .purchase-confirmation__fact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+}

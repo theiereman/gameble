@@ -1,0 +1,4 @@
+<% content_for :title, t("market.archive_purchases.confirmation.title") %>
+<%= turbo_frame_tag "archive-purchase" do %>
+  <%= render(@withdrawal ? "market/archive_purchases/result" : "market/archive_purchases/confirmation") %>
+<% end %>

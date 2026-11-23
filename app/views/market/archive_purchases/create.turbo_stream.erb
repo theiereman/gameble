@@ -1,0 +1,8 @@
+<%= turbo_stream.update "archive-purchase" do %>
+  <%= render(@withdrawal ? "market/archive_purchases/result" : "market/archive_purchases/confirmation") %>
+<% end %>
+<% if @offer %>
+  <%= turbo_stream.replace archive_offer_dom_id(@card), partial: "market/shops/offer", locals: { row: @offer, marks: @marks, buyable: @settings.open } %>
+<% else %>
+  <%= turbo_stream.remove archive_offer_dom_id(@card) %>
+<% end %>

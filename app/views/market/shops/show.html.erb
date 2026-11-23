@@ -1,0 +1,32 @@
+<% content_for :public_page, true unless current_player %>
+<% content_for :title, t(".heading") %>
+<% content_for :screen_title, t(".screen_title") %>
+<% content_for :back_button, true %>
+<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
+<%= tag.section class: "market-shop page page--wide", aria: { labelledby: "market-shop-heading" },
+      data: { controller: "next-page purchase-dialog", action: "focusout->next-page#focusLeft" } do %>
+  <h1 id="market-shop-heading" class="visually-hidden" tabindex="-1" data-purchase-dialog-target="heading"><%= t(".heading") %></h1>
+  <%= render "shell/balance_chip", placement: :header %>
+  <% if @suspended %><%= render "market/suspended_banner" %><% end %>
+  <div class="market-shop__intro">
+    <p class="market-shop__line"><%= t(".line") %></p>
+    <% unless current_player %>
+      <p class="market-shop__sign-in"><%= sign_in_button t(".sign_in"), origin: market_shop_path, class: "button button--primary" %></p>
+    <% end %>
+  </div>
+  <%= render "market/shops/filters", filters: @filters, rarities: @rarities, seasons: @seasons, sort: @sort, wanted_count: @wanted_count %>
+  <% if @offers.rows.empty? %>
+    <%= render EmptyStateComponent.new(line: @filters.any? ? t(".no_match") : t(".empty")) do |empty| %>
+      <% if @filters.any? %>
+        <% empty.with_action do %><%= render ButtonComponent.new(variant: :secondary, size: :small, href: market_shop_path(sort: @sort)) do %><%= t("library.filters.clear") %><% end %><% end %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <p class="market-shop__count"><%= t(".cards", count: @counts.cards) %> · <%= t(".editions", count: @counts.editions) %></p>
+    <ul id="archive-offers" class="market-screen__tiles market-shop__tiles" aria-label="<%= t(".list_label") %>">
+      <%= render "market/shops/offers", rows: @offers.rows, marks: @marks, buyable: @buyable %>
+    </ul>
+  <% end %>
+  <%= render "market/shops/pages", offers: @offers, sort: @sort, page: @page, filters: @filters %>
+  <%= render "market/shops/dialog" if @buyable %>
+<% end %>

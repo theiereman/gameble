@@ -1,0 +1,8 @@
+<%# locals: (offers:, sort:, page:, filters:) %>
+<% if offers.more %>
+  <nav id="shop-pages" class="market-screen__pages" aria-label="<%= t("market.shops.show.pages_label") %>" data-next-page-target="pages">
+    <%= render ButtonComponent.new(variant: :link, href: market_shop_filtered_path(filters, sort:, page: page + 1), rel: :next) do %><%= t("markets.screen.more") %><% end %>
+  </nav>
+<% else %>
+  <nav id="shop-pages" class="market-screen__pages" hidden></nav>
+<% end %>

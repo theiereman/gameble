@@ -831,6 +831,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_150002) do
     t.check_constraint "quantity > 0", name: "game_market_archive_stocks_quantity_check"
   end
 
+  create_table "game_market_archive_withdrawals", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "card_season_id", null: false
+    t.bigint "settings_id", null: false
+    t.string "purchase_token", null: false
+    t.bigint "price", null: false
+    t.datetime "created_at", null: false
+    t.index ["card_season_id"], name: "index_game_market_archive_withdrawals_on_card_season_id"
+    t.index ["player_id", "purchase_token"], name: "index_game_market_archive_withdrawals_uniqueness", unique: true
+    t.check_constraint "price > 0", name: "game_market_archive_withdrawals_price_check"
+  end
+
   create_table "game_market_bids", force: :cascade do |t|
     t.bigint "listing_id", null: false
     t.bigint "player_id", null: false
@@ -1388,6 +1400,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_150002) do
   add_foreign_key "game_market_archive_deposits", "accounts_players", column: "player_id"
   add_foreign_key "game_market_archive_deposits", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_market_archive_stocks", "catalog_card_seasons", column: "card_season_id"
+  add_foreign_key "game_market_archive_withdrawals", "accounts_players", column: "player_id"
+  add_foreign_key "game_market_archive_withdrawals", "catalog_card_seasons", column: "card_season_id"
+  add_foreign_key "game_market_archive_withdrawals", "game_market_settings", column: "settings_id"
   add_foreign_key "game_market_bids", "accounts_players", column: "player_id"
   add_foreign_key "game_market_bids", "game_market_listings", column: "listing_id"
   add_foreign_key "game_market_chart_publications", "accounts_players", column: "changed_by_id"

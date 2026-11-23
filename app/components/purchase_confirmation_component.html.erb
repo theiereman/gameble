@@ -1,0 +1,50 @@
+<div class="purchase-confirmation">
+  <div class="modal__head">
+    <h2 id="<%= title_id %>" class="<%= class_names("modal__title", "modal__title--alert": short?) %>" tabindex="-1" data-purchase-dialog-target="title"><%= title %></h2>
+    <button type="button" class="modal__close" aria-label="<%= t("purchase_confirmation.close") %>" data-action="dialog#close">
+      <%= helpers.pixel_icon("close", class: "modal__close-icon") %>
+    </button>
+  </div>
+  <div class="purchase-confirmation__summary">
+    <% if visual? %><div class="purchase-confirmation__visual" aria-hidden="true"><%= visual %></div><% end %>
+    <dl class="purchase-confirmation__facts">
+      <%= facts %>
+      <% if price %>
+        <div class="purchase-confirmation__fact">
+          <dt><%= t("purchase_confirmation.price") %></dt>
+          <dd><%= render PicoinAmountComponent.new(amount: price, class: "purchase-confirmation__price") %></dd>
+        </div>
+        <div class="purchase-confirmation__fact">
+          <dt><%= t("purchase_confirmation.balance_after") %></dt>
+          <dd>
+            <% if balance_after %>
+              <%= render PicoinAmountComponent.new(amount: balance_after) %>
+            <% else %>
+              <span aria-hidden="true">—</span><span class="visually-hidden"><%= t("purchase_confirmation.no_balance") %></span>
+            <% end %>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+  <% if note? %><p class="purchase-confirmation__note"><%= note %></p><% end %>
+  <% if refusal %><p class="purchase-confirmation__refusal" role="alert"><%= refusal %></p><% end %>
+  <% cancel = tag.button(t("purchase_confirmation.cancel"), type: :button, class: "button button--secondary", data: { action: "dialog#close" }) %>
+  <% if state == :buyable %>
+    <%= form_with url:, class: "purchase-confirmation__form" do %>
+      <% fields.each do |name, value| %><%= hidden_field_tag name, value, id: nil %><% end %>
+      <div class="market-dialog__actions">
+        <%= cancel %>
+        <%= render ButtonComponent.new(type: :submit) do %><%= t("purchase_confirmation.buy", amount: helpers.picoins(price)) %><% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <% if short? && missing_line %><p class="purchase-confirmation__missing"><%= missing_line %></p><% end %>
+    <div class="market-dialog__actions">
+      <%= cancel %>
+      <% if short? && entrust? %>
+        <%= render ButtonComponent.new(href: helpers.new_market_entrustment_path, turbo_frame: "_top") do %><%= t("purchase_confirmation.entrust") %><% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

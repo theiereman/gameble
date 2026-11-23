@@ -1,0 +1,10 @@
+<dialog id="archive-purchase-dialog" class="modal purchase-dialog" aria-labelledby="archive-purchase-title"
+        data-controller="dialog" data-purchase-dialog-target="dialog" data-action="click->dialog#closeOnScrim close->purchase-dialog#closed">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <%= turbo_frame_tag "archive-purchase", data: { purchase_dialog_target: "frame" } %>
+  <% end %>
+  <template data-purchase-dialog-target="loading">
+    <p class="purchase-confirmation__loading" role="status"><%= t("market.shops.dialog.loading") %></p>
+  </template>
+</dialog>

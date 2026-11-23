@@ -1,0 +1,4 @@
+<%# locals: (rows:, marks: ListingMarks::NONE, buyable: false) %>
+<% rows.each do |row| %>
+  <%= render "market/shops/offer", row:, marks:, buyable: %>
+<% end %>

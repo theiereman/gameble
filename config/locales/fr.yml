@@ -1921,6 +1921,14 @@ fr:
       no_sale: "sans vente"
   picoin_amount:
     accessible: "%{amount} PiCoins"
+  purchase_confirmation:
+    balance_after: "Solde après"
+    buy: "ACHETER · %{amount}"
+    cancel: "ANNULER"
+    close: "Fermer"
+    entrust: "CONFIER DES CARTES"
+    no_balance: "aucun"
+    price: "Prix"
   pioneer_rankings:
     boards:
       empty:
@@ -2428,6 +2436,69 @@ fr:
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
   market:
+    archive_purchases:
+      confirmation:
+        card: "Carte"
+        edition: "Édition"
+        edition_value: "%{rarity} · saison %{season}"
+        note: "Prix fixe de la Confrérie. La carte garde sa rareté et sa saison."
+        short_line: "%{card} %{rarity} coûte %{price}, vous avez %{available}."
+        short_title: "IL VOUS MANQUE %{amount} PICOINS"
+        title: "ACHETER AUX ARCHIVES ?"
+      create:
+        throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
+      refusals:
+        last_copy: "Un autre joueur vient de prendre le dernier exemplaire. Rien n'est débité."
+      result:
+        paid: "Vous payez %{amount}. La carte rejoint votre collection."
+        see_card: "VOIR LA CARTE"
+        title: "VOUS AVEZ ACHETÉ %{card}"
+    shops:
+      dialog:
+        loading: "Chargement…"
+      filters:
+        search_label: "Rechercher un jeu"
+        season_all: "toutes"
+        season_prefix: "Saison :"
+        seasons_label: "Choisir une saison"
+        sorts:
+          price_asc: "prix croissant"
+          price_desc: "prix décroissant"
+        sorts_label: "Trier les cartes des Archives"
+        wanted: "VOULUES · %{count}"
+        wanted_spoken:
+          zero: "Voulues, %{count} carte"
+          one: "Voulues, %{count} carte"
+          other: "Voulues, %{count} cartes"
+      offer:
+        archives: "ARCHIVES"
+        buy: "ACHETER ▸"
+        buy_spoken: "Acheter"
+        fixed: "prix fixe"
+        label: "%{card}, %{rarity}, saison %{season}, Archives de la Confrérie, prix fixe %{price}"
+        stock:
+          zero: "%{count} en stock"
+          one: "%{count} en stock"
+          other: "%{count} en stock"
+        wanted: "VOULUE"
+        wanted_spoken: "voulue"
+      show:
+        cards:
+          zero: "%{count} carte"
+          one: "%{count} carte"
+          other: "%{count} cartes"
+        editions:
+          zero: "%{count} édition"
+          one: "%{count} édition"
+          other: "%{count} éditions"
+        empty: "Aucune carte aux Archives pour le moment."
+        heading: "Boutique de la Confrérie"
+        line: "« Les Archives ne détruisent rien. Elles rendent, contre une juste contribution au 100-6-Tron. »"
+        list_label: "Cartes des Archives"
+        no_match: "Aucune carte des Archives ne correspond à ces filtres."
+        pages_label: "Autres cartes des Archives"
+        screen_title: "BOUTIQUE"
+        sign_in: "Connectez-vous pour acheter aux Archives"
     copy_filters:
       wanted: "VOULUES PAR D'AUTRES · %{count}"
       wanted_label:
@@ -5133,6 +5204,9 @@ fr:
       nothing_fits: "Aucune carte ne tient dans votre plafond du jour. Il se renouvelle à 00:00 UTC."
       invalid_choices: "Certains choix sont à corriger. Rien n'a été vendu, mis en vente ni confié."
       invalid_choice: "Ce choix n'existe pas."
+      not_in_shop: "Cette carte n'est plus vendue aux Archives."
+      out_of_stock: "Cette carte n'est plus disponible."
+      invalid_purchase_token: "Cet achat n'a pas pu être lu. Rechargez la page."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion n'a pas abouti. Réessayez."

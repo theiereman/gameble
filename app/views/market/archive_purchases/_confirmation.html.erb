@@ -1,0 +1,23 @@
+<% card = @card %>
+<% rarity = CardStrings.new.rarity_name(card.rarity) %>
+<% price = @offer&.price %>
+<% short = @state == :short %>
+<%= render PurchaseConfirmationComponent.new(
+      title: short ? t("market.archive_purchases.confirmation.short_title", amount: picoins(price - @available)) : t("market.archive_purchases.confirmation.title"),
+      title_id: "archive-purchase-title", state: @state, price:, available: @available, refusal: @refusal,
+      url: market_archive_purchase_path(slug: card.id, number: card.season_number),
+      fields: { settings_token: @settings.token, purchase_token: @purchase_token },
+      missing_line: (t("market.archive_purchases.confirmation.short_line", card: card.title, rarity:, price: picoins(price), available: picoins(@available)) if short)) do |confirmation| %>
+  <% confirmation.with_visual do %><%= render CardComponent.new(card:, size: :s, tilt: false) %><% end %>
+  <% confirmation.with_facts do %>
+    <div class="purchase-confirmation__fact">
+      <dt><%= t("market.archive_purchases.confirmation.card") %></dt>
+      <dd><%= card.title %></dd>
+    </div>
+    <div class="purchase-confirmation__fact">
+      <dt><%= t("market.archive_purchases.confirmation.edition") %></dt>
+      <dd><%= t("market.archive_purchases.confirmation.edition_value", rarity:, season: card.season_number) %></dd>
+    </div>
+  <% end %>
+  <% confirmation.with_note do %><%= t("market.archive_purchases.confirmation.note") %><% end %>
+<% end %>
