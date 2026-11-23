@@ -3,7 +3,7 @@
 <div class="set-album" data-controller="set-album">
   <%= render PanelComponent.new(tag: :header, brackets: true, class: class_names("set-album__header", "set-album__header--tiered": set_tier_ticks?(standing), "set-album__header--complete": standing.complete?)) do %>
     <div class="set-album__title">
-      <h1 id="set-album-heading" class="set-album__name" tabindex="-1" data-set-album-target="heading"><%= heading %></h1>
+      <h1 id="set-album-heading" class="set-album__name" tabindex="-1"<% if flash[:order_chain_ended] %> autofocus<% end %> data-set-album-target="heading"><%= heading %></h1>
       <% if standing.complete? %>
         <span class="set-album__stamp"><%= set_tier_name("complete") %></span>
       <% end %>

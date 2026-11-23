@@ -5,7 +5,7 @@
 <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
 <% actions = capture do %>
   <%= render "goals/control", aim: @goal_aim, goal: @goal, offer: @goal_slot, refused: flash[:goal_refused].present?,
-    complete: @standing.complete? || @standing.total.zero? %>
+    complete: @standing.complete? || @standing.total.zero?, orders: @goal_orders %>
   <% if @custom_set.custom? %>
     <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: "custom-set-editor") do %><%= t("custom_sets.album.edit") %><% end %>
     <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: "delete-custom-set") do %><%= t("custom_sets.album.delete") %><% end %>

@@ -1,5 +1,5 @@
 <div class="set-entry page page--regular" data-controller="last-album" data-action="turbo:frame-load->last-album#mark">
-  <%= render("library/goals", goals:, slots: goal_slots, suggestions: goal_suggestions) %>
+  <%= render("library/goals", goals:, slots: goal_slots, suggestions: goal_suggestions, to_order: cards_to_order) %>
   <div class="set-entry__shortcuts">
     <%= render "library/all_cards_tile", **all_cards %>
     <%= render "library/all_sets_tile", **all_sets %>

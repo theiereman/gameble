@@ -1,0 +1,27 @@
+/* ---- A goal's cards to order: the line under its OBJECTIFS row and the album's orders link ---- */
+
+.goal-orders {
+  margin: 0;
+  padding: var(--space-2) var(--space-4) 0 var(--space-6);
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  overflow-wrap: anywhere;
+}
+
+.goal-orders a:hover {
+  color: var(--color-accent-hi);
+}
+
+.goal-control__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+@media (max-width: 719px) {
+  .goal-control__buttons > * {
+    flex: 1 1 100%;
+  }
+}

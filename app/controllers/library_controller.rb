@@ -75,6 +75,7 @@ class LibraryController < ApplicationController
   private
     def load_goals
       @goals = goal_marks.needs
+      @cards_to_order = Game::Market::CardsToOrder.call(current_player, @goals, locale: I18n.locale)
       @goal_suggestions = @goals.empty? ? goal_suggestions(current_player, season: @season) : []
     end
 

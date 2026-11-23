@@ -8,6 +8,10 @@
 <%= form_with url: market_card_orders_path(slug: card.id), id: "order-form", class: "order-form__form", data: order_form_data(@minimums) do %>
   <%= hidden_field_tag :settings_token, @settings.token, id: nil %>
   <%= hidden_field_tag :from, @from, id: nil if @from %>
+  <% if @chain %>
+    <%= hidden_field_tag :goal, @chain[:goal], id: nil %>
+    <%= hidden_field_tag :of, @chain[:of], id: nil %>
+  <% end %>
   <div class="market-bid__field">
     <div class="market-bid__field-head">
       <label for="order-price" class="market-bid__label"><%= t("market.orders.new.price") %></label>

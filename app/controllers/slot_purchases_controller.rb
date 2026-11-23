@@ -89,7 +89,7 @@ class SlotPurchasesController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: turbo_stream.replace("set-album-goal", partial: "goals/control",
-            locals: { aim: @goal_aim, goal: @goal, offer: @goal_slot, bought: true }, method: :morph)
+            locals: { aim: @goal_aim, goal: @goal, offer: @goal_slot, bought: true, orders: @goal_orders }, method: :morph)
         end
         format.html do
           flash[:notice] = helpers.goal_bought_sentence(@goal)

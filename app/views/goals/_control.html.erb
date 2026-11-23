@@ -1,13 +1,19 @@
-<%# locals: (aim:, goal:, refused: false, complete: false, offer: nil, bought: false) %>
+<%# locals: (aim:, goal:, refused: false, complete: false, offer: nil, bought: false, orders: []) %>
 <% offered = offer && !goal && !complete %>
 <% bought &&= goal %>
 <div id="set-album-goal" class="<%= class_names("goal-control", "goal-control--set": goal, "goal-tone--#{goal&.position}": goal) %>"
   data-controller="<%= class_names("goal-control", "purchase-dialog": offered) %>" data-action="submit->goal-control#remember"<% if bought %> data-goal-control-bought-value="true"<% end %>>
   <% if goal %>
-    <%= button_to library_goals_path, method: :delete, params: aim, class: "button button--small goal-button", form_class: "button-form",
-      aria: { label: t("goals.button.remove_label", number: goal.position, set: goal_set_name(goal)) } do %>
-      <%= goal_bookmark(goal.position, size: :small) %><span><%= t("goals.button.remove", number: goal.position) %></span>
-    <% end %>
+    <div class="goal-control__buttons">
+      <%= button_to library_goals_path, method: :delete, params: aim, class: "button button--small goal-button", form_class: "button-form",
+        aria: { label: t("goals.button.remove_label", number: goal.position, set: goal_set_name(goal)) } do %>
+        <%= goal_bookmark(goal.position, size: :small) %><span><%= t("goals.button.remove", number: goal.position) %></span>
+      <% end %>
+      <% if orders.any? %>
+        <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_market_card_order_path(slug: orders.first.id, goal: goal.position, of: orders.size),
+          aria_label: t("goals.orders.label", count: orders.size)) do %><%= t("goals.orders.button", count: orders.size) %><% end %>
+      <% end %>
+    </div>
   <% elsif offered %>
     <%= link_to t("goals.button.add"), slot_purchase_opener_path(offer, aim), class: "button button--secondary button--small goal-button",
       aria: { haspopup: "dialog", describedby: "goal-slot-price" }, data: { action: "purchase-dialog#open" } %>

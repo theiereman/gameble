@@ -52,7 +52,7 @@ class GoalsController < ApplicationController
       return turbo_stream.append("toasts", ToastComponent.new(message:, tone: :alert)) if message
 
       load_goal_control(aim)
-      turbo_stream.replace("set-album-goal", partial: "goals/control", locals: { aim: @goal_aim, goal: @goal, offer: @goal_slot, refused: }, method: :morph)
+      turbo_stream.replace("set-album-goal", partial: "goals/control", locals: { aim: @goal_aim, goal: @goal, offer: @goal_slot, refused:, orders: @goal_orders }, method: :morph)
     end
 
     def album_path

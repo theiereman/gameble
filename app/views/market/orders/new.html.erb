@@ -5,7 +5,12 @@
 <% content_for :back_button, true %>
 <% content_for :phone_back do %><%= phone_back_link back_label, back_path, data: order_back_data(@from) %><% end %>
 <%= tag.section class: "order-form page page--regular", aria: { labelledby: "order-form-heading" }, data: { controller: "purchase-dialog" } do %>
-  <h1 id="order-form-heading" class="order-form__title"><%= card.title %></h1>
+  <% chain_line = flash[:order_chain] %>
+  <% if chain_line %>
+    <p id="order-chain-result" class="order-form__chain"><%= chain_line %></p>
+  <% end %>
+  <%= tag.h1 card.title, id: "order-form-heading", class: "order-form__title",
+        tabindex: (-1 if chain_line), autofocus: chain_line.present?, aria: { describedby: ("order-chain-result" if chain_line) } %>
   <% if @goal %>
     <p class="order-form__goal"><%= goal_bookmark(@goal.position, size: :small) %><span><%= t(".goal", set: goal_set_name(@goal)) %></span></p>
   <% end %>

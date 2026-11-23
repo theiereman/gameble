@@ -6,10 +6,12 @@ require_relative "../../support/counting_rate_limit"
 require_relative "../../support/market_listings"
 require_relative "../../support/market_orders"
 require_relative "../../support/custom_sets"
+require_relative "../../support/game_sets"
 
 class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
   include CustomSets
+  include GameSets
   include MarketListings
   include MarketOrders
   include MarketAuctions
@@ -294,5 +296,74 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".order-archive button.button[disabled]", "ACHETER · 500"
     assert_select "dialog#archive-purchase-dialog", 0
+  end
+
+  def chain_goal
+    insert_set(%i[common_card_one uncommon_card_one].map { catalog_card_seasons(it).id }, { complete: 2 })
+    Game::AddGoal.new.call(player: @player, kind: "theme", key: "roguelike").value!
+  end
+
+  def place_in_chain(slug: "tin-soldier", price: "100", goal: 1, of: 2)
+    post market_card_orders_path(locale: :en, slug:), params: { price:, settings_token: @settings.token, goal:, of: }
+  end
+
+  test "an order placed from a goal's chain opens the form on its next card, the result above the heading that takes the focus" do
+    chain_goal
+    sign_in(@player)
+
+    place_in_chain
+
+    assert_redirected_to new_market_card_order_path(locale: :en, slug: "green-hills", goal: 1, of: 2)
+    follow_redirect!
+    assert_select "p#order-chain-result + h1#order-form-heading[tabindex='-1'][autofocus][aria-describedby=order-chain-result]", "Green Hills"
+    assert_select "#order-chain-result", "Order placed on Tin Soldier: 100 PiCoins held. Card 1 of 2."
+    assert_select "#order-form input[type=hidden][name=goal][value='1']"
+    assert_select "#order-form input[type=hidden][name=of][value='2']"
+  end
+
+  test "the chain's last order returns to the goal's album, its result a toast and the album heading focused" do
+    chain_goal
+    sign_in(@player)
+    place
+
+    place_in_chain(slug: "green-hills")
+
+    assert_redirected_to library_set_path(locale: :en, kind: "theme", key: "roguelike")
+    assert_equal "Order placed on Green Hills: 100 PiCoins held. Card 2 of 2.", flash[:notice]
+    follow_redirect!
+    assert_select "#toasts", text: /Card 2 of 2\./
+    assert_select "#set-album-heading[autofocus]"
+    assert_select "#set-album-goal a", false
+  end
+
+  test "a chain's length missing or under what is left counts from the cards left" do
+    chain_goal
+    sign_in(@player)
+
+    place_in_chain(of: "x")
+
+    assert_equal "Order placed on Tin Soldier: 100 PiCoins held. Card 1 of 2.", flash[:order_chain]
+  end
+
+  test "a refused order in a chain redraws the form keeping the chain" do
+    chain_goal
+    sign_in(@player)
+
+    place_in_chain(price: "5")
+
+    assert_response :unprocessable_content
+    assert_select "#order-form input[name=goal][value='1'] + input[name=of][value='2']"
+    assert_select "#order-chain-result", 0
+    assert_select "h1#order-form-heading:not([autofocus])"
+  end
+
+  test "a goal number that is none of the player's leads to MY ORDERS, as an order without a chain" do
+    chain_goal
+    sign_in(@player)
+
+    place_in_chain(goal: 7)
+
+    assert_redirected_to market_my_orders_path(locale: :en)
+    assert_equal Game::Market::Order.last.token, flash[:placed_order]
   end
 end
