@@ -3,13 +3,13 @@ title: 'The Confier wanted table applies every choice in one validation'
 type: 'feature'
 ticket: '8'
 created: '2026-11-20'
-status: 'in-review'
+status: 'built'
 baseline_revision: '91affd6fc8768c4ce6a5e48b59fed8f365baba81'
 route: 'full'
 route_source: 'auto'
-review: 'thorough'
+review: 'quick'
 review_source: 'pinned'
-lenses_ran: ['blind-hunter', 'edge-case-hunter', 'verification-gap', 'intent-alignment']
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -84,6 +84,15 @@ deferred: []
 ## Plan Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---------|---------|-------|----------|
+| 1 | `package-lock.json` drops 20 `"dev": true` flags | medium | patch | The plan says leave it alone; npm noise from a local install. Restored from the parent commit. |
+| 2 | Inline comments explain the code's own logic | low | patch | AGENTS.md allows only external constraints; removed the inline ones, kept the class headers every market operation carries. |
+| 3 | `stamp_not_covered` and `start_below_minimum` reuse keys needing `%{amount}`/`%{rarity}` that `Refused` does not carry | medium | defer | Real for the table view; no caller renders `Refused` yet, the view story decides what it needs. |
+| 4 | Deleted seller path of `:player_required` untested | low | defer | `lock_bank`'s deleted check is shared and tested elsewhere; test gap only. |
+| 5 | `no_rarity` on an auction line and on an order line untested | low | defer | Test gap; the code path is read and reaches `no_rarity` for auction lines. |
+| 6 | `now` read before the locks, so an order expiring during the lock wait can be served | low | defer | Same pattern as `SellToOrder`, pre-existing. |
 
 ## Design Notes
 

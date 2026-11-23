@@ -16,7 +16,6 @@ module Game
         receive_bought_copy(order.player_id, holdings, card_season_id, now:)
       end
 
-      # Two orders served on one edition settle one after the other: the second's window then holds the first.
       def settle_order(order:, seller_id:, card_season_id:, commission_settings:, now:)
         average = refresh_edition_price(card_season_id, now, adding: order.price)
         order.update!(status: "served", seller_id:, served_card_season_id: card_season_id, served_at: now, average_after_sale: average)

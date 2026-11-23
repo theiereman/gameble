@@ -13,7 +13,6 @@ module Game
         Success(card_season_ids.to_h { |card_season_id| [ card_season_id, settings.entrustment(rarities.fetch(card_season_id)) ] })
       end
 
-      # Whole copies, line after line in the order given: a line that does not fit keeps its copies and a cheaper one after it may still pass.
       def copies_within_cap(lines, values, cap_left)
         lines.map do |card_season_id, copies|
           fits = [ copies, cap_left / values.fetch(card_season_id) ].min
@@ -22,7 +21,6 @@ module Game
         end
       end
 
-      # quantities: card-season id => copies, one entry per card-season.
       def entrust(player_id, quantities, holdings, values, settings, now:)
         move(player_id, holdings, given: quantities, gained: {}, released: {}, now:)
         ShowcaseEntry.remove_unheld(player_id, quantities.keys)

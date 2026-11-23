@@ -771,3 +771,17 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-capsule-record-and-achievements/story-refactor-sweep-plan.md`
   summary: `Game::DuelCapsule.award` returns `nil` both when nobody won and when the winner is removed or the pool is missing; a named constant for it would add a value no caller reads.
   evidence: `app/domains/game/app/models/game/duel_capsule.rb`, `app/domains/game/app/operations/game/answer_round.rb` (`finish`).
+
+## Deferred from: code review of plan-grand-inventaire-screen (2026-11-19)
+
+- The pace-line pioneer link for a friend of a friends-only pioneer has no test; only `GrandInventoriesController` builds the friends set. Resolved 2026-11-19: test added.
+- The back link to a Grand Inventaire page past 60 cards has no test; it needs a 61-card fixture. Resolved 2026-11-19: test added.
+- source_plan: `_bmad-output/initiative-gameble/epic-market-volume/story-the-confier-wanted-table-applies-every-choice-in-one-validat-plan.md`
+  summary: ApplyWantedChoices' `stamp_not_covered` and `start_below_minimum` refusals reuse keys needing `%{amount}`/`%{rarity}` that `Refused(line:, code:)` does not carry.
+  evidence: `t("errors.game.#{code}")` on those codes raises MissingInterpolationArgument; the Confier table view must either get the values on `Refused` or new keys.
+- source_plan: `_bmad-output/initiative-gameble/epic-market-volume/story-the-confier-wanted-table-applies-every-choice-in-one-validat-plan.md`
+  summary: ApplyWantedChoices tests miss the deleted-seller `:player_required` path and `no_rarity` on auction and order lines.
+  evidence: apply_wanted_choices_test.rb sets only `banned_at` and asserts `no_rarity` only on an entrust line.
+- source_plan: `_bmad-output/initiative-gameble/epic-market-volume/story-the-confier-wanted-table-applies-every-choice-in-one-validat-plan.md`
+  summary: ApplyWantedChoices and SellToOrder read `now` before taking locks, so an order expiring during the lock wait can still be served.
+  evidence: `now = Time.current` precedes `TradeLocks.players`; the recheck and `served_at` use it.

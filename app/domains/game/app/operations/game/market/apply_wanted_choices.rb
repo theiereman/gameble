@@ -12,7 +12,6 @@ module Game
       Line = Data.define(:index, :card_season_id, :copies, :choice, :order_tokens, :starting_price, :duration_hours) do
         def auction? = choice == "auction"
 
-        # The copies of an order line the table drew no order for are entrusted.
         def entrusted_copies = auction? ? 0 : copies - order_tokens.size
       end
 
@@ -24,7 +23,6 @@ module Game
       Refused = Data.define(:line, :code)
       Changed = Data.define(:line, :order)
 
-      # lines: { card_season_id:, copies:, choice:, order_tokens: (order), starting_price:, duration_hours: (auction) } each, named by its index.
       def call(player:, lines:, settings_token:)
         player = step require_player(player)
         lines = step parse(lines)
@@ -91,8 +89,6 @@ module Game
         player_ids.uniq.sort.to_h { |player_id| [ player_id, TradeLocks.holdings(player_id, card_season_ids.uniq) ] }
       end
 
-      # Each drawn order must still be the best eligible order left for its copy once the earlier copies have taken theirs, greedy on the current
-      # state; a changed line names the order the table would draw now for its first changed copy.
       def still_drawn(lines, orders, player, now)
         assigned = []
         sales = []
@@ -119,7 +115,6 @@ module Game
 
       def received(order, settings) = order.price - AuctionMath.commission(order.price, settings.commission_basis_points)
 
-      # The entrusted copies of every line, walked against the cap in the table's order; a line of an edition without rarity is refused apart.
       def split_entrusted(lines, rarities, values, cap_left)
         entrusting = lines.select { it.entrusted_copies.positive? && rarities.key?(it.card_season_id) }
         fits = copies_within_cap(entrusting.map { [ it.card_season_id, it.entrusted_copies ] }, values, cap_left)
@@ -130,7 +125,6 @@ module Game
         [ entrusted, skipped ]
       end
 
-      # funds: the seller's available PiCoins plus this validation's proceeds, which the stamps of the auction lines draw on in table order.
       def fields_valid(lines, own, rarities, settings, funds)
         short = lines.group_by(&:card_season_id).select { |card_season_id, same| same.sum(&:copies) > free_copies(own[card_season_id]) }
         stamps = 0
@@ -154,7 +148,6 @@ module Game
         [ price, (price_rule(settings, rarity, price.value!) if price.success? && rarity), duration_rule(settings, line.duration_hours) ].compact.filter_map(&:failure)
       end
 
-      # Every copy moves first, then the edition prices refresh in ascending card-season, then the one post.
       def apply(player, lines, sales, entrusted, skipped, holdings:, rarities:, values:, settings:, now:)
         sales.each { |line, order| move_order_copy(order:, seller_id: player.id, card_season_id: line.card_season_id, holdings:, now:) }
         opened = lines.select(&:auction?).flat_map do |line|
