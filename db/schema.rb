@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_23_190004) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_100002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -961,6 +961,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_190004) do
     t.bigint "amount"
     t.datetime "noticed_at", null: false
     t.bigint "order_id"
+    t.index ["listing_id"], name: "index_game_market_notices_on_listing_id"
+    t.index ["order_id"], name: "index_game_market_notices_on_order_id"
     t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing_alone", unique: true, where: "(order_id IS NULL)"
     t.index ["player_id", "order_id"], name: "index_game_market_notices_listed_above_order", unique: true, where: "((kind)::text = 'listed_above_order'::text)"
     t.index ["player_id", "order_id"], name: "index_game_market_notices_order_end", unique: true, where: "((kind)::text = ANY (ARRAY[('order_served'::character varying)::text, ('order_expired'::character varying)::text]))"
