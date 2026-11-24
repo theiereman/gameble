@@ -1237,7 +1237,7 @@ fr:
         add: "Ajouter le donateur"
         empty: "Aucun donateur pour l'instant."
         heading: "Les donateurs des crédits"
-        intro: "Les noms remerciés dans les crédits, %{length} caractères au plus chacun. Un donateur n'a pas besoin de compte : écrivez le nom comme il souhaite le lire."
+        intro: "Les noms remerciés dans les crédits, %{length} caractères au plus chacun. Un donateur n'a pas besoin de compte : écrivez le nom comme il souhaite le lire."
         list_heading: "Tous les donateurs, par ordre d'arrivée"
         name_label: "Nom du donateur"
         remove: "Retirer"

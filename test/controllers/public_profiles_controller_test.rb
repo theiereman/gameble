@@ -738,8 +738,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # activity, the owner's started sets, those sets, their cards and the
     # faces of those shown; the themes' names; the owner's game set goals;
     # the owner's earned titles and their chosen one; the owner's avatar; the owner's fortune;
-    # the owner's best cards on the stage and their faces.
-    assert_request_queries(21) { get brother_path(locale: :en, token: @owner.token) }
+    # the owner's best cards on the stage and their faces; whether the owner
+    # is a supporter.
+    assert_request_queries(22) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
     assert_select ".profile-sets .set-tile", minimum: 1
 
