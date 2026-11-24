@@ -4367,6 +4367,7 @@ en:
           one: "%{number} invitation waiting for your answer"
           other: "%{number} invitations waiting for your answer"
         label: Bridge menu
+        market: Market
         open_booster: Open a capsule
         reserve:
           one: "%{number} capsule in reserve"
@@ -4380,7 +4381,7 @@ en:
           one: "%{number} special capsule"
           other: "%{number} special capsules"
         support: Support
-        trades: Trade
+        trades: Trades
       showcase:
         empty:
           open: Open a capsule

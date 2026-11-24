@@ -344,7 +344,8 @@ fr:
           zero: "%{owned} carte unique sur %{total}"
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
-        trades: "Commerce"
+        trades: "Échanges"
+        market: "Marché"
         duels: "Duels"
         feed: "Fil d'activité"
         invitations_waiting:

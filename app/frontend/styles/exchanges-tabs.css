@@ -1,5 +1,6 @@
-/* ---- The trades sub-tabs: between friends and the market, two equal parts
-   across the screen's content width. ---- */
+/* ---- The trades sub-tabs, phone only: between friends and the market, two
+   equal parts across the screen's content width. On desktop the hub menu
+   reaches each one. ---- */
 
 .exchanges-tabs {
   width: 100%;
@@ -81,7 +82,7 @@
 }
 
 @media (min-width: 720px) {
-  .main > .exchanges-tabs {
-    padding: 0 var(--space-gutter-desktop);
+  .exchanges-tabs {
+    display: none;
   }
 }

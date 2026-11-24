@@ -159,9 +159,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".hub[data-controller=hub-menu]"
-    assert_select "nav.hub-menu[aria-label=?] > ol.hub-menu__list:not([hidden]) > li", "Menu du pont", count: 7
-    assert_equal %w[1 2 3 4 5 6 7], main_menu_items.map { it["aria-keyshortcuts"] }
-    assert_equal %w[01 02 03 04 05 06 07], css_select(".hub-menu > ol:not([hidden]) .menu-item__number").map(&:text)
+    assert_select "nav.hub-menu[aria-label=?] > ol.hub-menu__list:not([hidden]) > li", "Menu du pont", count: 8
+    assert_equal %w[1 2 3 4 5 6 7 8], main_menu_items.map { it["aria-keyshortcuts"] }
+    assert_equal %w[01 02 03 04 05 06 07 08], css_select(".hub-menu > ol:not([hidden]) .menu-item__number").map(&:text)
 
     # 01: the booster screen, its reserve in a lime badge.
     assert_select ".hub-menu a.menu-item[href='/fr/booster'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
@@ -177,32 +177,38 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".visually-hidden", "1 carte unique sur 5"
     end
     assert_select ".hub-menu a.menu-item[href='/fr/library/cards']", 0
-    # 03: the trades, their badge hidden when nothing waits.
-    assert_select ".hub-menu a.menu-item[href='/fr/exchanges'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
-      assert_select ".menu-item__label", "Commerce"
+    # 03: the trades between friends, their badge hidden when nothing waits.
+    assert_select ".hub-menu a.menu-item[href='/fr/trades'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Échanges"
       assert_select "#menu-trades-badge.stream-slot", 1
       assert_select ".menu-item__badge, .visually-hidden", 0
     end
-    # 04: the duels, tagged alpha, with no badge.
-    assert_select ".hub-menu a.menu-item[href='/fr/duels'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+    # 04: the market, its badge hidden when no auction is outbid.
+    assert_select ".hub-menu a.menu-item[href='/fr/market'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Marché"
+      assert_select "#menu-market-badge.stream-slot", 1
+      assert_select ".menu-item__badge, .visually-hidden", 0
+    end
+    assert_select ".hub-menu a.menu-item[href='/fr/exchanges']", 0
+    # 05: the duels, tagged alpha, with no badge.
+    assert_select ".hub-menu a.menu-item[href='/fr/duels'][aria-keyshortcuts='5'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Duels"
       assert_select ".alpha-tag", "ALPHA"
       assert_select ".menu-item__badge, .visually-hidden", 0
     end
-    assert_select ".hub-menu a.menu-item[href='/fr/market']", 0
-    # 05: the activity feed.
-    assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='5'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+    # 06: the activity feed.
+    assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='6'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Fil d'activité"
     end
     assert_select ".hub-menu a.menu-item[href='/fr/register']", 0
-    # 06: the achievements screen, none earned yet.
-    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+    # 07: the achievements screen, none earned yet.
+    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Succès"
       assert_select ".menu-item__meta[aria-hidden=true]", "0/#{Game::Achievements.offered.size}"
       assert_select ".visually-hidden", "0 succès obtenu sur #{Game::Achievements.offered.size}"
     end
-    # 07: the extras, a button that swaps the list in place for the hidden one.
-    assert_select ".hub-menu button.menu-item[type=button][aria-keyshortcuts='7'][aria-expanded=false][aria-controls=hub-menu-extras][data-hub-menu-target~=extrasEntry][data-action='hub-menu#openExtras']" do
+    # 08: the extras, a button that swaps the list in place for the hidden one.
+    assert_select ".hub-menu button.menu-item[type=button][aria-keyshortcuts='8'][aria-expanded=false][aria-controls=hub-menu-extras][data-hub-menu-target~=extrasEntry][data-action='hub-menu#openExtras']" do
       assert_select ".menu-item__label", "Extras"
     end
     assert_select ".hub-menu [aria-disabled]", false

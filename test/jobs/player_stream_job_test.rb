@@ -183,7 +183,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
 
     english = received(@hugo, :en)
     assert_equal [ "market-updated" ], streams(english, "gameble-event").map { it["event"] }
-    assert_equal %w[menu-trades-badge tab-trades-badge subtab-friends-badge subtab-market-badge market-bids-badge],
+    assert_equal %w[menu-trades-badge menu-market-badge tab-trades-badge subtab-friends-badge subtab-market-badge market-bids-badge],
       streams(english, "update").map { it["target"] }
     assert_empty streams(english, "append")
   end
@@ -195,7 +195,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
       starting_price: 20_000, current_price: 20_000, duration_hours: 24, ends_at: 1.day.from_now)
   end
 
-  test "a market notice sums the outbid auctions with the trades waiting, names both parts, and gives the market sub-tab its own count" do
+  test "a market notice sums the outbid auctions with the trades waiting on the tab, splits them between menus 03 and 04, and gives the market sub-tab its own count" do
     PlayerStreamJob.perform_now([ { player_id: @lea.id, topic: "market" } ])
     assert_empty template(streams(received(@lea, :en), "update", "menu-trades-badge").sole).css(".menu-item__badge")
     assert_empty template(streams(received(@lea, :en), "update", "subtab-market-badge").sole).children
@@ -208,8 +208,9 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
 
     english = received(@hugo, :en)
     menu = template(streams(english, "update", "menu-trades-badge").sole)
-    assert_equal "2", menu.at_css(".menu-item__badge--alert").text
-    assert_equal ", 1 trade and 1 auction to see", menu.at_css(".visually-hidden").text
+    assert_equal [ "1", ", 1 trade to see" ], [ menu.at_css(".menu-item__badge--alert").text, menu.at_css(".visually-hidden").text ]
+    menu = template(streams(english, "update", "menu-market-badge").sole)
+    assert_equal [ "1", ", 1 auction to see" ], [ menu.at_css(".menu-item__badge--alert").text, menu.at_css(".visually-hidden").text ]
     assert_equal "2", template(streams(english, "update", "tab-trades-badge").sole).at_css(".tab-bar__badge--alert").text
     market = template(streams(english, "update", "subtab-market-badge").sole)
     assert_equal [ "1", ", 1 auction outbid" ], [ market.at_css(".exchanges-tabs__badge").text, market.at_css(".visually-hidden").text ]
@@ -223,7 +224,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
   test "a notice without the trades or market topic sends no trades badge" do
     PlayerStreamJob.perform_now([ { player_id: @hugo.id, balance: true } ])
 
-    %w[menu-trades-badge tab-trades-badge subtab-friends-badge subtab-market-badge market-bids-badge].each do |target|
+    %w[menu-trades-badge menu-market-badge tab-trades-badge subtab-friends-badge subtab-market-badge market-bids-badge].each do |target|
       assert_empty streams(received(@hugo, :en), "update", target), target
     end
   end

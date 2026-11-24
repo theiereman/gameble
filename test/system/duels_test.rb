@@ -4,7 +4,7 @@ require_relative "../support/market"
 require_relative "../support/live_duels"
 
 # The DUELS tab and the trades tab's two sub-tabs, at phone width: Duels lists the player's decks and opens their
-# editor, the trades tab opens the sub-tab last used, a visitor keeps two tabs; on desktop, menu 03 and 04.
+# editor, the trades tab opens the sub-tab last used, a visitor keeps two tabs; on desktop, menus 03 to 05 and no sub-tab bar.
 class DuelsTest < ApplicationSystemTestCase
   include SteamSignIn
   include MarketSettings
@@ -115,12 +115,17 @@ class DuelsTest < ApplicationSystemTestCase
     assert_no_selector ".tab-bar"
   end
 
-  test "on desktop, the hub's menu reads 03 Trade and 04 Duels" do
+  test "on desktop, the hub's menu reads 03 Trades, 04 Market and 05 Duels, and the market shows no sub-tab bar" do
     sign_in(@player)
 
     within(".hub-menu") do
-      assert_selector "a.menu-item[aria-keyshortcuts='3'][href='/en/exchanges']", text: /03\s*TRADE\b/
-      assert_selector "a.menu-item[aria-keyshortcuts='4'][href='/en/duels']", text: /04\s*DUELS/
+      assert_selector "a.menu-item[aria-keyshortcuts='3'][href='/en/trades']", text: /03\s*TRADES/
+      assert_selector "a.menu-item[aria-keyshortcuts='4'][href='/en/market']", text: /04\s*MARKET/
+      assert_selector "a.menu-item[aria-keyshortcuts='5'][href='/en/duels']", text: /05\s*DUELS/
     end
+
+    find(".hub-menu a.menu-item[href='/en/market']").click
+    assert_current_path market_path(locale: :en)
+    assert_no_selector "nav.exchanges-tabs"
   end
 end

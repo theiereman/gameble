@@ -1,5 +1,6 @@
 <% unless waiting.nil? || outbid.nil? %>
-  <%= turbo_stream.update "menu-trades-badge", partial: "pages/menu_trades_badge", locals: { waiting:, outbid: } %>
+  <%= turbo_stream.update "menu-trades-badge", partial: "pages/menu_trades_badge", locals: { waiting:, outbid: 0 } %>
+  <%= turbo_stream.update "menu-market-badge", partial: "pages/menu_trades_badge", locals: { waiting: 0, outbid: } %>
   <%= turbo_stream.update "tab-trades-badge", partial: "shell/tab_trades_badge", locals: { waiting:, outbid: } %>
   <%= turbo_stream.update "subtab-friends-badge", partial: "exchanges/friends_badge", locals: { waiting: } %>
   <%= turbo_stream.update "subtab-market-badge", partial: "exchanges/market_badge", locals: { outbid: } %>
