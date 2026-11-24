@@ -215,10 +215,12 @@
       </div>
       <% end %>
     <% end %>
-    <% if entrustment %>
+    <% if entrustment || orderable %>
       <%= render "cards/action_group", key: :market do %>
       <div class="card-detail__market">
-        <% if entrustment.free.zero? %>
+        <% if orderable %>
+          <%= render ButtonComponent.new(href: (new_market_card_order_path(slug: view.id, from: "card") if signed_in), disabled: !signed_in) do %><%= t("card_details.order.button") %><% end %>
+        <% elsif entrustment.free.zero? %>
           <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("card_details.entrust.button") %><% end %>
           <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("card_details.list.button") %><% end %>
           <p class="card-detail__market-note"><%= t("card_details.entrust.reserved", count: entrustment.reserved) %></p>
@@ -232,9 +234,6 @@
     <% end %>
     <%= render "cards/action_group", key: :links do %>
     <div class="card-detail__card-links">
-      <% if orderable %>
-        <%= render ButtonComponent.new(href: (new_market_card_order_path(slug: view.id, from: "card") if signed_in), disabled: !signed_in) do %><%= t("card_details.order.button") %><% end %>
-      <% end %>
       <% if share_url %>
         <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
           data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"

@@ -118,7 +118,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
       store_link.then { [ it.text.squish, it["href"], it["rel"], it["target"] ] }
     assert_includes store_link["class"], "button--secondary"
     assert_select ".card-detail .button--primary", 0
-    assert_select ".card-detail__actions > .card-detail__action-group:only-child > .card-detail__card-links"
+    assert_select ".card-detail__actions > .card-detail__action-group > .card-detail__card-links"
     # The description is never on the face.
     assert_no_match(/portals/, css_select(".card-detail__card").sole.text)
     assert_no_match(/collection of/i, response.body)
@@ -1306,7 +1306,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     get card_path(locale: :en, slug: "portal")
 
-    assert_select ".card-detail__market", false
+    assert_select ".card-detail__market .button--secondary", false
   end
 
   test "METTRE EN VENTE links to the filtered Mettre en vente beside CONFIER when the player holds a free copy" do
