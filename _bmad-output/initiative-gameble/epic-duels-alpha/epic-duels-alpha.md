@@ -74,3 +74,4 @@ Release 1.4's duels and the ÉCHANGES sub-tab order only. Not deferred or ranked
 - Assumption: submitting the native apps to the stores is the author's choice of timing; Done when 1 asks for the builds, not the store release.
 - Assumption: of the retros' pre-release items, epic 42 F1 and epic 43 F14 (A6) were accepted by the author on 2026-11-17, epic 43 F2 and F4 have landed (`1cb9ab01`, `40b8b8ab`), and epic 44's red `error_pages_test` is outside this release; entry 8 carries the rest.
 - Decision: `Game::Achievements.offered` keeps its switched-off side for good, so the duel achievements leave the catalog with the switch in entry 1 and entry 2 removes only the capsule, the job subscription, the Duelliste back and the result lines (independent check, 2026-11-20).
+- Decision (2026-11-24, author): release 1.4.0 also waits for epic 48 (the market splits by rarity), which amends market volume before any player sees it; the duels alpha entries are unaffected.

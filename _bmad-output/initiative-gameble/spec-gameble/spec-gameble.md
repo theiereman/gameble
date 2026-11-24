@@ -262,7 +262,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - The seller picks one of three durations.
     - A listed copy is reserved: it cannot be traded or entrusted while the listing runs.
     - The seller can cancel only while no bid stands, and gets the copy back.
-    - The listing form shows the best eligible buy order (CAP-47).
+    - The listing form shows the eligible buy orders (CAP-47). An auction whose starting price is at or below eligible orders turns each of them into a bid with its price as its maximum, whatever the rarity: the best order leads, the auction prices them as any bids, and the beaten orders end with their PiCoins returned, their owners told. An order below the starting price stays open (author, 2026-11-24).
 - **CAP-31**
   - **intent:** A player bids by stating the most they accept to pay, and never pays more than needed to win.
   - **success:**
@@ -366,7 +366,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - The entrustment recap sets wanted cards apart ("x players want it"); the rest of the batch is entrusted at once.
     - The notice opens a table, one line per wanted card: seekers, best order, average price (CAP-34) and entrustment value.
-    - Each line is prefilled with the likeliest choice: sell at the order's price, start an auction at a higher price with its duration, or entrust anyway. "Entrust them all anyway" is offered too.
+    - Each line offers the choices its rarity allows and is prefilled with the likeliest one. A Common or Uncommon: sell at the order's price, start an auction with its duration, or entrust anyway. A Rare and above: start an auction (which turns the eligible orders into bids, CAP-30), or entrust anyway. "Entrust them all anyway" is offered too.
     - One validation applies the whole table.
 - **CAP-46**
   - **intent:** A player states a firm price for a card they want, so a holder can sell it at once.
@@ -377,21 +377,21 @@ gameble is an open-source passion project, and the game its author wants to play
     - The form first shows the game's open auctions, each linked to its listing (there is no buy-now); it proposes the Archives' offer (CAP-48) when the card is neither listed nor covered by the player's own order.
     - A player holds one order per game. An order's reachable rarities are those of the minimums when it was placed.
     - The form shows the best order already placed on the game by its price alone, counting only orders placed more than an hour ago and never one from an account tied to the player.
-    - An order never bids on an auction.
+    - An order never bids on an auction already open. It becomes a bid only on an auction opened at or below its price (CAP-30).
     - A banned or deleted player's open orders are withdrawn at once: a banned owner's held PiCoins return, a deleted owner's are destroyed with the balance.
 - **CAP-47**
   - **intent:** A holder of a wanted card sells it to an order at its price, or asks more at auction.
   - **success:**
-    - A direct sale to an order is instant, pays no stamp and pays the commission; it consumes the order. It serves the best eligible order (best price, then oldest), never the seller's own, and is refused when that order changed after the seller's screen was drawn.
+    - A direct sale to an order is for a Common or Uncommon only: a Rare and above is sold at auction, which the orders back (CAP-30). It is instant, pays no stamp and pays the commission; it consumes the order. It serves the best eligible order (best price, then oldest), never the seller's own, and is refused when that order changed after the seller's screen was drawn.
     - A direct sale counts in the edition's average price (CAP-34) and follows the feed's rule for notable sales (CAP-13).
-    - Listing higher opens an ordinary auction with its stamp (CAP-30), and the order's owner is notified; the order stays open until a direct sale consumes it.
+    - Opening an auction at or below the eligible orders turns them into bids (CAP-30). Opening it above an order opens an ordinary auction with its stamp, the order's owner is notified, and the order stays open until a direct sale or a conversion consumes it.
     - Every listing form shows the best eligible order.
 - **CAP-48**
   - **intent:** PiCoins buy a specific card from the Archives' stock, at a price that caps the market without undercutting players.
   - **success:**
     - The Brotherhood's shop lists the Archives' stock per card and edition; a player buys one copy, which keeps its minted rarity and season.
     - Archive offers also appear in market search results next to player listings.
-    - An Archive offer is priced at a multiple of the entrustment value (`market-economy.md`), well above a player's usual offer and never below its rarity's player minimum price. A rarity whose Archive price is not set is absent from the shop. There is no daily purchase limit.
+    - An Archive offer is priced at a multiple of the entrustment value (`market-economy.md`), well above a player's usual offer and never below its rarity's player minimum price. A rarity whose Archive price is not set is absent from the shop. Above Uncommon, a player buys at most a set number of copies of each rarity per period (settings, starting at 1 Rare a day and 1 Epic a week); Commons and Uncommons have no limit (author, 2026-11-24).
     - An Archive purchase never makes a feed entry. Staff keep which account entrusted each Archive copy; players never see it.
 - **CAP-49**
   - **intent:** A player spends PiCoins on more room for goals, custom sets and decks, nothing that changes what they draw or win.

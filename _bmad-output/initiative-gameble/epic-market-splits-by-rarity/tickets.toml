@@ -1,0 +1,57 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The settings, orders and notices carry the rarity rules"
+description = "The contract every lane opens on. The settings version gains archive_cap_<rarity> and archive_cap_window_days_<rarity> for each rarity above Uncommon (at least 1, defaults 1 Rare a day and 1 Epic a week, bounded by ChangeSettings, edited in the back-office with their announcement), game_market_orders widens its status check to bid and beaten and game_market_notices its kind check to order_leads and order_beaten (expand then validate, the end-notice index covering both), game_market_archive_withdrawals gets an index on player and time built concurrently in its own migration, and the event data keys for converted orders are declared so the later entries edit no map."
+verify = "Model and migration tests: an order accepts bid and beaten and refuses another status; a notice accepts the two kinds and the end-notice index refuses a second end notice of one order; ChangeSettings refuses a cap or window under 1 and a change that more than doubles or halves one; the back-office saves both values; db/schema.rb regenerated from the migrations."
+covers = ["R1"]
+after = ["46.1", "46.3"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "An auction opened at or below orders turns them into bids"
+description = "Game::Market::ListCard, after the seller's bank lock, reads EligibleOrders for the copy, keeps the orders at or above the starting price best first, takes their owners' bank locks in ascending player id and the order rows in ascending id and rechecks each is open at the now it read. The best becomes the leader: its order hold is released and replaced in the same Ledger.post by a hold of the same amount on the listing, so the PiCoins are held once; the others are beaten at once, their holds released and their orders ended; one game_market_bids row per converted order, the listing's price and leader from AuctionMath; an order below the start stays open with its listed_above_order notice. CardListed carries the converted orders; its handlers write order_leads and order_beaten with their push and refresh the wanted rows of their owners; MES ORDRES reads EN ENCHÈRE, GAGNÉE and DÉPASSÉE with the auction linked and no ANNULER; the bid history names the converted bidders; the tied-bids signal reads the converted bids. Mettre en vente shows the eligible orders above the form and prefills the start at the lowest eligible order's price with the line saying what the auction starts at and which orders it leaves open."
+verify = "Domain test: two eligible orders (400 and 350) and an auction opened at 300 leave the 400 order bid, the 350 beaten and refunded, the price at 350 plus its increment capped at 400, one hold on the listing, balances and the reconciliation unchanged; an order at 280 stays open. System test (test/system/market_order_backed_auction_test.rb): the seller opens the auction from Mettre en vente, the buyer's MES ORDRES reads EN ENCHÈRE and a later bid outbids it with the PiCoins returned."
+covers = ["R2", "R3", "R4", "R8"]
+after = [1, "46.7", "46.9", "46.11", "46.12"]
+hitl = false
+risk = "high"
+unknown = "Whether the ledger's unique indexes on a listing's holds accept the conversion's hold right after an order's release; check it first and, if not, split the index in this entry's own migration."
+
+[[entry]]
+id = 3
+type = "story"
+title = "A direct sale to an order is for Common and Uncommon only"
+description = "SellToOrder refuses a Rare and above (:direct_sale_not_for_rarity); the best-order banner and VENDRE MAINTENANT show for a Common or Uncommon copy only; the Confier wanted table draws a Common or Uncommon line with its three choices and a Rare and above line with two, ENCHÈRES and CONFIER, prefilled ENCHÈRES at the lowest eligible order's price when orders exist, else at the average price, else at the rarity's minimum; ApplyWantedChoices refuses an order line above Uncommon with :invalid_choices naming the line and its auction step is ListCard's with the conversion; the wanted table's result line says an auction was led by an order; Flow 13 reads as written."
+verify = "Domain test: SellToOrder on a Rare refuses and moves nothing, ApplyWantedChoices refuses an order line on an Epic and applies an auction line that converts one order; system test (test/system/market_wanted_table_rarity_test.rb): a Common line sells to the order in one press, a Rare line has no À L'ORDRE radio and its ENCHÈRES opens the auction with the order leading."
+covers = ["R5", "R6"]
+after = [2, "46.8", "46.14"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The Archive shop caps what one player buys above Uncommon"
+description = "BuyFromArchives counts, under the bank lock, the player's withdrawals of the rarity in the version's window and refuses at the cap (:archive_cap_reached), nothing charged; the shop, the market grid's Archive offers and the order form's offer show what is left of each cap (\"1 Épique par semaine · prochaine le <date>\") and the purchase confirmation draws no form past it, a purchase refused at the press saying the same; Commons and Uncommons show no cap; the order form says an order becomes an auction when a player lists at or below its price."
+verify = "Domain test: the second Epic bought within a week refuses with :archive_cap_reached, a Common is never refused, a purchase after the window passes; system test (test/system/market_shop_cap_test.rb): the shop tile of a capped rarity names the next purchase date and its confirmation draws no form."
+covers = ["R7", "R8"]
+after = [1, "46.15", "46.16"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, its scope set when it starts from the build records and the review findings deferred during the epic: the market files that grew past the size limits, duplicated rarity checks, tests and copy left over."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check and bundle exec packwerk check pass, and the system tests of what the epic touched pass."
+covers = ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"

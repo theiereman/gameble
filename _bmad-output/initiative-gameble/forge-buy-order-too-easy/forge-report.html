@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forge Report</title>
+<style>
+:root { --bg:#f6f1e7; --ink:#2b2420; --muted:#6d6259; --line:#d9cdb8; --seal:#8f1d1d; --card:#fffaf0; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#1d1a17; --ink:#ece4d8; --muted:#a89c8d; --line:#3d3630; --seal:#c0392b; --card:#26221e; } }
+:root[data-theme="dark"] { --bg:#1d1a17; --ink:#ece4d8; --muted:#a89c8d; --line:#3d3630; --seal:#c0392b; --card:#26221e; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 Georgia, serif; }
+main { max-width:860px; margin:0 auto; padding:32px 16px 64px; }
+header { display:flex; gap:24px; align-items:center; flex-wrap:wrap; border-bottom:2px solid var(--line); padding-bottom:20px; }
+h1 { margin:0; font-size:1.8rem; }
+h2 { font-size:1.15rem; letter-spacing:.04em; text-transform:uppercase; color:var(--seal); margin-top:32px; }
+.sub { color:var(--muted); margin:4px 0 0; }
+ul { padding-left:20px; } li { margin:6px 0; }
+table { width:100%; border-collapse:collapse; font-size:.95rem; }
+td, th { border-bottom:1px solid var(--line); padding:8px 6px; text-align:left; vertical-align:top; }
+.voices { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+.voice { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px; }
+.voice b { display:block; }
+.voice span { color:var(--muted); font-size:.9rem; }
+.tag { font-size:.8rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <svg width="140" height="140" viewBox="0 0 140 140" role="img" aria-label="Seal: Hardened">
+    <circle cx="70" cy="70" r="62" fill="var(--seal)"/>
+    <circle cx="70" cy="70" r="52" fill="none" stroke="#f3d9c2" stroke-width="2" stroke-dasharray="4 3"/>
+    <path id="arc" d="M 28 70 A 42 42 0 0 1 112 70" fill="none"/>
+    <text font-family="Georgia,serif" font-size="12" fill="#f3d9c2" letter-spacing="2"><textPath href="#arc" startOffset="50%" text-anchor="middle">GAMEBLE FORGE</textPath></text>
+    <text x="70" y="78" text-anchor="middle" font-family="Georgia,serif" font-weight="bold" font-size="18" fill="#fff4e6">HARDENED</text>
+    <text x="70" y="98" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="#f3d9c2">2026-11-24</text>
+  </svg>
+  <div>
+    <h1>Buy orders that keep players talking</h1>
+    <p class="sub">Is the buy order with instant sale and instant buy too easy? Tested and amended.</p>
+  </div>
+</header>
+
+<h2>Outcome</h2>
+<p>Yes, the shipped design was too easy for the cards that matter: PiCoins and one press filled any gap, and anonymous orders replaced the trades where players talk. The market now splits by rarity. Common and Uncommon sell through orders, Rare and above through auctions backed by orders, and the shop is capped above Uncommon.</p>
+
+<h2>Locked decisions</h2>
+<ul>
+  <li><b>Protect trades that need talk</b>, not trade volume.</li>
+  <li><b>Common and Uncommon:</b> sell only to orders, never at auction. An order can target one precise edition.</li>
+  <li><b>Rare and above:</b> sell only at auction. An order is a signal with its price held, and a seller can open an auction backed by it.</li>
+  <li><b>Order-backed auction:</b> every order reaching the rarity becomes a bid with its price as its maximum. Money is never held twice.</li>
+  <li><b>Archive shop:</b> a per-player cap above Uncommon (for example 1 Rare a day, 1 Epic a week), set in the back-office.</li>
+</ul>
+
+<h2>Rejected</h2>
+<table>
+  <tr><th>Option</th><th>Why</th></tr>
+  <tr><td>Block the order for the last card of a set</td><td>The rarity split covers it; blocking it hurts the player who needs that card most</td></tr>
+  <tr><td>Direct sale for every rarity (today)</td><td>Money and one press replace the talk for the cards that matter</td></tr>
+  <tr><td>Rare and above: order removed, or only an alert</td><td>Buyer has no credible way to show demand</td></tr>
+  <tr><td>Only the best order bids, the others stay open</td><td>Money held twice, and a second order snipes at the last minute</td></tr>
+  <tr><td>Shop closed above Uncommon</td><td>Removes the main PiCoin sink</td></tr>
+  <tr><td>Shop unchanged</td><td>Money bypasses every other rule</td></tr>
+</table>
+
+<h2>Weak points that survived</h2>
+<ul>
+  <li>A seller's alt can back an auction with a fake high order. The alt signals must cover it.</li>
+  <li>Order-backed auctions are automatic bidding, though limited.</li>
+  <li>Edition orders for Commons are untested at about 30 players.</li>
+  <li>This reworks a design already in 1.4.0-rc.2.</li>
+</ul>
+<p class="tag">To forge separately: automatic friend trades (4 duplicates for 4) and trade suggestions.</p>
+
+<h2>Who pressure-tested it</h2>
+<div class="voices">
+  <div class="voice"><b>📋 John, Product Manager</b><span>"Too easy for whom?" Moved the rich-player problem to the shop.</span></div>
+  <div class="voice"><b>📊 Mary, Business Analyst</b><span>Weighed the edge cases against what production showed.</span></div>
+  <div class="voice"><b>🎨 Sally, UX Designer</b><span>Showed what each rule looks like to the buyer and the seller.</span></div>
+  <div class="voice"><b>🏗️ Winston, Architect</b><span>Proposed the order becoming the first bid.</span></div>
+  <div class="voice"><b>🃏 Margaux, paper TCG collector</b><span>"A collection game dies when you can write a shopping list."</span></div>
+  <div class="voice"><b>🎲 Théo, Discord trade organiser</b><span>Argued the order takes buyers away from their friends.</span></div>
+  <div class="voice"><b>🧩 Léa, TCG game designer</b><span>The market serves the common, the relationship serves the rare.</span></div>
+  <div class="voice"><b>🧍 Karim, two-week-old player</b><span>Asked what path is left when no friend has the card.</span></div>
+  <div class="voice"><b>💸 Henri, game treasurer</b><span>Kept the shop as the PiCoin sink.</span></div>
+  <div class="voice"><b>🎯 Nadia, reseller</b><span>Found the sniping and the treasure map.</span></div>
+</div>
+</main>
+</body>
+</html>

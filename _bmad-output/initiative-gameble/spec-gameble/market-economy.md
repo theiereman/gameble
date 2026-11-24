@@ -71,7 +71,8 @@ Per exact edition (game + season); auction sales and direct sales to an order bo
 | Best order shown to a buyer | Its price alone; only orders placed more than an hour ago, never a tied account's |
 | Banned or deleted owner | Orders withdrawn at once; a banned owner's held PiCoins return, a deleted owner's are destroyed with the balance |
 | Cancellation | Free, at any time |
-| Direct sale to an order | Instant, no stamp, the usual commission; serves the best eligible order, never the seller's own; refused when that order changed after the seller's screen was drawn; counts in the average price |
+| Direct sale to an order | Common and Uncommon only. Instant, no stamp, the usual commission; serves the best eligible order, never the seller's own; refused when that order changed after the seller's screen was drawn; counts in the average price |
+| Order-backed auction | Any rarity. An auction opened at or below eligible orders turns each into a bid with its price as its maximum: the best leads and its held PiCoins move to the auction, the beaten end with their PiCoins returned, and the auction prices them as any bids. An order below the starting price stays open. An order never bids on an auction already open (author, 2026-11-24) |
 
 ## The shop
 
@@ -81,7 +82,7 @@ Per exact edition (game + season); auction sales and direct sales to an order bo
 | Goals 6 to 10, custom sets 6 to 10 | 500, 1,000, 2,000, 3,000, 5,000; bought in context only, never in the shop |
 | Decks 4 and 5 | 1,000, 2,000; bought in context only |
 
-A rarity whose Archive price is not set is absent from the shop. There is no daily purchase limit. Staff keep which account entrusted each Archive copy; players never see it.
+A rarity whose Archive price is not set is absent from the shop. Above Uncommon, a player buys at most a set number of copies of each rarity per period; the starting values are 1 Rare a day and 1 Epic a week, settings an administrator edits. Commons and Uncommons have no limit. Staff keep which account entrusted each Archive copy; players never see it.
 
 ## Production evidence (2026-11-19, market open since 2026-11-13)
 
@@ -118,7 +119,7 @@ A public chart shows once an administrator publishes it; there is no automatic t
 
 ## Setting bounds
 
-One change cannot more than double or halve a value, which guards against a typing error; repeating a change goes further. Commission stays between 0% and 25%. A minimum price never goes below the no-loss floor. An Archive price never goes below its rarity's player minimum price.
+One change cannot more than double or halve a value, which guards against a typing error; repeating a change goes further. Commission stays between 0% and 25%. A minimum price never goes below the no-loss floor. An Archive price never goes below its rarity's player minimum price. An Archive purchase cap is at least 1, over a window of at least 1 day.
 
 ## Sales in the feed
 
@@ -138,6 +139,8 @@ Near-maximum capsule opening (about 144 a day is possible, a standard player ope
 - Real-money resale of cards or PiCoins outside the game stays possible despite the terms; staff watch for it.
 - A beaten maximum can be deduced from the price and increment. Only the leader's maximum is secret, and a price capped at it shows it.
 - A direct sale pays no stamp, so an alt's high order moves money for the commission alone.
+- A seller's alt can back an auction with a high order, forcing real rivals above it; the tied-bids signal reads the converted orders' bids.
+- An order converted into a bid is automatic bidding, limited to auctions opened at or below the order's price; it was chosen over holding the money twice and over a second order sniping the last minute (author, 2026-11-24).
 - The wanted count (CAP-44) reveals other players' goals in aggregate, custom-set goals and private players included. Accepted, since only a count shows (author, 2026-11-20).
 - The auction stamp stays charged at listing; charging it at sale (as EVE does) was considered and left unchanged.
 - No source measures orders, wanted counts or Archive resale at about 30 players.
@@ -161,9 +164,13 @@ Near-maximum capsule opening (about 144 a day is possible, a standard player ope
 | The market absorbs all duplicates | 500 Common listings for 480 never bought |
 | Implicit demand only, orders later | The seller needs a firm price, not only a count |
 | An order sale settles instantly with no choice | Floor-price orders would capture supply below what bidders pay |
-| An order sale always opens an auction | The seller loses the instant sale that beats entrusting |
-| One order per edition | Goals count any edition, and fewer sellers could serve it |
-| An order bids automatically on open listings | Money held twice or moved silently |
+| An order sale always opens an auction, for every rarity | A Common seller loses the instant sale that beats entrusting; a Rare and above sells only at auction, which its orders back (author, 2026-11-24) |
+| One order per edition | Goals count any edition, and fewer sellers could serve it; an edition order was also weighed again for Common and Uncommon and dropped (author, 2026-11-24) |
+| An order bids automatically on listings already open | Money held twice or moved silently; only an auction opened at or below an order turns it into a bid |
+| A direct sale for every rarity | Money and one press replace the talk for the cards that matter (author, 2026-11-24) |
+| The Archive shop closed above Uncommon | Removes the main PiCoin sink (about 8% destroyed against created on 2026-11-19) |
+| The Archive shop unchanged above Uncommon | Money alone then bypasses every other rule; a per-player cap keeps the sink |
+| A separate rule for the last card of a set | The rarity rules already cover it, and blocking its order hurts the player who needs it most |
 | Promoting the market tab first | A shop window in front of empty shelves |
 | Capsules bought for PiCoins | A safe price draws no buyers; a distinct capsule competes with duel capsules, resale or the market |
 | Cosmetics for PiCoins | The author keeps them earned through achievements |
