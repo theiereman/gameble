@@ -1,4 +1,4 @@
 <%= turbo_stream.append "archive-offers" do %>
-  <%= render "market/shops/offers", rows: @offers.rows, marks: @marks, buyable: @buyable %>
+  <%= render "market/shops/offers", rows: @offers.rows, marks: @marks, buyable: @buyable, caps: @caps %>
 <% end %>
 <%= turbo_stream.replace "shop-pages", partial: "market/shops/pages", locals: { offers: @offers, sort: @sort, page: @page, filters: @filters } %>

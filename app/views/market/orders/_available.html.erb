@@ -1,4 +1,4 @@
-<%# locals: (card:, listings:, archive_offers: [], buyable: false) %>
+<%# locals: (card:, listings:, archive_offers: [], buyable: false, caps: {}) %>
 <%= render PanelComponent.new(tag: :section, class: "order-form__panel", aria: { labelledby: "order-form-available" }) do %>
   <h2 id="order-form-available" class="order-form__kicker"><%= t("market.orders.new.available_now") %></h2>
   <% if listings.any? %>
@@ -28,6 +28,8 @@
             <span class="archive-offer__tag archive-offer__tag--archives"><%= t("market.orders.new.archives") %></span>
           </p>
           <p class="order-listing__facts"><span><%= t("market.orders.new.fixed") %> <span class="order-listing__price"><%= amount %></span></span></p>
+          <% cap_line = archive_cap_line(row.card, caps) %>
+          <% if cap_line %><p class="order-listing__facts archive-offer__cap"><%= cap_line %></p><% end %>
           <%= render ButtonComponent.new(variant: :secondary, size: :small, href: archive_offer_path(row.card, buyable: true), disabled: !buyable,
                 describedby: ("market-suspended-banner" unless buyable), turbo_frame: "archive-purchase", data: { action: "purchase-dialog#open" },
                 aria_label: t("market.orders.new.buy_label", card: card.title, rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, amount:)) do %>

@@ -37,6 +37,7 @@
       <% end %>
     </ul>
     <p class="order-form__sentence" aria-hidden="true" data-order-form-target="sentence"><%= order_reach_sentence(@minimums, price) %></p>
+    <p class="order-form__conversion"><%= t("market.orders.new.conversion") %></p>
     <p class="visually-hidden" role="status" aria-live="polite" data-order-form-target="status"></p>
   </div>
   <dl class="order-form__facts">

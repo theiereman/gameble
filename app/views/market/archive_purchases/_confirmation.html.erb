@@ -1,6 +1,6 @@
 <% card = @card %>
 <% rarity = CardStrings.new.rarity_name(card.rarity) %>
-<% price = @offer&.price %>
+<% price = @offer&.price unless @state == :capped %>
 <% short = @state == :short %>
 <%= render PurchaseConfirmationComponent.new(
       title: short ? t("market.archive_purchases.confirmation.short_title", amount: picoins(price - @available)) : t("market.archive_purchases.confirmation.title"),

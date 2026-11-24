@@ -24,7 +24,7 @@
   <% else %>
     <p class="market-shop__count"><%= t(".cards", count: @counts.cards) %> · <%= t(".editions", count: @counts.editions) %></p>
     <ul id="archive-offers" class="market-screen__tiles market-shop__tiles" aria-label="<%= t(".list_label") %>">
-      <%= render "market/shops/offers", rows: @offers.rows, marks: @marks, buyable: @buyable %>
+      <%= render "market/shops/offers", rows: @offers.rows, marks: @marks, buyable: @buyable, caps: @caps %>
     </ul>
   <% end %>
   <%= render "market/shops/pages", offers: @offers, sort: @sort, page: @page, filters: @filters %>

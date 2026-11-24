@@ -75,7 +75,8 @@
 }
 
 .archive-offer__fixed,
-.archive-offer__stock {
+.archive-offer__stock,
+.archive-offer__cap {
   color: var(--color-muted);
   font-weight: var(--font-weight-regular);
 }

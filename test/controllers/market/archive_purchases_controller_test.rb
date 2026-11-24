@@ -103,6 +103,45 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".purchase-confirmation__refusal", "Cette carte n'est plus disponible. Un autre joueur vient de prendre le dernier exemplaire. Rien n'est débité."
   end
 
+  def withdraw!(created_at: 2.hours.ago)
+    Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24), price: 500,
+      settings_id: @settings.id, created_at:)
+  end
+
+  test "past the cap the confirmation draws no form, only the cancel button and the next purchase date" do
+    bought = withdraw!
+    sign_in(@player)
+
+    confirmation
+
+    assert_response :success
+    assert_select ".purchase-confirmation form", 0
+    assert_select ".purchase-confirmation button[type=submit]", 0
+    assert_select ".purchase-confirmation__refusal[role=alert]",
+      "Vous avez atteint la limite des Archives pour cette rareté. Prochain achat le #{I18n.l((bought.created_at + 1.day).to_date, format: :day_month, locale: :fr)}."
+  end
+
+  test "a purchase refused for the cap is a 422 with the same message and nothing charged" do
+    withdraw!
+    sign_in(@player)
+
+    assert_no_difference([ -> { Game::Market::LedgerEntry.count }, -> { Game::Market::ArchiveWithdrawal.count } ]) { buy(locale: :en) }
+
+    assert_response :unprocessable_content
+    assert_includes Nokogiri::HTML.fragment(frame.inner_html).at_css(".purchase-confirmation__refusal").text,
+      "You have reached the Archives limit for this rarity. Next purchase on"
+    assert_equal 2, @stock.reload.quantity
+  end
+
+  test "a purchase reaching the cap shows the result, and the tile reads none left" do
+    sign_in(@player)
+
+    buy
+
+    assert_response :success
+    assert_select "turbo-stream[action=replace][target=archive-offer-blue-depths-1] template .archive-offer__cap", /\A1 Rare par jour · prochaine le /
+  end
+
   test "a purchase answers the result in the frame and the tile with its stock lowered" do
     sign_in(@player)
 

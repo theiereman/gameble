@@ -15,7 +15,7 @@ class Game::Market::BuyFromArchivesTest < ActiveSupport::TestCase
   setup do
     @player = accounts_players(:player)
     @card = catalog_card_seasons(:rare_card_one)
-    @settings = open_market!(archive_price_rare: 500)
+    @settings = open_market!(archive_price_rare: 500, archive_cap_rare: 5)
     fund!(@player, 1_000)
     @stock = Game::Market::ArchiveStock.create!(card_season_id: @card.id, quantity: 3)
   end
@@ -122,6 +122,79 @@ class Game::Market::BuyFromArchivesTest < ActiveSupport::TestCase
 
     assert_equal 1, stock
     assert_equal [ 2, 0 ], copies
+  end
+
+  def withdraw!(card, player: @player, created_at: 2.hours.ago)
+    Game::Market::ArchiveWithdrawal.create!(player_id: player.id, card_season_id: card.id, purchase_token: SecureRandom.base58(24), price: 500,
+      settings_id: @settings.id, created_at:)
+  end
+
+  def stock!(name, quantity: 3) = catalog_card_seasons(name).tap { Game::Market::ArchiveStock.create!(card_season_id: it.id, quantity:) }
+
+  test "a purchase at the cap is refused and nothing is written" do
+    @settings = open_market!(archive_price_rare: 500, archive_cap_rare: 1, archive_cap_window_days_rare: 1)
+    withdraw!(@card)
+
+    refused(:archive_cap_reached)
+  end
+
+  test "a purchase under the cap passes, and the next one is refused" do
+    epic = stock!(:portal_one)
+    @settings = open_market!(archive_price_epic: 300, archive_cap_epic: 2, archive_cap_window_days_epic: 7)
+    withdraw!(epic)
+
+    assert buy(card_season_id: epic.id).success?
+    refused(:archive_cap_reached, card_season_id: epic.id, purchase_token: SecureRandom.base58(24))
+  end
+
+  test "a purchase after the window passes, and the boundary no longer counts" do
+    @settings = open_market!(archive_price_rare: 500, archive_cap_rare: 1, archive_cap_window_days_rare: 1)
+    freeze_time do
+      withdraw!(@card, created_at: 1.day.ago)
+      assert buy.success?
+    end
+  end
+
+  test "a Common and an Uncommon are never refused" do
+    common = stock!(:common_card_one)
+    uncommon = stock!(:uncommon_card_one)
+    @settings = open_market!(archive_price_common: 50, archive_price_uncommon: 100)
+    3.times { |index| withdraw!(common, created_at: index.minutes.ago) && withdraw!(uncommon, created_at: index.minutes.ago) }
+
+    assert buy(card_season_id: common.id).success?
+    assert buy(card_season_id: uncommon.id, purchase_token: SecureRandom.base58(24)).success?
+  end
+
+  test "a player at the cap and short of PiCoins is told about the cap" do
+    @settings = open_market!(archive_price_rare: 5_000, archive_cap_rare: 1)
+    withdraw!(@card)
+
+    refused(:archive_cap_reached)
+  end
+
+  test "the cap counts per rarity" do
+    epic = stock!(:portal_one)
+    @settings = open_market!(archive_price_rare: 500, archive_price_epic: 300, archive_cap_rare: 1, archive_cap_epic: 1)
+    withdraw!(@card)
+
+    assert buy(card_season_id: epic.id).success?
+  end
+
+  test "the cap counts per player" do
+    @settings = open_market!(archive_price_rare: 500, archive_cap_rare: 1)
+    withdraw!(@card, player: accounts_players(:moderator))
+
+    assert buy.success?
+  end
+
+  test "a repeated purchase token after the cap is reached answers the earlier purchase" do
+    @settings = open_market!(archive_price_rare: 500, archive_cap_rare: 1)
+    made = buy.value!
+
+    result = nil
+    nothing_moves { result = buy }
+
+    assert_equal made, result.value!
   end
 
   test "a closed market and a stale version are refused" do

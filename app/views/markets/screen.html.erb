@@ -1,7 +1,7 @@
 <% content_for :public_page, true unless current_player %>
 <% content_for :title, t(".heading") %>
 <% tab = capture do %>
-<%= render "markets/shop_panel", count: @shop_count, offers: @shop_offers, marks: @shop_marks, buyable: @buyable %>
+<%= render "markets/shop_panel", count: @shop_count, offers: @shop_offers, marks: @shop_marks, buyable: @buyable, caps: @caps %>
 <%= render "markets/filters", filters: @filters, options: @options, sort: @sort, wanted_count: @wanted_count %>
 
 <% if @pulse.soonest.any? && !@filters.any? %>
@@ -29,7 +29,7 @@
     </div>
   <% end %>
   <ul id="market-tiles" class="market-screen__tiles" aria-label="<%= t(".list_label") %>">
-    <%= render "markets/tiles", rows: @listings.rows, marks: @marks, stands: @stands, buyable: @buyable %>
+    <%= render "markets/tiles", rows: @listings.rows, marks: @marks, stands: @stands, buyable: @buyable, caps: @caps %>
   </ul>
 <% end %>
 <%= render "markets/pages", listings: @listings, sort: @sort, page: @page, filters: @filters %>

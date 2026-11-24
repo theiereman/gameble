@@ -2537,6 +2537,29 @@ fr:
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
   market:
+    archive_cap:
+      left: "Encore %{cap} %{rarity} %{window}"
+      rarity:
+        epic:
+          zero: "Épique"
+          one: "Épique"
+          other: "Épiques"
+        legendary:
+          zero: "Légendaire"
+          one: "Légendaire"
+          other: "Légendaires"
+        rare:
+          zero: "Rare"
+          one: "Rare"
+          other: "Rares"
+      reached: "%{cap} %{rarity} %{window} · prochaine le %{date}"
+      window:
+        day: "par jour"
+        days:
+          zero: "sur %{count} jour"
+          one: "sur %{count} jour"
+          other: "sur %{count} jours"
+        week: "par semaine"
     archive_purchases:
       confirmation:
         card: "Carte"
@@ -2866,6 +2889,7 @@ fr:
         best_order: "Meilleur ordre en cours"
         chip_from: "%{rarity} dès %{amount}"
         chip_reached: "%{rarity} %{amount}"
+        conversion: "Si un joueur met cette carte aux enchères à ce prix ou moins, votre ordre devient une enchère et vos PiCoins y restent bloqués."
         current_price: "Prix actuel"
         duration: "Durée"
         edition: "%{rarity} · S%{season}"
@@ -5474,6 +5498,7 @@ fr:
       market_closed: "Le marché est suspendu pour le moment."
       copy_not_free: "Cette carte n'est plus disponible."
       best_order_changed: "Cet ordre d'achat vient d'être servi. Vérifiez le nouveau meilleur ordre, puis validez de nouveau."
+      archive_cap_reached: "Vous avez atteint la limite des Archives pour cette rareté. Prochain achat le %{date}."
       direct_sale_not_for_rarity: "Une Rare ou plus se vend aux enchères, que les ordres d'achat soutiennent."
       invalid_duration: "Choisissez l'une des durées proposées."
       invalid_price: "Entrez un nombre entier de PiCoins, au-dessus de zéro."

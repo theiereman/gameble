@@ -39,26 +39,32 @@ module Market
         @settings = Game::Market::CurrentSettings.call || raise(ActiveRecord::RecordNotFound)
         @offer = Game::Market::ArchiveOffers.find(settings: @settings, card_season_id: @card_season_id, locale: I18n.locale)
         @available = Game::Market::Balance.call(current_player).available
+        @caps = Game::Market::ArchiveCaps.call(player: current_player, settings: @settings)
         @purchase_token = SecureRandom.base58(24)
         @state = purchase_state
       end
 
       def purchase_state
         if @offer.nil? || !@settings.open then :closed
+        elsif standing&.reached? then :capped
         elsif @available < @offer.price then :short
         else :buyable
         end
       end
 
+      def standing = @offer && @caps[@offer.card.rarity.to_sym]
+
       def standing_refusal
         if !@settings.open then refusal(:market_closed)
         elsif @offer.nil? then refusal(:out_of_stock)
+        elsif @state == :capped then refusal(:archive_cap_reached)
         end
       end
 
       def refusal(code)
         case code
         when :more_than_available then nil
+        when :archive_cap_reached then operation.failure_message(code, date: helpers.archive_cap_date(standing))
         when :out_of_stock then [ operation.failure_message(code), t("market.archive_purchases.refusals.last_copy") ].join(" ")
         else operation.failure_message(code)
         end

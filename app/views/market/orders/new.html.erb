@@ -16,7 +16,7 @@
   <% end %>
   <% if @suspended %><%= render "market/suspended_banner" %><% end %>
   <div class="order-form__columns">
-    <%= render "available", card:, listings: @listings, archive_offers: @archive_offers, buyable: @buyable %>
+    <%= render "available", card:, listings: @listings, archive_offers: @archive_offers, buyable: @buyable, caps: @caps %>
     <%= render PanelComponent.new(tag: :section, class: "order-form__panel", aria: { labelledby: "order-form-yours" }) do %>
       <h2 id="order-form-yours" class="order-form__kicker"><%= t(".yours") %></h2>
       <p class="order-form__lead"><%= t(".all_editions", card: card.title) %></p>

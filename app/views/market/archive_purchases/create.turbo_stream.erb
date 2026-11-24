@@ -2,7 +2,7 @@
   <%= render(@withdrawal ? "market/archive_purchases/result" : "market/archive_purchases/confirmation") %>
 <% end %>
 <% if @offer %>
-  <%= turbo_stream.replace archive_offer_dom_id(@card), partial: "market/shops/offer", locals: { row: @offer, marks: @marks, buyable: @settings.open } %>
+  <%= turbo_stream.replace archive_offer_dom_id(@card), partial: "market/shops/offer", locals: { row: @offer, marks: @marks, buyable: @settings.open, caps: @caps } %>
 <% else %>
   <%= turbo_stream.remove_all archive_offer_selector(@card) %>
 <% end %>

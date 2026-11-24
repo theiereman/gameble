@@ -29,6 +29,7 @@ module Market
 
         @suspended = state.suspended?
         @buyable = buyable?(state)
+        @caps = Game::Market::ArchiveCaps.call(player: current_player, settings: @settings)
       end
 
       def load_filters

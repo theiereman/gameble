@@ -11,15 +11,17 @@ module Game
 
         transaction do
           step lock_bank(player)
+          now = Time.current
           made = ArchiveWithdrawal.find_by(player_id: player.id, purchase_token:)
           next step(replayed(made, card_season_id)) if made
 
           settings = step current_settings(settings_token.to_s)
-          price = step archive_price(settings, card_season_id)
+          rarity = step edition_rarity(card_season_id)
+          price = step archive_price(settings, rarity)
+          step under_cap(player, settings, rarity, now)
           step covered(player, price)
           holdings = { player.id => TradeLocks.holdings(player.id, [ card_season_id ]) }
           stock = step locked_stock(card_season_id)
-          now = Time.current
           withdrawal = ArchiveWithdrawal.create!(player_id: player.id, card_season_id:, purchase_token:, price:, settings_id: settings.id, created_at: now)
           take_copy(stock, now)
           receive_bought_copy(player.id, holdings, card_season_id, now:)
@@ -45,10 +47,19 @@ module Game
         Success(settings)
       end
 
-      def archive_price(settings, card_season_id)
+      def edition_rarity(card_season_id)
         rarity = Catalog::CardSeason.where(id: card_season_id).pick(:rarity)
-        price = rarity && settings.archive_price(rarity)
+        rarity ? Success(rarity) : Failure(:not_in_shop)
+      end
+
+      def archive_price(settings, rarity)
+        price = settings.archive_price(rarity)
         price ? Success(price) : Failure(:not_in_shop)
+      end
+
+      def under_cap(player, settings, rarity, now)
+        standing = ArchiveCaps.call(player:, settings:, now:)[rarity.to_sym]
+        standing&.reached? ? Failure(:archive_cap_reached) : Success()
       end
 
       def covered(player, price) = Balance.call(player).available >= price ? Success() : Failure(:more_than_available)

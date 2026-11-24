@@ -51,6 +51,7 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".order-reach__chip [data-reach=off]", text: "Epic from 223"
     assert_select "input[name=settings_token][value=?]", @settings.token
     assert_select ".order-form__fact dd", text: "7 days"
+    assert_select ".order-form__conversion", "If a player lists this card at auction at this price or lower, your order becomes a bid and your PiCoins stay held in it."
     assert_no_match(/\b#{@player.id}\b.*order/, response.body.scan(/data-[\w-]+="[^"]*"/).join(" "))
   end
 
@@ -296,6 +297,20 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
       new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1),
       "Acheter aux Archives, Profondeurs bleues Rare saison 1, 500 PiCoins", text: "ACHETER · 500"
     assert_select ".order-form[data-controller=purchase-dialog] dialog#archive-purchase-dialog"
+  end
+
+  test "an Archive offer of a capped rarity carries what is left of the cap, then the next purchase date" do
+    open_market!(first_opened_at: 1.day.ago, archive_price_rare: 500)
+    Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
+    sign_in(@player)
+
+    get new_market_card_order_path(locale: :fr, slug: "blue-depths")
+    assert_select ".order-archive .archive-offer__cap", "Encore 1 Rare par jour"
+
+    Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:rare_card_one).id, purchase_token: SecureRandom.base58(24),
+      price: 500, settings_id: Game::Market::CurrentSettings.call.id, created_at: 2.hours.ago)
+    get new_market_card_order_path(locale: :en, slug: "blue-depths")
+    assert_select ".order-archive .archive-offer__cap", /\A1 Rare per day · next on /
   end
 
   test "a game with an open listing shows the listing and no Archives line" do

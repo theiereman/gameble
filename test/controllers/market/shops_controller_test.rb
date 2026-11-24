@@ -42,8 +42,29 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#archive-offer-blue-depths-1 a[href=?][data-turbo-frame=archive-purchase][data-action='purchase-dialog#open']",
       new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1)
     assert_select "#archive-offer-blue-depths-1 a[aria-label^='Profondeurs bleues, Rare, saison 1, Archives de la Confrérie, prix fixe 500']" \
-      "[aria-label$=', 1 en stock. Acheter']"
+      "[aria-label$=', 1 en stock, Encore 1 Rare par jour. Acheter']"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "Encore 1 Rare par jour"
+    assert_select "#archive-offer-tin-soldier-1 .archive-offer__cap", 0
     assert_select ".archive-offer__buy", 2
+  end
+
+  test "a capped rarity with none left reads the next purchase date, in both languages" do
+    sign_in(@player)
+    bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
+      price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
+    date = (bought.created_at + 1.day).to_date
+
+    get market_shop_path(locale: :fr)
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare par jour · prochaine le #{I18n.l(date, format: :day_month, locale: :fr)}"
+
+    get market_shop_path(locale: :en)
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare per day · next on #{I18n.l(date, format: :day_month, locale: :en)}"
+  end
+
+  test "a visitor reads no cap line" do
+    get market_shop_path(locale: :fr)
+
+    assert_select ".archive-offer__cap", 0
   end
 
   test "a wanted card wears the VOULUE tag and the chip counts the wanted offers" do
@@ -54,7 +75,7 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#archive-offer-blue-depths-1 .archive-offer__tag--wanted", "VOULUE"
     assert_select "#archive-offer-tin-soldier-1 .archive-offer__tag--wanted", 0
-    assert_select "#archive-offer-blue-depths-1 a[aria-label$=', voulue. Acheter']"
+    assert_select "#archive-offer-blue-depths-1 a[aria-label$=', voulue, Encore 1 Rare par jour. Acheter']"
     assert_select ".market-filters__wanted", /VOULUES · 1/
     assert_select ".market-filters__wanted input[aria-label=?]", "Voulues, 1 carte"
 

@@ -28,6 +28,12 @@
   font: var(--font-body);
 }
 
+.order-form__conversion {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
 .order-reach {
   display: flex;
   flex-wrap: wrap;

@@ -2422,6 +2422,7 @@ en:
       market_closed: The market is closed for now.
       copy_not_free: This card is no longer available.
       best_order_changed: This buy order has just been served. Check the new best order, then validate again.
+      archive_cap_reached: "You have reached the Archives limit for this rarity. Next purchase on %{date}."
       direct_sale_not_for_rarity: A Rare or better is sold at auction, which buy orders back.
       invalid_duration: Choose one of the listed durations.
       invalid_price: Enter a whole number of PiCoins, above zero.
@@ -3455,6 +3456,25 @@ en:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
   market:
+    archive_cap:
+      left: "%{cap} more %{rarity} %{window}"
+      rarity:
+        epic:
+          one: Epic
+          other: Epics
+        legendary:
+          one: Legendary
+          other: Legendaries
+        rare:
+          one: Rare
+          other: Rares
+      reached: "%{cap} %{rarity} %{window} · next on %{date}"
+      window:
+        day: per day
+        days:
+          one: "per %{count} day"
+          other: "per %{count} days"
+        week: per week
     archive_purchases:
       confirmation:
         card: Card
@@ -3782,6 +3802,7 @@ en:
         best_order: Best current order
         chip_from: "%{rarity} from %{amount}"
         chip_reached: "%{rarity} %{amount}"
+        conversion: If a player lists this card at auction at this price or lower, your order becomes a bid and your PiCoins stay held in it.
         current_price: Current price
         duration: Duration
         edition: "%{rarity} · S%{season}"

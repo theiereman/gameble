@@ -12,6 +12,7 @@ class MarketsController < ApplicationController
 
     @suspended = state.suspended?
     @buyable = buyable?(state)
+    @caps = Game::Market::ArchiveCaps.call(player: current_player, settings: @settings)
 
     @sort = params[:sort].presence_in(helpers.sort_options) || Game::Market::OpenListings::DEFAULT_SORT
     @page = asked_page
