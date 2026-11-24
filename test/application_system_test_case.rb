@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "support/chromedriver_stale_nodes"
 require_relative "support/chromedriver_storage_reset"
+require_relative "support/system_diagnostics"
 
 # CI's runner is slower than a development machine: a page re-rendered with
 # sixty cards, or a redirect after a form, can take more than Capybara's
@@ -8,6 +9,8 @@ require_relative "support/chromedriver_storage_reset"
 Capybara.default_max_wait_time = 5
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
+  include SystemDiagnostics
+
   # Each worker drives its own headless Chrome: more than two saturate a development machine.
   parallelize(workers: 2)
 
@@ -20,6 +23,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   driven_by :selenium, using: :headless_chrome, screen_size: SCREEN_SIZE do |options|
     options.binary = ENV["CHROME_BIN"] if ENV["CHROME_BIN"].present?
+    options.add_option("goog:loggingPrefs", { browser: "ALL" })
   end
 
   # The fixtures' cover and store hosts do not exist: the browser fails their
