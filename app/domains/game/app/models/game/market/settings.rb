@@ -23,6 +23,10 @@ module Game
 
       def archive_price(rarity) = public_send(:"archive_price_#{rarity}")
 
+      def archive_cap(rarity) = public_send(:"archive_cap_#{rarity}")
+
+      def archive_cap_window_days(rarity) = public_send(:"archive_cap_window_days_#{rarity}")
+
       def slot_price(kind, slot)
         raise ArgumentError, "no price for #{kind} slot #{slot}" unless SettingsRules::PRICED_SLOTS[kind]&.include?(slot)
 

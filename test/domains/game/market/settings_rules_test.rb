@@ -189,6 +189,19 @@ class Game::Market::SettingsRulesTest < ActiveSupport::TestCase
     assert_nil code_of(:slot_price_custom_set_10, slot_price_custom_set_10: 10_000)
   end
 
+  test "an Archive purchase cap and its window exist above Uncommon only, at least 1, and move by double or half" do
+    assert_equal %i[rare epic legendary], Game::Market::SettingsRules::CAPPED_RARITIES
+    assert_equal [ 1, 1, 1, 7 ], @current.values_at(:archive_cap_rare, :archive_cap_window_days_rare, :archive_cap_epic, :archive_cap_window_days_epic)
+    assert_equal :out_of_range, code_of(:archive_cap_rare, archive_cap_rare: 0)
+    assert_equal :out_of_range, code_of(:archive_cap_window_days_epic, archive_cap_window_days_epic: 0)
+    assert_equal :more_than_double, code_of(:archive_cap_rare, archive_cap_rare: 3)
+    assert_equal :more_than_double, code_of(:archive_cap_window_days_epic, archive_cap_window_days_epic: 15)
+    assert_equal :less_than_half, code_of(:archive_cap_window_days_epic, archive_cap_window_days_epic: 3)
+    assert_nil code_of(:archive_cap_rare, archive_cap_rare: 2)
+    assert_nil code_of(:archive_cap_window_days_epic, archive_cap_window_days_epic: 14)
+    assert_equal :not_a_number, code_of(:archive_cap_rare, archive_cap_rare: nil)
+  end
+
   test "the priced slots are the ones past the free limit, up to the ceiling" do
     assert_equal({ goal: 6..10, custom_set: 6..10, deck: 4..5 }, Game::Market::SettingsRules::PRICED_SLOTS)
     assert_equal 12, Game::Market::SettingsRules::SLOT_PRICES.size

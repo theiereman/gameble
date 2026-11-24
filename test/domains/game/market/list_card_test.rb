@@ -55,7 +55,7 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
     stamp = Game::Market::LedgerEntry.find_by!(listing_id: listing.id)
     assert_equal [ "stamp", -@stamp, @player.id, @settings.id ], stamp.values_at(:kind, :available_delta, :player_id, :settings_id)
     published = Rails.configuration.event_store.read.stream(Game::Operation.stream_name(@player.id)).of_type([ Game::Market::CardListed ]).to_a
-    assert_equal [ { listing_id: listing.id, seller_id: @player.id, card_season_id: @common.id } ], published.map(&:data)
+    assert_equal [ { listing_id: listing.id, seller_id: @player.id, card_season_id: @common.id, converted: [] } ], published.map(&:data)
   end
 
   test "an only copy can be listed, and the reserved copy is then refused to entrust and to trade" do

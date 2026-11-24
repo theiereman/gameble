@@ -13,10 +13,12 @@ module BackOffice
       averages: %i[average_sale_count average_window_days feed_threshold_multiple],
       alerts: %i[alert_destroyed_share_basis_points alert_picoins_per_player alert_top_share_basis_points],
       slots: Rules::SLOT_PRICES,
-      orders: %i[order_duration_days]
+      orders: %i[order_duration_days],
+      archive_caps: Rules::ARCHIVE_CAPS
     }.freeze
     MOMENTS = {
       cap: :now, auctions: :auction_creation, commission: :close, averages: :now, alerts: :now, slots: :now, orders: :order_placement,
+      archive_caps: :now,
       entrustment: :now, stamp: :listing, minimum_price: :listing, archive_price: :now, income_days_target: :now
     }.freeze
     BLANKS = /[[:space:]]/

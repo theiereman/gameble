@@ -4,7 +4,7 @@ module Game
     class Order < ApplicationRecord
       self.table_name = "game_market_orders"
 
-      STATUSES = %w[open served expired cancelled withdrawn].freeze
+      STATUSES = %w[open served expired cancelled withdrawn bid beaten].freeze
       RARITY_NAMES = SettingsRules::RARITIES.map(&:to_s).freeze
 
       has_secure_token :token, length: 24

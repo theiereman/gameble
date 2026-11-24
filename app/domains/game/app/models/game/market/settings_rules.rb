@@ -14,7 +14,9 @@ module Game
       ARCHIVE_PRICES = RARITIES.map { :"archive_price_#{it}" }.freeze
       PRICED_SLOTS = Capacity::FREE.to_h { |kind, free| [ kind, (free + 1)..Capacity::CEILING.fetch(kind) ] }.freeze
       SLOT_PRICES = PRICED_SLOTS.flat_map { |kind, slots| slots.map { :"slot_price_#{kind}_#{it}" } }.freeze
-      AMOUNTS = (ENTRUSTMENTS + STAMPS + MINIMUMS + ARCHIVE_PRICES + SLOT_PRICES + [ :daily_cap ]).freeze
+      CAPPED_RARITIES = RARITIES.drop(2).freeze
+      ARCHIVE_CAPS = CAPPED_RARITIES.flat_map { [ :"archive_cap_#{it}", :"archive_cap_window_days_#{it}" ] }.freeze
+      AMOUNTS = (ENTRUSTMENTS + STAMPS + MINIMUMS + ARCHIVE_PRICES + ARCHIVE_CAPS + SLOT_PRICES + [ :daily_cap ]).freeze
       TARGETS = RARITIES.map { :"income_days_target_#{it}" }.freeze
       DURATIONS = %i[duration_short_hours duration_medium_hours duration_long_hours].freeze
       TARGET_RANGE = BigDecimal("0.001")..BigDecimal("365")

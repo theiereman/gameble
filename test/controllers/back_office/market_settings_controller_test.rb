@@ -87,6 +87,32 @@ module BackOffice
         :order_duration_days)
     end
 
+    test "an administrator sees and saves the Archive purchase caps and windows in both languages" do
+      sign_in(accounts_players(:administrator))
+
+      { fr: "Plafonds d'achat aux Archives", en: "Archive purchase caps" }.each do |locale, legend|
+        get back_office_market_path(locale:)
+
+        assert_select "#market-settings legend", legend
+      end
+      Game::Market::SettingsRules::ARCHIVE_CAPS.each { assert_select "label[for=market-settings-#{it.to_s.dasherize}]" }
+      assert_select "#market-settings-archive-cap-epic-hint", /Applies at once/
+      save(archive_cap_rare: "2", archive_cap_window_days_epic: "14")
+
+      assert_redirected_to back_office_market_path(locale: :en)
+      assert_equal [ 2, 14 ], Game::Market::CurrentSettings.call.values_at(:archive_cap_rare, :archive_cap_window_days_epic)
+    end
+
+    test "a cap under 1 is refused beside itself and nothing is written" do
+      sign_in(accounts_players(:administrator))
+
+      nothing_is_written { save(archive_cap_epic: "0") }
+
+      assert_response :unprocessable_content
+      assert_select "#market-settings-archive-cap-epic[aria-invalid=true][value='0']"
+      assert_select "#market-settings-archive-cap-epic-error[role=alert]", /Enter a value from 1 to 2/
+    end
+
     test "an Archive price under its minimum is refused beside itself and nothing is written" do
       sign_in(accounts_players(:administrator))
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_24_100002) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_110006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -839,6 +839,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_100002) do
     t.bigint "price", null: false
     t.datetime "created_at", null: false
     t.index ["card_season_id"], name: "index_game_market_archive_withdrawals_on_card_season_id"
+    t.index ["player_id", "created_at"], name: "index_game_market_archive_withdrawals_on_player_and_time"
     t.index ["player_id", "purchase_token"], name: "index_game_market_archive_withdrawals_uniqueness", unique: true
     t.check_constraint "price > 0", name: "game_market_archive_withdrawals_price_check"
   end
@@ -965,9 +966,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_100002) do
     t.index ["order_id"], name: "index_game_market_notices_on_order_id"
     t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing_alone", unique: true, where: "(order_id IS NULL)"
     t.index ["player_id", "order_id"], name: "index_game_market_notices_listed_above_order", unique: true, where: "((kind)::text = 'listed_above_order'::text)"
-    t.index ["player_id", "order_id"], name: "index_game_market_notices_order_end", unique: true, where: "((kind)::text = ANY (ARRAY[('order_served'::character varying)::text, ('order_expired'::character varying)::text]))"
+    t.index ["player_id", "order_id"], name: "index_game_market_notices_order_end", unique: true, where: "((kind)::text = ANY (ARRAY[('order_served'::character varying)::text, ('order_expired'::character varying)::text, ('order_leads'::character varying)::text, ('order_beaten'::character varying)::text]))"
     t.check_constraint "amount IS NULL OR amount >= 0", name: "game_market_notices_amount_check"
-    t.check_constraint "kind::text ~ '^(outbid|won|sold|unsold|lead_voided|withdrawn|wanted|order_served|order_expired|listed_above_order)$'::text", name: "game_market_notices_kind_check"
+    t.check_constraint "kind::text ~ '^(outbid|won|sold|unsold|lead_voided|withdrawn|wanted|order_served|order_expired|listed_above_order|order_leads|order_beaten)$'::text", name: "game_market_notices_kind_check"
     t.check_constraint "listing_id IS NOT NULL OR order_id IS NOT NULL", name: "game_market_notices_subject_check"
   end
 
@@ -993,7 +994,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_100002) do
     t.index ["token"], name: "index_game_market_orders_on_token", unique: true
     t.check_constraint "(seller_id IS NOT NULL) = (status::text = 'served'::text) AND (served_card_season_id IS NOT NULL) = (status::text = 'served'::text) AND (served_at IS NOT NULL) = (status::text = 'served'::text) AND (average_after_sale IS NOT NULL) = (status::text = 'served'::text)", name: "game_market_orders_served_check"
     t.check_constraint "price > 0", name: "game_market_orders_price_check"
-    t.check_constraint "status::text ~ '^(open|served|expired|cancelled|withdrawn)$'::text", name: "game_market_orders_status_check"
+    t.check_constraint "status::text ~ '^(open|served|expired|cancelled|withdrawn|bid|beaten)$'::text", name: "game_market_orders_status_check"
   end
 
   create_table "game_market_pending_wanted_refreshes", id: false, force: :cascade do |t|
@@ -1063,9 +1064,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_100002) do
     t.bigint "slot_price_custom_set_10", default: 5000, null: false
     t.bigint "slot_price_deck_4", default: 1000, null: false
     t.bigint "slot_price_deck_5", default: 2000, null: false
+    t.bigint "archive_cap_rare", default: 1, null: false
+    t.bigint "archive_cap_window_days_rare", default: 1, null: false
+    t.bigint "archive_cap_epic", default: 1, null: false
+    t.bigint "archive_cap_window_days_epic", default: 7, null: false
+    t.bigint "archive_cap_legendary", default: 1, null: false
+    t.bigint "archive_cap_window_days_legendary", default: 7, null: false
     t.index ["author_id"], name: "index_game_market_settings_on_author_id"
     t.index ["replaces_id"], name: "index_game_market_settings_on_replaces_id", unique: true
     t.index ["token"], name: "index_game_market_settings_on_token", unique: true
+    t.check_constraint "archive_cap_epic >= 1", name: "game_market_settings_archive_cap_epic_check"
+    t.check_constraint "archive_cap_legendary >= 1", name: "game_market_settings_archive_cap_legendary_check"
+    t.check_constraint "archive_cap_rare >= 1", name: "game_market_settings_archive_cap_rare_check"
+    t.check_constraint "archive_cap_window_days_epic >= 1", name: "game_market_settings_archive_cap_window_days_epic_check"
+    t.check_constraint "archive_cap_window_days_legendary >= 1", name: "game_market_settings_archive_cap_window_days_legendary_check"
+    t.check_constraint "archive_cap_window_days_rare >= 1", name: "game_market_settings_archive_cap_window_days_rare_check"
     t.check_constraint "archive_price_common IS NULL OR archive_price_common >= minimum_price_common", name: "game_market_settings_archive_price_common_check"
     t.check_constraint "archive_price_epic IS NULL OR archive_price_epic >= minimum_price_epic", name: "game_market_settings_archive_price_epic_check"
     t.check_constraint "archive_price_legendary IS NULL OR archive_price_legendary >= minimum_price_legendary", name: "game_market_settings_archive_price_legendary_check"

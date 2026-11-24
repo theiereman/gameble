@@ -17,7 +17,7 @@ module Game
           step stamp_covered(settings, rarity, player)
           listing, stamp = open_listing(player, holding, settings, rarity, starting_price, duration_hours)
           Ledger.post(stamp)
-          step publish(CardListed.new(data: { listing_id: listing.id, seller_id: player.id, card_season_id: }), stream_name: stream_name(player.id))
+          step publish(CardListed.with(listing_id: listing.id, seller_id: player.id, card_season_id:), stream_name: stream_name(player.id))
           listing
         end
       rescue ActiveRecord::Deadlocked

@@ -84,7 +84,7 @@ class Game::Market::ApplyWantedChoicesTest < ActiveSupport::TestCase
     assert_equal [ 910, 0 ], figures(@seller)
     assert Game::Market::ReconcileWallets.call.balanced?
     assert_equal [ { seller_id: @seller.id, sales: [ { order_id: @order.id, buyer_id: @buyer.id, card_season_id: @rare.id, price: 900 } ],
-      listing_ids: listings.map(&:id), entrusted: [ { card_season_id: @common.id, quantity: 2 } ] } ], events(Game::Market::WantedChoicesApplied).map(&:data)
+      listing_ids: listings.map(&:id), entrusted: [ { card_season_id: @common.id, quantity: 2 } ], converted: [] } ], events(Game::Market::WantedChoicesApplied).map(&:data)
     assert_equal 1, Rails.configuration.event_store.read.stream(Game::Operation.stream_name(@seller.id)).of_type(Game::Market::WantedChoicesApplied).count
     assert_empty [ Game::Market::CardListed, Game::Market::CardsEntrusted, Game::Market::OrderServed ].flat_map { events(it) }
   end

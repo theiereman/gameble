@@ -4,8 +4,9 @@ module Game
       SALE_KEYS = %i[order_id buyer_id card_season_id price].freeze
       ENTRUSTED_KEYS = %i[card_season_id quantity].freeze
 
-      def self.with(seller_id:, sales:, listing_ids:, entrusted:)
-        new(data: { seller_id:, sales: only(sales, SALE_KEYS), listing_ids:, entrusted: only(entrusted, ENTRUSTED_KEYS) })
+      def self.with(seller_id:, sales:, listing_ids:, entrusted:, converted: [])
+        new(data: { seller_id:, sales: only(sales, SALE_KEYS), listing_ids:, entrusted: only(entrusted, ENTRUSTED_KEYS),
+          converted: only(converted, CardListed::CONVERTED_KEYS) })
       end
 
       def self.buyer_ids(data) = data.fetch(:sales).map { it.fetch(:buyer_id) }

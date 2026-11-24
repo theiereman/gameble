@@ -3,7 +3,7 @@ module Game
     class Notice < ApplicationRecord
       self.table_name = "game_market_notices"
 
-      ORDER_END_KINDS = %w[order_served order_expired].freeze
+      ORDER_END_KINDS = %w[order_served order_expired order_leads order_beaten].freeze
       KINDS = (%w[outbid won sold unsold lead_voided withdrawn wanted listed_above_order] + ORDER_END_KINDS).freeze
       LISTING_INDEX = :index_game_market_notices_on_player_and_listing_alone
       LISTED_ABOVE_INDEX = :index_game_market_notices_listed_above_order

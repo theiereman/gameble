@@ -28,7 +28,7 @@ class Game::Market::OrderEventsTest < ActiveSupport::TestCase
     data = Game::Market::WantedChoicesApplied.with(seller_id: @seller.id, sales: [ sale ], listing_ids: [ 4 ],
       entrusted: [ { card_season_id: @season.id, quantity: 2 } ]).data
 
-    assert_equal({ seller_id: @seller.id, sales: [ sale.except(:extra) ], listing_ids: [ 4 ], entrusted: [ { card_season_id: @season.id, quantity: 2 } ] }, data)
+    assert_equal({ seller_id: @seller.id, sales: [ sale.except(:extra) ], listing_ids: [ 4 ], entrusted: [ { card_season_id: @season.id, quantity: 2 } ], converted: [] }, data)
     assert_raises(KeyError) { Game::Market::WantedChoicesApplied.with(seller_id: 1, sales: [ sale.except(:price) ], listing_ids: [], entrusted: []) }
   end
 
