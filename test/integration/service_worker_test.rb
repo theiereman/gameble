@@ -15,6 +15,15 @@ class ServiceWorkerTest < ActionDispatch::IntegrationTest
     assert_nil response.headers["Set-Cookie"]
   end
 
+  test "a signed-in player's worker check never rewrites the session, which would overwrite a flash set by a request still in flight" do
+    sign_in(accounts_players(:player))
+
+    get "/service-worker.js"
+
+    assert_response :success
+    assert_nil response.headers["Set-Cookie"]
+  end
+
   test "a signed-in player's page names the worker" do
     sign_in(accounts_players(:player))
 
