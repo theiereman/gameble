@@ -42,8 +42,11 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#archive-offer-blue-depths-1 a[href=?][data-turbo-frame=archive-purchase][data-action='purchase-dialog#open']",
       new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1)
     assert_select "#archive-offer-blue-depths-1 a[aria-label^='Profondeurs bleues, Rare, saison 1, Archives de la Confrérie, prix fixe 500']" \
-      "[aria-label$=', 1 en stock, Encore 1 Rare par jour. Acheter']"
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "Encore 1 Rare par jour"
+      "[aria-label$=', 1 en stock. Acheter']"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap[data-archive-cap=rare]", "Encore 1 Rare par jour"
+    described = css_select("#archive-offer-blue-depths-1 a").first["aria-describedby"]
+    assert_select "##{described}.visually-hidden[data-archive-cap=rare]", "Encore 1 Rare par jour"
+    assert_select "#archive-offer-tin-soldier-1 a[aria-describedby]", 0
     assert_select "#archive-offer-tin-soldier-1 .archive-offer__cap", 0
     assert_select ".archive-offer__buy", 2
   end
@@ -90,6 +93,7 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     get market_shop_path(locale: :fr)
     assert_select ".market-shop__rarities .filter-chip", text: /Rare\s+Encore 1 Rare par jour/
+    assert_select ".market-shop__rarity-cap[data-archive-cap=rare]", 1
     assert_select ".market-shop__rarities .filter-chip", text: /Commune/
     assert_select ".market-shop__rarity-cap", 1
 
@@ -109,7 +113,7 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#archive-offer-blue-depths-1 .archive-offer__tag--wanted", "VOULUE"
     assert_select "#archive-offer-tin-soldier-1 .archive-offer__tag--wanted", 0
-    assert_select "#archive-offer-blue-depths-1 a[aria-label$=', voulue, Encore 1 Rare par jour. Acheter']"
+    assert_select "#archive-offer-blue-depths-1 a[aria-label$=', voulue. Acheter']"
     assert_select ".market-filters__wanted", /VOULUES · 1/
     assert_select ".market-filters__wanted input[aria-label=?]", "Voulues, 1 carte"
 

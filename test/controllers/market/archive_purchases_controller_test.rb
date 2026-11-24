@@ -151,6 +151,29 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "turbo-stream[action=replace][target=archive-offer-blue-depths-1] template .archive-offer__cap", /\A1 Rare par jour · prochaine le /
+    assert_select "turbo-stream[action=update][targets=?] template", "[data-archive-cap='rare']", text: /\A1 Rare par jour · prochaine le /
+    assert_select "turbo-stream[action=update][targets=?] template time[data-controller=local-time]", "[data-archive-cap='rare']"
+  end
+
+  test "a purchase leaving copies of the cap rewrites every cap line of the rarity" do
+    @settings = open_market!(first_opened_at: 1.day.ago, archive_price_rare: 500, archive_cap_rare: 3)
+    sign_in(@player)
+
+    buy
+
+    assert_select "turbo-stream[action=update][targets=?] template", "[data-archive-cap='rare']", text: "Encore 2 Rares par jour"
+  end
+
+  test "a purchase of an uncapped rarity rewrites no cap line" do
+    common = catalog_card_seasons(:common_card_one)
+    Game::Market::ArchiveStock.create!(card_season_id: common.id, quantity: 2)
+    sign_in(@player)
+
+    post market_archive_purchase_path(locale: :fr, slug: "tin-soldier", number: 1), params: { settings_token: @settings.token, purchase_token: SecureRandom.base58(24) },
+      headers: { "Accept" => STREAM }
+
+    assert_response :success
+    assert_select "turbo-stream[action=update][targets*='data-archive-cap']", 0
   end
 
   test "a purchase answers the result in the frame and the tile with its stock lowered" do

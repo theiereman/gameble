@@ -6,3 +6,6 @@
 <% else %>
   <%= turbo_stream.remove_all archive_offer_selector(@card) %>
 <% end %>
+<% if @caps[@card.rarity.to_sym] %>
+  <%= turbo_stream.update_all archive_cap_selector(@card.rarity), h(archive_rarity_cap_line(@card.rarity, @caps)) %>
+<% end %>
