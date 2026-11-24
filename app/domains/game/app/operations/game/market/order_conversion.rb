@@ -20,7 +20,7 @@ module Game
           basis_points: settings.increment_basis_points)
         listing.update!(leader_id: leader.player_id, leader_maximum: leader.price, current_price: price)
         [ leader, *others.sort_by { [ it.created_at, it.id ] } ].each { record_order_bid(listing, it, leader, price) }
-        orders.each { it.update!(status: it.equal?(leader) ? "bid" : "beaten") }
+        orders.each { it.update!(status: it.equal?(leader) ? "bid" : "beaten", listing_id: listing.id) }
         [ orders.map { converted_row(listing, it) }, order_entries(listing, orders, leader) ]
       end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_24_110007) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_110010) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -986,8 +986,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_110007) do
     t.bigint "average_after_sale"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "listing_id"
     t.index ["card_id", "price", "created_at", "id"], name: "index_game_market_orders_open_best_price", order: { price: :desc }, where: "((status)::text = 'open'::text)"
     t.index ["expires_at"], name: "index_game_market_orders_open_expires_at", where: "((status)::text = 'open'::text)"
+    t.index ["listing_id"], name: "index_game_market_orders_on_listing_id"
     t.index ["player_id", "card_id"], name: "index_game_market_orders_one_open_per_card", unique: true, where: "((status)::text = 'open'::text)"
     t.index ["player_id"], name: "index_game_market_orders_on_player_id"
     t.index ["served_card_season_id", "served_at"], name: "index_game_market_orders_served", where: "((status)::text = 'served'::text)"
@@ -1442,6 +1444,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_110007) do
   add_foreign_key "game_market_orders", "accounts_players", column: "seller_id"
   add_foreign_key "game_market_orders", "catalog_card_seasons", column: "served_card_season_id"
   add_foreign_key "game_market_orders", "catalog_cards", column: "card_id"
+  add_foreign_key "game_market_orders", "game_market_listings", column: "listing_id"
   add_foreign_key "game_market_orders", "game_market_settings", column: "settings_id"
   add_foreign_key "game_market_pending_wanted_refreshes", "accounts_players", column: "player_id"
   add_foreign_key "game_market_settings", "accounts_players", column: "author_id"

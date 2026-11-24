@@ -286,6 +286,22 @@ class Game::Market::OrderBackedAuctionTest < ActiveSupport::TestCase
     assert_equal [ other.token, "outbid", listing.token ], [ row.token, row.status, row.listing_token ]
   end
 
+  test "a converted order reads its auction with every notice of it deleted: leading, outbid, then won" do
+    leading = place!(@first, 400)
+    beaten = place!(@second, 350)
+    @listing = list.value!
+    Game::Market::Notice.where(kind: %w[order_leads order_beaten]).delete_all
+
+    assert_equal [ [ leading.token, "bid", @listing.token ] ], orders_reading(@first).in_progress.map { [ it.token, it.status, it.listing_token ] }
+    assert_equal [ [ beaten.token, "outbid", @listing.token ] ], orders_reading(@second).recent.map { [ it.token, it.status, it.listing_token ] }
+
+    @listing.update_columns(ends_at: 1.minute.ago)
+    assert Game::Market::CloseAuction.new.call(player: @seller, listing_id: @listing.id).success?
+    Game::Market::Notice.where(kind: %w[order_leads order_beaten]).delete_all
+
+    assert_equal [ [ leading.token, "won", @listing.token ] ], orders_reading(@first).recent.map { [ it.token, it.status, it.listing_token ] }
+  end
+
   test "a converted order whose auction was withdrawn reads outbid with its PiCoins returned" do
     order = place!(@first, 400)
     listing = list.value!

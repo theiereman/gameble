@@ -6,7 +6,6 @@ module Game
     module PlayerOrders
       RECENT_FOR = 7.days
       ENDED_STATUSES = %w[served expired cancelled beaten].freeze
-      BID_KINDS = %w[order_leads order_beaten].freeze
       IN_PROGRESS = %w[open bid].freeze
 
       Groups = Data.define(:in_progress, :recent)
@@ -40,14 +39,14 @@ module Game
       def self.shown(player, now)
         mine = Order.where(player_id: player.id)
         since = now - RECENT_FOR
-        in_auction = Notice.where(player_id: player.id, kind: "order_leads").joins(:listing).merge(Listing.where(status: "open").or(Listing.where(updated_at: since..)))
-        mine.where(status: "open").or(mine.where(status: ENDED_STATUSES, updated_at: since..)).or(mine.where(status: "bid", id: in_auction.select(:order_id)))
+        in_auction = Listing.where(status: "open").or(Listing.where(updated_at: since..))
+        mine.where(status: "open").or(mine.where(status: ENDED_STATUSES, updated_at: since..)).or(mine.where(status: "bid", listing_id: in_auction.select(:id)))
       end
       private_class_method :shown
 
       def self.auctions_of(player, order_ids)
-        Notice.where(player_id: player.id, kind: BID_KINDS, order_id: order_ids).joins(:listing)
-          .pluck(:order_id, "game_market_listings.token", "game_market_listings.status", "game_market_listings.leader_id", "game_market_listings.ends_at",
+        Order.where(player_id: player.id, id: order_ids).joins(:listing)
+          .pluck(:id, "game_market_listings.token", "game_market_listings.status", "game_market_listings.leader_id", "game_market_listings.ends_at",
             "game_market_listings.updated_at").to_h { |order_id, *rest| [ order_id, Auction.new(*rest) ] }
       end
       private_class_method :auctions_of

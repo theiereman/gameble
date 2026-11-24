@@ -55,6 +55,7 @@ module LockRaces
     Game::Market::LedgerEntry.where(player_id: players).delete_all
     Game::Market::Wallet.where(player_id: players).delete_all
     Game::Market::Notice.where(listing_id: listing_ids).delete_all
+    Game::Market::Order.where(listing_id: listing_ids).update_all(listing_id: nil)
     Game::Market::Listing.where(id: listing_ids).delete_all
     Game::Market::EditionPrice.where(card_season_id: card.id).delete_all if card
     purge_player_rows(players)

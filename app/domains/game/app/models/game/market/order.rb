@@ -11,6 +11,7 @@ module Game
 
       belongs_to :player, class_name: "Accounts::Player"
       belongs_to :settings, class_name: "Game::Market::Settings"
+      belongs_to :listing, optional: true
 
       scope :open_at, ->(now) { where(status: "open").where.not(expires_at: ..now) }
       scope :due, ->(now) { where(status: "open", expires_at: ..now) }
