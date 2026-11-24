@@ -6,6 +6,10 @@ module SystemDiagnostics
   PAGE_TEXT_LENGTH = 2000
   REQUEST_LINES = 80
 
+  def self.included(test_case)
+    test_case.setup { seen { page.driver.browser.logs.get(:browser) } }
+  end
+
   def before_setup
     @log_offset = LOG.exist? ? LOG.size : 0
     @started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -37,7 +41,10 @@ module SystemDiagnostics
       -- page text (first #{PAGE_TEXT_LENGTH} characters)
       #{seen { page.text.to_s[0, PAGE_TEXT_LENGTH] }}
 
-      -- browser console
+      -- toasts on the page
+      #{seen { page.evaluate_script("document.querySelector('.toasts')?.outerHTML ?? 'no .toasts element'").to_s[0, 600] }}
+
+      -- browser console (since the test began)
       #{seen { page.driver.browser.logs.get(:browser).map { "#{it.level} #{it.message}" }.join("\n") }}
 
       -- server requests during the test (last #{REQUEST_LINES}, both workers' servers mixed)
