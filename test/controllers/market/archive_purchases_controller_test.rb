@@ -165,8 +165,8 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a purchase of an uncapped rarity rewrites no cap line" do
-    common = catalog_card_seasons(:common_card_one)
-    Game::Market::ArchiveStock.create!(card_season_id: common.id, quantity: 2)
+    @settings = open_market!(first_opened_at: 1.day.ago, archive_price_rare: 500, archive_price_common: 50)
+    Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:common_card_one).id, quantity: 2)
     sign_in(@player)
 
     post market_archive_purchase_path(locale: :fr, slug: "tin-soldier", number: 1), params: { settings_token: @settings.token, purchase_token: SecureRandom.base58(24) },
