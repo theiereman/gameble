@@ -25,7 +25,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "link[rel=icon][type='image/svg+xml'][href*='/favicon-'][href$='.svg']"
     assert_select "link[rel=icon][type='image/png'][sizes='180x180'][href*='/favicon-'][href$='.png']"
     assert_select "link[rel=apple-touch-icon][href*='/favicon-'][href$='.png']"
-    assert_select "meta[name=viewport][content=?]", "width=device-width,initial-scale=1,viewport-fit=cover"
+    assert_select "meta[name=viewport][content=?]", "width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
     assert_select "meta[name=theme-color][content=?]", "#171a21"
     assert_select "meta[name=view-transition][content=same-origin]"
     preloads = css_select("link[rel=preload][as=font][type='font/woff2'][crossorigin]").map { it["href"] }
