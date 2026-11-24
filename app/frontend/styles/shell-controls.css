@@ -63,7 +63,7 @@
   color: var(--color-on-alert);
 }
 
-/* A link: muted JetBrains Mono, accent with a pixel arrow on hover. */
+/* A link: muted JetBrains Mono, accent on hover. */
 .button--link {
   min-height: var(--space-touch-min);
   padding: 0;
@@ -74,23 +74,10 @@
   letter-spacing: var(--tracking-button-sm);
 }
 
-.button--link::after {
-  content: "";
-  width: 6px;
-  height: 10px;
-  background: currentColor;
-  mask: url("../images/pixel/arrow-small-right.svg") no-repeat center / contain;
-  visibility: hidden;
-}
-
 .button--link:hover {
   background: none;
   color: var(--color-accent);
   transform: none;
-}
-
-.button--link:hover::after {
-  visibility: visible;
 }
 
 .button--link:active {

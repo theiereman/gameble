@@ -55,11 +55,6 @@
   white-space: nowrap;
 }
 
-.exchange-preview__arrow {
-  width: 6px;
-  height: auto;
-}
-
 .exchange-preview__body {
   display: grid;
   grid-area: body;

@@ -81,7 +81,7 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     assert_selector "#wanted-result-heading:focus", text: "YOUR 3 CHOICES ARE APPLIED"
     assert_selector ".wanted-result__line--sold", text: "SOLD"
     assert_selector ".wanted-result__line--listed", text: "RUNNING"
-    assert_selector ".wanted-result__line--listed a", text: "SEE THE LISTING ▸"
+    assert_selector ".wanted-result__line--listed a", text: "SEE THE LISTING"
     assert_selector ".wanted-result__line--entrusted", text: "ENTRUSTED"
     assert_equal [ 1, 1 ], [ Game::Holding.find_by(player_id: @buyer.id, card_season_id: @uncommon.id).quantity, Game::Market::Listing.where(seller: @camille, status: "open").count ]
     assert_equal 1, Game::Market::ArchiveDeposit.find_by(player_id: @camille.id, card_season_id: @rare.id).quantity
@@ -90,7 +90,7 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
   test "Enter in a starting price keeps the table and entrusts nothing" do
     open_entrust
     tick(@epic)
-    click_on "CHOOSE FOR THE WANTED CARD ▸"
+    click_on "CHOOSE FOR THE WANTED CARD"
 
     assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
     within(line(@epic)) do
@@ -108,7 +108,7 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
   test "an order served before the press redraws its line with its new choice and nothing moves" do
     open_entrust
     tick(@uncommon)
-    click_on "CHOOSE FOR THE WANTED CARD ▸"
+    click_on "CHOOSE FOR THE WANTED CARD"
 
     assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
     within(line(@uncommon)) { assert_selector "input[value=order]:checked", visible: :all }

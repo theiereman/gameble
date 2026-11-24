@@ -8,6 +8,7 @@ The rules sit above the visual identity (console frame, pixel art, VT323 and Jet
 
 - **The essentials stand out, the rest is decor.** What the player has to read or act on (a count, a price, a balance, the main action) is the largest and brightest thing on the screen. Lore and flavour text is rare, short, small and muted. Never add a sentence that only repeats what the screen already shows.
 - **One shape per screen, whatever the state.** A new player and a regular see the same structure; only the values change. A counter shows `0`; it is never replaced by a welcome block.
+- **No "go there" arrows.** A link, a tile, a panel title or a button never carries a ▸ or pixel arrow to say it leads somewhere. An arrow is kept only where it is the control itself (previous/next, the phone back button), on what folds (its chevron turns), and on the hub menu entries.
 - **Same job, same component.** Before you write a new class for a panel, a heading, a tile, tabs or a sort, use the shared component below.
 
 ## Page layout

@@ -38,11 +38,6 @@
   letter-spacing: var(--tracking-kicker);
 }
 
-.hub-market__arrow {
-  width: 6px;
-  height: auto;
-}
-
 .hub-market__list {
   display: flex;
   flex-direction: column;

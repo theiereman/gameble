@@ -59,7 +59,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "form#entrust[data-layout=wide]"
     assert_select "form#entrust .market-entrust__layout[data-controller=entrust-recap]"
-    assert_select ".entrust-bar[role=group] a[data-bottom-sheet-opens=entrust-recap-sheet]", "Entrust ▸"
+    assert_select ".entrust-bar[role=group] a[data-bottom-sheet-opens=entrust-recap-sheet]", "Entrust"
     assert_select ".entrust-bar [data-entrust-recap-target=barTotal] .picoin-amount__figure", "0"
     assert_select "dialog#entrust-recap-sheet .modal__title", "Entrust"
     assert_select "dialog#entrust-recap-sheet [data-entrust-recap-target=sheetBody]"

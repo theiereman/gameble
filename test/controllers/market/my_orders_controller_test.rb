@@ -71,11 +71,11 @@ class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
 
     get market_my_orders_path(locale: :en)
     assert_select ".market-row__note", text: /Max is selling Tin Soldier for 150.*, above your order\./m
-    assert_select ".market-row__note a.button--link[href=?]", market_listing_path(locale: :en, token: listing.token), "SEE THE LISTING ▸"
+    assert_select ".market-row__note a.button--link[href=?]", market_listing_path(locale: :en, token: listing.token), "SEE THE LISTING"
 
     get market_my_orders_path(locale: :fr)
     assert_select ".market-row__note", text: /Max vend Soldat de plomb à 150.*, au-dessus de votre ordre\./m
-    assert_select ".market-row__note a.button--link", "VOIR L'ANNONCE ▸"
+    assert_select ".market-row__note a.button--link", "VOIR L'ANNONCE"
   end
 
   def ended!(card_season, status, ended_at)

@@ -35,7 +35,7 @@ class MarketArchiveOffersSystemTest < ApplicationSystemTestCase
 
     within ".shop-panel" do
       assert_selector ".shop-panel__list li", count: 1
-      assert_link "Voir toute la boutique ▸"
+      assert_link "Voir toute la boutique"
     end
     assert_selector "#market-tiles > li:nth-child(1) .listing-tile__price", text: "80"
     assert_selector "#market-tiles > li:nth-child(2) .archive-offer__fixed", text: "prix fixe"

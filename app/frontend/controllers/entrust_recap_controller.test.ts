@@ -200,10 +200,10 @@ describe("the submit button", () => {
   })
 
   it("loses the not-given-back sentence when only wanted copies are ticked", () => {
-    recap.render(view({ lines: [], finality: false, label: "Choose for the wanted card ▸" }))
+    recap.render(view({ lines: [], finality: false, label: "Choose for the wanted card" }))
     expect(described()).toBe("")
     expect(document.getElementById("not-returned")!.hidden).toBe(true)
-    expect(document.querySelector("button")!.textContent).toBe("Choose for the wanted card ▸")
+    expect(document.querySelector("button")!.textContent).toBe("Choose for the wanted card")
   })
 
   it("leaves out a reason id that is not on the page", () => {

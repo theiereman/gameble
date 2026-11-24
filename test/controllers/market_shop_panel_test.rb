@@ -40,7 +40,7 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
     assert_select ".shop-panel__list a[data-turbo-frame=archive-purchase][data-action='purchase-dialog#open']", 2
     assert_select ".shop-panel__list .archive-offer__stock", 0
     assert_select ".shop-panel__foot a.button--link[href=?][aria-label=?]", market_shop_path(locale: :fr),
-      "Voir toute la boutique de la Confrérie", text: "Voir toute la boutique ▸"
+      "Voir toute la boutique de la Confrérie", text: "Voir toute la boutique"
     assert_select ".market-screen[data-controller~=purchase-dialog] dialog#archive-purchase-dialog"
   end
 

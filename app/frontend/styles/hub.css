@@ -110,11 +110,6 @@
   outline-offset: var(--focus-ring-offset);
 }
 
-.hub-linked__arrow {
-  width: 6px;
-  height: auto;
-}
-
 .hub__subtitle {
   margin: var(--space-1) 0 0;
   color: var(--color-muted);

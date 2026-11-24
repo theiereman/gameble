@@ -26,7 +26,7 @@ const STRINGS = {
   setApartHeading: { one: "SET ASIDE · 1 WANTED CARD", other: "SET ASIDE · %{count} WANTED CARDS", zero: "" },
   setApartStatus: { one: "%{count} set aside", other: "%{count} set aside", zero: "" },
   seekers: { one: "%{count} player wants it", other: "%{count} players want it", zero: "" },
-  choose: { one: "CHOOSE FOR THE WANTED CARD ▸", other: "CHOOSE FOR THE %{count} WANTED CARDS ▸", zero: "" },
+  choose: { one: "CHOOSE FOR THE WANTED CARD", other: "CHOOSE FOR THE %{count} WANTED CARDS", zero: "" },
 }
 
 const attr = (value: unknown): string => JSON.stringify(value).replace(/"/g, "&quot;")
