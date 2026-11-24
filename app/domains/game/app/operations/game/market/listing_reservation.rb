@@ -4,6 +4,8 @@ module Game
       private
 
       def release_reservation(listing, now)
+        return ArchiveStock.give_back(listing.card_season_id, now) unless listing.seller_id
+
         holding = TradeLocks.holdings(listing.seller_id, [ listing.card_season_id ])[listing.card_season_id]
         return unless holding
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_24_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -407,6 +407,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_190000) do
     t.datetime "unlocked_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "collected_at"
     t.datetime "claimed_at"
     t.index ["player_id", "achievement"], name: "index_game_achievement_unlocks_on_player_id_and_achievement", unique: true
   end
@@ -865,7 +866,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_190000) do
     t.index ["listing_id", "id"], name: "index_game_market_bids_on_listing_and_id"
     t.index ["player_id", "listing_id"], name: "index_game_market_bids_on_player_and_listing"
     t.check_constraint "maximum > 0", name: "game_market_bids_maximum_check"
-    t.check_constraint "outcome::text ~ '^(leading|outbid|beaten|raise|won|lost|voided)$'::text", name: "game_market_bids_outcome_check"
+    t.check_constraint "outcome::text = ANY (ARRAY['leading'::character varying, 'outbid'::character varying, 'beaten'::character varying, 'raise'::character varying, 'won'::character varying, 'lost'::character varying, 'voided'::character varying]::text[])", name: "game_market_bids_outcome_check"
     t.check_constraint "price_after > 0", name: "game_market_bids_price_after_check"
   end
 
@@ -936,7 +937,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_190000) do
 
   create_table "game_market_listings", force: :cascade do |t|
     t.string "token", null: false
-    t.bigint "seller_id", null: false
+    t.bigint "seller_id"
     t.bigint "card_season_id", null: false
     t.bigint "settings_id", null: false
     t.bigint "starting_price", null: false
@@ -961,7 +962,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_190000) do
     t.check_constraint "current_price >= starting_price", name: "game_market_listings_current_price_check"
     t.check_constraint "duration_hours > 0", name: "game_market_listings_duration_check"
     t.check_constraint "starting_price > 0", name: "game_market_listings_starting_price_check"
-    t.check_constraint "status::text ~ '^(open|sold|unsold|cancelled|withdrawn)$'::text", name: "game_market_listings_status_check"
+    t.check_constraint "status::text = ANY (ARRAY['open'::character varying, 'sold'::character varying, 'unsold'::character varying, 'cancelled'::character varying, 'withdrawn'::character varying]::text[])", name: "game_market_listings_status_check"
   end
 
   create_table "game_market_notices", force: :cascade do |t|
@@ -1174,13 +1175,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_190000) do
     t.string "active_title_rank"
     t.integer "active_card_back_season"
     t.string "active_avatar"
-    t.string "exchanges_tab"
     t.integer "goals_completed", default: 0, null: false
     t.datetime "source_code_opened_at"
     t.datetime "support_opened_at"
     t.datetime "code_contribution_at"
     t.datetime "discord_member_at"
     t.datetime "discord_checked_at"
+    t.string "exchanges_tab"
     t.datetime "supporter_at"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
     t.check_constraint "(active_title_kind IS NULL) = (active_title_key IS NULL) AND (active_title_key IS NULL) = (active_title_rank IS NULL)", name: "game_player_states_active_title_whole_check"

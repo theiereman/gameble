@@ -16,7 +16,7 @@ module Game
         covered = covering_leaders(rows.reverse)
         players = Accounts::Player.where(id: [ listing.seller_id, *rows.map(&:player_id) ]).index_by(&:id)
         lines = rows.flat_map { |row| lines_of(row, players, listing, covered[row.id]) }
-        lines << Line.new(kind: :created, player: players.fetch(listing.seller_id), price: nil, at: listing.created_at, until: nil, leading: false)
+        lines << Line.new(kind: :created, player: players[listing.seller_id], price: nil, at: listing.created_at, until: nil, leading: false)
       end
 
       def self.visible_rows(token, viewer)

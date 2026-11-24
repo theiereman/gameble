@@ -98,6 +98,12 @@ sum_archive_stocks: &sum_archive_stocks
   queue: default
   schedule: every hour
 
+# The Archives put a few Epics and one Legendary up for auction each Monday; a run already done this week opens nothing.
+open_archive_auctions: &open_archive_auctions
+  class: Game::OpenArchiveAuctionsJob
+  queue: default
+  schedule: every monday at 00:05 UTC
+
 # Staff's alt-account signals are replaced every night, after the reconciliation.
 refresh_alt_signals: &refresh_alt_signals
   class: Game::RefreshAltSignalsJob
@@ -129,6 +135,7 @@ development:
   reconcile_wallets: *reconcile_wallets
   refresh_alt_signals: *refresh_alt_signals
   sum_archive_stocks: *sum_archive_stocks
+  open_archive_auctions: *open_archive_auctions
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
@@ -149,6 +156,7 @@ production:
   reconcile_wallets: *reconcile_wallets
   refresh_alt_signals: *refresh_alt_signals
   sum_archive_stocks: *sum_archive_stocks
+  open_archive_auctions: *open_archive_auctions
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries

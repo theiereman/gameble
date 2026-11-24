@@ -58,6 +58,6 @@ module MarketRowsHelper
   def cancel_dialog_id(token) = "cancel-#{token}"
 
   def annonce_cancellable?(listing, viewer)
-    viewer && listing.seller.id == viewer.id && listing.status == "open" && listing.leader.nil? && listing.ends_at > Time.current
+    viewer && listing.seller&.id == viewer.id && listing.status == "open" && listing.leader.nil? && listing.ends_at > Time.current
   end
 end

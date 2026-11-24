@@ -3553,6 +3553,7 @@ en:
           - "Every Monday the Brotherhood puts up a list of %{size} cards players entrusted to it, the same for everyone: the most wanted first, then Rares, Uncommons and Commons."
           - "A card keeps its price all week. The Brotherhood sets it from the market's sales, high enough that buying from the Archives stays an effort."
           - "Each player buys a card of the list once a week, and at most %{purchases} cards a week."
+          - "Each Monday the Brotherhood also auctions up to %{epics} Epics and %{legendaries} Legendary on the market, for %{hours} hours, from twice their reference. Their price is destroyed too; a card nobody buys goes back to the Archives."
           - "The PiCoins spent here are destroyed, which keeps the PiCoins in circulation in balance."
     copy_filters:
       wanted: "WANTED BY OTHERS · %{count}"
@@ -4643,6 +4644,7 @@ en:
         rule: "A card is wanted when it is missing from another player's goals or a buy order targets it. You see how many players want it, never who."
         title: "Wanted cards"
       shop:
+        auctions: "Each Monday the Brotherhood also auctions up to %{epics} Epics and %{legendaries} Legendary on the market, for %{hours} hours, from twice their reference. Their price is destroyed too; a card nobody buys goes back to the Archives."
         destroyed: "The PiCoins spent at the shop are destroyed, which keeps the PiCoins in circulation in balance."
         list: "Every Monday at 00:00 UTC the Brotherhood puts up a list of %{size} cards players entrusted to it, the same for everyone: up to %{wanted} of the most wanted cards, then up to %{rares} Rares, then Uncommons and Commons."
         once: "Each player buys a card of the list once a week, and at most %{purchases} cards a week. A card leaves the list when its last copy is sold."
@@ -5087,6 +5089,7 @@ en:
     you: You
   player_name:
     anonymous: An anonymous player
+    archives: "Brotherhood's Archives"
   profile_avatars:
     chosen:
       text: "%{name} is now your portrait."

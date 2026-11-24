@@ -707,6 +707,7 @@ fr:
         rule: "Une carte est voulue quand elle manque aux objectifs d'un autre joueur ou qu'un ordre d'achat la vise. Vous voyez combien de joueurs la veulent, jamais lesquels."
         title: "Les cartes voulues"
       shop:
+        auctions: "Chaque lundi, la Confrérie met aussi aux enchères sur le marché jusqu'à %{epics} Épiques et %{legendaries} Légendaire, pendant %{hours} heures, à partir du double de leur référence. Leur prix est détruit aussi ; une carte que personne n'achète retourne aux Archives."
         destroyed: "Les PiCoins dépensés à la boutique sont détruits, ce qui garde en équilibre les PiCoins en circulation."
         list: "Chaque lundi à 00:00 UTC, la Confrérie met en vente une liste de %{size} cartes que les joueurs lui ont confiées, la même pour tous : jusqu'à %{wanted} cartes parmi les plus recherchées, puis jusqu'à %{rares} Rares, puis des Peu communes et des Communes."
         once: "Chaque joueur achète une carte de la liste une fois par semaine, et au plus %{purchases} cartes par semaine. Une carte quitte la liste quand son dernier exemplaire est vendu."
@@ -2124,6 +2125,7 @@ fr:
     you: "Vous"
   player_name:
     anonymous: "Un joueur anonyme"
+    archives: "Archives de la Confrérie"
   profile_avatars:
     chosen:
       text: "%{name} est maintenant votre portrait."
@@ -2654,6 +2656,7 @@ fr:
           - "Chaque lundi, la Confrérie met en vente une liste de %{size} cartes que les joueurs lui ont confiées, la même pour tous : d'abord les cartes les plus recherchées, puis des Rares, des Peu communes et des Communes."
           - "Une carte garde son prix toute la semaine. La Confrérie le fixe d'après les ventes du marché, assez haut pour qu'acheter aux Archives reste un effort."
           - "Chaque joueur achète une carte de la liste une fois par semaine, et au plus %{purchases} cartes par semaine."
+          - "Chaque lundi, la Confrérie met aussi aux enchères sur le marché jusqu'à %{epics} Épiques et %{legendaries} Légendaire, pendant %{hours} heures, à partir du double de leur référence. Leur prix est détruit aussi ; une carte que personne n'achète retourne aux Archives."
           - "Les PiCoins dépensés ici sont détruits, ce qui garde en équilibre les PiCoins en circulation."
     copy_filters:
       wanted: "VOULUES PAR D'AUTRES · %{count}"

@@ -6,8 +6,9 @@ module Game
 
       CLOSED_MEANWHILE = Dry::Monads::Failure(:listing_not_closable)
 
+      # `player`: the seller, or nil for an auction of the Archives.
       def call(player:, listing_id:)
-        player = step require_account(player)
+        player = step require_account(player) if player
         seen = step find_listing(player, listing_id)
 
         transaction do
@@ -25,7 +26,7 @@ module Game
       private
 
       def find_listing(player, listing_id)
-        listing = Listing.find_by(id: listing_id, seller_id: player.id)
+        listing = Listing.find_by(id: listing_id, seller_id: player&.id)
         listing ? Success(listing) : Failure(:listing_not_found)
       end
 
@@ -44,7 +45,8 @@ module Game
       def sell(listing, now)
         price = listing.current_price
         winner_id = listing.leader_id
-        entries = settle_sale(listing:, winner_id:, held: listing.leader_maximum, final_price: price, now:)
+        settle = listing.seller_id ? method(:settle_sale) : method(:settle_archive_sale)
+        entries = settle.call(listing:, winner_id:, held: listing.leader_maximum, final_price: price, now:)
         Ledger.post(entries)
         publish_to_seller(listing, sold_event(listing:, winner_id:, final_price: price, surplus: listing.leader_maximum - price))
       end

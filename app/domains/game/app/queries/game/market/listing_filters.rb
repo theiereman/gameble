@@ -75,7 +75,7 @@ module Game
       def apply(listings, locale:)
         listings = listings.where(current_price: min_price..) if min_price
         listings = listings.where(current_price: ..max_price) if max_price
-        listings = listings.where.not(seller: hidden_seller) if hides_mine?
+        listings = listings.where("game_market_listings.seller_id IS DISTINCT FROM ?", hidden_seller.id) if hides_mine?
         listings = listings.where(card_season_id: Catalog::CardSeason.where(card_id: wanted_card_ids).select(:id)) if wanted_only?
         about_cards? ? listings.where(card_season_id: card_seasons(locale).select(:id)) : listings
       end

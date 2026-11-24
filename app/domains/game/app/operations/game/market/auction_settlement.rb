@@ -17,6 +17,19 @@ module Game
           settings_id: listing.settings_id, commission_settings: Settings.find(listing.settings_id))
       end
 
+      # The Archives' copy goes to the winner, and the price leaves circulation.
+      def settle_archive_sale(listing:, winner_id:, held:, final_price:, now:)
+        card = listing.card_season_id
+        receive_bought_copy(winner_id, { winner_id => TradeLocks.holdings(winner_id, [ card ]) }, card, now:)
+        listing.update!(status: "sold", sold_at: now, final_price:)
+        Bid.close_out(listing_id: listing.id, winner_id:)
+        listing.update!(average_after_sale: refresh_edition_price(card, now))
+        entry = ->(kind, available, committed = 0) do
+          Ledger::Entry.new(player_id: winner_id, kind:, available_delta: available, committed_delta: committed, listing_id: listing.id, settings_id: listing.settings_id)
+        end
+        [ entry.(:release, held, -held), entry.(:archive_purchase, -final_price) ]
+      end
+
       def give_sold_copy(seller_id, holdings, card, released:, now:)
         move(seller_id, holdings.fetch(seller_id), given: { card => 1 }, gained: {}, released:, now:)
         ShowcaseEntry.remove_unheld(seller_id, [ card ])

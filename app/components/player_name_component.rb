@@ -7,7 +7,9 @@ class PlayerNameComponent < ViewComponent::Base
   end
 
   def call
-    if @player.removed?
+    if @player.nil?
+      tag.span(t("player_name.archives"), class: "player-name")
+    elsif @player.removed?
       tag.span(t("player_name.anonymous"), class: "player-name player-name--anonymous")
     elsif @linked && Game::Visibility.visible?(@viewer, @player, friends: @friends)
       link_to(name, helpers.brother_path(token: @player.token), class: "player-name player-name--linked")

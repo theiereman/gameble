@@ -292,6 +292,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select ".how-it-works__fees", /Gamebler's Tax Stamp.*Brotherhood Effort/m
     assert_select "p + .how-it-works__maximum"
     assert_select "p", /To bid, you set My maximum/
+    assert_select ".how-it-works__shop li", /auctions up to 5 Epics and 1 Legendary on the market, for 48 hours/
   end
 
   test "a newer settings version changes the numbers shown" do

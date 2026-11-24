@@ -500,4 +500,15 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".market-listing__fact--price", false
   end
+
+  test "an auction of the Archives names them as its seller, in the facts and the history" do
+    Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+    listing = Game::Market::OpenArchiveAuction.new.call(card_season_id: catalog_card_seasons(:portal_one).id).value!
+
+    get market_listing_path(locale: :fr, token: listing.token)
+
+    assert_response :success
+    assert_select ".market-listing__fact span.player-name", "Archives de la Confrérie"
+    assert_select ".market-history__line--created", /Archives de la Confrérie/
+  end
 end

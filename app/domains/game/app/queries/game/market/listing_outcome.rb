@@ -28,7 +28,7 @@ module Game
         shared = { winner:, price: }
         if viewer&.id == winner.id
           outcome(:won, card, **shared, surplus: [ surplus_of(listing, price), 0 ].max)
-        elsif viewer&.id == listing.seller_id
+        elsif viewer && viewer.id == listing.seller_id
           outcome(:seller_sold, card, **shared, received: received_by(listing, viewer))
         else
           outcome(lost?(listing, viewer) ? :lost : :viewer_sold, card, **shared)

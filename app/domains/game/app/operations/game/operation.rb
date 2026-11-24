@@ -14,7 +14,7 @@ module Game
     end
 
     def self.stream_name(player_id)
-      "Game::Player$#{player_id}"
+      player_id ? "Game::Player$#{player_id}" : "Game::Archives"
     end
 
     private

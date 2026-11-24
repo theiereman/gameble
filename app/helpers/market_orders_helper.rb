@@ -92,7 +92,7 @@ module MarketOrdersHelper
   end
 
   def order_listing_name(row)
-    t("market.orders.new.listing_name", rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, name: duel_plain_name(row.seller),
+    t("market.orders.new.listing_name", rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, name: (row.seller ? duel_plain_name(row.seller) : t("player_name.archives")),
       amount: picoins(row.current_price))
   end
 end

@@ -12,7 +12,7 @@ module Game
         return unless card
 
         players = Accounts::Player.where(id: [ listing.seller_id, listing.leader_id ].compact).index_by(&:id)
-        Detail.new(token: listing.token, status: listing.status, card:, card_season_id: listing.card_season_id, seller: players.fetch(listing.seller_id), leader: players[listing.leader_id],
+        Detail.new(token: listing.token, status: listing.status, card:, card_season_id: listing.card_season_id, seller: players[listing.seller_id], leader: players[listing.leader_id],
           current_price: listing.current_price, starting_price: listing.starting_price, ends_at: listing.ends_at, created_at: listing.created_at)
       end
     end

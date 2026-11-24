@@ -1,6 +1,7 @@
 module Game
   module Market
-    # Replaces the Archives' stocks with the deposits less the withdrawals, in the database; rows belong to no player and no event is published.
+    # Replaces the Archives' stocks with the deposits less the withdrawals and the copies their auctions hold or sold, in the database; rows
+    # belong to no player and no event is published.
     class SumArchiveStocks < ApplicationOperation
       NET = <<~SQL.squish.freeze
         SELECT card_season_id, SUM(quantity) AS quantity
@@ -8,6 +9,8 @@ module Game
           SELECT card_season_id, quantity FROM game_market_archive_deposits
           UNION ALL
           SELECT card_season_id, -1 FROM game_market_archive_withdrawals
+          UNION ALL
+          SELECT card_season_id, -1 FROM game_market_listings WHERE seller_id IS NULL AND status IN ('open', 'sold')
         ) movements
         GROUP BY card_season_id
       SQL

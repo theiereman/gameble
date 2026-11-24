@@ -34,7 +34,7 @@ module Game
       def biddable(listing, player, now)
         return Failure(:market_closed) unless CurrentSettings.call&.open
         return Failure(:auction_ended) unless listing.status == "open" && listing.ends_at > now
-        return Failure(:listing_withdrawn) if Accounts::Player.find(listing.seller_id).removed?
+        return Failure(:listing_withdrawn) if listing.seller_id && Accounts::Player.find(listing.seller_id).removed?
 
         listing.seller_id == player.id ? Failure(:own_listing) : Success()
       end

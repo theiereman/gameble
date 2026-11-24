@@ -14,7 +14,7 @@
     <details class="market-shop__how">
       <summary class="market-shop__how-heading"><%= pixel_icon("arrow-small-right", class: "market-shop__how-chevron") %><%= t(".how.heading") %></summary>
       <ul class="market-shop__how-list">
-        <% t(".how.items", size: @settings.archive_list_size, purchases: Game::Market::ArchiveCaps::WEEKLY_PURCHASES).each do |item| %><li><%= item %></li><% end %>
+        <% t(".how.items", size: @settings.archive_list_size, purchases: Game::Market::ArchiveCaps::WEEKLY_PURCHASES, **archive_auction_terms).each do |item| %><li><%= item %></li><% end %>
       </ul>
     </details>
     <% unless current_player %>

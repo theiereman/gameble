@@ -28,6 +28,11 @@ module ArchiveShopHelper
     local_time_sentence(standing.next_at) { t("market.archive_cap.reached", cap: standing.cap, date: it) }
   end
 
+  def archive_auction_terms
+    { epics: Game::Market::ArchiveAuctionPicks::RARITIES[:epic], legendaries: Game::Market::ArchiveAuctionPicks::RARITIES[:legendary],
+      hours: Game::Market::OpenArchiveAuction::DURATION_HOURS }
+  end
+
   def archive_cap_date(standing) = local_time_text(standing&.next_at || Time.current)
 
   def market_shop_filtered_path(filters, **extra) = market_shop_path(**filters.to_params, **extra.compact)

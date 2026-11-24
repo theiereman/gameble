@@ -26,7 +26,7 @@ module Game
           step not_bought_before(player, card_season_id)
           stock = step locked_stock(card_season_id)
           withdrawal = ArchiveWithdrawal.create!(player_id: player.id, card_season_id:, purchase_token:, price:, settings_id: settings.id, created_at: now)
-          take_copy(stock, now)
+          stock.take_one(now)
           receive_bought_copy(player.id, holdings, card_season_id, now:)
           Ledger.post(Ledger::Entry.new(player_id: player.id, kind: :archive_purchase, available_delta: -price, settings_id: settings.id))
           step publish(ArchivePurchased.with(player_id: player.id, card_season_id:, price:), stream_name: stream_name(player.id))
@@ -81,14 +81,6 @@ module Game
 
       def not_bought_before(player, card_season_id)
         ArchiveOffers.bought_this_week?(player:, card_season_id:) ? Failure(:already_bought) : Success()
-      end
-
-      def take_copy(stock, now)
-        if stock.quantity == 1
-          stock.delete
-        else
-          ArchiveStock.where(id: stock.id).update_all([ "quantity = quantity - 1, updated_at = ?", now ])
-        end
       end
     end
   end

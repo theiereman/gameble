@@ -12,7 +12,7 @@ module Game
         return {} if player.nil? || tokens.empty?
 
         bid_on = Bid.where(player_id: player.id).where.not(outcome: "voided").select(:listing_id)
-        found = Listing.open_now.where(token: tokens, id: bid_on).where.not(seller_id: player.id).pluck(*Found.members).map { Found.new(*it) }
+        found = Listing.open_now.where(token: tokens, id: bid_on).where("seller_id IS DISTINCT FROM ?", player.id).pluck(*Found.members).map { Found.new(*it) }
         basis_points = Settings.where(id: found.map(&:settings_id).uniq).pluck(:id, :increment_basis_points).to_h
         found.to_h { [ it.token, stand(it, player, basis_points.fetch(it.settings_id)) ] }
       end
