@@ -3,6 +3,7 @@ module ShellHelper
   PIXEL_NAME = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
 
   PIXEL_CACHE = Concurrent::Map.new
+  CHEVRON_SOURCE = Rails.root.join("app/frontend/images/lucide/chevron-right.svg").read.strip.freeze
 
   class UnknownPixelIcon < ArgumentError; end
 
@@ -10,6 +11,11 @@ module ShellHelper
     trusted_svg = ShellHelper.pixel_source(name.to_s)
     attrs = attrs.merge(class: [ "pixel-icon", attrs[:class] ].compact.join(" "), aria: { hidden: true }, focusable: false)
     trusted_svg.sub("<svg ", "<svg #{tag.attributes(attrs)} ").html_safe
+  end
+
+  def chevron_icon(**attrs)
+    attrs = attrs.merge(class: [ "chevron-icon", attrs[:class] ].compact.join(" "), aria: { hidden: true }, focusable: false)
+    ShellHelper::CHEVRON_SOURCE.sub("<svg ", "<svg #{tag.attributes(attrs)} ").html_safe
   end
 
   def self.pixel_source(name)

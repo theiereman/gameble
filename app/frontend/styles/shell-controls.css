@@ -63,20 +63,33 @@
   color: var(--color-on-alert);
 }
 
-/* A link: muted JetBrains Mono, accent on hover. */
+/* A link, written for the eye: accent text underlined, and a chevron when it goes somewhere. */
 .button--link {
+  gap: var(--space-1);
   min-height: var(--space-touch-min);
   padding: 0;
   background: none;
   box-shadow: none;
-  color: var(--color-muted);
+  color: var(--color-accent);
   font: var(--font-button-sm);
   letter-spacing: var(--tracking-button-sm);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+a.button--link::after {
+  content: "";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background: currentcolor;
+  mask: url("../images/lucide/chevron-right.svg") center / contain no-repeat;
 }
 
 .button--link:hover {
   background: none;
-  color: var(--color-accent);
+  color: var(--color-text-bright);
   transform: none;
 }
 

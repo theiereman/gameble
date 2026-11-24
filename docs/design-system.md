@@ -8,7 +8,7 @@ The rules sit above the visual identity (console frame, pixel art, VT323 and Jet
 
 - **The essentials stand out, the rest is decor.** What the player has to read or act on (a count, a price, a balance, the main action) is the largest and brightest thing on the screen. Lore and flavour text is rare, short, small and muted. Never add a sentence that only repeats what the screen already shows.
 - **One shape per screen, whatever the state.** A new player and a regular see the same structure; only the values change. A counter shows `0`; it is never replaced by a welcome block.
-- **No "go there" arrows.** A link, a tile, a panel title or a button never carries a ▸ or pixel arrow to say it leads somewhere. An arrow is kept only where it is the control itself (previous/next, the phone back button), on what folds (its chevron turns), and on the hub menu entries.
+- **"Go there" cue.** A link, a tile or a panel title that leads somewhere ends with the Lucide chevron-right (`chevron_icon`, `app/frontend/images/lucide/chevron-right.svg`), never a ▸ in the text or a pixel arrow. A pixel arrow is kept only where it is the control itself (previous/next, the phone back button), on what folds (its chevron turns), and on the hub menu entries.
 - **Same job, same component.** Before you write a new class for a panel, a heading, a tile, tabs or a sort, use the shared component below.
 
 ## Page layout
@@ -50,7 +50,7 @@ Some forms are plain CSS classes rather than components: use the class as writte
 | Component | Status | Rule |
 | --- | --- | --- |
 | `PanelComponent` | exists | The only way to draw a framed box. Use its heading slot and padding option (*to add*: `padding: :compact` for 12px 16px) instead of a hand-made background and border. |
-| `ButtonComponent` | exists | Every button. An action that opens the rest of a preview ("see all") is `variant: :link`. |
+| `ButtonComponent` | exists | Every button. An action that opens the rest of a preview ("see all") is `variant: :link`: accent text, underlined, and a chevron on a link that goes somewhere (drawn by the stylesheet, never by hand). A link button is never muted grey. |
 | `.page` | exists (`page.css`) | Screen root: `.page--wide`, `.page--regular` or `.page--reading`. A sidebar layout (360px column + content, stacked on a phone) stays on the screen's own grid for now. |
 | `SectionComponent` | to build | A group heading above several panels, with a right slot for a count or a see-all link. |
 | `TileComponent` | to build | A clickable tile is one `<a>`: icon + title, a figure, optional art, and no arrow or chevron: the whole tile is the affordance (a chevron belongs only to what folds). It never holds a button or anything that looks like one. Tiles sit in an `auto-fit` grid (280px minimum), so "All my cards" and "All sets" share one row. |

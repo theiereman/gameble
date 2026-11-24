@@ -1356,6 +1356,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "portal")
 
     assert_select ".card-detail__facts + .duel-profile"
+    assert_select ".duel-profile__heading button[aria-expanded=true][data-hub-fold-remember-value=duel-profile]"
     assert_select ".duel-profile__stat", count: 5
     assert_select ".duel-profile__stat--trump .duel-profile__trump", text: "Trump", count: 1
     assert_select ".duel-profile__stat:nth-child(1)" do

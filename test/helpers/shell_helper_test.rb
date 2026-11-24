@@ -226,4 +226,12 @@ class ShellHelperTest < ActionView::TestCase
     assert_equal "24:00:00", format_remaining(86_400)
     assert_equal "00:00", format_remaining(-4)
   end
+
+  test "chevron_icon draws the Lucide chevron-right, hidden from assistive tech, with its extra class" do
+    svg = Nokogiri::HTML5.fragment(chevron_icon(class: "hub-linked__arrow")).at("svg")
+
+    assert_equal "chevron-icon hub-linked__arrow", svg["class"]
+    assert_equal "true", svg["aria-hidden"]
+    assert_equal "m9 18 6-6-6-6", svg.at("path")["d"]
+  end
 end

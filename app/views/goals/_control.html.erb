@@ -21,6 +21,6 @@
   <% elsif !complete %>
     <%= button_to t("goals.button.add"), library_goals_path, method: :post, params: aim, class: "button button--secondary button--small goal-button", form_class: "button-form" %>
   <% end %>
-  <p class="<%= class_names("goal-control__refusal", "goal-control__refusal--bought": bought) %>" role="status"><% if bought %><%= goal_bought_status(goal) %><% elsif refused && !offered %><span class="goal-control__limit"><%= t("goals.full.limit") %></span> · <%= t("goals.full.hint") %><%= link_to library_path(anchor: "goals"), class: "goal-control__link" do %><%= t("goals.full.link") %><% end %><% end %></p>
+  <p class="<%= class_names("goal-control__refusal", "goal-control__refusal--bought": bought) %>" role="status"><% if bought %><%= goal_bought_status(goal) %><% elsif refused && !offered %><span class="goal-control__limit"><%= t("goals.full.limit") %></span> · <%= t("goals.full.hint") %><%= link_to library_path(anchor: "goals"), class: "goal-control__link" do %><%= t("goals.full.link") %><%= chevron_icon %><% end %><% end %></p>
   <%= render "shell/purchase_dialog", frame: "slot-purchase", target: "_top", loading: t("slot_purchases.dialog.loading") if offered %>
 </div>

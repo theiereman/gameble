@@ -83,6 +83,17 @@ a {
   image-rendering: pixelated;
 }
 
+/* The "go there" cue on a tile, a panel title or a link: a Lucide chevron-right that follows the text colour. */
+.chevron-icon {
+  --chevron-size: 16px;
+
+  display: inline-block;
+  flex: none;
+  width: var(--chevron-size);
+  height: var(--chevron-size);
+  vertical-align: middle;
+}
+
 /* A rank's insignia, exported at two CSS px per art pixel; `--fine` draws
    it at one. */
 .rank-mark--novice {

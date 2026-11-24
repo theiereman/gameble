@@ -10,12 +10,50 @@
 
 .duel-profile__heading {
   margin: 0;
-  padding: var(--space-2) var(--space-4);
   background: var(--color-panel-sunken);
   color: var(--color-muted);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+}
+
+.duel-profile__fold {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  inline-size: 100%;
+  min-block-size: var(--space-touch-min);
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.duel-profile__fold:hover {
+  color: var(--color-text);
+}
+
+.duel-profile__fold:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
+.duel-profile__fold .chevron-icon {
+  rotate: 90deg;
+  transition: rotate 220ms ease-out;
+}
+
+.duel-profile__fold[aria-expanded="true"] .chevron-icon {
+  rotate: -90deg;
+}
+
+.duel-profile:has(.duel-profile__fold[aria-expanded="false"]) > :not(.duel-profile__heading) {
+  display: none;
 }
 
 .duel-profile__stats {

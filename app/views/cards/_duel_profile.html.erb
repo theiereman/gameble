@@ -1,5 +1,9 @@
 <section class="duel-profile" aria-labelledby="duel-profile-heading">
-  <h2 id="duel-profile-heading" class="duel-profile__heading"><%= t("duel_stats.heading") %></h2>
+  <h2 id="duel-profile-heading" class="duel-profile__heading">
+    <button type="button" class="duel-profile__fold" aria-expanded="true" data-controller="hub-fold" data-hub-fold-remember-value="duel-profile" data-action="hub-fold#toggle">
+      <%= t("duel_stats.heading") %><%= chevron_icon %>
+    </button>
+  </h2>
   <ul class="duel-profile__stats">
     <% profile.stats.each do |stat| %>
       <% trump = stat.name == profile.trump_stat %>

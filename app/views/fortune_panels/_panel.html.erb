@@ -2,7 +2,7 @@
 <section class="fortune-panel" aria-labelledby="fortune-panel-title">
   <%= render PanelComponent.new(class: "fortune-panel__frame hub-linked") do %>
     <h2 id="fortune-panel-title" class="hub-section-title">
-      <%= link_to fortune_register_path, class: "hub-linked__link" do %><%= t(".title") %><% end %>
+      <%= link_to fortune_register_path, class: "hub-linked__link" do %><%= t(".title") %><%= chevron_icon(class: "hub-linked__arrow") %><% end %>
     </h2>
     <% if panel.standing.opened? %>
       <p class="fortune-panel__headline">
