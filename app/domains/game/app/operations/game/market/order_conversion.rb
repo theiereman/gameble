@@ -13,7 +13,7 @@ module Game
         price = AuctionMath.displayed_price(highest: leader.price, second: others.first&.price, starting_price: listing.starting_price,
           basis_points: settings.increment_basis_points)
         listing.update!(leader_id: leader.player_id, leader_maximum: leader.price, current_price: price)
-        orders.sort_by { [ it.created_at, it.id ] }.each { record_order_bid(listing, it, leader, price) }
+        [ leader, *others.sort_by { [ it.created_at, it.id ] } ].each { record_order_bid(listing, it, leader, price) }
         orders.each { it.update!(status: it.equal?(leader) ? "bid" : "beaten") }
         [ orders.map { converted_row(listing, it) }, order_entries(listing, orders, leader) ]
       end

@@ -101,11 +101,11 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
   end
 
   test "served, expired and cancelled orders show under RECENTLY ENDED with what became of them" do
-    served = order!(@player, catalog_card_seasons(:rare_card_one), 300)
-    serve!(served, catalog_card_seasons(:rare_card_one))
+    served = order!(@player, catalog_card_seasons(:uncommon_card_one), 300)
+    serve!(served, catalog_card_seasons(:uncommon_card_one))
     order!(@player, catalog_card_seasons(:common_card_one), 200, expires_at: 1.minute.ago)
     Game::Market::ExpireDueOrdersJob.perform_now
-    cancelled = order!(@player, catalog_card_seasons(:uncommon_card_one), 100)
+    cancelled = order!(@player, catalog_card_seasons(:rare_card_one), 100)
     Game::Market::CancelOrder.new.call(player: @player, order_id: cancelled.id).value!
     sign_in_through_the_site(@player)
 
@@ -113,9 +113,9 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
 
     assert_selector "#my-orders-recent-heading", text: "RECENTLY ENDED"
     assert_selector recent_rows, count: 3
-    assert_selector recent_rows, text: /Blue Depths.*SERVED.*Sold by Ada · Rare S1/m
+    assert_selector recent_rows, text: /Green Hills.*SERVED.*Sold by Ada · Uncommon S1/m
     assert_selector recent_rows, text: /Tin Soldier.*EXPIRED.*PiCoins returned/m
-    assert_selector recent_rows, text: /Green Hills.*CANCELLED.*PiCoins returned/m
+    assert_selector recent_rows, text: /Blue Depths.*CANCELLED.*PiCoins returned/m
     assert_no_selector "#{recent_rows} button"
     assert_selector available(700)
   end

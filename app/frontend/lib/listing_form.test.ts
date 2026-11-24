@@ -83,7 +83,7 @@ describe("choosing", () => {
 })
 
 describe("orders turning into bids", () => {
-  const ordered: Edition = { ...rare, orders: [400, 350, 280] }
+  const ordered: Edition = { ...rare, minimum: 100, orders: [400, 350, 280] }
   const withOrders = (values: Partial<typeof typed> = {}): ListingState =>
     start([ordered, common], 1_000, { ...typed, ...values }, null, "wide", undefined, 500)
 
@@ -97,6 +97,12 @@ describe("orders turning into bids", () => {
 
   it("keeps what the seller typed", () => {
     expect(choose(withOrders({ start: "1500" }), "alpha:1").start).toBe("1500")
+  })
+
+  it("raises the prefill to the edition's minimum when the lowest order is under it", () => {
+    const under = { ...ordered, minimum: 300, orders: [400, 250] }
+
+    expect(choose(start([under], 1_000, typed, null, "wide", undefined, 500), "alpha:1", "en").start).toBe("300")
   })
 
   it("replaces a prefill that the next edition does not share", () => {

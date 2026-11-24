@@ -34,6 +34,18 @@
   border: 0;
 }
 
+.market-shop__rarities .filter-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.market-shop__rarity-cap {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
 .archive-offer__card {
   position: relative;
 }

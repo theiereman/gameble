@@ -357,7 +357,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     assert_no_selector ".balance-chip"
 
-    Capybara.reset_sessions!
+    reset_browser_session
     open_market!(first_opened_at: Time.current)
     visit home_path(locale: :en)
     assert_no_selector ".balance-chip"

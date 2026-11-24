@@ -54,7 +54,7 @@ class MarketOrderBackedAuctionSystemTest < ApplicationSystemTestCase
     listing = Game::Market::Listing.order(:id).last
     assert_equal [ @leader.id, 900, 735 ], listing.attributes.values_at("leader_id", "leader_maximum", "current_price")
 
-    Capybara.reset_sessions!
+    reset_browser_session
     sign_in_through_the_site(@leader)
     visit market_my_orders_path(locale: :en)
     assert_selector ".market-row__chip", text: "IN AUCTION"

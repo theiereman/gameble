@@ -123,6 +123,16 @@ describe("the best-order banner", () => {
 
     expect(submitWith(listButton()).defaultPrevented).toBe(true)
   })
+
+  it("still validates a starting price under the minimum on an edition with orders", () => {
+    form().chosen(new CustomEvent("chosen", { detail: { ref: "alpha:1" } }))
+    const input = target("start") as HTMLInputElement
+    input.value = "50"
+    input.dispatchEvent(new Event("input", { bubbles: true }))
+    form().typed(new CustomEvent("typed", { detail: { field: "start", value: "50" } }))
+
+    expect(submitWith(listButton()).defaultPrevented).toBe(true)
+  })
 })
 
 describe("orders turning into bids", () => {

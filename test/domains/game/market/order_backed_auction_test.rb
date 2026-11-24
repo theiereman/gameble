@@ -90,6 +90,18 @@ class Game::Market::OrderBackedAuctionTest < ActiveSupport::TestCase
     assert_equal %w[beaten bid], [ later, earlier ].map { it.reload.status }
   end
 
+  test "the history shows an older beaten order as covered by the leader, not as an ordinary bid" do
+    place!(@first, 450, created_at: 1.hour.ago)
+    place!(@second, 400, created_at: 2.hours.ago)
+    listing = list.value!
+
+    lines = Game::Market::BidHistory.call(token: listing.token, viewer: nil)
+
+    assert_equal [ :covered, :bid, :created ], lines.map(&:kind)
+    assert_equal [ @second, @first ], lines.first(2).map(&:player)
+    assert_equal @first, lines.first.leader
+  end
+
   test "an order of a banned or a deleted owner is never converted" do
     banned = place!(@first, 400)
     deleted = place!(@second, 350)
@@ -200,6 +212,15 @@ class Game::Market::OrderBackedAuctionTest < ActiveSupport::TestCase
     assert Game::Market::ReconcileWallets.call.balanced?
   end
 
+  test "the orders in progress sort by the end they show, the auction's for a bid" do
+    place!(@first, 400, expires_at: 7.days.from_now)
+    waiting = order!(@first, catalog_card_seasons(:uncommon_card_one), 100, expires_at: 3.days.from_now)
+    list.value!
+
+    assert_equal [ "bid", "open" ], orders_reading(@first).in_progress.map(&:status)
+    assert_equal waiting.token, orders_reading(@first).in_progress.last.token
+  end
+
   test "a beaten order reads outbid with the auction linked" do
     place!(@first, 400)
     other = place!(@second, 350)
@@ -208,6 +229,27 @@ class Game::Market::OrderBackedAuctionTest < ActiveSupport::TestCase
     row = orders_reading(@second).recent.sole
 
     assert_equal [ other.token, "outbid", listing.token ], [ row.token, row.status, row.listing_token ]
+  end
+
+  test "a converted order whose auction was withdrawn reads outbid with its PiCoins returned" do
+    order = place!(@first, 400)
+    listing = list.value!
+    @seller.update_columns(banned_at: Time.current)
+
+    assert Game::Market::WithdrawListing.new.call(player: @seller, listing_id: listing.id).success?
+
+    assert_equal [ 1_000, 0 ], figures(@first)
+    assert_equal [ [ order.token, "outbid", listing.token ] ], orders_reading(@first).recent.map { [ it.token, it.status, it.listing_token ] }
+    assert Game::Market::ReconcileWallets.call.balanced?
+  end
+
+  test "a converted order whose auction ended cancelled reads outbid" do
+    order = place!(@first, 400)
+    listing = list.value!
+
+    listing.update_columns(status: "cancelled")
+
+    assert_equal [ [ order.token, "outbid", listing.token ] ], orders_reading(@first).recent.map { [ it.token, it.status, it.listing_token ] }
   end
 
   test "the converted bids feed the tied-bids signal and the bid history" do

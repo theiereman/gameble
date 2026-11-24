@@ -648,6 +648,19 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#sale-start[value=?]", "850"
   end
 
+  test "an order placed under an older minimum prefills the start at the current minimum" do
+    hold(@player, @rare.id, 1)
+    buyer_order(@settings.minimum_price_rare, card: @rare)
+    minimum = @settings.minimum_price_rare + 100
+    open_market!(minimum_price_rare: minimum)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en, ref: ref(@rare))
+
+    assert_select "#sale-start[value=?]", minimum.to_s
+    assert_select "[role=option][data-ref=?][data-minimum=?]", ref(@rare), minimum.to_s
+  end
+
   test "a Rare edition with an order draws no banner, no sell-now button and no direct-sale template, only its orders line" do
     hold(@player, @rare.id, 1)
     buyer_order(900, card: @rare)

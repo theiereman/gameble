@@ -37,7 +37,7 @@ module MarketPushNotice
 
     private
 
-    def converted_notices(data) = data.fetch(:converted, []).map { { player_id: it[:owner_id], order_id: it[:order_id] } }
+    def converted_notices(data) = Game::Market::ConvertedOrders.rows(data).map { { player_id: it[:owner_id], order_id: it[:order_id] } }
 
     def listing_players(event, data)
       case event

@@ -30,7 +30,6 @@ module Game
       def call(player:, lines:, settings_token:)
         player = step require_player(player)
         lines = step parse(lines)
-        now = Time.current
         drawn = Order.where(token: lines.flat_map(&:order_tokens)).to_a
         owners = drawn.map(&:player_id)
 
@@ -39,6 +38,7 @@ module Game
           step lock_bank(player)
           settings = step current_settings(settings_token.to_s)
           holdings = lock_holdings([ player.id, *owners ], lines.map(&:card_season_id))
+          now = Time.current
           rarities = rarities_of(lines)
           step direct_sale_only(lines, rarities)
           orders = Order.lock.where(id: drawn.map(&:id)).order(:id).index_by(&:token)

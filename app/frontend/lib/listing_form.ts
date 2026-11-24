@@ -98,8 +98,9 @@ export function know(state: ListingState, editions: readonly Edition[], loaded: 
   return { ...state, editions: { ...state.editions, ...byRef(editions) }, loaded }
 }
 
+// The lowest order's price, raised to the edition's minimum start: an auction cannot open under it.
 export function lowestOrder(edition: Edition | null): number | null {
-  return edition === null || edition.orders.length === 0 ? null : Math.min(...edition.orders)
+  return edition === null || edition.orders.length === 0 ? null : Math.max(Math.min(...edition.orders), edition.minimum)
 }
 
 // The start the seller has not typed: empty, or the lowest order's price the chosen edition prefilled.

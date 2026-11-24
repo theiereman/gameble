@@ -73,7 +73,7 @@ module PlayerStream
       when Game::DailyBonusCollected
         [ { player_id: data[:player_id], topic: "bank" } ]
       when Game::Market::CardListed
-        owners = data.fetch(:converted, []).map { it.fetch(:owner_id) }
+        owners = Game::Market::ConvertedOrders.owner_ids(data)
         balance_notices([ data[:seller_id], *owners ]) + market_notices(Game::Market::WantedNoticePlayers.call(data[:listing_id]) + owners)
       when Game::Market::AuctionSold
         balance_notices(data.values_at(:seller_id, :winner_id)) + market_notices(data.values_at(:winner_id, :seller_id) + bidders_of(data))
@@ -93,7 +93,7 @@ module PlayerStream
         [ balance_notice(data[:player_id]) ] + market_notices([ data[:player_id] ])
       when Game::Market::WantedChoicesApplied
         buyer_ids = Game::Market::WantedChoicesApplied.buyer_ids(data)
-        owners = Game::Market::WantedChoicesApplied.converted_owner_ids(data)
+        owners = Game::Market::ConvertedOrders.owner_ids(data)
         balance_notices([ data[:seller_id] ] + buyer_ids + owners) + market_notices(buyer_ids + owners + Game::Market::WantedNoticePlayers.call(data[:listing_ids]))
       when *BALANCE_EVENTS
         [ balance_notice(data[:player_id]) ]

@@ -14,7 +14,7 @@
       <p class="market-shop__sign-in"><%= sign_in_button t(".sign_in"), origin: market_shop_path, class: "button button--primary" %></p>
     <% end %>
   </div>
-  <%= render "market/shops/filters", filters: @filters, rarities: @rarities, seasons: @seasons, sort: @sort, wanted_count: @wanted_count %>
+  <%= render "market/shops/filters", filters: @filters, rarities: @rarities, seasons: @seasons, sort: @sort, wanted_count: @wanted_count, caps: @caps %>
   <% if @offers.rows.empty? %>
     <%= render EmptyStateComponent.new(line: @filters.any? ? t(".no_match") : t(".empty")) do |empty| %>
       <% if @filters.any? %>

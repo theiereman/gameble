@@ -1,4 +1,4 @@
-<%# locals: (filters:, rarities:, seasons:, sort:, wanted_count: nil) %>
+<%# locals: (filters:, rarities:, seasons:, sort:, wanted_count: nil, caps: {}) %>
 <%= form_with url: market_shop_path, method: :get, class: "filters market-filters market-shop__filters", html: { role: "search" },
       data: { controller: "market-filters", action: "change->market-filters#changed submit->market-filters#submitted" } do %>
   <%= hidden_field_tag :sort, sort, id: nil %>
@@ -26,6 +26,8 @@
         <label class="filter-chip">
           <%= check_box_tag "rarity[]", rarity, filters.rarities.include?(rarity), id: nil, class: "filter-chip__box" %>
           <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
+          <% cap_line = archive_rarity_cap_line(rarity, caps) %>
+          <% if cap_line %><span class="market-shop__rarity-cap"><%= cap_line %></span><% end %>
         </label>
       <% end %>
     </fieldset>

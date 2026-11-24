@@ -2,11 +2,15 @@ require "test_helper"
 require_relative "../support/holdings"
 require_relative "../support/market"
 require_relative "../support/market_listings"
+require_relative "../support/market_auctions"
+require_relative "../support/market_orders"
 require_relative "../support/singleton_stub"
 
 class MarketPushNoticeJobTest < ActiveJob::TestCase
   include Holdings
   include MarketListings
+  include MarketAuctions
+  include MarketOrders
   include MarketSettings
   include SingletonStub
 
@@ -61,5 +65,23 @@ class MarketPushNoticeJobTest < ActiveJob::TestCase
     MarketPushNoticeJob.perform_now(notice)
 
     assert_empty pushes
+  end
+
+  test "a listing over orders pushes the leading owner and the beaten one, each to their own devices" do
+    uncommon = catalog_card_seasons(:uncommon_card_one)
+    settings = Game::Market::CurrentSettings.call
+    hold(@seller, uncommon.id, 1)
+    [ @seller, @outbid, @bidder ].each { fund!(it, 1_000) }
+    order!(@outbid, uncommon, 400)
+    order!(@bidder, uncommon, 350)
+    Accounts::RegisterPushDevice.new.call(player: @bidder, platform: "apple", token: "bidder-phone", locale: "en").value!
+
+    assert Game::Market::ListCard.new.call(player: @seller, card_season_id: uncommon.id, starting_price: 300, duration_hours: 24, settings_token: settings.token).success?
+
+    jobs = enqueued_jobs.select { it[:job] == MarketPushNoticeJob }
+    assert_equal 1, jobs.size
+    perform_configured(jobs.sole[:args].first.map(&:symbolize_keys))
+
+    assert_equal [ "Order leading", "Order outbid" ].sort, pushes.map { it[:args][1]["title"] }.sort
   end
 end

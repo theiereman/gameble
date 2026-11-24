@@ -14,20 +14,15 @@ module Game
 
       # The best eligible order of each edition, by card-season id; an edition no order reaches is left out.
       def self.best(card_season_ids, except:, now: Time.current)
-        editions = Catalog::CardSeason.where(id: card_season_ids).where.not(rarity: nil).pluck(:id, :card_id, :rarity)
-        editions.group_by(&:third).each_with_object({}) do |(rarity, rows), best|
-          orders = eligible(rows.map(&:second), rarity, except:, now:).select("DISTINCT ON (game_market_orders.card_id) game_market_orders.*")
-            .order(:card_id, PRIORITY).index_by(&:card_id)
-          rows.each { |id, card_id, _| best[id] = orders[card_id] if orders.key?(card_id) }
+        by_edition(card_season_ids) do |rarity, card_ids|
+          eligible(card_ids, rarity, except:, now:).select("DISTINCT ON (game_market_orders.card_id) game_market_orders.*").order(:card_id, PRIORITY).index_by(&:card_id)
         end
       end
 
       # Every eligible price of each edition, best first, by card-season id; an edition no order reaches is left out.
       def self.prices(card_season_ids, except:, now: Time.current)
-        editions = Catalog::CardSeason.where(id: card_season_ids).where.not(rarity: nil).pluck(:id, :card_id, :rarity)
-        editions.group_by(&:third).each_with_object({}) do |(rarity, rows), found|
-          prices = eligible(rows.map(&:second), rarity, except:, now:).order(:card_id, PRIORITY).pluck(:card_id, :price).group_by(&:first)
-          rows.each { |id, card_id, _| found[id] = prices[card_id].map(&:last) if prices.key?(card_id) }
+        by_edition(card_season_ids) do |rarity, card_ids|
+          eligible(card_ids, rarity, except:, now:).order(:card_id, PRIORITY).pluck(:card_id, :price).group_by(&:first).transform_values { |rows| rows.map(&:last) }
         end
       end
 
@@ -49,6 +44,16 @@ module Game
           .where.not(player_id: Accounts::Player.removed.select(:id))
       end
       private_class_method :eligible
+
+      # What the block finds of the cards of one rarity, handed to each edition of those cards.
+      def self.by_edition(card_season_ids)
+        editions = Catalog::CardSeason.where(id: card_season_ids).where.not(rarity: nil).pluck(:id, :card_id, :rarity)
+        editions.group_by(&:third).each_with_object({}) do |(rarity, rows), found|
+          per_card = yield rarity, rows.map(&:second)
+          rows.each { |id, card_id, _| found[id] = per_card[card_id] if per_card.key?(card_id) }
+        end
+      end
+      private_class_method :by_edition
     end
   end
 end

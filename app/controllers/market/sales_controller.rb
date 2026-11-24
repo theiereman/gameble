@@ -99,27 +99,31 @@ module Market
         ids.transform_values { prices[it] }
       end
 
-      # The best order each Common or Uncommon edition can serve, by ref; only while the market is open.
-      def best_orders(refs)
+      # The best order each Common or Uncommon edition can serve, by ref.
+      def best_orders(refs) = orders_by_ref(refs) { Game::Market::EligibleOrders.best(Game::Market::DirectSale.edition_ids(it), except: current_player.id) }
+
+      # Every eligible order price each edition holds, best first, by ref.
+      def order_prices(refs) = orders_by_ref(refs) { Game::Market::EligibleOrders.prices(it, except: current_player.id) }
+
+      # What the block reads of the editions' orders, keyed by ref; only while the market is open.
+      def orders_by_ref(refs)
         return {} unless @open && current_player && refs.any?
 
         ids = Game::Market::EntrustableCopies.resolve(refs)
-        best = Game::Market::EligibleOrders.best(Game::Market::DirectSale.edition_ids(ids.values), except: current_player.id)
-        ids.transform_values { best[it] }.compact
+        found = yield ids.values
+        ids.transform_values { found[it] }.compact
       end
 
-      # Every eligible order price each edition holds, best first, by ref; only while the market is open.
-      def order_prices(refs)
-        return {} unless @open && current_player && refs.any?
-
-        ids = Game::Market::EntrustableCopies.resolve(refs)
-        prices = Game::Market::EligibleOrders.prices(ids.values, except: current_player.id)
-        ids.transform_values { prices[it] }.compact
-      end
-
-      # The start the seller has not typed: the lowest eligible order's price, which turns every order into a bid.
+      # The start the seller has not typed: the lowest eligible order's price, raised to the edition's minimum, which turns every order into a bid.
       def fill_start(typed)
-        @values[:start] = typed.presence || @order_prices[@chosen_ref]&.last.to_s
+        @values[:start] = typed.presence || lowest_order_start.to_s
+      end
+
+      def lowest_order_start
+        lowest = @order_prices[@chosen_ref]&.last
+        return unless lowest
+
+        [ lowest, @settings.minimum_price(@chosen_copy.card.rarity.to_sym) ].max
       end
 
       def sold_to_order(order, card_season_id)

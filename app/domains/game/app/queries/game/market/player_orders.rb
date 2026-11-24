@@ -34,7 +34,7 @@ module Game
             listed_above: above_row(above[id], sellers), listing_token: auction&.token)
         end
         in_progress, recent = rows.partition { IN_PROGRESS.include?(it.status) }
-        Groups.new(in_progress:, recent: recent.sort_by(&:ended_at).reverse)
+        Groups.new(in_progress: in_progress.sort_by.with_index { |row, position| [ row.expires_at, position ] }, recent: recent.sort_by(&:ended_at).reverse)
       end
 
       def self.shown(player, now)

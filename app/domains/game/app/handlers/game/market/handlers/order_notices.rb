@@ -19,7 +19,7 @@ module Game
           end
         end
 
-        def self.converted_rows(data) = data.fetch(:converted, []).sort_by { [ it[:owner_id], it[:order_id] ] }
+        def self.converted_rows(data) = ConvertedOrders.rows(data).sort_by { [ it[:owner_id], it[:order_id] ] }
 
         def self.listing_ended(listing_id)
           Notice.listed_above_order.where(listing_id:).includes(:order).each do |notice|

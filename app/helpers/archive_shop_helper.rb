@@ -21,14 +21,16 @@ module ArchiveShopHelper
     buyable ? "#{label}. #{t("market.shops.offer.buy_spoken")}" : label
   end
 
-  def archive_cap_line(card, caps)
-    standing = caps[card.rarity.to_sym]
+  def archive_cap_line(card, caps) = archive_rarity_cap_line(card.rarity, caps)
+
+  def archive_rarity_cap_line(rarity, caps)
+    standing = caps[rarity.to_sym]
     return unless standing
 
     window = archive_cap_window(standing.window_days)
-    return t("market.archive_cap.left", cap: standing.left, rarity: archive_cap_rarity(card, standing.left), window:) unless standing.reached?
+    return t("market.archive_cap.left", cap: standing.left, rarity: archive_cap_rarity(rarity, standing.left), window:) unless standing.reached?
 
-    t("market.archive_cap.reached", cap: standing.cap, rarity: archive_cap_rarity(card, standing.cap), window:, date: archive_cap_date(standing))
+    t("market.archive_cap.reached", cap: standing.cap, rarity: archive_cap_rarity(rarity, standing.cap), window:, date: archive_cap_date(standing))
   end
 
   def archive_cap_date(standing) = l((standing&.next_at || Time.current).to_date, format: :day_month)
@@ -36,7 +38,7 @@ module ArchiveShopHelper
   def market_shop_filtered_path(filters, **extra) = market_shop_path(**filters.to_params, **extra.compact)
 
   private
-    def archive_cap_rarity(card, count) = t("market.archive_cap.rarity.#{card.rarity}", count:)
+    def archive_cap_rarity(rarity, count) = t("market.archive_cap.rarity.#{rarity}", count:)
 
     def archive_cap_window(days)
       case days

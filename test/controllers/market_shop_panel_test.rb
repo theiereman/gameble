@@ -102,6 +102,22 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
     [ @common, @rare ].each { |card| assert_no_match(/(?:data-[a-z-]+|id|name|value|href)="[^"]*\b#{card.id}\b/, response.body) }
   end
 
+  test "a capped rarity's tiles carry the cap line in the panel and in the grid" do
+    sign_in(@player)
+
+    get market_path(locale: :fr)
+
+    assert_select ".shop-panel__list .archive-offer__cap", text: "Encore 1 Rare par jour", count: 1
+    assert_select "#market-tiles .archive-offer__cap", text: "Encore 1 Rare par jour", count: 1
+    assert_select "#market-tiles .archive-offer[data-archive-offer='tin-soldier-1'] .archive-offer__cap", 0
+  end
+
+  test "a visitor reads no cap line on the panel nor the grid" do
+    get market_path(locale: :fr)
+
+    assert_select ".archive-offer__cap", 0
+  end
+
   test "a search counts the listings and the Archive cards it finds" do
     listing!(seller: @seller, card_season: @rare, starting_price: 80)
 

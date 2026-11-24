@@ -64,9 +64,13 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # session cookie: a request the last page left in flight (the collection's
   # keepalive "seen" POST outlives the page) would sign the next test's
   # browser in. The cookies are cleared once more after that wait.
-  def after_teardown
+  def reset_browser_session
     Capybara.reset_sessions!
     page.driver.browser.execute_cdp("Network.clearBrowserCookies")
+  end
+
+  def after_teardown
+    reset_browser_session
   ensure
     super
   end

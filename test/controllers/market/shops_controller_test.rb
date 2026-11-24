@@ -65,6 +65,23 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     get market_shop_path(locale: :fr)
 
     assert_select ".archive-offer__cap", 0
+    assert_select ".market-shop__rarity-cap", 0
+  end
+
+  test "a capped rarity's chip reads what is left, or the date it reopens, in the page's language" do
+    sign_in(@player)
+
+    get market_shop_path(locale: :fr)
+    assert_select ".market-shop__rarities .filter-chip", text: /Rare\s+Encore 1 Rare par jour/
+    assert_select ".market-shop__rarities .filter-chip", text: /Commune/
+    assert_select ".market-shop__rarity-cap", 1
+
+    bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
+      price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
+    date = (bought.created_at + 1.day).to_date
+
+    get market_shop_path(locale: :en)
+    assert_select ".market-shop__rarity-cap", "1 Rare per day · next on #{I18n.l(date, format: :day_month, locale: :en)}"
   end
 
   test "a wanted card wears the VOULUE tag and the chip counts the wanted offers" do
