@@ -28,7 +28,7 @@ class Game::Market::SettingsTest < ActiveSupport::TestCase
     assert_raises(ArgumentError) { settings.slot_price(:binder, 6) }
   end
 
-  test "the database refuses an Archive price under its rarity's minimum" do
-    assert_raises(ActiveRecord::StatementInvalid) { open_market!(archive_price_rare: 77) }
+  test "an Archive price may sit under its rarity's minimum" do
+    assert_equal 77, open_market!(archive_price_rare: 77).archive_price(:rare)
   end
 end

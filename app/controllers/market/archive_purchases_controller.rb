@@ -16,7 +16,7 @@ module Market
       authorize %i[market archive_purchase], :create?
       load_edition
       result = Game::Market::BuyFromArchives.new.call(player: current_player, card_season_id: @card_season_id,
-        purchase_token: params[:purchase_token].to_s, settings_token: params[:settings_token].to_s)
+        purchase_token: params[:purchase_token].to_s, settings_token: params[:settings_token].to_s, price: params[:price].to_s)
       @withdrawal = result.value! if result.success?
       load_terms
       @refusal = refusal(result.failure) if result.failure?
@@ -46,17 +46,20 @@ module Market
 
       def purchase_state
         if @offer.nil? || !@settings.open then :closed
-        elsif standing&.reached? then :capped
+        elsif standing&.reached? || bought_this_week? then :capped
         elsif @available < @offer.price then :short
         else :buyable
         end
       end
+
+      def bought_this_week? = Game::Market::ArchiveOffers.bought_this_week?(player: current_player, card_season_id: @card_season_id)
 
       def standing = @offer && @caps[@offer.card.rarity.to_sym]
 
       def standing_refusal
         if !@settings.open then refusal(:market_closed)
         elsif @offer.nil? then refusal(:out_of_stock)
+        elsif bought_this_week? then refusal(:already_bought)
         elsif @state == :capped then refusal(:archive_cap_reached)
         end
       end
@@ -64,7 +67,7 @@ module Market
       def refusal(code)
         case code
         when :more_than_available then nil
-        when :archive_cap_reached then operation.failure_message(code, date: helpers.archive_cap_date(standing))
+        when :archive_cap_reached then operation.failure_message(code, cap: Game::Market::ArchiveCaps::WEEKLY_PURCHASES, date: helpers.archive_cap_date(standing))
         when :out_of_stock then [ operation.failure_message(code), t("market.archive_purchases.refusals.last_copy") ].join(" ")
         else operation.failure_message(code)
         end

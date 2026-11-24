@@ -6,9 +6,11 @@ require_relative "../../support/market_auctions"
 require_relative "../../support/market_orders"
 require_relative "../../support/market_snapshots"
 require_relative "../../support/steam_sign_in"
+require_relative "../../support/singleton_stub"
 
 module BackOffice
   class MarketHealthControllerTest < ActionDispatch::IntegrationTest
+    include SingletonStub
     include HiddenBackOffice
     include MarketAuctions
     include MarketListings
@@ -164,14 +166,25 @@ module BackOffice
       assert_select "[data-health-indicator=top_share].market-health__tile--alert", false
     end
 
-    test "a proposal that lifts the minimum over the Archive price says the Archive price rises too" do
-      @settings = open_market!(first_opened_at: 10.days.ago, alert_destroyed_share_basis_points: 4_000, archive_price_rare: 80)
+    test "the destroyed share alert says when the Archive shop already sells at its most" do
       alerting_snapshot
       sign_in(accounts_players(:administrator))
 
       get back_office_market_health_path(locale: :en)
+      assert_select "[data-health-alert=destroyed_share]", text: /lower the entrustment amounts/, count: 0
 
-      assert_select "[data-health-alert=destroyed_share] .market-health__proposal", /minimum price rises to 89.*Archive price rises to 89/
+      stub_singleton(Game::Market::ArchivePrices, :at_ceiling?, ->(*) { true }) { get back_office_market_health_path(locale: :en) }
+      assert_select "[data-health-alert=destroyed_share] .market-health__proposal", /already sells at 10 times the reference.*lower the entrustment amounts/
+    end
+
+    test "the Archive shop's week reads its sell-through, its coefficient and its prices" do
+      Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
+      sign_in(accounts_players(:moderator))
+
+      get back_office_market_health_path(locale: :en)
+
+      assert_select "[data-health-archive-week] p", "Editions listed: 1. Sold out: 0. Copies sold since Monday: 0."
+      assert_select "[data-health-archive-week] p", /\ACoefficient 6: Common .*, Uncommon .*, Rare /
     end
 
     test "a moderator sees the alert and its proposal without the actions" do

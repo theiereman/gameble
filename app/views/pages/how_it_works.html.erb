@@ -14,6 +14,18 @@
   <h1 id="how-it-works-heading" class="visually-hidden"><%= t(".title") %></h1>
   <p class="how-it-works__intro"><%= t(".intro") %></p>
 
+  <% sections = %w[selection rarity packs timing daily goal seasons sets completion duels] + (@market_rules ? %w[market orders wanted shop] : []) %>
+  <nav class="how-it-works__contents" aria-labelledby="how-it-works-contents" data-controller="contents">
+    <div class="how-it-works__contents-rail">
+      <h2 id="how-it-works-contents" class="how-it-works__contents-heading"><%= t(".contents") %></h2>
+      <ol class="how-it-works__contents-list">
+        <% sections.each do |section| %>
+          <li><a class="how-it-works__contents-link" href="#how-it-works-<%= section %>" data-contents-target="link"><%= t(".#{section}.title") %></a></li>
+        <% end %>
+      </ol>
+    </div>
+  </nav>
+
   <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-selection" }) do %>
     <h2 id="how-it-works-selection" class="how-it-works__heading"><%= t(".selection.title") %></h2>
     <p class="how-it-works__review-floor"><%= t(".selection.rule", reviews: number_with_delimiter(Steam::ReviewPolicy::MIN_REVIEWS)) %></p>
@@ -102,5 +114,8 @@
           answer: Game::DuelClock::ANSWER.to_i, absence: Game::DuelClock::ABSENCE.to_i) %></p>
   <% end %>
 
-  <%= render "pages/market_rules", rules: @market_rules if @market_rules %>
+  <% if @market_rules %>
+    <%= render "pages/market_rules", rules: @market_rules %>
+    <%= render "pages/market_trading", rules: @market_rules %>
+  <% end %>
 </article>

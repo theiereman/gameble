@@ -2,8 +2,10 @@ require "application_system_test_case"
 require_relative "../support/steam_sign_in"
 require_relative "../support/market"
 require_relative "../support/market_auctions"
+require_relative "../support/archive_at_reference"
 
 class MarketShopSystemTest < ApplicationSystemTestCase
+  include ArchiveAtReference
   include SteamSignIn
   include MarketAuctions
   include MarketSettings
@@ -43,6 +45,26 @@ class MarketShopSystemTest < ApplicationSystemTestCase
     find("dialog#archive-purchase-dialog .modal__close").click
     assert_no_selector "dialog#archive-purchase-dialog[open]"
     assert_selector "#archive-offer-blue-depths-1 a:focus"
+  end
+
+  test "a copy bought by one player lowers the stock another player reads, once the stream tells it" do
+    fund!(accounts_players(:moderator), 1_000)
+    sign_in_and_visit_shop
+    using_session(:other) do
+      mock_steam_sign_in(accounts_players(:moderator).steam_id)
+      visit home_path(locale: :fr)
+      click_steam_sign_in
+      assert_signed_in
+      visit market_shop_path(locale: :fr)
+      assert_selector "#archive-offer-blue-depths-1 .archive-offer__stock", text: "2 en stock"
+    end
+
+    tile.click
+    within("dialog#archive-purchase-dialog") { click_on "ACHETER · 500" }
+    assert_selector "#archive-offer-blue-depths-1 .archive-offer__stock", text: "1 en stock"
+    ArchiveStreamJob.perform_now([ @rare.id ])
+
+    using_session(:other) { assert_selector "#archive-offer-blue-depths-1 .archive-offer__stock", text: "1 en stock" }
   end
 
   test "a visitor reads the shop and each tile leads to the card detail" do

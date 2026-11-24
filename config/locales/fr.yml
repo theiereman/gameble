@@ -562,6 +562,7 @@ fr:
         text: "Gameble est gratuit et le restera. Si le jeu vous plaît, vous pouvez aider à payer son hébergement. Les dons sont facultatifs et ne donnent aucun avantage dans le jeu. Ils passent par Buy Me a Coffee, selon ses propres conditions. L'éditeur reçoit ce que vous choisissez d'y indiquer (nom, message)."
         link: "Soutenir"
     how_it_works:
+      contents: "Sommaire"
       title: "Comment ça marche"
       intro: "Les règles du jeu, telles qu'il les applique."
       local_time: ", heure locale"
@@ -701,6 +702,23 @@ fr:
           zero: "%{count} jour"
           one: "%{count} jour"
           other: "%{count} jours"
+      wanted:
+        entrust: "Quand vous confiez des cartes, celles qui sont voulues sont mises de côté : vous choisissez pour chacune de la vendre à l'ordre, de la mettre aux enchères ou de la confier quand même."
+        rule: "Une carte est voulue quand elle manque aux objectifs d'un autre joueur ou qu'un ordre d'achat la vise. Vous voyez combien de joueurs la veulent, jamais lesquels."
+        title: "Les cartes voulues"
+      shop:
+        destroyed: "Les PiCoins dépensés à la boutique sont détruits, ce qui garde en équilibre les PiCoins en circulation."
+        list: "Chaque lundi à 00:00 UTC, la Confrérie met en vente une liste de %{size} cartes que les joueurs lui ont confiées, la même pour tous : jusqu'à %{wanted} cartes parmi les plus recherchées, puis jusqu'à %{rares} Rares, puis des Peu communes et des Communes."
+        once: "Chaque joueur achète une carte de la liste une fois par semaine, et au plus %{purchases} cartes par semaine. Une carte quitte la liste quand son dernier exemplaire est vendu."
+        price: "Une carte garde son prix toute la semaine : un coefficient fois le prix médian de sa rareté aux enchères sur %{days} jours (dès %{sales} ventes). Chaque lundi, le coefficient monte ou baisse d'au plus %{step} % pour que le marché et la boutique détruisent %{target} % des PiCoins créés, entre %{min} et %{max}."
+        title: "La boutique de la Confrérie"
+      orders:
+        auction: "Une Rare ou mieux se vend aux enchères. Si l'enchère s'ouvre à un prix égal ou inférieur aux ordres, chaque ordre devient une enchère à son prix ; le meilleur mène, les autres sont remboursés. Un ordre sous le prix de départ reste ouvert."
+        direct: "Une Commune ou une Peu commune se vend directement à l'ordre, au meilleur prix puis au plus ancien : c'est immédiat, sans Timbre, avec l'Effort de la Confrérie."
+        held: "Les PiCoins de l'ordre sont mis de côté dès qu'il est posé. Il achète un exemplaire, dure %{days} jours et s'annule gratuitement. Un joueur a un seul ordre par jeu."
+        intro: "Un ordre d'achat dit le prix ferme que vous payez pour un jeu, toutes éditions confondues. Un joueur qui a la carte peut vous la vendre aussitôt."
+        reach: "Un ordre n'achète que les raretés dont il atteint le prix minimum ; le formulaire dit lesquelles."
+        title: "Les ordres d'achat"
   back_office:
     chart_switches:
       cancel: "ANNULER"
@@ -885,11 +903,11 @@ fr:
       stale: "Un autre administrateur vient de modifier le marché. La page a été redessinée ; vérifiez-la et fermez à nouveau si besoin."
     market_health:
       alert:
+        archive_ceiling: "La boutique des Archives vend déjà à %{coefficient} fois la référence, son maximum : pour détruire plus, baissez les gains de la confiance."
         administrators_only: "Seul un administrateur peut préparer ce changement."
         ignore: "Ignorer"
         no_proposal: "Aucun changement dans les bornes ne répond à cette alerte. Ajustez les réglages à la main."
         prepare: "Préparer ce changement"
-        proposal_archive_price: "Son prix des Archives monte à %{price} pour ne pas passer sous le prix minimum."
         proposal_minimum: "Son prix minimum monte à %{minimum} pour qu'un vendeur ne perde jamais."
         proposal_stamp: "Proposition : relever le timbre %{rarity} de %{from} à %{to}."
         title: "Alerte"
@@ -933,6 +951,10 @@ fr:
         series:
           heading: "SÉRIES · 90 JOURS"
           rarities: "Rareté affichée"
+        archive_week:
+          facts: "Éditions listées : %{listed}. Épuisées : %{sold_out}. Exemplaires vendus depuis lundi : %{copies}."
+          heading: "La boutique des Archives cette semaine"
+          prices: "Coefficient %{coefficient} : Commune %{common}, Peu commune %{uncommon}, Rare %{rare}."
         heading: "La santé de l'économie"
         indicators_heading: "Les quatre indicateurs"
         intro: "Chaque indicateur est calculé depuis les instantanés de la nuit et s'explique lui-même. Rien sur cette page ne modifie le marché."
@@ -1028,7 +1050,7 @@ fr:
         announcement_legend: "Annonce de ce changement"
         groups:
           alerts: "Alertes"
-          archive_caps: "Plafonds d'achat aux Archives"
+          archive_shop: "Boutique des Archives"
           auctions: "Enchères"
           averages: "Moyennes et fil d'actualité"
           cap: "Plafond quotidien"
@@ -1040,18 +1062,13 @@ fr:
         hints:
           bounds: "De %{min} à %{max}."
           currently: "Actuellement %{value}."
-          not_sold: "Facultatif : laisser vide retire cette rareté de la boutique."
+          reference: "Sert sous cinq ventes de la rareté en 90 jours ; vide, elle vaut %{value}."
           optional: "Facultatif : laisser vide le désactive."
         labels:
+          archive_list_size: "Éditions de la liste hebdomadaire des Archives"
           alert_destroyed_share_basis_points: "Alerte : part de PiCoins détruits (%)"
           alert_picoins_per_player: "Alerte : PiCoins par joueur"
           alert_top_share_basis_points: "Alerte : part du joueur le plus riche (%)"
-          archive_cap_epic: "Épiques achetées aux Archives par joueur"
-          archive_cap_legendary: "Légendaires achetées aux Archives par joueur"
-          archive_cap_rare: "Rares achetées aux Archives par joueur"
-          archive_cap_window_days_epic: "Fenêtre du plafond d'achat d'Épiques (jours)"
-          archive_cap_window_days_legendary: "Fenêtre du plafond d'achat de Légendaires (jours)"
-          archive_cap_window_days_rare: "Fenêtre du plafond d'achat de Rares (jours)"
           average_sale_count: "Ventes dans le prix moyen (nombre)"
           average_window_days: "Fenêtre du prix moyen (jours)"
           commission_basis_points: "Commission sur une vente (%)"
@@ -1088,14 +1105,13 @@ fr:
           field: "Changement préparé, il était de %{value}."
           note: "Un changement est préparé depuis une alerte. Rien n'est enregistré avant que vous l'enregistriez avec l'annonce de la Confrérie."
         rows:
-          archive_price: "Prix des Archives"
+          archive_price: "Référence des Archives"
           entrustment: "Gain de la confiance"
           income_days_target: "Jours de revenu visés"
           minimum_price: "Prix minimum"
           stamp: "Timbre"
         save: "Enregistrer les réglages"
         violations:
-          archive_below_minimum: "Un prix des Archives ne peut pas être sous le prix minimum d'une %{rarity} : %{minimum}."
           below_floor: "Sous le plancher sans perte : au moins %{floor}."
           durations_not_ascending: "Les durées courte, moyenne et longue doivent croître dans cet ordre."
           less_than_half: "Au moins la moitié de la valeur actuelle : %{limit}."
@@ -2568,28 +2584,7 @@ fr:
         other: "%{count} nouvelles entrées dans le fil."
   market:
     archive_cap:
-      left: "Encore %{cap} %{rarity} %{window}"
-      rarity:
-        epic:
-          zero: "Épique"
-          one: "Épique"
-          other: "Épiques"
-        legendary:
-          zero: "Légendaire"
-          one: "Légendaire"
-          other: "Légendaires"
-        rare:
-          zero: "Rare"
-          one: "Rare"
-          other: "Rares"
-      reached: "%{cap} %{rarity} %{window} · prochaine le %{date}"
-      window:
-        day: "par jour"
-        days:
-          zero: "sur %{count} jour"
-          one: "sur %{count} jour"
-          other: "sur %{count} jours"
-        week: "par semaine"
+      reached: "%{cap} achats aux Archives par semaine · prochain le %{date}"
     archive_purchases:
       confirmation:
         card: "Carte"
@@ -2628,8 +2623,8 @@ fr:
         archives: "ARCHIVES"
         buy: "ACHETER"
         buy_spoken: "Acheter"
-        fixed: "prix fixe"
-        label: "%{card}, %{rarity}, saison %{season}, Archives de la Confrérie, prix fixe %{price}"
+        fixed: "prix du jour"
+        label: "%{card}, %{rarity}, saison %{season}, Archives de la Confrérie, prix du jour %{price}"
         stock:
           zero: "%{count} en stock"
           one: "%{count} en stock"
@@ -2653,6 +2648,13 @@ fr:
         pages_label: "Autres cartes des Archives"
         screen_title: "BOUTIQUE"
         sign_in: "Connectez-vous pour acheter aux Archives"
+        how:
+          heading: "Comment fonctionne la boutique"
+          items:
+          - "Chaque lundi, la Confrérie met en vente une liste de %{size} cartes que les joueurs lui ont confiées, la même pour tous : d'abord les cartes les plus recherchées, puis des Rares, des Peu communes et des Communes."
+          - "Une carte garde son prix toute la semaine. La Confrérie le fixe d'après les ventes du marché, assez haut pour qu'acheter aux Archives reste un effort."
+          - "Chaque joueur achète une carte de la liste une fois par semaine, et au plus %{purchases} cartes par semaine."
+          - "Les PiCoins dépensés ici sont détruits, ce qui garde en équilibre les PiCoins en circulation."
     copy_filters:
       wanted: "VOULUES PAR D'AUTRES · %{count}"
       wanted_label:
@@ -3245,7 +3247,7 @@ fr:
         zero: "%{count} carte aux Archives"
         one: "%{count} carte aux Archives"
         other: "%{count} cartes aux Archives"
-      line: "Les Archives revendent les cartes confiées, à prix fixe."
+      line: "Chaque lundi, une nouvelle liste de cartes confiées, au même prix toute la semaine."
       list_label: "Cartes à la une des Archives"
       see_all: "Voir toute la boutique"
       see_all_label: "Voir toute la boutique de la Confrérie"
@@ -5514,7 +5516,7 @@ fr:
       market_closed: "Le marché est suspendu pour le moment."
       copy_not_free: "Cette carte n'est plus disponible."
       best_order_changed: "Cet ordre d'achat vient d'être servi. Vérifiez le nouveau meilleur ordre, puis validez de nouveau."
-      archive_cap_reached: "Vous avez atteint la limite des Archives pour cette rareté. Prochain achat le %{date}."
+      archive_cap_reached: "Vous avez fait vos %{cap} achats de la semaine aux Archives. Prochain achat le %{date}."
       direct_sale_not_for_rarity: "Une Rare ou plus se vend aux enchères, que les ordres d'achat soutiennent."
       invalid_duration: "Choisissez l'une des durées proposées."
       invalid_price: "Entrez un nombre entier de PiCoins, au-dessus de zéro."
@@ -5534,6 +5536,7 @@ fr:
       not_in_shop: "Cette carte n'est plus vendue aux Archives."
       out_of_stock: "Cette carte n'est plus disponible."
       invalid_purchase_token: "Cet achat n'a pas pu être lu. Rechargez la page."
+      already_bought: "Vous avez déjà acheté cette carte aux Archives cette semaine. Elle pourra être rachetée dès lundi."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion n'a pas abouti. Réessayez."

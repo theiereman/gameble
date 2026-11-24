@@ -16,14 +16,14 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     "La capsule quotidienne", "La mission hebdo", "Les saisons", "Les sets", "Compléter un set", "Les duels"
   ].freeze
 
-  FRENCH_MARKET_HEADING = "Le marché".freeze
+  FRENCH_MARKET_HEADINGS = [ "Le marché", "Les ordres d'achat", "Les cartes voulues", "La boutique de la Confrérie" ].freeze
 
   ENGLISH_HEADINGS = [
     "Which games become cards", "Rarity", "Capsules and odds", "The pace of capsules",
     "The daily capsule", "The weekly mission", "Seasons", "Sets", "Completing a set", "Duels"
   ].freeze
 
-  ENGLISH_MARKET_HEADING = "The market".freeze
+  ENGLISH_MARKET_HEADINGS = [ "The market", "Buy orders", "Wanted cards", "The Brotherhood's shop" ].freeze
 
   # `parts` out of `whole` as a percent with at most two decimals, written
   # the way the locale writes it.
@@ -275,7 +275,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     get how_it_works_path(locale: :fr)
 
     assert_response :success
-    assert_equal FRENCH_HEADINGS + [ FRENCH_MARKET_HEADING ], headings
+    assert_equal FRENCH_HEADINGS + FRENCH_MARKET_HEADINGS, headings
     assert_market_numbers(settings, :fr)
     assert_select ".how-it-works__maximum li", 6
     assert_select ".how-it-works__fees", /Timbre Fiscal du Gamebler.*Effort de la Confrérie/m
@@ -287,7 +287,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
 
     get how_it_works_path(locale: :en)
 
-    assert_equal ENGLISH_HEADINGS + [ ENGLISH_MARKET_HEADING ], headings
+    assert_equal ENGLISH_HEADINGS + ENGLISH_MARKET_HEADINGS, headings
     assert_market_numbers(settings, :en)
     assert_select ".how-it-works__fees", /Gamebler's Tax Stamp.*Brotherhood Effort/m
     assert_select "p + .how-it-works__maximum"
@@ -312,7 +312,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
 
     get how_it_works_path(locale: :en)
 
-    assert_equal ENGLISH_HEADINGS + [ ENGLISH_MARKET_HEADING ], headings
+    assert_equal ENGLISH_HEADINGS + ENGLISH_MARKET_HEADINGS, headings
     assert_market_numbers(settings, :en)
   end
 end

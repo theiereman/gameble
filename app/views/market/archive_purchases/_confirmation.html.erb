@@ -6,7 +6,7 @@
       title: short ? t("market.archive_purchases.confirmation.short_title", amount: picoins(price - @available)) : t("market.archive_purchases.confirmation.title"),
       title_id: "archive-purchase-title", state: @state, price:, available: @available, refusal: @refusal,
       url: market_archive_purchase_path(slug: card.id, number: card.season_number),
-      fields: { settings_token: @settings.token, purchase_token: @purchase_token },
+      fields: { settings_token: @settings.token, purchase_token: @purchase_token, price: },
       missing_line: (t("market.archive_purchases.confirmation.short_line", card: card.title, rarity:, price: picoins(price), available: picoins(@available)) if short)) do |confirmation| %>
   <% confirmation.with_visual do %><%= render CardComponent.new(card:, size: :s, tilt: false) %><% end %>
   <% confirmation.with_facts do %>

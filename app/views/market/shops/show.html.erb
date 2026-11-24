@@ -5,11 +5,18 @@
 <% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
 <%= tag.section class: "market-shop page page--wide", aria: { labelledby: "market-shop-heading" },
       data: { controller: "next-page purchase-dialog", action: "focusout->next-page#focusLeft" } do %>
+  <%= turbo_stream_from(*ArchiveStream.streamables) %>
   <h1 id="market-shop-heading" class="visually-hidden" tabindex="-1" data-purchase-dialog-target="heading"><%= t(".heading") %></h1>
   <%= render "shell/balance_chip", placement: :header %>
   <% if @suspended %><%= render "market/suspended_banner" %><% end %>
   <div class="market-shop__intro">
     <p class="market-shop__line"><%= t(".line") %></p>
+    <details class="market-shop__how">
+      <summary class="market-shop__how-heading"><%= pixel_icon("arrow-small-right", class: "market-shop__how-chevron") %><%= t(".how.heading") %></summary>
+      <ul class="market-shop__how-list">
+        <% t(".how.items", size: @settings.archive_list_size, purchases: Game::Market::ArchiveCaps::WEEKLY_PURCHASES).each do |item| %><li><%= item %></li><% end %>
+      </ul>
+    </details>
     <% unless current_player %>
       <p class="market-shop__sign-in"><%= sign_in_button t(".sign_in"), origin: market_shop_path, class: "button button--primary" %></p>
     <% end %>

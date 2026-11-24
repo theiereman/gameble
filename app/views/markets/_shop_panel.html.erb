@@ -1,5 +1,7 @@
 <%# locals: (count:, offers:, marks:, buyable:, caps: {}) %>
 <div class="shop-panel">
+  <%= turbo_stream_from(*ArchiveStream.streamables) %>
+  <%= turbo_frame_tag ArchiveStream::PANEL, target: "_top" do %>
   <%= render PanelComponent.new(tag: :section, class: "shop-panel__frame", aria: { labelledby: "shop-panel-heading" }) do %>
     <h2 id="shop-panel-heading" class="market-screen__section shop-panel__heading">
       <%= t("markets.shop_panel.heading") %> <span class="shop-panel__count"><%= t("markets.shop_panel.count", count:) %></span>
@@ -19,5 +21,6 @@
     <p class="shop-panel__foot">
       <%= render ButtonComponent.new(variant: :link, href: market_shop_path, aria_label: t("markets.shop_panel.see_all_label")) do %><%= t("markets.shop_panel.see_all") %><% end %>
     </p>
+  <% end %>
   <% end %>
 </div>

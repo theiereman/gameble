@@ -4,7 +4,7 @@ module Game
     module PublishedRules
       Rules = Data.define(
         :entrustment, :stamp, :minimum_price, :commission_basis_points, :daily_cap, :durations,
-        :preselected_hours, :increment_basis_points, :soft_close_seconds, :unusual_maximum_multiple
+        :preselected_hours, :increment_basis_points, :soft_close_seconds, :unusual_maximum_multiple, :order_duration_days, :archive_list_size
       )
 
       def self.call
@@ -21,7 +21,9 @@ module Game
           preselected_hours: settings.preselected_duration_hours,
           increment_basis_points: settings.increment_basis_points,
           soft_close_seconds: settings.soft_close_seconds,
-          unusual_maximum_multiple: settings.unusual_maximum_multiple
+          unusual_maximum_multiple: settings.unusual_maximum_multiple,
+          order_duration_days: settings.order_duration_days,
+          archive_list_size: settings.archive_list_size
         )
       end
 

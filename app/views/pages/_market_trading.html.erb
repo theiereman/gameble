@@ -1,0 +1,30 @@
+<%# locals: (rules:) %>
+<%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-orders" }) do %>
+  <h2 id="how-it-works-orders" class="how-it-works__heading"><%= t("pages.how_it_works.orders.title") %></h2>
+  <p><%= t("pages.how_it_works.orders.intro") %></p>
+  <ul class="how-it-works__list how-it-works__orders">
+    <li><%= t("pages.how_it_works.orders.held", days: rules.order_duration_days) %></li>
+    <li><%= t("pages.how_it_works.orders.reach") %></li>
+    <li><%= t("pages.how_it_works.orders.direct") %></li>
+    <li><%= t("pages.how_it_works.orders.auction") %></li>
+  </ul>
+<% end %>
+
+<%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-wanted" }) do %>
+  <h2 id="how-it-works-wanted" class="how-it-works__heading"><%= t("pages.how_it_works.wanted.title") %></h2>
+  <p><%= t("pages.how_it_works.wanted.rule") %></p>
+  <p><%= t("pages.how_it_works.wanted.entrust") %></p>
+<% end %>
+
+<%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-shop" }) do %>
+  <h2 id="how-it-works-shop" class="how-it-works__heading"><%= t("pages.how_it_works.shop.title") %></h2>
+  <% prices = Game::Market::ArchivePrices %>
+  <ul class="how-it-works__list how-it-works__shop">
+    <li><%= t("pages.how_it_works.shop.list", size: rules.archive_list_size, wanted: Game::Market::ArchiveOffers::WANTED_PLACES,
+          rares: Game::Market::ArchiveOffers::RARE_PLACES) %></li>
+    <li><%= t("pages.how_it_works.shop.price", days: prices::REFERENCE_DAYS, sales: prices::MINIMUM_SALES, step: (prices::WEEKLY_STEP * 100).to_i,
+          target: (prices::SET_POINT * 100).to_i, min: prices::COEFFICIENTS.begin, max: prices::COEFFICIENTS.end) %></li>
+    <li><%= t("pages.how_it_works.shop.once", purchases: Game::Market::ArchiveCaps::WEEKLY_PURCHASES) %></li>
+    <li><%= t("pages.how_it_works.shop.destroyed") %></li>
+  </ul>
+<% end %>

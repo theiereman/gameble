@@ -1,18 +1,20 @@
 require "test_helper"
 require_relative "../../support/steam_sign_in"
 require_relative "../../support/market"
+require_relative "../../support/archive_at_reference"
 
 class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
+  include ArchiveAtReference
   include MarketSettings
   include SteamSignIn
 
   setup do
     @player = accounts_players(:player)
     @common = catalog_card_seasons(:common_card_one)
-    @uncommon = catalog_card_seasons(:uncommon_card_one)
+    @epic = catalog_card_seasons(:portal_one)
     @rare = catalog_card_seasons(:rare_card_one)
     @settings = open_market!(first_opened_at: 1.day.ago, archive_price_common: 50, archive_price_rare: 500)
-    { @common => 4, @uncommon => 2, @rare => 1 }.each { |card, quantity| Game::Market::ArchiveStock.create!(card_season_id: card.id, quantity:) }
+    { @common => 4, @epic => 2, @rare => 1 }.each { |card, quantity| Game::Market::ArchiveStock.create!(card_season_id: card.id, quantity:) }
   end
 
   def tiles = css_select("#archive-offers > li")
@@ -26,7 +28,7 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, tiles.size
     assert_select "#archive-offer-blue-depths-1 a[href=?]", card_season_path(locale: :fr, slug: "blue-depths", number: 1)
     assert_select "#archive-offer-blue-depths-1 .archive-offer__stock", "1 en stock"
-    assert_select "#archive-offer-tin-soldier-1 .archive-offer__fixed", "prix fixe"
+    assert_select "#archive-offer-tin-soldier-1 .archive-offer__fixed", "prix du jour"
     assert_select ".archive-offer__buy", 0
     assert_select "dialog#archive-purchase-dialog", 0
     assert_select ".market-filters__wanted", 0
@@ -41,44 +43,48 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_select "dialog#archive-purchase-dialog turbo-frame#archive-purchase"
     assert_select "#archive-offer-blue-depths-1 a[href=?][data-turbo-frame=archive-purchase][data-action='purchase-dialog#open']",
       new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1)
-    assert_select "#archive-offer-blue-depths-1 a[aria-label^='Profondeurs bleues, Rare, saison 1, Archives de la Confrérie, prix fixe 500']" \
+    assert_select "#archive-offer-blue-depths-1 a[aria-label^='Profondeurs bleues, Rare, saison 1, Archives de la Confrérie, prix du jour 500']" \
       "[aria-label$=', 1 en stock. Acheter']"
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap[data-archive-cap=rare]", "Encore 1 Rare par jour"
+    assert_select ".archive-offer__cap[data-archive-cap]", text: "", count: 2
     described = css_select("#archive-offer-blue-depths-1 a").first["aria-describedby"]
-    assert_select "##{described}.visually-hidden[data-archive-cap=rare]", "Encore 1 Rare par jour"
-    assert_select "#archive-offer-tin-soldier-1 a[aria-describedby]", 0
-    assert_select "#archive-offer-tin-soldier-1 .archive-offer__cap", 0
+    assert_select "##{described}.visually-hidden[data-archive-cap=rare]", ""
     assert_select ".archive-offer__buy", 2
   end
 
-  test "a capped rarity with none left reads the next purchase date, in both languages" do
+  def week_of_purchases!
+    5.times do
+      Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @common.id, purchase_token: SecureRandom.base58(24),
+        price: 50, settings_id: @settings.id, created_at: Time.current)
+    end
+    Time.current.utc.beginning_of_week + 1.week
+  end
+
+  test "after a week's purchases every tile and chip reads the next Monday, in both languages" do
     sign_in(@player)
-    bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
-      price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
-    reopens = (bought.created_at + 1.day).utc
+    reopens = week_of_purchases!
     text = reopens.strftime("%Y-%m-%d %H:%M UTC")
 
     get market_shop_path(locale: :fr)
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare par jour · prochaine le #{text}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "5 achats aux Archives par semaine · prochain le #{text}"
+    assert_select "#archive-offer-tin-soldier-1 .archive-offer__cap", 1
+    described = css_select("#archive-offer-blue-depths-1 a").first["aria-describedby"]
+    assert_select "##{described}.visually-hidden[data-archive-cap=rare]", /5 achats/
 
     get market_shop_path(locale: :en)
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare per day · next on #{text}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "5 Archive purchases a week · next on #{text}"
     assert_select "#archive-offer-blue-depths-1 .archive-offer__cap time[datetime=?][data-controller=local-time]", reopens.iso8601
+    assert_select ".market-shop__rarity-cap", 3
   end
 
-  test "the date a capped rarity reopens is drawn in the viewer's time zone" do
+  test "the next Monday is drawn in the viewer's time zone" do
     sign_in(@player)
-    bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
-      price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
-    reopens = (bought.created_at + 1.day).utc
+    reopens = week_of_purchases!
     cookies[:time_zone] = "Pacific/Auckland"
 
     get market_shop_path(locale: :en)
 
     local = I18n.l(reopens.in_time_zone("Pacific/Auckland"), format: :local_datetime, locale: :en)
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare per day · next on #{local}"
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap time[datetime=?]", reopens.iso8601
-    assert_select ".market-shop__rarity-cap time[datetime=?]", reopens.iso8601
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "5 Archive purchases a week · next on #{local}"
   end
 
   test "a visitor reads no cap line" do
@@ -86,23 +92,6 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".archive-offer__cap", 0
     assert_select ".market-shop__rarity-cap", 0
-  end
-
-  test "a capped rarity's chip reads what is left, or the date it reopens, in the page's language" do
-    sign_in(@player)
-
-    get market_shop_path(locale: :fr)
-    assert_select ".market-shop__rarities .filter-chip", text: /Rare\s+Encore 1 Rare par jour/
-    assert_select ".market-shop__rarity-cap[data-archive-cap=rare]", 1
-    assert_select ".market-shop__rarities .filter-chip", text: /Commune/
-    assert_select ".market-shop__rarity-cap", 1
-
-    bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
-      price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
-    text = (bought.created_at + 1.day).utc.strftime("%Y-%m-%d %H:%M UTC")
-
-    get market_shop_path(locale: :en)
-    assert_select ".market-shop__rarity-cap", "1 Rare per day · next on #{text}"
   end
 
   test "a wanted card wears the VOULUE tag and the chip counts the wanted offers" do
@@ -122,21 +111,21 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "archive-offer-blue-depths-1" ], tiles.map { it["id"] }
   end
 
-  test "a rarity without an Archive price is absent, with its chip" do
+  test "an Epic is not in the shop, nor among the rarity chips" do
     get market_shop_path(locale: :en)
 
-    assert_select "#archive-offer-green-hills-1", 0
-    assert_select ".market-shop__rarities input[name='rarity[]']", 2
-    assert_select ".market-shop__rarities input[value=uncommon]", 0
+    assert_select "#archive-offer-portal-1", 0
+    assert_select ".market-shop__rarities input[name='rarity[]']", 3
+    assert_select ".market-shop__rarities input[value=epic]", 0
   end
 
   test "prices sort ascending by default, and the filters stay in the sort and season links" do
-    get market_shop_path(locale: :en, sort: "price_desc", rarity: [ "rare", "uncommon" ], q: "blue")
+    get market_shop_path(locale: :en, sort: "price_desc", rarity: [ "rare", "epic" ], q: "blue")
 
     assert_equal [ "archive-offer-blue-depths-1" ], tiles.map { it["id"] }
     assert_select ".sort__option[href*='sort=price_asc'][href*='rarity%5B%5D=rare'][href*='q=blue']"
     assert_select ".sort__option[href*='season%5B%5D=1'][href*='rarity%5B%5D=rare']"
-    assert_select ".sort__option[href*='uncommon']", 0
+    assert_select ".sort__option[href*='epic']", 0
 
     get market_shop_path(locale: :en)
 

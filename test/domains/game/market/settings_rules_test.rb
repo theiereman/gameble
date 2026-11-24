@@ -152,31 +152,13 @@ class Game::Market::SettingsRulesTest < ActiveSupport::TestCase
     ->(field, **changes) { rules.violations(base.merge(changes))[field] }
   end
 
-  test "a first Archive price has no double or half bound, only the rarity's minimum" do
+  test "an Archive price is free: any whole amount from 1, whatever its rarity's minimum or its last value" do
+    rules = rules_with(archive_price_rare: 500, minimum_price_rare: 400)
+
     assert_nil @rules.amount_limits(:archive_price_rare)
-    assert_nil code_of(:archive_price_rare, archive_price_rare: 1_000_000)
-    assert_nil code_of(:archive_price_rare, archive_price_rare: 78)
-
-    violation = violations(archive_price_rare: 77)[:archive_price_rare]
-    assert_equal :archive_below_minimum, violation.code
-    assert_equal({ rarity: :rare, minimum: 78 }, violation.values)
-  end
-
-  test "a set Archive price is bounded by double and half, then by the minimum" do
-    violation = rules_with(archive_price_rare: 500, minimum_price_rare: 400)
-
-    assert_equal :more_than_double, violation.call(:archive_price_rare, archive_price_rare: 1_001).code
-    assert_equal :less_than_half, violation.call(:archive_price_rare, archive_price_rare: 249).code
-    assert_nil violation.call(:archive_price_rare, archive_price_rare: 1_000)
-    assert_equal :archive_below_minimum, violation.call(:archive_price_rare, archive_price_rare: 500, minimum_price_rare: 600).code
-  end
-
-  test "a minimum raised over an unchanged Archive price is refused beside the Archive price" do
-    violation = rules_with(archive_price_rare: 100)
-
-    assert_nil violation.call(:minimum_price_rare, minimum_price_rare: 120)
-    assert_equal :archive_below_minimum, violation.call(:archive_price_rare, minimum_price_rare: 120).code
-    assert_nil violation.call(:archive_price_rare, minimum_price_rare: 100)
+    assert_nil rules.call(:archive_price_rare, archive_price_rare: 1_000_000)
+    assert_nil rules.call(:archive_price_rare, archive_price_rare: 3)
+    assert_equal :out_of_range, rules.call(:archive_price_rare, archive_price_rare: 0).code
   end
 
   test "a blank Archive price is accepted" do
@@ -187,19 +169,6 @@ class Game::Market::SettingsRulesTest < ActiveSupport::TestCase
     assert_equal :more_than_double, code_of(:slot_price_goal_6, slot_price_goal_6: 1_500)
     assert_equal :less_than_half, code_of(:slot_price_deck_5, slot_price_deck_5: 999)
     assert_nil code_of(:slot_price_custom_set_10, slot_price_custom_set_10: 10_000)
-  end
-
-  test "an Archive purchase cap and its window exist above Uncommon only, at least 1, and move by double or half" do
-    assert_equal %i[rare epic legendary], Game::Market::SettingsRules::CAPPED_RARITIES
-    assert_equal [ 1, 1, 1, 7 ], @current.values_at(:archive_cap_rare, :archive_cap_window_days_rare, :archive_cap_epic, :archive_cap_window_days_epic)
-    assert_equal :out_of_range, code_of(:archive_cap_rare, archive_cap_rare: 0)
-    assert_equal :out_of_range, code_of(:archive_cap_window_days_epic, archive_cap_window_days_epic: 0)
-    assert_equal :more_than_double, code_of(:archive_cap_rare, archive_cap_rare: 3)
-    assert_equal :more_than_double, code_of(:archive_cap_window_days_epic, archive_cap_window_days_epic: 15)
-    assert_equal :less_than_half, code_of(:archive_cap_window_days_epic, archive_cap_window_days_epic: 3)
-    assert_nil code_of(:archive_cap_rare, archive_cap_rare: 2)
-    assert_nil code_of(:archive_cap_window_days_epic, archive_cap_window_days_epic: 14)
-    assert_equal :not_a_number, code_of(:archive_cap_rare, archive_cap_rare: nil)
   end
 
   test "the priced slots are the ones past the free limit, up to the ceiling" do

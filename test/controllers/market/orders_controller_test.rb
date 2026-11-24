@@ -8,8 +8,10 @@ require_relative "../../support/market_orders"
 require_relative "../../support/custom_sets"
 require_relative "../../support/game_sets"
 require_relative "../../support/singleton_stub"
+require_relative "../../support/archive_at_reference"
 
 class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
+  include ArchiveAtReference
   include CountingRateLimit
   include CustomSets
   include GameSets
@@ -299,18 +301,20 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".order-form[data-controller=purchase-dialog] dialog#archive-purchase-dialog"
   end
 
-  test "an Archive offer of a capped rarity carries what is left of the cap, then the next purchase date" do
+  test "an Archive offer carries no cap line under the week's limit, then the next Monday" do
     open_market!(first_opened_at: 1.day.ago, archive_price_rare: 500)
     Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
     sign_in(@player)
 
     get new_market_card_order_path(locale: :fr, slug: "blue-depths")
-    assert_select ".order-archive .archive-offer__cap[data-archive-cap=rare]", "Encore 1 Rare par jour"
+    assert_select ".order-archive .archive-offer__cap", ""
 
-    Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:rare_card_one).id, purchase_token: SecureRandom.base58(24),
-      price: 500, settings_id: Game::Market::CurrentSettings.call.id, created_at: 2.hours.ago)
+    5.times do
+      Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:common_card_one).id, purchase_token: SecureRandom.base58(24),
+        price: 50, settings_id: Game::Market::CurrentSettings.call.id, created_at: Time.current)
+    end
     get new_market_card_order_path(locale: :en, slug: "blue-depths")
-    assert_select ".order-archive .archive-offer__cap", /\A1 Rare per day · next on /
+    assert_select ".order-archive .archive-offer__cap", /\A5 Archive purchases a week · next on /
   end
 
   test "a game with an open listing shows the listing and no Archives line" do

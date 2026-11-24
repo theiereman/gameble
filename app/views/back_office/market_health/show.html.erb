@@ -22,6 +22,15 @@
 
   <%= render "back_office/market_health/series", series: @series, income_rarity: @income_rarity %>
 
+  <% if @archive_week %>
+    <section class="stack" aria-labelledby="health-archive-week-heading" data-health-archive-week>
+      <h2 id="health-archive-week-heading"><%= t(".archive_week.heading") %></h2>
+      <p><%= t(".archive_week.facts", listed: @archive_week.listed, sold_out: @archive_week.sold_out, copies: @archive_week.copies_sold) %></p>
+      <p><%= t(".archive_week.prices", coefficient: number_with_precision(@archive_week.coefficient, strip_insignificant_zeros: true),
+            **@archive_week.prices.transform_values { picoins(it) }) %></p>
+    </section>
+  <% end %>
+
   <section class="stack" aria-labelledby="health-reconciliation-heading" data-health-reconciliation>
     <h2 id="health-reconciliation-heading"><%= t(".reconciliation.heading") %></h2>
     <% if latest.nil? %>

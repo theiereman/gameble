@@ -1,15 +1,17 @@
 require "test_helper"
 require_relative "../../../support/market"
+require_relative "../../../support/archive_at_reference"
 
 class Game::Market::ArchiveOffersTest < ActiveSupport::TestCase
+  include ArchiveAtReference
   include MarketSettings
 
   setup do
     @common = catalog_card_seasons(:common_card_one)
-    @uncommon = catalog_card_seasons(:uncommon_card_one)
+    @epic = catalog_card_seasons(:portal_one)
     @rare = catalog_card_seasons(:rare_card_one)
     @settings = open_market!(archive_price_common: 50, archive_price_rare: 500)
-    { @common => 4, @uncommon => 2, @rare => 1 }.each { |card, quantity| Game::Market::ArchiveStock.create!(card_season_id: card.id, quantity:) }
+    { @common => 4, @epic => 2, @rare => 1 }.each { |card, quantity| Game::Market::ArchiveStock.create!(card_season_id: card.id, quantity:) }
   end
 
   def offers(sort: "price_asc", page: 1, filters: Game::Market::ListingFilters.none, settings: @settings)
@@ -18,12 +20,12 @@ class Game::Market::ArchiveOffersTest < ActiveSupport::TestCase
 
   def titles(page) = page.rows.map { it.card.title }
 
-  test "only the rarities the version prices are offered, each at its Archive price with its stock" do
+  test "the list leaves Epics out and offers each edition at its rarity's price with its stock" do
     page = offers
 
     assert_equal [ [ "Tin Soldier", 50, 4 ], [ "Blue Depths", 500, 1 ] ], page.rows.map { [ it.card.title, it.price, it.stock ] }
     assert_not page.more
-    assert_equal %w[common rare], Game::Market::ArchiveOffers.priced_rarities(@settings)
+    assert_equal %w[common uncommon rare], Game::Market::ArchiveOffers.listed_rarities
   end
 
   test "prices sort ascending by default and descending on demand" do
@@ -67,15 +69,13 @@ class Game::Market::ArchiveOffersTest < ActiveSupport::TestCase
 
   test "one edition is found while it is offered" do
     assert_equal 500, Game::Market::ArchiveOffers.find(settings: @settings, card_season_id: @rare.id, locale: :en).price
-    assert_nil Game::Market::ArchiveOffers.find(settings: @settings, card_season_id: @uncommon.id, locale: :en)
+    assert_nil Game::Market::ArchiveOffers.find(settings: @settings, card_season_id: @epic.id, locale: :en)
   end
 
-  test "a version pricing no rarity offers nothing" do
+  test "a rarity with no back-office reference sells at its default reference" do
     settings = open_market!
 
-    assert_empty offers(settings:).rows
-    assert_equal({ cards: 0, editions: 0 }, Game::Market::ArchiveOffers.count(settings:, locale: :en).to_h)
-    assert_nil Game::Market::ArchiveOffers.find(settings:, card_season_id: @rare.id, locale: :en)
+    assert_equal [ 50, 250 ], offers(settings:).rows.map(&:price), "the defaults sit under five times the entrustment value here"
   end
 
   test "the featured offers put the wanted card first, then the latest entrusted, then the edition, up to the limit" do
@@ -88,14 +88,22 @@ class Game::Market::ArchiveOffersTest < ActiveSupport::TestCase
     assert_equal [ "Blue Depths", "Tin Soldier" ], featured.call(wanted_card_ids: [])
     assert_equal [ "Tin Soldier", "Blue Depths" ], featured.call(wanted_card_ids: [ @common.card_id ])
     assert_equal [ "Blue Depths" ], featured.call(wanted_card_ids: [], limit: 1)
-    assert_empty Game::Market::ArchiveOffers.featured(settings: open_market!, wanted_card_ids: [], locale: :en)
   end
 
-  test "the offers of one game list its priced editions by price" do
+  test "the offers of one game list its listed editions by price" do
     offers = Game::Market::ArchiveOffers.for_card(settings: @settings, card_id: @rare.card_id, locale: :en)
 
     assert_equal [ [ "Blue Depths", 500, 1 ] ], offers.map { [ it.card.title, it.price, it.stock ] }
-    assert_empty Game::Market::ArchiveOffers.for_card(settings: @settings, card_id: @uncommon.card_id, locale: :en)
-    assert_empty Game::Market::ArchiveOffers.for_card(settings: open_market!, card_id: @rare.card_id, locale: :en)
+    assert_empty Game::Market::ArchiveOffers.for_card(settings: @settings, card_id: @epic.card_id, locale: :en)
+  end
+
+  test "the list takes the most wanted, then Rares, then Uncommons before Commons, up to its size" do
+    uncommon = catalog_card_seasons(:uncommon_card_one)
+    Game::Market::ArchiveStock.create!(card_season_id: uncommon.id, quantity: 1)
+    Game::Market::Wanted.create!(player_id: accounts_players(:moderator).id, card_id: @common.card_id, reason: "goal")
+    list = ->(size) { Game::Market::ArchiveOffers.list(open_market!(archive_list_size: size)) }
+
+    assert_equal [ @common.id, @rare.id ], list.(2)
+    assert_equal [ @common.id, @rare.id, uncommon.id ], list.(3)
   end
 end

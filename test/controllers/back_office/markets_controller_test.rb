@@ -169,18 +169,6 @@ module BackOffice
       assert_equal before.stamp_epic, current.stamp_epic
     end
 
-    test "an alert whose minimum passes the Archive price prepares the Archive price too" do
-      open_market!(first_opened_at: 10.days.ago, alert_destroyed_share_basis_points: 4_000, archive_price_rare: 80)
-      snapshot!(Time.current.utc.to_date - 1, created: 100, destroyed_total: 34)
-      sign_in(accounts_players(:administrator))
-
-      get back_office_market_path(locale: :en, prepare: "destroyed_share")
-
-      assert_select "input[name='market_settings[archive_price_rare]'][value='89'][data-prepared]"
-      assert_select "[data-market-settings-prepared-field=archive_price_rare]", /it was 80/
-      assert_select "input[data-prepared]", 3
-    end
-
     test "a moderator preparing an alert gets the plain form" do
       alerting_market!
       sign_in(accounts_players(:moderator))

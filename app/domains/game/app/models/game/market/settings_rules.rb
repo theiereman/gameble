@@ -14,12 +14,11 @@ module Game
       ARCHIVE_PRICES = RARITIES.map { :"archive_price_#{it}" }.freeze
       PRICED_SLOTS = Capacity::FREE.to_h { |kind, free| [ kind, (free + 1)..Capacity::CEILING.fetch(kind) ] }.freeze
       SLOT_PRICES = PRICED_SLOTS.flat_map { |kind, slots| slots.map { :"slot_price_#{kind}_#{it}" } }.freeze
-      CAPPED_RARITIES = (RARITIES - DirectSale::RARITIES.map(&:to_sym)).freeze
-      ARCHIVE_CAPS = CAPPED_RARITIES.flat_map { [ :"archive_cap_#{it}", :"archive_cap_window_days_#{it}" ] }.freeze
-      AMOUNTS = (ENTRUSTMENTS + STAMPS + MINIMUMS + ARCHIVE_PRICES + ARCHIVE_CAPS + SLOT_PRICES + [ :daily_cap ]).freeze
+      AMOUNTS = (ENTRUSTMENTS + STAMPS + MINIMUMS + ARCHIVE_PRICES + SLOT_PRICES + [ :daily_cap ]).freeze
       TARGETS = RARITIES.map { :"income_days_target_#{it}" }.freeze
       DURATIONS = %i[duration_short_hours duration_medium_hours duration_long_hours].freeze
       TARGET_RANGE = BigDecimal("0.001")..BigDecimal("365")
+      FREE_PRICE_CEILING = 1_000_000_000_000
 
       RANGES = {
         commission_basis_points: 0..2_500,
@@ -33,7 +32,8 @@ module Game
         alert_destroyed_share_basis_points: 0..10_000,
         alert_picoins_per_player: 1..1_000_000_000_000,
         alert_top_share_basis_points: 1..10_000,
-        order_duration_days: 1..30
+        order_duration_days: 1..30,
+        archive_list_size: 1..200
       }.freeze
 
       OPTIONAL = (%i[alert_destroyed_share_basis_points alert_picoins_per_player alert_top_share_basis_points] + TARGETS + ARCHIVE_PRICES).freeze
@@ -53,6 +53,8 @@ module Game
 
       # The least and the most an amount can become: half of the version in force, rounded up, and twice it; none for an amount not yet set.
       def amount_limits(field)
+        return if ARCHIVE_PRICES.include?(field)
+
         value = @current.public_send(field) or return
         [ [ value.ceildiv(2), 1 ].max, value * 2 ]
       end
@@ -93,7 +95,13 @@ module Game
       def out_of_range(range) = Violation.new(code: :out_of_range, values: { min: range.begin, max: range.end })
 
       def check_amount(field, value, candidate)
-        check_doubling(field, value) || check_floor(field, value, candidate) || check_archive(field, value, candidate)
+        return check_free_price(value) if ARCHIVE_PRICES.include?(field)
+
+        check_doubling(field, value) || check_floor(field, value, candidate)
+      end
+
+      def check_free_price(value)
+        out_of_range(1..FREE_PRICE_CEILING) unless (1..FREE_PRICE_CEILING).cover?(value)
       end
 
       def check_doubling(field, value)
@@ -103,14 +111,6 @@ module Game
         return Violation.new(code: :more_than_double, values: { limit: most }) if value > most
 
         Violation.new(code: :less_than_half, values: { limit: least }) if value < least
-      end
-
-      def check_archive(field, value, candidate)
-        return unless ARCHIVE_PRICES.include?(field)
-
-        rarity = field.to_s.delete_prefix("archive_price_").to_sym
-        minimum = candidate[:"minimum_price_#{rarity}"]
-        Violation.new(code: :archive_below_minimum, values: { rarity:, minimum: }) if minimum.is_a?(Integer) && value < minimum
       end
 
       def check_floor(field, value, candidate)

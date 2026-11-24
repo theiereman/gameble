@@ -1,11 +1,12 @@
 module Game
   module Market
-    # A player buys one copy of an edition from the Archives at the Archive price of the version in force; the PiCoins are destroyed.
+    # A player buys one copy of an edition of the week's list at the week's price, once a week per edition and a few cards a week; the
+    # PiCoins are destroyed. A price other than the one the player confirmed, as on Monday 00:00 UTC, is refused.
     # A purchase token already used by this player answers the purchase it made, moving nothing, and refuses another edition.
     class BuyFromArchives < Operation
       include AuctionSettlement
 
-      def call(player:, card_season_id:, purchase_token:, settings_token:)
+      def call(player:, card_season_id:, purchase_token:, settings_token:, price:)
         player = step require_player(player)
         purchase_token = step readable_token(purchase_token.to_s)
 
@@ -17,10 +18,12 @@ module Game
 
           settings = step current_settings(settings_token.to_s)
           rarity = step edition_rarity(card_season_id)
-          price = step archive_price(settings, rarity)
-          step under_cap(player, settings, rarity, now)
+          step offered(settings, card_season_id)
+          price = step archive_price(settings, rarity, price)
+          step under_cap(player, now)
           step covered(player, price)
           holdings = { player.id => TradeLocks.holdings(player.id, [ card_season_id ]) }
+          step not_bought_before(player, card_season_id)
           stock = step locked_stock(card_season_id)
           withdrawal = ArchiveWithdrawal.create!(player_id: player.id, card_season_id:, purchase_token:, price:, settings_id: settings.id, created_at: now)
           take_copy(stock, now)
@@ -52,14 +55,21 @@ module Game
         rarity ? Success(rarity) : Failure(:not_in_shop)
       end
 
-      def archive_price(settings, rarity)
-        price = settings.archive_price(rarity)
-        price ? Success(price) : Failure(:not_in_shop)
+      def offered(settings, card_season_id)
+        return Success() if ArchiveOffers.listed?(settings:, card_season_id:)
+
+        Failure(ArchiveStock.exists?(card_season_id:) ? :not_in_shop : :out_of_stock)
       end
 
-      def under_cap(player, settings, rarity, now)
-        standing = ArchiveCaps.call(player:, settings:, now:)[rarity.to_sym]
-        standing&.reached? ? Failure(:archive_cap_reached) : Success()
+      def archive_price(settings, rarity, confirmed)
+        price = ArchivePrices.call(settings).fetch(rarity.to_sym)
+        return Failure(:amounts_changed) unless price == confirmed.to_i
+
+        Success(price)
+      end
+
+      def under_cap(player, now)
+        ArchiveCaps.call(player:, now:).values.first&.reached? ? Failure(:archive_cap_reached) : Success()
       end
 
       def covered(player, price) = Balance.call(player).available >= price ? Success() : Failure(:more_than_available)
@@ -67,6 +77,10 @@ module Game
       def locked_stock(card_season_id)
         stock = ArchiveStock.lock.find_by(card_season_id:)
         stock ? Success(stock) : Failure(:out_of_stock)
+      end
+
+      def not_bought_before(player, card_season_id)
+        ArchiveOffers.bought_this_week?(player:, card_season_id:) ? Failure(:already_bought) : Success()
       end
 
       def take_copy(stock, now)

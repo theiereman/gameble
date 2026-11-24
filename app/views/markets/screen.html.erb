@@ -1,7 +1,6 @@
 <% content_for :public_page, true unless current_player %>
 <% content_for :title, t(".heading") %>
 <% tab = capture do %>
-<%= render "markets/shop_panel", count: @shop_count, offers: @shop_offers, marks: @shop_marks, buyable: @buyable, caps: @caps %>
 <%= render "markets/filters", filters: @filters, options: @options, sort: @sort, wanted_count: @wanted_count %>
 
 <% if @pulse.soonest.any? && !@filters.any? %>

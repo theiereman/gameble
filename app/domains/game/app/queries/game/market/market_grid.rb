@@ -27,7 +27,7 @@ module Game
         priced?(settings) ? ArchiveOffers.count(settings:, locale:, filters:).editions : 0
       end
 
-      def self.priced?(settings) = settings.present? && ArchiveOffers.priced_rarities(settings).any?
+      def self.priced?(settings) = settings.present?
 
       def self.listings_sql(filters, locale)
         filters.apply(Listing.open_now, locale:).select(

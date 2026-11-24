@@ -35,7 +35,7 @@ module Market
       def load_filters
         @sort = params[:sort].presence_in(Game::Market::ArchiveOffers::SORTS.keys) || Game::Market::ArchiveOffers::DEFAULT_SORT
         @page = asked_page
-        @rarities = Game::Market::ArchiveOffers.priced_rarities(@settings)
+        @rarities = Game::Market::ArchiveOffers.listed_rarities
         @seasons = Game::Market::ListingFilterOptions.call.seasons
         filters = Game::Market::ListingFilters.from(params.slice(*FILTER_PARAMS), seasons: @seasons, wanted_card_ids:)
         @filters = filters.with(rarities: filters.rarities & @rarities)

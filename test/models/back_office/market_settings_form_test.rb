@@ -132,20 +132,15 @@ module BackOffice
       assert_equal :now, form.moment(:archive_price_legendary)
     end
 
-    test "an Archive price not set has no bounds and says blank keeps it out of the shop" do
+    test "an Archive reference not set has no bounds, is drawn prefilled and says what blank uses" do
       hint = MarketSettingsForm.from_settings(@settings).hint(:archive_price_rare)
 
-      assert_equal "Currently -. Optional: leave it blank to keep this rarity out of the shop. Applies at once.", hint
-      assert_equal "", MarketSettingsForm.from_settings(@settings).value_for(:archive_price_rare)
+      assert_equal "Currently -. Used under five sales of the rarity in 90 days; blank uses 150. Applies at once.", hint
+      assert_equal "150", MarketSettingsForm.from_settings(@settings).value_for(:archive_price_rare)
     end
 
-    test "an Archive price under its minimum is refused naming the rarity and the minimum" do
-      form = form_for(archive_price_epic: "200").check
-
-      assert_equal "An Archive price cannot be below the Epic minimum price: 223.", form.violation_message(:archive_price_epic)
-      I18n.with_locale(:fr) do
-        assert_equal "Un prix des Archives ne peut pas être sous le prix minimum d'une Épique : 223.", form.violation_message(:archive_price_epic)
-      end
+    test "an Archive price under its minimum is not a violation" do
+      assert_nil form_for(archive_price_epic: "200").check.violation_message(:archive_price_epic)
     end
   end
 end

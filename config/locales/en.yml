@@ -572,11 +572,11 @@ en:
       stale: "Another administrator has just changed the market. The page was redrawn; check it and close again if needed."
     market_health:
       alert:
+        archive_ceiling: "The Archive shop already sells at %{coefficient} times the reference, its most: to destroy more, lower the entrustment amounts."
         administrators_only: "Only an administrator can prepare this change."
         ignore: "Ignore"
         no_proposal: "No change within the bounds answers this alert. Adjust the settings by hand."
         prepare: "Prepare this change"
-        proposal_archive_price: "Its Archive price rises to %{price} so that it stays at or above the minimum."
         proposal_minimum: "Its minimum price rises to %{minimum} so that a seller never loses."
         proposal_stamp: "Proposal: raise the %{rarity} stamp from %{from} to %{to}."
         title: "Alert"
@@ -620,6 +620,10 @@ en:
         series:
           heading: SERIES · 90 DAYS
           rarities: Rarity shown
+        archive_week:
+          facts: "Editions listed: %{listed}. Sold out: %{sold_out}. Copies sold since Monday: %{copies}."
+          heading: "The Archive shop this week"
+          prices: "Coefficient %{coefficient}: Common %{common}, Uncommon %{uncommon}, Rare %{rare}."
         heading: "The economy's health"
         indicators_heading: "The four indicators"
         intro: "Each indicator is computed from the nightly snapshots and explains itself. Nothing on this page changes the market."
@@ -715,7 +719,7 @@ en:
         announcement_legend: "Announcement of this change"
         groups:
           alerts: "Alerts"
-          archive_caps: "Archive purchase caps"
+          archive_shop: "Archive shop"
           auctions: "Auctions"
           averages: "Averages and the feed"
           cap: "Daily cap"
@@ -727,18 +731,13 @@ en:
         hints:
           bounds: "From %{min} to %{max}."
           currently: "Currently %{value}."
-          not_sold: "Optional: leave it blank to keep this rarity out of the shop."
+          reference: "Used under five sales of the rarity in 90 days; blank uses %{value}."
           optional: "Optional: leave it blank to switch it off."
         labels:
+          archive_list_size: "Editions in the Archives' weekly list"
           alert_destroyed_share_basis_points: "Alert: share of PiCoins destroyed (%)"
           alert_picoins_per_player: "Alert: PiCoins per player"
           alert_top_share_basis_points: "Alert: share held by the richest player (%)"
-          archive_cap_epic: "Epic copies bought from the Archives per player"
-          archive_cap_legendary: "Legendary copies bought from the Archives per player"
-          archive_cap_rare: "Rare copies bought from the Archives per player"
-          archive_cap_window_days_epic: "Window of the Epic purchase cap (days)"
-          archive_cap_window_days_legendary: "Window of the Legendary purchase cap (days)"
-          archive_cap_window_days_rare: "Window of the Rare purchase cap (days)"
           average_sale_count: "Sales in the average price (count)"
           average_window_days: "Window of the average price (days)"
           commission_basis_points: "Commission on a sale (%)"
@@ -775,14 +774,13 @@ en:
           field: "Prepared change, it was %{value}."
           note: "A change is prepared from an alert. Nothing is saved until you save it with the Brotherhood's announcement."
         rows:
-          archive_price: "Archive price"
+          archive_price: "Archive reference"
           entrustment: "Entrustment pays"
           income_days_target: "Target days of income"
           minimum_price: "Minimum price"
           stamp: "Stamp"
         save: "Save the settings"
         violations:
-          archive_below_minimum: "An Archive price cannot be below the %{rarity} minimum price: %{minimum}."
           below_floor: "Below the no-loss floor: at least %{floor}."
           durations_not_ascending: "The short, medium and long durations must grow in that order."
           less_than_half: "At least half the current value: %{limit}."
@@ -2449,7 +2447,7 @@ en:
       market_closed: The market is closed for now.
       copy_not_free: This card is no longer available.
       best_order_changed: This buy order has just been served. Check the new best order, then validate again.
-      archive_cap_reached: "You have reached the Archives limit for this rarity. Next purchase on %{date}."
+      archive_cap_reached: "You have made your %{cap} Archive purchases of the week. Next purchase on %{date}."
       direct_sale_not_for_rarity: A Rare or better is sold at auction, which buy orders back.
       invalid_duration: Choose one of the listed durations.
       invalid_price: Enter a whole number of PiCoins, above zero.
@@ -2469,6 +2467,7 @@ en:
       not_in_shop: This card is no longer sold by the Archives.
       out_of_stock: This card is no longer available.
       invalid_purchase_token: This purchase could not be read. Reload the page.
+      already_bought: "You already bought this card from the Archives this week. It can be bought again from Monday."
     steam:
       already_published: The cards of that run are already published in a season,
         officer. Start a new import to fill the next draft.
@@ -3484,24 +3483,7 @@ en:
         other: "%{owned} unique cards out of %{total}"
   market:
     archive_cap:
-      left: "%{cap} more %{rarity} %{window}"
-      rarity:
-        epic:
-          one: Epic
-          other: Epics
-        legendary:
-          one: Legendary
-          other: Legendaries
-        rare:
-          one: Rare
-          other: Rares
-      reached: "%{cap} %{rarity} %{window} · next on %{date}"
-      window:
-        day: per day
-        days:
-          one: "per %{count} day"
-          other: "per %{count} days"
-        week: per week
+      reached: "%{cap} Archive purchases a week · next on %{date}"
     archive_purchases:
       confirmation:
         card: Card
@@ -3540,8 +3522,8 @@ en:
         archives: ARCHIVES
         buy: BUY
         buy_spoken: Buy
-        fixed: fixed price
-        label: "%{card}, %{rarity}, season %{season}, Brotherhood's Archives, fixed price %{price}"
+        fixed: "today's price"
+        label: "%{card}, %{rarity}, season %{season}, Brotherhood's Archives, today's price %{price}"
         stock:
           zero: "%{count} in stock"
           one: "%{count} in stock"
@@ -3565,6 +3547,13 @@ en:
         pages_label: More Archive cards
         screen_title: SHOP
         sign_in: Sign in to buy from the Archives
+        how:
+          heading: "How the shop works"
+          items:
+          - "Every Monday the Brotherhood puts up a list of %{size} cards players entrusted to it, the same for everyone: the most wanted first, then Rares, Uncommons and Commons."
+          - "A card keeps its price all week. The Brotherhood sets it from the market's sales, high enough that buying from the Archives stays an effort."
+          - "Each player buys a card of the list once a week, and at most %{purchases} cards a week."
+          - "The PiCoins spent here are destroyed, which keeps the PiCoins in circulation in balance."
     copy_filters:
       wanted: "WANTED BY OTHERS · %{count}"
       wanted_label:
@@ -4147,7 +4136,7 @@ en:
       count:
         one: "%{count} card in the Archives"
         other: "%{count} cards in the Archives"
-      line: The Archives resell entrusted cards at a fixed price.
+      line: "Every Monday, a new list of entrusted cards, at one price all week."
       list_label: Featured Archive cards
       see_all: See the whole shop
       see_all_label: See the whole shop of the Brotherhood
@@ -4463,6 +4452,7 @@ en:
         title: Welcome to Gameble
         wishes: The Brotherhood wishes you excellent pulls.
     how_it_works:
+      contents: Contents
       completion:
         once: 'A completion is recorded only once: a card traded away and gained again
           completes nothing new. Your profile counts the sets you hold complete right
@@ -4648,6 +4638,23 @@ en:
           are given at once.
         title: The pace of capsules
       title: How it works
+      wanted:
+        entrust: "When you entrust cards, the wanted ones are set apart: for each you choose to sell it to the order, put it up for auction or entrust it anyway."
+        rule: "A card is wanted when it is missing from another player's goals or a buy order targets it. You see how many players want it, never who."
+        title: "Wanted cards"
+      shop:
+        destroyed: "The PiCoins spent at the shop are destroyed, which keeps the PiCoins in circulation in balance."
+        list: "Every Monday at 00:00 UTC the Brotherhood puts up a list of %{size} cards players entrusted to it, the same for everyone: up to %{wanted} of the most wanted cards, then up to %{rares} Rares, then Uncommons and Commons."
+        once: "Each player buys a card of the list once a week, and at most %{purchases} cards a week. A card leaves the list when its last copy is sold."
+        price: "A card keeps its price all week: a coefficient times the median auction price of its rarity over %{days} days (from %{sales} sales). Each Monday the coefficient moves by %{step}% at most so that the market and the shop destroy %{target}% of the PiCoins minted, between %{min} and %{max}."
+        title: "The Brotherhood's shop"
+      orders:
+        auction: "A Rare or better sells at auction. An auction opened at or below the orders turns each into a bid at its price; the best leads, the others are refunded. An order under the starting price stays open."
+        direct: "A Common or Uncommon sells straight to the order, best price then oldest first: at once, with no stamp, with the Brotherhood's Effort."
+        held: "The order's PiCoins are set aside as soon as it is placed. It buys one copy, lasts %{days} days and cancels for free. A player holds one order per game."
+        intro: "A buy order states the firm price you pay for a game, any edition. A player holding the card can sell it to you at once."
+        reach: "An order buys only the rarities whose minimum price it reaches; the form says which."
+        title: "Buy orders"
     legal:
       credits_link: Credits
       ownership:

@@ -163,7 +163,8 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
     Game::Market::ArchiveStock.create!(card_season_id: @rare.id, quantity: 1)
     assert_equal [ goal_row(@rare) ], rows
 
-    Game::Market::BuyFromArchives.new.call(player: @player, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24), settings_token: settings.token).value!
+    Game::Market::BuyFromArchives.new.call(player: @player, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24), settings_token: settings.token,
+      price: Game::Market::ArchivePrices.call(settings)[:rare]).value!
 
     assert_empty Game::Goal.where(player_id: @player.id)
     assert_empty rows

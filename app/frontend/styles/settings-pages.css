@@ -136,6 +136,63 @@
   letter-spacing: var(--tracking-label);
 }
 
+.how-it-works__contents-heading {
+  margin: 0 0 var(--space-3);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.how-it-works__contents-list {
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: var(--space-6);
+  list-style: none;
+}
+
+.how-it-works__contents-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  box-shadow: inset 2px 0 0 var(--color-line-soft);
+  color: var(--color-text);
+  font: var(--font-body-small);
+  text-decoration: none;
+}
+
+.how-it-works__contents-link:hover {
+  color: var(--color-text-bright);
+}
+
+.how-it-works__contents-link[aria-current] {
+  box-shadow: inset 2px 0 0 var(--color-accent);
+  color: var(--color-accent);
+}
+
+@media (min-width: 1240px) {
+  .how-it-works {
+    position: relative;
+  }
+
+  .how-it-works__contents {
+    position: absolute;
+    top: 0;
+    right: calc(100% + var(--space-7));
+    width: 200px;
+    height: 100%;
+  }
+
+  .how-it-works__contents-rail {
+    position: sticky;
+    top: var(--space-6);
+  }
+
+  .how-it-works__contents-list {
+    columns: 1;
+  }
+}
+
 .how-it-works__section {
   display: flex;
   flex-direction: column;

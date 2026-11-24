@@ -5,18 +5,18 @@ class ArchiveShopHelperTest < ActionView::TestCase
 
   REOPENS = Time.utc(2026, 10, 15, 23, 30)
 
-  def reached = { rare: Game::Market::ArchiveCaps::Standing.new(cap: 1, window_days: 1, left: 0, next_at: REOPENS) }
+  def reached = { rare: Game::Market::ArchiveCaps::Standing.new(cap: 5, left: 0, next_at: REOPENS) }
 
   test "a date falls back to now when the standing has no next purchase" do
     freeze_time do
       assert_equal local_time_text(Time.current), archive_cap_date(nil)
-      assert_equal local_time_text(Time.current), archive_cap_date(Game::Market::ArchiveCaps::Standing.new(cap: 1, window_days: 1, left: 1, next_at: nil))
+      assert_equal local_time_text(Time.current), archive_cap_date(Game::Market::ArchiveCaps::Standing.new(cap: 5, left: 1, next_at: nil))
     end
   end
 
-  test "a rarity without a standing has no cap line" do
+  test "a rarity without a standing, or under the limit, has no cap line" do
     assert_nil archive_rarity_cap_line(:common, {})
-    assert_nil archive_rarity_cap_line("rare", {})
+    assert_nil archive_rarity_cap_line("rare", { rare: Game::Market::ArchiveCaps::Standing.new(cap: 5, left: 1, next_at: REOPENS) })
   end
 
   test "the reached cap line wraps the instant in a time tag, with a UTC text without the viewer's zone" do

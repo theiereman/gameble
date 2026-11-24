@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_24_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_190000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1082,6 +1082,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_120000) do
     t.bigint "archive_cap_window_days_epic", default: 7, null: false
     t.bigint "archive_cap_legendary", default: 1, null: false
     t.bigint "archive_cap_window_days_legendary", default: 7, null: false
+    t.integer "archive_list_size", default: 20, null: false
     t.index ["author_id"], name: "index_game_market_settings_on_author_id"
     t.index ["replaces_id"], name: "index_game_market_settings_on_replaces_id", unique: true
     t.index ["token"], name: "index_game_market_settings_on_token", unique: true
@@ -1091,11 +1092,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_120000) do
     t.check_constraint "archive_cap_window_days_epic >= 1", name: "game_market_settings_archive_cap_window_days_epic_check"
     t.check_constraint "archive_cap_window_days_legendary >= 1", name: "game_market_settings_archive_cap_window_days_legendary_check"
     t.check_constraint "archive_cap_window_days_rare >= 1", name: "game_market_settings_archive_cap_window_days_rare_check"
-    t.check_constraint "archive_price_common IS NULL OR archive_price_common >= minimum_price_common", name: "game_market_settings_archive_price_common_check"
-    t.check_constraint "archive_price_epic IS NULL OR archive_price_epic >= minimum_price_epic", name: "game_market_settings_archive_price_epic_check"
-    t.check_constraint "archive_price_legendary IS NULL OR archive_price_legendary >= minimum_price_legendary", name: "game_market_settings_archive_price_legendary_check"
-    t.check_constraint "archive_price_rare IS NULL OR archive_price_rare >= minimum_price_rare", name: "game_market_settings_archive_price_rare_check"
-    t.check_constraint "archive_price_uncommon IS NULL OR archive_price_uncommon >= minimum_price_uncommon", name: "game_market_settings_archive_price_uncommon_check"
     t.check_constraint "commission_basis_points >= 0 AND commission_basis_points <= 2500", name: "game_market_settings_commission_check"
     t.check_constraint "daily_cap > 0 AND increment_basis_points > 0 AND soft_close_seconds > 0", name: "game_market_settings_positive_check"
     t.check_constraint "preselected_duration_hours = duration_short_hours OR preselected_duration_hours = duration_medium_hours OR preselected_duration_hours = duration_long_hours", name: "game_market_settings_preselected_check"

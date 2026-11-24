@@ -35,19 +35,9 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
     assert_equal [ "The settings change" ], Accounts::Announcement.where(shown: true).pluck(:message_en)
   end
 
-  test "the Archive purchase caps are saved with the next version" do
-    settings = change(archive_cap_rare: 2, archive_cap_window_days_epic: 14).value!
-
-    assert_equal [ 2, 1, 14 ], settings.values_at(:archive_cap_rare, :archive_cap_window_days_rare, :archive_cap_window_days_epic)
-  end
-
-  test "a cap or a window under 1 and one that more than doubles or halves is refused and nothing is written" do
-    nothing_is_written do
-      assert_equal :invalid_settings, change(archive_cap_epic: 0).failure
-      assert_equal :invalid_settings, change(archive_cap_window_days_rare: 0).failure
-      assert_equal :invalid_settings, change(archive_cap_rare: 3).failure
-      assert_equal :invalid_settings, change(archive_cap_window_days_epic: 3).failure
-    end
+  test "the list size of the Archives is saved with the next version, within its range" do
+    nothing_is_written { assert_equal :invalid_settings, change(archive_list_size: 0).failure }
+    assert_equal 30, change(archive_list_size: 30).value!.archive_list_size
   end
 
   test "the open state, both confirmations and the first opening are copied across" do
@@ -87,9 +77,9 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
     assert_equal [ 1_000, 14 ], settings.values_at(:slot_price_goal_6, :order_duration_days)
   end
 
-  test "an Archive price under its minimum, a tripled slot price or an order duration out of range writes nothing" do
+  test "an Archive price of zero, a tripled slot price or an order duration out of range writes nothing" do
     nothing_is_written do
-      assert_equal :invalid_settings, change(archive_price_rare: 77).failure
+      assert_equal :invalid_settings, change(archive_price_rare: 0).failure
       assert_equal :invalid_settings, change(slot_price_goal_6: 1_500).failure
       assert_equal :invalid_settings, change(order_duration_days: 0).failure
       assert_equal :invalid_settings, change(order_duration_days: 31).failure

@@ -1,21 +1,23 @@
 require "test_helper"
 require_relative "../../../support/market"
 require_relative "../../../support/market_listings"
+require_relative "../../../support/archive_at_reference"
 
 class Game::Market::MarketGridTest < ActiveSupport::TestCase
+  include ArchiveAtReference
   include MarketSettings
   include MarketListings
 
   setup do
     @player = accounts_players(:player)
     @common = catalog_card_seasons(:common_card_one)
-    @uncommon = catalog_card_seasons(:uncommon_card_one)
+    @epic = catalog_card_seasons(:portal_one)
     @rare = catalog_card_seasons(:rare_card_one)
-    @settings = open_market!(archive_price_rare: 100)
+    @settings = open_market!(archive_price_rare: 260)
     @cheap = listing!(seller: @player, card_season: @common, starting_price: 80, hours: 48, created_at: Time.current)
     @dear = listing!(seller: @player, card_season: @common, starting_price: 300, hours: 12, created_at: 3.days.ago)
     Game::Market::ArchiveStock.create!(card_season_id: @rare.id, quantity: 2)
-    Game::Market::ArchiveStock.create!(card_season_id: @uncommon.id, quantity: 5)
+    Game::Market::ArchiveStock.create!(card_season_id: @epic.id, quantity: 5)
     Game::Market::ArchiveDeposit.create!(player_id: @player.id, card_season_id: @rare.id, quantity: 2, updated_at: 2.days.ago)
   end
 
@@ -37,7 +39,7 @@ class Game::Market::MarketGridTest < ActiveSupport::TestCase
   end
 
   test "ending soonest lists the listings by their end, then the offers by price" do
-    settings = open_market!(archive_price_common: 40, archive_price_rare: 100)
+    settings = open_market!(archive_price_common: 60, archive_price_rare: 260)
     Game::Market::ArchiveStock.create!(card_season_id: @common.id, quantity: 1)
 
     assert_equal [ @dear.token, @cheap.token, "archives:tin-soldier", offer ], labels(grid(sort: "ending", settings:))
@@ -52,7 +54,7 @@ class Game::Market::MarketGridTest < ActiveSupport::TestCase
     row = grid.rows.second
 
     assert_kind_of Game::Market::ArchiveOffers::Row, row
-    assert_equal [ "blue-depths", 100, 2 ], [ row.card.id, row.price, row.stock ]
+    assert_equal [ "blue-depths", 260, 2 ], [ row.card.id, row.price, row.stock ]
   end
 
   test "pages hold 24 rows and continue the same order" do
@@ -68,7 +70,7 @@ class Game::Market::MarketGridTest < ActiveSupport::TestCase
   test "the filters apply to offers too, price bounds on the fixed price, hiding one's sales to listings only" do
     assert_equal [ offer ], labels(grid(filters: Game::Market::ListingFilters.from({ q: "blue" })))
     assert_equal [ offer ], labels(grid(filters: Game::Market::ListingFilters.from({ rarity: [ "rare" ] })))
-    assert_equal [ offer ], labels(grid(filters: Game::Market::ListingFilters.from({ min_price: "90", max_price: "200" })))
+    assert_equal [ offer ], labels(grid(filters: Game::Market::ListingFilters.from({ min_price: "250", max_price: "280" })))
     assert_equal [ offer ], labels(grid(filters: Game::Market::ListingFilters.from({ hide_mine: "1" }, viewer: @player)))
     assert_equal [ offer ], labels(grid(filters: Game::Market::ListingFilters.wanted([ @rare.card_id ])))
     assert_equal [ @cheap.token ], labels(grid(filters: Game::Market::ListingFilters.from({ max_price: "90" })))
@@ -80,12 +82,11 @@ class Game::Market::MarketGridTest < ActiveSupport::TestCase
     assert_equal 0, Game::Market::MarketGrid.offers_count(settings: nil, locale: :en)
   end
 
-  test "a rarity without an Archive price is absent" do
-    assert_not_includes labels(grid), "archives:green-hills"
+  test "an Epic is not in the Archives' list" do
+    assert_not_includes labels(grid), "archives:portal"
   end
 
-  test "with no settings or nothing priced the grid is the listings alone" do
+  test "with no settings the grid is the listings alone" do
     assert_equal [ @cheap.token, @dear.token ], labels(grid(settings: nil))
-    assert_equal [ @cheap.token, @dear.token ], labels(grid(settings: open_market!))
   end
 end

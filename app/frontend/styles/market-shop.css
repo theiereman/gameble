@@ -18,6 +18,43 @@
   font: var(--font-body-small);
 }
 
+.market-shop__how {
+  align-self: stretch;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel-sunken);
+}
+
+.market-shop__how-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-touch-min);
+  color: var(--color-accent);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.market-shop__how-heading::-webkit-details-marker {
+  display: none;
+}
+
+.market-shop__how[open] .market-shop__how-chevron {
+  transform: rotate(90deg);
+}
+
+.market-shop__how-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+  color: var(--color-text);
+  font: var(--font-body-small);
+}
+
 .market-shop__count {
   color: var(--color-muted);
   font: var(--font-label);
@@ -27,7 +64,9 @@
 
 .market-shop__rarities {
   display: flex;
+  flex: 1 1 100%;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--space-3);
   margin: 0;
   padding: 0;
@@ -39,6 +78,10 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-1);
+}
+
+.market-shop__rarities .filter-chip:has(.market-shop__rarity-cap:not(:empty)) {
+  inline-size: 12rem;
 }
 
 .market-shop__rarity-cap {
@@ -98,6 +141,11 @@
   display: block;
 }
 
+.archive-offer__cap:empty,
+.market-shop__rarity-cap:empty {
+  display: none;
+}
+
 .archive-offer__buy {
   color: var(--color-accent);
   font-weight: var(--font-weight-bold);
@@ -113,18 +161,18 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  background: var(--color-panel);
-  box-shadow: inset 0 0 0 2px var(--color-archives);
 }
 
 .shop-panel__heading {
+  display: flex;
+  align-items: baseline;
   justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .shop-panel__count {
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
+  color: var(--color-text-max);
+  letter-spacing: 0;
 }
 
 .shop-panel__line {
@@ -136,10 +184,21 @@
 .shop-panel__list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-7);
+  gap: var(--space-3);
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* A tile is as wide as its card, centred in its column, so the facts line up under the card. */
+.shop-panel__list > .archive-offer {
+  align-self: start;
+  justify-self: center;
+  width: min(100%, 10.5rem);
+}
+
+.shop-panel__list .listing-tile__facts {
+  margin-top: 0;
 }
 
 .shop-panel__foot {

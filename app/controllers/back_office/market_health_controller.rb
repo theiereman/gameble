@@ -6,6 +6,7 @@ module BackOffice
       @series = Game::Market::EconomySeries.call(settings:)
       @alerts = Game::Market::EconomyAlerts.call(@series, settings).index_by(&:indicator)
       @can_prepare = policy([ :back_office, :market_setting ]).create?
+      @archive_week = Game::Market::ArchiveWeek.call(settings) if settings
       @oldest_due_seconds = Game::Market::OldestDueListing.call
       @oldest_due_order_seconds = Game::Market::OldestDueOrder.call
       @income_rarity = Catalog::Rarity::TIERS.values.find { it.to_s == params[:rarity] } || :epic

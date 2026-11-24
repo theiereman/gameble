@@ -14,11 +14,11 @@ module BackOffice
       alerts: %i[alert_destroyed_share_basis_points alert_picoins_per_player alert_top_share_basis_points],
       slots: Rules::SLOT_PRICES,
       orders: %i[order_duration_days],
-      archive_caps: Rules::ARCHIVE_CAPS
+      archive_shop: %i[archive_list_size]
     }.freeze
     MOMENTS = {
       cap: :now, auctions: :auction_creation, commission: :close, averages: :now, alerts: :now, slots: :now, orders: :order_placement,
-      archive_caps: :now,
+      archive_shop: :now,
       entrustment: :now, stamp: :listing, minimum_price: :listing, archive_price: :now, income_days_target: :now
     }.freeze
     BLANKS = /[[:space:]]/
@@ -87,7 +87,7 @@ module BackOffice
     def value_for(field)
       return raw[field].to_s if raw.key?(field)
 
-      display_value(field, settings&.public_send(field)).to_s
+      display_value(field, settings&.public_send(field) || archive_reference(field)).to_s
     end
 
     def hint(field)
@@ -110,9 +110,14 @@ module BackOffice
     private
 
     def optional_hint(field)
-      if Rules::ARCHIVE_PRICES.include?(field) then I18n.t("back_office.markets.settings.hints.not_sold")
+      if Rules::ARCHIVE_PRICES.include?(field) then I18n.t("back_office.markets.settings.hints.reference", value: archive_reference(field))
       elsif Rules::OPTIONAL.include?(field) then I18n.t("back_office.markets.settings.hints.optional")
       end
+    end
+
+    def archive_reference(field)
+      rarity = field.to_s.delete_prefix("archive_price_").to_sym
+      Game::Market::ArchivePrices::REFERENCES[rarity] if Rules::ARCHIVE_PRICES.include?(field)
     end
 
     def read(field, text)

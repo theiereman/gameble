@@ -3,7 +3,7 @@
 <% mark = marks.for(card) %>
 <% wanted = marks.any? && mark.wanted? %>
 <% cap_line = archive_cap_line(card, caps) %>
-<% cap_id = "archive-cap-#{SecureRandom.alphanumeric(8)}" if cap_line %>
+<% cap_id = "archive-cap-#{SecureRandom.alphanumeric(8)}" if caps.any? %>
 <%= tag.li id: (archive_offer_dom_id(card) if tile_id), class: "listing-tile archive-offer", data: { archive_offer: archive_offer_key(card) } do %>
   <%= link_to archive_offer_path(card, buyable:), class: "listing-tile__link archive-offer__link",
         aria: { label: archive_offer_label(row, wanted:, buyable:, stock:), describedby: cap_id },
@@ -21,9 +21,9 @@
         <span class="archive-offer__fixed"><%= t("market.shops.offer.fixed") %></span>
       </span>
       <% if stock %><span class="listing-tile__line archive-offer__stock"><%= t("market.shops.offer.stock", count: row.stock) %></span><% end %>
-      <% if cap_line %><span class="listing-tile__line archive-offer__cap" data-archive-cap="<%= card.rarity %>"><%= cap_line %></span><% end %>
+      <% if cap_id %><span class="listing-tile__line archive-offer__cap" data-archive-cap="<%= card.rarity %>"><%= cap_line %></span><% end %>
       <% if buyable %><span class="listing-tile__line archive-offer__buy"><%= t("market.shops.offer.buy") %></span><% end %>
     </span>
-    <% if cap_line %><span id="<%= cap_id %>" class="visually-hidden" data-archive-cap="<%= card.rarity %>"><%= cap_line %></span><% end %>
+    <% if cap_id %><span id="<%= cap_id %>" class="visually-hidden" data-archive-cap="<%= card.rarity %>"><%= cap_line %></span><% end %>
   <% end %>
 <% end %>

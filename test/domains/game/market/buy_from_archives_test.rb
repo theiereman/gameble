@@ -1,12 +1,16 @@
 require "test_helper"
 require_relative "../../../support/singleton_stub"
+require_relative "../../../support/archive_editions"
 require_relative "../../../support/holdings"
 require_relative "../../../support/market"
 require_relative "../../../support/market_auctions"
 require_relative "../../../support/market_bidding"
+require_relative "../../../support/archive_at_reference"
 
 class Game::Market::BuyFromArchivesTest < ActiveSupport::TestCase
+  include ArchiveAtReference
   include SingletonStub
+  include ArchiveEditions
   include Holdings
   include MarketAuctions
   include MarketBidding
@@ -22,8 +26,10 @@ class Game::Market::BuyFromArchivesTest < ActiveSupport::TestCase
 
   def token = @token ||= SecureRandom.base58(24)
 
-  def buy(player: @player, card_season_id: @card.id, purchase_token: token, settings_token: Game::Market::CurrentSettings.call.token)
-    Game::Market::BuyFromArchives.new.call(player:, card_season_id:, purchase_token:, settings_token:)
+  def price_of(card_season_id) = Game::Market::ArchivePrices.call(Game::Market::CurrentSettings.call)[Catalog::CardSeason.find_by(id: card_season_id)&.rarity&.to_sym]
+
+  def buy(player: @player, card_season_id: @card.id, purchase_token: token, settings_token: Game::Market::CurrentSettings.call.token, price: price_of(card_season_id))
+    Game::Market::BuyFromArchives.new.call(player:, card_season_id:, purchase_token:, settings_token:, price:)
   end
 
   def copies = Game::Holding.find_by(player_id: @player.id, card_season_id: @card.id)&.attributes&.values_at("quantity", "reserved")
@@ -115,74 +121,54 @@ class Game::Market::BuyFromArchivesTest < ActiveSupport::TestCase
     refused(:invalid_purchase_token, card_season_id: catalog_card_seasons(:common_card_one).id)
   end
 
-  test "a second purchase token buys a second copy" do
-    buy
+  test "a player buys an edition once, whatever the purchase token, and another player still can" do
+    other = accounts_players(:moderator)
+    fund!(other, 1_000)
+    buy.value!
 
-    assert buy(purchase_token: SecureRandom.base58(24)).success?
-
-    assert_equal 1, stock
-    assert_equal [ 2, 0 ], copies
+    refused(:already_bought, purchase_token: SecureRandom.base58(24))
+    assert buy(player: other, purchase_token: SecureRandom.base58(24)).success?
   end
 
-  def withdraw!(card, player: @player, created_at: 2.hours.ago)
+  def another(card, rarity) = another_edition!(card, rarity)
+
+  def withdraw!(card, player: @player, created_at: Time.current)
     Game::Market::ArchiveWithdrawal.create!(player_id: player.id, card_season_id: card.id, purchase_token: SecureRandom.base58(24), price: 500,
       settings_id: @settings.id, created_at:)
   end
 
   def stock!(name, quantity: 3) = catalog_card_seasons(name).tap { Game::Market::ArchiveStock.create!(card_season_id: it.id, quantity:) }
 
-  test "a purchase at the cap is refused and nothing is written" do
-    @settings = open_market!(archive_price_rare: 500, archive_cap_rare: 1, archive_cap_window_days_rare: 1)
-    withdraw!(@card)
-
-    refused(:archive_cap_reached)
+  def week_of_purchases!(count, player: @player, created_at: Time.current)
+    count.times { withdraw!(another(:common_card, :common), player:, created_at:) }
   end
 
-  test "a purchase under the cap passes, and the next one is refused" do
-    epic = stock!(:portal_one)
-    @settings = open_market!(archive_price_epic: 300, archive_cap_epic: 2, archive_cap_window_days_epic: 7)
-    withdraw!(epic)
+  test "a player's fifth purchase of the week passes, and the next is refused whatever its rarity" do
+    common = stock!(:common_card_one)
+    @settings = open_market!(archive_price_rare: 500, archive_price_common: 50)
+    week_of_purchases!(4)
 
-    assert buy(card_season_id: epic.id).success?
-    refused(:archive_cap_reached, card_season_id: epic.id, purchase_token: SecureRandom.base58(24))
+    assert buy.success?
+    refused(:archive_cap_reached, card_season_id: common.id, purchase_token: SecureRandom.base58(24))
   end
 
-  test "a purchase after the window passes, and the boundary no longer counts" do
-    @settings = open_market!(archive_price_rare: 500, archive_cap_rare: 1, archive_cap_window_days_rare: 1)
+  test "last week's purchases do not count" do
     freeze_time do
-      withdraw!(@card, created_at: 1.day.ago)
+      week_of_purchases!(5, created_at: Time.current.utc.beginning_of_week - 1.minute)
+
       assert buy.success?
     end
   end
 
-  test "a Common and an Uncommon are never refused" do
-    common = stock!(:common_card_one)
-    uncommon = stock!(:uncommon_card_one)
-    @settings = open_market!(archive_price_common: 50, archive_price_uncommon: 100)
-    3.times { |index| withdraw!(common, created_at: index.minutes.ago) && withdraw!(uncommon, created_at: index.minutes.ago) }
-
-    assert buy(card_season_id: common.id).success?
-    assert buy(card_season_id: uncommon.id, purchase_token: SecureRandom.base58(24)).success?
-  end
-
-  test "a player at the cap and short of PiCoins is told about the cap" do
-    @settings = open_market!(archive_price_rare: 5_000, archive_cap_rare: 1)
-    withdraw!(@card)
+  test "a player at the limit and short of PiCoins is told about the limit" do
+    @settings = open_market!(archive_price_rare: 5_000)
+    week_of_purchases!(5)
 
     refused(:archive_cap_reached)
   end
 
-  test "the cap counts per rarity" do
-    epic = stock!(:portal_one)
-    @settings = open_market!(archive_price_rare: 500, archive_price_epic: 300, archive_cap_rare: 1, archive_cap_epic: 1)
-    withdraw!(@card)
-
-    assert buy(card_season_id: epic.id).success?
-  end
-
-  test "the cap counts per player" do
-    @settings = open_market!(archive_price_rare: 500, archive_cap_rare: 1)
-    withdraw!(@card, player: accounts_players(:moderator))
+  test "the limit counts per player" do
+    week_of_purchases!(5, player: accounts_players(:moderator))
 
     assert buy.success?
   end
@@ -203,10 +189,9 @@ class Game::Market::BuyFromArchivesTest < ActiveSupport::TestCase
     refused(:market_closed)
   end
 
-  test "a rarity without an Archive price, an edition without rarity and an unknown edition are not in the shop" do
-    open_market!
-    refused(:not_in_shop)
-    open_market!(archive_price_rare: 500)
+  test "an Epic, an edition without rarity and an unknown edition are not in the shop" do
+    epic = stock!(:portal_one)
+    refused(:not_in_shop, card_season_id: epic.id)
     @card.update_columns(rarity: nil)
     refused(:not_in_shop)
     refused(:not_in_shop, card_season_id: 0)

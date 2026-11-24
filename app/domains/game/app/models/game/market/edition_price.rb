@@ -26,9 +26,10 @@ module Game
       # Every sale of every edition, sold listings and served orders alike, with a listing's column names.
       def self.sales = Listing.from("(#{SALES}) AS #{Listing.quoted_table_name}")
 
-      def self.rarity_average(rarity, settings:, now:)
-        Median.of(sales.where(card_season_id: Catalog::CardSeason.where(rarity:).select(:id))
-          .where(sold_at: (now - settings.average_window_days.days)...now).pluck(:final_price))
+      def self.rarity_average(rarity, settings:, now:) = Median.of(rarity_prices(rarity, since: now - settings.average_window_days.days, before: now))
+
+      def self.rarity_prices(rarity, since:, before:)
+        sales.where(card_season_id: Catalog::CardSeason.where(rarity:).select(:id)).where(sold_at: since...before).pluck(:final_price)
       end
 
       def self.sales_in_window(card_season_id, settings:, now:)

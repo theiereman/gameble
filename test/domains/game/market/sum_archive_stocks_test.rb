@@ -1,8 +1,10 @@
 require "test_helper"
 require_relative "../../../support/holdings"
 require_relative "../../../support/market"
+require_relative "../../../support/archive_at_reference"
 
 class Game::Market::SumArchiveStocksTest < ActiveSupport::TestCase
+  include ArchiveAtReference
   include Holdings
   include MarketSettings
 
@@ -126,7 +128,7 @@ class Game::Market::SumArchiveStocksTest < ActiveSupport::TestCase
     sum(now: 2.hours.ago)
     Game::Market::Ledger.post(Game::Market::Mint.credit(player_id: @bob.id, amount: 1_000, settings_id: Game::Market::CurrentSettings.call.id))
     Game::Market::BuyFromArchives.new.call(player: @bob, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
-      settings_token: Game::Market::CurrentSettings.call.token).value!
+      settings_token: Game::Market::CurrentSettings.call.token, price: Game::Market::ArchivePrices.call(Game::Market::CurrentSettings.call)[:rare]).value!
     lowered = Game::Market::ArchiveStock.pluck(:id, :quantity, :updated_at)
 
     assert_equal 0, sum.value!
