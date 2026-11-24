@@ -7,8 +7,10 @@ module Game
       def call(player:, card_season_id:, starting_price:, duration_hours:, settings_token:)
         player = step require_player(player)
         starting_price = step amount(starting_price)
+        candidates = reaching_candidates(card_season_id, player.id, starting_price)
 
         transaction do
+          TradeLocks.players(player.id, *candidates.map(&:last))
           step lock_bank(player)
           settings = step current_settings(settings_token)
           rarity = step rarity_of(card_season_id)
@@ -16,9 +18,8 @@ module Game
           step price_rule(settings, rarity, starting_price)
           step duration_rule(settings, duration_hours)
           step stamp_covered(settings, rarity, player)
-          now = Time.current
           listing, stamp = open_listing(player, holding, settings, rarity, starting_price, duration_hours)
-          converted, entries = convert_orders(listing, settings, now)
+          converted, entries = convert_orders(listing, settings, candidates.map(&:first))
           Ledger.post([ stamp, *entries ])
           step publish(CardListed.with(listing_id: listing.id, seller_id: player.id, card_season_id:, converted:), stream_name: stream_name(player.id))
           listing

@@ -139,6 +139,61 @@ class Game::Market::OrderBackedAuctionTest < ActiveSupport::TestCase
     assert_equal %w[cancelled bid], [ best, other ].map { it.reload.status }
   end
 
+  def before_the_locks(change)
+    original = Game::TradeLocks.method(:players)
+    stub_singleton(Game::TradeLocks, :players, ->(*ids) { change.call.then { original.call(*ids) } }) { yield }
+  end
+
+  def auction_lines = [ { card_season_id: @card.id, copies: 1, choice: "auction", starting_price: 300, duration_hours: 24 } ]
+
+  def list_from_the_table
+    Game::Market::ApplyWantedChoices.new.call(player: @seller, lines: auction_lines, settings_token: @settings.token).value!.listed.sole.listing
+  end
+
+  def assert_left_open(order, listing)
+    assert_nil listing.reload.leader_id
+    assert_equal "open", order.reload.status
+    assert_empty Game::Market::Bid.where(listing_id: listing.id)
+    assert_equal [ [ "hold", order.id ] ], Game::Market::LedgerEntry.where(order_id: order.id).pluck(:kind, :order_id)
+    assert_equal [ 600, 400 ], figures(@first)
+  end
+
+  test "an order that expires in the lock wait is left open for the expiry job" do
+    order = place!(@first, 400)
+
+    before_the_locks(-> { order.update_columns(expires_at: 1.second.ago) }) { @listing = list.value! }
+
+    assert_left_open(order, @listing)
+  end
+
+  test "an order that expires in the lock wait of the Confier table is left open for the expiry job" do
+    order = place!(@first, 400)
+
+    before_the_locks(-> { order.update_columns(expires_at: 1.second.ago) }) { @listing = list_from_the_table }
+
+    assert_left_open(order, @listing)
+  end
+
+  test "an order placed after the read is not converted" do
+    placed = place!(@first, 400)
+    later = nil
+
+    before_the_locks(-> { later ||= place!(@second, 500) }) { @listing = list.value! }
+
+    assert_equal [ @first.id, 400, 300 ], @listing.reload.attributes.values_at("leader_id", "leader_maximum", "current_price")
+    assert_equal %w[bid open], [ placed, later ].map { it.reload.status }
+  end
+
+  test "an order placed after the read of the Confier table is not converted" do
+    placed = place!(@first, 400)
+    later = nil
+
+    before_the_locks(-> { later ||= place!(@second, 500) }) { @listing = list_from_the_table }
+
+    assert_equal [ @first.id, 400, 300 ], @listing.reload.attributes.values_at("leader_id", "leader_maximum", "current_price")
+    assert_equal %w[bid open], [ placed, later ].map { it.reload.status }
+  end
+
   test "a start above every order behaves as before" do
     order = place!(@first, 400)
 

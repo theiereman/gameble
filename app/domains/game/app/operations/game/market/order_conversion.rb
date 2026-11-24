@@ -2,11 +2,17 @@ module Game
   module Market
     # Turns the eligible orders at or above an opened auction's starting price into its bids, under the seller's bank lock:
     # the best leads with its PiCoins moved to the listing, the others are beaten and refunded. Returns the event rows and the entries to post.
+    # The caller reads the candidates unlocked and takes their owners' bank locks with the seller's in one ascending set; only a candidate
+    # still eligible once its row is locked converts.
     module OrderConversion
       private
 
-      def convert_orders(listing, settings, now)
-        orders = lock_reaching_orders(listing, now)
+      def reaching_candidates(card_season_id, seller_id, starting_price)
+        EligibleOrders.call(card_season_id, except: seller_id).where(game_market_orders: { price: starting_price.. }).pluck(:id, :player_id)
+      end
+
+      def convert_orders(listing, settings, candidate_ids)
+        orders = lock_reaching_orders(listing, candidate_ids)
         return [ [], [] ] if orders.empty?
 
         leader, *others = orders
@@ -18,12 +24,12 @@ module Game
         [ orders.map { converted_row(listing, it) }, order_entries(listing, orders, leader) ]
       end
 
-      def lock_reaching_orders(listing, now)
-        reaching = EligibleOrders.call(listing.card_season_id, except: listing.seller_id, now:).where(game_market_orders: { price: listing.starting_price.. })
-        seen = reaching.pluck(:id, :player_id)
-        TradeLocks.players(*seen.map(&:last))
-        Order.where(id: seen.map(&:first)).order(:id).lock.pluck(:id)
-        reaching.where(id: seen.map(&:first)).to_a
+      def lock_reaching_orders(listing, candidate_ids)
+        return [] if candidate_ids.empty?
+
+        Order.where(id: candidate_ids).order(:id).lock.pluck(:id)
+        EligibleOrders.call(listing.card_season_id, except: listing.seller_id, now: Time.current)
+          .where(id: candidate_ids, game_market_orders: { price: listing.starting_price.. }).to_a
       end
 
       def record_order_bid(listing, order, leader, price)
