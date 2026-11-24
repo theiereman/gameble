@@ -2422,6 +2422,7 @@ en:
       market_closed: The market is closed for now.
       copy_not_free: This card is no longer available.
       best_order_changed: This buy order has just been served. Check the new best order, then validate again.
+      direct_sale_not_for_rarity: A Rare or better is sold at auction, which buy orders back.
       invalid_duration: Choose one of the listed durations.
       invalid_price: Enter a whole number of PiCoins, above zero.
       stamp_not_covered: "You are short of %{amount} PiCoins for the stamp."
@@ -4043,6 +4044,7 @@ en:
         order_label: "To the order, %{amount} PiCoins"
         entrust_label: "Entrust, %{amount} PiCoins"
         auction_note: "opens the starting price and the duration under this line"
+        backed_note: "A Rare or better is sold at auction, which buy orders back."
         start_label: "Starting price, %{card} %{rarity}"
         duration_label: "Duration, %{card} %{rarity}"
         dock:
@@ -4081,6 +4083,7 @@ en:
         commission_html: "(Brotherhood Effort: %{amount})"
         listed_html: "Listed at %{amount}, ending %{end}. Stamp paid: %{stamp}."
         listed_received_html: "Sold at the starting price, you receive %{amount}."
+        led_by_order_html: "(led by a buy order at %{amount})"
         see_listing: "SEE THE LISTING ▸"
         entrusted_html: "The 100-6-Tron minted %{amount}. The card joins the Archives."
         gained: "received"

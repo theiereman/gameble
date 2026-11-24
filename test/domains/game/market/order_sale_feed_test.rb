@@ -15,8 +15,7 @@ class Game::Market::OrderSaleFeedTest < ActiveSupport::TestCase
     @buyer = accounts_players(:moderator)
     @other = accounts_players(:administrator)
     open_market!(feed_threshold_multiple: 10)
-    @epic = catalog_card_seasons(:portal_one)
-    @rare = catalog_card_seasons(:rare_card_one)
+    @uncommon = catalog_card_seasons(:uncommon_card_one)
     @common = catalog_card_seasons(:common_card_one)
     fund!(@seller, 1_000)
     fund!(@buyer, 10_000)
@@ -47,11 +46,11 @@ class Game::Market::OrderSaleFeedTest < ActiveSupport::TestCase
     Game::FeedEntry.transaction(requires_new: true) { Game::FeedEntry.insert_all!([ base.merge(row) ]) }
   end
 
-  test "an epic sold to a buy order is one entry naming the buyer and carrying the order" do
-    order = sell!(@epic, 300)
+  test "an uncommon sold to a buy order above the threshold is one entry naming the buyer and carrying the order" do
+    order = sell!(@uncommon, 400)
 
     entry = sales.sole
-    assert_equal [ @buyer.id, order.id, nil, @epic.id, 4 ], [ entry.player_id, entry.order_id, entry.listing_id, entry.card_season_id, entry.rarity ]
+    assert_equal [ @buyer.id, order.id, nil, @uncommon.id, 2 ], [ entry.player_id, entry.order_id, entry.listing_id, entry.card_season_id, entry.rarity ]
   end
 
   test "a common sold to an order just below the threshold is not an entry" do
@@ -67,12 +66,12 @@ class Game::Market::OrderSaleFeedTest < ActiveSupport::TestCase
   end
 
   test "the wanted table writes one entry per notable sale, by buyer then order, and never twice" do
-    epic = order!(@buyer, @epic, 300)
-    rare = order!(@other, @rare, 900)
+    uncommon = order!(@buyer, @uncommon, 400)
+    common = order!(@other, @common, 130)
 
-    apply_wanted!(@epic => epic, @rare => rare, @common => order!(@buyer, @common, 20))
+    apply_wanted!(@uncommon => uncommon, @common => common)
 
-    expected = [ [ @buyer.id, epic.id ], [ @other.id, rare.id ] ].sort
+    expected = [ [ @buyer.id, uncommon.id ], [ @other.id, common.id ] ].sort
     assert_equal expected, sales.order(:id).pluck(:player_id, :order_id)
     event = Rails.configuration.event_store.read.of_type(Game::Market::WantedChoicesApplied).last
     Game::Handlers::SaleFeed.call(event)
@@ -89,13 +88,13 @@ class Game::Market::OrderSaleFeedTest < ActiveSupport::TestCase
   end
 
   test "an order's entry is priced at the order's price" do
-    sell!(@rare, 900)
+    sell!(@uncommon, 900)
 
     assert_equal [ 900 ], Game::FeedEntries.call(nil).select { it.entry.kind == "sale" }.map(&:price)
   end
 
   test "an order's entry is listed whatever the buyer's visibility, unless the buyer is banned" do
-    order = sell!(@rare, 900)
+    order = sell!(@uncommon, 900)
     @buyer.update!(visibility: "private")
 
     assert_equal [ [ @buyer.id, 900 ] ], Game::NewFeedEntries.call(order_ids: [ order.id ]).map { [ it.player.id, it.price ] }

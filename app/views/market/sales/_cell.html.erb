@@ -30,7 +30,7 @@
   <% if @order_prices.key?(copy.ref) %>
     <template data-listing-form-target="ordersTemplate" data-ref="<%= copy.ref %>"><%= render "market/sales/orders", prices: @order_prices[copy.ref] %></template>
   <% end %>
-  <% if @open %>
+  <% if @open && sale_direct?(copy) %>
     <template data-listing-form-target="orderTemplate" data-ref="<%= copy.ref %>"><%= render "market/sales/order_banner", order: @orders[copy.ref] %></template>
   <% end %>
 <% end %>

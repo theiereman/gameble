@@ -15,6 +15,7 @@ module Game
           TradeLocks.players(player.id, seen.player_id)
           step lock_bank(player)
           settings = step current_settings(settings_token.to_s)
+          step direct_sale_rarity(card_season_id)
           holdings = lock_sale_holdings(player.id, seen.player_id, card_season_id)
           order = Order.lock.find(seen.id)
           step still_best(card_season_id, player, seen, now)
@@ -45,6 +46,8 @@ module Game
 
         Success(settings)
       end
+
+      def direct_sale_rarity(card_season_id) = DirectSale.edition?(card_season_id) ? Success() : Failure(:direct_sale_not_for_rarity)
 
       def free_copy(holding) = holding && holding.quantity > holding.reserved ? Success() : Failure(:copy_not_free)
     end

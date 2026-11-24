@@ -159,6 +159,14 @@ class PlayerStreamTest < ActiveSupport::TestCase
       PlayerStream.notices(Game::Market::CardListed.with(listing_id: 1, seller_id: @alice.id, card_season_id: @one, converted:))
   end
 
+  test "the wanted table refreshes the market and the balance of the owners of the orders its auctions converted" do
+    converted = [ { order_id: 1, owner_id: @bob.id, listing_id: 1, price: 400, status: "bid" } ]
+    event = Game::Market::WantedChoicesApplied.with(seller_id: @alice.id, sales: [], listing_ids: [], entrusted: [], converted:)
+
+    assert_equal [ { player_id: @alice.id, balance: true }, { player_id: @bob.id, balance: true }, { player_id: @bob.id, topic: "market" } ],
+      PlayerStream.notices(event)
+  end
+
   test "a listing refreshes the market of the players it noticed as wanted" do
     listing = listing!(seller: @alice, card_season: catalog_card_seasons(:portal_one), settings: open_market!)
     Game::Market::Notice.record(player_id: @bob.id, listing_id: listing.id, kind: "wanted", amount: 1_300)

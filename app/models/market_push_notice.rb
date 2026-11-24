@@ -19,8 +19,8 @@ module MarketPushNotice
       case event
       when Game::Market::OrderServed then [ { player_id: data[:buyer_id], order_id: data[:order_id] } ]
       when Game::Market::OrderExpired then [ { player_id: data[:player_id], order_id: data[:order_id] } ]
-      when Game::Market::WantedChoicesApplied then data[:sales].map { { player_id: it[:buyer_id], order_id: it[:order_id] } }
-      when Game::Market::CardListed then data.fetch(:converted, []).map { { player_id: it[:owner_id], order_id: it[:order_id] } }
+      when Game::Market::WantedChoicesApplied then data[:sales].map { { player_id: it[:buyer_id], order_id: it[:order_id] } } + converted_notices(data)
+      when Game::Market::CardListed then converted_notices(data)
       else listing_players(event, data).compact.map { { player_id: it, listing_id: data[:listing_id] } }
       end
     end
@@ -36,6 +36,8 @@ module MarketPushNotice
     end
 
     private
+
+    def converted_notices(data) = data.fetch(:converted, []).map { { player_id: it[:owner_id], order_id: it[:order_id] } }
 
     def listing_players(event, data)
       case event

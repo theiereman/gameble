@@ -7,7 +7,7 @@ module Game
           Game::TradeAccepted => [ :proposer_id, :recipient_id ],
           Game::Market::AuctionSold => [ :seller_id, :winner_id ],
           Game::Market::OrderServed => [ :buyer_id, :seller_id ],
-          Game::Market::WantedChoicesApplied => Game::Market::WantedChoicesApplied.method(:player_ids),
+          Game::Market::WantedChoicesApplied => ->(data) { Game::Market::WantedChoicesApplied.player_ids(data) + Game::Market::WantedChoicesApplied.converted_owner_ids(data) },
           Game::Market::CardListed => ->(data) { data.fetch(:converted, []).map { it.fetch(:owner_id) } },
           Game::Market::CardsEntrusted => [ :player_id ],
           Game::Market::ArchivePurchased => [ :player_id ],

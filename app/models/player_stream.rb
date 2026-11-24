@@ -93,7 +93,8 @@ module PlayerStream
         [ balance_notice(data[:player_id]) ] + market_notices([ data[:player_id] ])
       when Game::Market::WantedChoicesApplied
         buyer_ids = Game::Market::WantedChoicesApplied.buyer_ids(data)
-        balance_notices([ data[:seller_id] ] + buyer_ids) + market_notices(buyer_ids + Game::Market::WantedNoticePlayers.call(data[:listing_ids]))
+        owners = Game::Market::WantedChoicesApplied.converted_owner_ids(data)
+        balance_notices([ data[:seller_id] ] + buyer_ids + owners) + market_notices(buyer_ids + owners + Game::Market::WantedNoticePlayers.call(data[:listing_ids]))
       when *BALANCE_EVENTS
         [ balance_notice(data[:player_id]) ]
       when *CUT_OFF_EVENTS

@@ -151,6 +151,25 @@ class Game::Market::OrderBackedAuctionTest < ActiveSupport::TestCase
     assert_empty notices(@first, "wanted") + notices(@second, "wanted")
   end
 
+  test "an auction opened from the Confier table converts the orders, tells their owners once and leaves them no wanted notice" do
+    best = place!(@first, 400)
+    other = place!(@second, 350)
+    lines = [ { card_season_id: @card.id, copies: 1, choice: "auction", starting_price: 300, duration_hours: 24 } ]
+
+    listing = Game::Market::ApplyWantedChoices.new.call(player: @seller, lines:, settings_token: @settings.token).value!.listed.sole.listing
+
+    assert_equal [ @first.id, 400, 368 ], listing.reload.attributes.values_at("leader_id", "leader_maximum", "current_price")
+    assert_equal %w[bid beaten], [ best, other ].map { it.reload.status }
+    assert_equal [ { order_id: best.id, owner_id: @first.id, listing_id: listing.id, price: 400, status: "bid" },
+      { order_id: other.id, owner_id: @second.id, listing_id: listing.id, price: 350, status: "beaten" } ],
+      events(Game::Market::WantedChoicesApplied).sole.data.fetch(:converted)
+    assert_equal [ [ listing.id, 400 ] ], notices(@first, "order_leads").pluck(:listing_id, :amount)
+    assert_equal [ [ listing.id, 350 ] ], notices(@second, "order_beaten").pluck(:listing_id, :amount)
+    assert_empty notices(@first, "wanted") + notices(@second, "wanted")
+    assert_equal [ [ 600, 400 ], [ 1_000, 0 ] ], [ figures(@first), figures(@second) ]
+    assert Game::Market::ReconcileWallets.call.balanced?
+  end
+
   test "a later bid releases the converted leader's PiCoins as any maximum and the order reads outbid" do
     order = place!(@first, 400)
     listing = list.value!

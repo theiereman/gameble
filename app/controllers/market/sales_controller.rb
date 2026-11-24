@@ -99,12 +99,12 @@ module Market
         ids.transform_values { prices[it] }
       end
 
-      # The best order each edition can serve, by ref; only while the market is open.
+      # The best order each Common or Uncommon edition can serve, by ref; only while the market is open.
       def best_orders(refs)
         return {} unless @open && current_player && refs.any?
 
         ids = Game::Market::EntrustableCopies.resolve(refs)
-        best = Game::Market::EligibleOrders.best(ids.values, except: current_player.id)
+        best = Game::Market::EligibleOrders.best(Game::Market::DirectSale.edition_ids(ids.values), except: current_player.id)
         ids.transform_values { best[it] }.compact
       end
 
@@ -155,7 +155,7 @@ module Market
         @refusal_code = code
         keep_posted_values
         @refusal_slot = helpers.sale_refusal_slot(code, invalid_price_at: invalid_price_field)
-        @refusal_slot = :form if @refusal_slot == :order && !(@open && @chosen_copy)
+        @refusal_slot = :form if @refusal_slot == :order && !(@open && @chosen_copy && helpers.sale_direct?(@chosen_copy))
         @refusal = refusal_message(code)
         @signed_out = code == :player_required
         status = @signed_out ? :unauthorized : :unprocessable_content

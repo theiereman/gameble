@@ -14,17 +14,17 @@ class MarketWantedCopiesSystemTest < ApplicationSystemTestCase
 
   setup do
     @seller = accounts_players(:player)
-    @rare = catalog_card_seasons(:rare_card_one)
+    @uncommon = catalog_card_seasons(:uncommon_card_one)
     @common = catalog_card_seasons(:common_card_one)
     Game::Market::Settings.delete_all
     open_market!(first_opened_at: 1.day.ago)
-    hold(@seller, @rare.id, 1)
+    hold(@seller, @uncommon.id, 1)
     hold(@seller, @common.id, 1)
     buyer = accounts_players(:administrator)
     fund!(buyer, 10_000)
-    order!(buyer, @rare, 900)
+    order!(buyer, @uncommon, 900)
     Game::Market::RebuildWanted.new.call(player: buyer).value!
-    Game::Market::Wanted.insert_all([ { player_id: accounts_players(:moderator).id, card_id: @rare.card_id, reason: "goal", rarities: nil } ])
+    Game::Market::Wanted.insert_all([ { player_id: accounts_players(:moderator).id, card_id: @uncommon.card_id, reason: "goal", rarities: nil } ])
     mock_steam_sign_in(@seller.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
@@ -37,14 +37,14 @@ class MarketWantedCopiesSystemTest < ApplicationSystemTestCase
       assert_selector "h2", text: /YOUR WANTED CARDS\s+1/
       assert_selector ".wanted-panel__seekers", text: "2 players want it"
       assert_selector ".wanted-panel__order", text: /Order\s+900/
-      find(".wanted-panel__tile", text: "Blue Depths").click
+      find(".wanted-panel__tile", text: "Green Hills").click
     end
 
-    assert_selector "[role=option][aria-selected=true]", text: "Blue Depths"
+    assert_selector "[role=option][aria-selected=true]", text: "Green Hills"
     assert_selector "[role=option][aria-selected=true] .sale-cell__wanted", text: "SOUGHT · 2"
     assert_selector ".sale-order__title", text: /A buy order is waiting for you:\s+900/
 
-    visit card_path(locale: :en, slug: @rare.card.slug)
+    visit card_path(locale: :en, slug: @uncommon.card.slug)
     assert_selector ".card-detail__wanted .wanted-badge", text: "SOUGHT"
     assert_selector ".card-detail__wanted-line", text: /2 players want it · best order\s+900/
   end

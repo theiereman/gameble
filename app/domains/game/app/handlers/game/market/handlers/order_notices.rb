@@ -9,13 +9,17 @@ module Game
           data = event.data
           case event
           when *LISTING_ENDS then listing_ended(data[:listing_id])
-          when CardListed then data.fetch(:converted, []).sort_by { [ it[:owner_id], it[:order_id] ] }.each { converted(event, it) }
+          when CardListed then converted_rows(data).each { converted(event, it) }
           when OrderServed then served(event, data)
-          when WantedChoicesApplied then data[:sales].each { served(event, it) }
+          when WantedChoicesApplied
+            data[:sales].each { served(event, it) }
+            converted_rows(data).each { converted(event, it) }
           when OrderExpired then expired(event, data)
           else ended(data[:player_id], data[:order_id])
           end
         end
+
+        def self.converted_rows(data) = data.fetch(:converted, []).sort_by { [ it[:owner_id], it[:order_id] ] }
 
         def self.listing_ended(listing_id)
           Notice.listed_above_order.where(listing_id:).includes(:order).each do |notice|
@@ -49,7 +53,7 @@ module Game
 
         def self.ended(player_id, order_id) = Notice.listed_above_order.where(player_id:, order_id:).delete_all
 
-        private_class_method :listing_ended, :listing_above, :served, :converted, :expired, :ended
+        private_class_method :converted_rows, :listing_ended, :listing_above, :served, :converted, :expired, :ended
       end
     end
   end

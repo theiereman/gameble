@@ -18,9 +18,12 @@ class Game::Market::OrderNoticesTest < ActiveSupport::TestCase
     @other_seller = accounts_players(:administrator)
     @settings = open_market!
     @rare = catalog_card_seasons(:rare_card_one)
+    @uncommon = catalog_card_seasons(:uncommon_card_one)
     [ @seller, @buyer, @other_seller ].each { fund!(it, 10_000) }
     hold(@seller, @rare.id, 3)
     hold(@other_seller, @rare.id, 1)
+    hold(@other_seller, @uncommon.id, 1)
+    hold(@seller, @uncommon.id, 1)
   end
 
   def place!(card_season, price, player: @buyer)
@@ -34,8 +37,8 @@ class Game::Market::OrderNoticesTest < ActiveSupport::TestCase
       .value!
   end
 
-  def sell!(order, seller: @seller)
-    Game::Market::SellToOrder.new.call(player: seller, card_season_id: @rare.id, order_token: order.token, settings_token: @settings.token).value!
+  def sell!(order, seller: @seller, card_season: @uncommon)
+    Game::Market::SellToOrder.new.call(player: seller, card_season_id: card_season.id, order_token: order.token, settings_token: @settings.token).value!
   end
 
   def notices(kind) = Game::Market::Notice.where(player_id: @buyer.id, kind:)
@@ -113,8 +116,8 @@ class Game::Market::OrderNoticesTest < ActiveSupport::TestCase
   end
 
   test "a served order forgets its listing above and notices the price paid" do
-    order = place!(@rare, 100)
-    list(starting_price: 150)
+    order = place!(@uncommon, 100)
+    list(@uncommon, starting_price: 150)
 
     sell!(order, seller: @other_seller)
 
@@ -123,9 +126,9 @@ class Game::Market::OrderNoticesTest < ActiveSupport::TestCase
   end
 
   test "an order served from the Confier table notices its buyer and the table's listings notice the others" do
-    order = place!(@rare, 100)
-    list(starting_price: 150)
-    lines = [ { card_season_id: @rare.id, copies: 1, choice: "order", order_tokens: [ order.token ] } ]
+    order = place!(@uncommon, 100)
+    list(@uncommon, starting_price: 150)
+    lines = [ { card_season_id: @uncommon.id, copies: 1, choice: "order", order_tokens: [ order.token ] } ]
 
     Game::Market::ApplyWantedChoices.new.call(player: @other_seller, lines:, settings_token: @settings.token).value!
 

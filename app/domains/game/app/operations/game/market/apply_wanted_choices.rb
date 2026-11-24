@@ -5,6 +5,7 @@ module Game
     class ApplyWantedChoices < Operation
       include OrderServing
       include ListingOpening
+      include OrderConversion
       include Entrusting
 
       CHOICES = %w[order auction entrust].freeze
@@ -15,7 +16,8 @@ module Game
         def entrusted_copies = auction? ? 0 : copies - order_tokens.size
       end
 
-      Applied = Data.define(:sold, :listed, :entrusted, :skipped)
+      Applied = Data.define(:sold, :listed, :entrusted, :skipped, :converted)
+      Opened = Data.define(:line, :listing, :stamp, :converted, :entries)
       Sold = Data.define(:line, :order, :received)
       Listed = Data.define(:line, :listing)
       Entrusted = Data.define(:line, :copies, :minted)
@@ -37,9 +39,10 @@ module Game
           step lock_bank(player)
           settings = step current_settings(settings_token.to_s)
           holdings = lock_holdings([ player.id, *owners ], lines.map(&:card_season_id))
+          rarities = rarities_of(lines)
+          step direct_sale_only(lines, rarities)
           orders = Order.lock.where(id: drawn.map(&:id)).order(:id).index_by(&:token)
           sales = step still_drawn(lines, orders, player, now)
-          rarities = rarities_of(lines)
           values = rarities.transform_values { settings.entrustment(it) }
           entrusted, skipped = split_entrusted(lines, rarities, values, CapLeft.call(player.id, settings:, now:))
           funds = Balance.call(player).available + sales.sum { |_, order| received(order, settings) } + entrusted.sum(&:minted)
@@ -77,6 +80,12 @@ module Game
 
         Line.new(index:, card_season_id:, copies:, choice:, order_tokens: tokens.map(&:to_s), starting_price: raw[:starting_price],
           duration_hours: raw[:duration_hours])
+      end
+
+      def direct_sale_only(lines, rarities)
+        refused = lines.select { it.choice == "order" && rarities[it.card_season_id] && !DirectSale.rarity?(rarities[it.card_season_id]) }
+          .map { Refused.new(line: it.index, code: :direct_sale_not_for_rarity) }
+        refused.empty? ? Success() : Failure([ :invalid_choices, refused ])
       end
 
       def current_settings(settings_token)
@@ -161,18 +170,26 @@ module Game
 
       def apply(player, lines, sales, entrusted, skipped, holdings:, rarities:, values:, settings:, now:)
         sales.each { |line, order| move_order_copy(order:, seller_id: player.id, card_season_id: line.card_season_id, holdings:, now:) }
-        opened = lines.select(&:auction?).flat_map do |line|
-          holding = holdings.fetch(player.id).fetch(line.card_season_id)
-          Array.new(line.copies) { [ line, *open_listing(player, holding, settings, rarities.fetch(line.card_season_id), amount(line.starting_price).value!, line.duration_hours) ] }
-        end
-        quantities = entrusted_quantities(lines, entrusted)
-        mint = entrust(player.id, quantities, holdings.fetch(player.id), values, settings, now:) if quantities.any?
         settled = sales.each_with_index.sort_by { |(line, _), position| [ line.card_season_id, position ] }.flat_map do |(line, order), _|
           settle_order(order:, seller_id: player.id, card_season_id: line.card_season_id, commission_settings: settings, now:)
         end
-        Ledger.post([ *settled, *opened.map(&:third), *mint ])
+        opened = open_auctions(player, lines, holdings:, rarities:, settings:, now:)
+        quantities = entrusted_quantities(lines, entrusted)
+        mint = entrust(player.id, quantities, holdings.fetch(player.id), values, settings, now:) if quantities.any?
+        Ledger.post([ *settled, *opened.flat_map { [ it.stamp, *it.entries ] }, *mint ])
         Applied.new(sold: sales.map { |line, order| Sold.new(line: line.index, order:, received: received(order, settings)) },
-          listed: opened.map { |line, listing, _| Listed.new(line: line.index, listing:) }, entrusted:, skipped:)
+          listed: opened.map { Listed.new(line: it.line.index, listing: it.listing) }, entrusted:, skipped:, converted: opened.flat_map(&:converted))
+      end
+
+      def open_auctions(player, lines, holdings:, rarities:, settings:, now:)
+        lines.select(&:auction?).flat_map do |line|
+          holding = holdings.fetch(player.id).fetch(line.card_season_id)
+          Array.new(line.copies) do
+            listing, stamp = open_listing(player, holding, settings, rarities.fetch(line.card_season_id), amount(line.starting_price).value!, line.duration_hours)
+            converted, entries = convert_orders(listing, settings, now)
+            Opened.new(line:, listing:, stamp:, converted:, entries:)
+          end
+        end
       end
 
       def entrusted_quantities(lines, entrusted)
@@ -182,7 +199,7 @@ module Game
       def applied_event(player, lines, applied)
         WantedChoicesApplied.with(seller_id: player.id,
           sales: applied.sold.map { { order_id: it.order.id, buyer_id: it.order.player_id, card_season_id: lines.fetch(it.line).card_season_id, price: it.order.price } },
-          listing_ids: applied.listed.map { it.listing.id },
+          listing_ids: applied.listed.map { it.listing.id }, converted: applied.converted,
           entrusted: entrusted_quantities(lines, applied.entrusted).map { |card_season_id, quantity| { card_season_id:, quantity: } })
       end
     end

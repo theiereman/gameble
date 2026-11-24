@@ -15,15 +15,15 @@ class MarketDirectSaleSystemTest < ApplicationSystemTestCase
   setup do
     @seller = accounts_players(:player)
     @buyer = accounts_players(:moderator)
-    @rare = catalog_card_seasons(:rare_card_one)
+    @uncommon = catalog_card_seasons(:uncommon_card_one)
     @common = catalog_card_seasons(:common_card_one)
     Game::Market::Settings.delete_all
     open_market!(first_opened_at: 1.day.ago)
     fund!(@seller, 1_000)
     fund!(@buyer, 10_000)
-    hold(@seller, @rare.id, 1)
+    hold(@seller, @uncommon.id, 1)
     hold(@seller, @common.id, 1)
-    @order = order!(@buyer, @rare, 900)
+    @order = order!(@buyer, @uncommon, 900)
     mock_steam_sign_in(@seller.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
@@ -38,23 +38,23 @@ class MarketDirectSaleSystemTest < ApplicationSystemTestCase
     assert_selector ".sale-order-none", text: "No buy order for this card."
     assert_selector ".sale-summary button.button--primary", text: /PUT UP FOR SALE/
 
-    choose("Blue Depths")
+    choose("Green Hills")
     assert_selector ".sale-order__title", text: /A buy order is waiting for you:\s+900/
     assert_selector ".sale-order__terms", text: /You receive\s+810/
     assert_selector ".sale-summary button.button--secondary", text: /PUT UP FOR SALE/
     find("button[aria-label='Sell now to the buy order, 810 PiCoins received']", text: "SELL NOW").click
 
     assert_selector ".market-outcome h2:focus", text: "SOLD"
-    assert_selector ".market-outcome__body", text: /Blue Depths is sold to a buy order\. You receive\s+810/
+    assert_selector ".market-outcome__body", text: /Green Hills is sold to a buy order\. You receive\s+810/
     assert_equal "served", @order.reload.status
-    assert_equal 1, Game::Holding.find_by!(player_id: @buyer.id, card_season_id: @rare.id).quantity
+    assert_equal 1, Game::Holding.find_by!(player_id: @buyer.id, card_season_id: @uncommon.id).quantity
   end
 
   test "a better order placed after the screen was drawn is refused inline, focus on its sentence" do
-    choose("Blue Depths")
+    choose("Green Hills")
     assert_selector ".sale-order__title", text: /900/
     fund!(accounts_players(:administrator), 10_000)
-    better = order!(accounts_players(:administrator), @rare, 1_000)
+    better = order!(accounts_players(:administrator), @uncommon, 1_000)
 
     find("button[aria-label='Sell now to the buy order, 810 PiCoins received']", text: "SELL NOW").click
 

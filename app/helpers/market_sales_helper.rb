@@ -41,6 +41,8 @@ module MarketSalesHelper
     { commission:, received: price - commission }
   end
 
+  def sale_direct?(copy) = Game::Market::DirectSale.rarity?(copy.card.rarity)
+
   def sale_stamp_short_text(missing)
     t("market.sales.strings.stamp_short", amount: picoins([ missing, 1 ].max))
   end

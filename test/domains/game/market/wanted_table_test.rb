@@ -34,17 +34,32 @@ class Game::Market::WantedTableTest < ActiveSupport::TestCase
   def table(copies) = Game::Market::WantedTable.call(@seller, copies: copies.transform_keys(&:id), settings: @settings)
 
   test "a line carries its seekers, its average, its amounts and the orders its copies serve" do
-    hold(@seller, @rare.id, 3)
-    want_by_goal(@seeker, @rare)
-    best = place(@buyer, @rare, 900)
-    second = place(@seeker, @rare, 800)
-    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 1_000, sales_used: 5)
+    hold(@seller, @uncommon.id, 3)
+    want_by_goal(@seeker, @uncommon)
+    best = place(@buyer, @uncommon, 900)
+    second = place(@seeker, @uncommon, 800)
+    Game::Market::EditionPrice.create!(card_season_id: @uncommon.id, average: 1_000, sales_used: 5)
 
-    line = table(@rare => 2).sole
+    line = table(@uncommon => 2).sole
 
-    assert_equal [ @rare.id, ref(@rare), :rare, 2, 2, [ best, second ], 1_000 ],
+    assert_equal [ @uncommon.id, ref(@uncommon), :uncommon, 2, 2, [ best, second ], 1_000 ],
       [ line.card_season_id, line.ref, line.rarity, line.copies, line.seekers, line.orders, line.price.average ]
-    assert_equal [ @settings.entrustment(:rare), @settings.minimum_price(:rare), @settings.stamp(:rare) ], [ line.value, line.minimum, line.stamp ]
+    assert_equal [ @settings.entrustment(:uncommon), @settings.minimum_price(:uncommon), @settings.stamp(:uncommon) ], [ line.value, line.minimum, line.stamp ]
+  end
+
+  test "a Rare and above line draws no order and reads the prices of the orders that would back its auction, best first" do
+    epic = catalog_card_seasons(:portal_one)
+    hold(@seller, @rare.id, 2)
+    hold(@seller, epic.id)
+    place(@buyer, @rare, 900)
+    place(@seeker, @rare, 800)
+
+    lines = table(@rare => 2, epic => 1)
+    rare_line = lines.find { it.card_season_id == @rare.id }
+
+    assert_equal [ ref(@rare), ref(epic) ], lines.map(&:ref)
+    assert_equal [ [ false, [], [ 900, 800 ], 900 ], [ false, [], [], nil ] ],
+      [ rare_line, lines.last ].map { [ it.direct?, it.orders, it.backing, it.best_price ] }
   end
 
   test "lines come best order first, none last, then the most seekers, the highest value and the ref" do
@@ -59,24 +74,24 @@ class Game::Market::WantedTableTest < ActiveSupport::TestCase
 
   test "editions of one card share its orders: each order goes once, to the earlier line" do
     season = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
-    later = Catalog::CardSeason.find(Catalog::CardSeason.insert_all!([ { card_id: @rare.card_id, season_id: season.id, prestige_score: 0.7, rating: 80.0,
-      rarity: @rare.rarity_before_type_cast, number: @rare.number } ], returning: :id).rows.flatten.sole)
-    hold(@seller, @rare.id)
+    later = Catalog::CardSeason.find(Catalog::CardSeason.insert_all!([ { card_id: @uncommon.card_id, season_id: season.id, prestige_score: 0.7, rating: 80.0,
+      rarity: @uncommon.rarity_before_type_cast, number: @uncommon.number } ], returning: :id).rows.flatten.sole)
+    hold(@seller, @uncommon.id)
     hold(@seller, later.id)
-    best = place(@buyer, @rare, 900)
-    second = place(@seeker, @rare, 800)
+    best = place(@buyer, @uncommon, 900)
+    second = place(@seeker, @uncommon, 800)
 
-    lines = table(@rare => 1, later => 1)
+    lines = table(@uncommon => 1, later => 1)
 
-    assert_equal [ [ ref(@rare), [ best ] ], [ ref(later), [ second ] ] ], lines.map { [ it.ref, it.orders ] }
+    assert_equal [ [ ref(@uncommon), [ best ] ], [ ref(later), [ second ] ] ], lines.map { [ it.ref, it.orders ] }
   end
 
   test "the seller's own orders and a removed player's are never drawn" do
-    hold(@seller, @rare.id)
-    place(@seller, @rare, 900)
-    place(accounts_players(:banned), @rare, 950)
+    hold(@seller, @uncommon.id)
+    place(@seller, @uncommon, 900)
+    place(accounts_players(:banned), @uncommon, 950)
 
-    assert_empty table(@rare => 1).sole.orders
+    assert_empty table(@uncommon => 1).sole.orders
   end
 
   test "copies are clamped to those still free, a line with none dropped, and a line nobody wants kept at zero seekers" do

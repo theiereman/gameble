@@ -17,6 +17,7 @@
       <%= t("market.wanted_choices.result.listed_html", amount: render(PicoinAmountComponent.new(amount: row.listing.starting_price)),
             end: local_time_tag(row.listing.ends_at, :weekday_time), stamp: render(PicoinAmountComponent.new(amount: row.stamp))) %>
       <%= t("market.wanted_choices.result.listed_received_html", amount: render(PicoinAmountComponent.new(amount: row.amount))) %>
+      <% if row.led_price %><%= t("market.wanted_choices.result.led_by_order_html", amount: render(PicoinAmountComponent.new(amount: row.led_price))) %><% end %>
       <%= render ButtonComponent.new(variant: :link, href: market_listing_path(token: row.listing.token)) do %><%= t("market.wanted_choices.result.see_listing") %><% end %>
     <% when :entrusted %>
       <%= t("market.wanted_choices.result.entrusted_html", amount: render(PicoinAmountComponent.new(amount: row.amount))) %>

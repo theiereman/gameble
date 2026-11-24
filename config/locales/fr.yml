@@ -3135,6 +3135,7 @@ fr:
         order_label: "À l'ordre, %{amount} PiCoins"
         entrust_label: "Confier, %{amount} PiCoins"
         auction_note: "ouvre le prix de départ et la durée sous cette ligne"
+        backed_note: "Une Rare ou plus se vend aux enchères, que les ordres d'achat soutiennent."
         start_label: "Prix de départ, %{card} %{rarity}"
         duration_label: "Durée, %{card} %{rarity}"
         dock:
@@ -3173,6 +3174,7 @@ fr:
         commission_html: "(Effort de la Confrérie : %{amount})"
         listed_html: "Mise en vente à %{amount}, fin %{end}. Timbre payé : %{stamp}."
         listed_received_html: "Vendue au prix de départ, vous recevez %{amount}."
+        led_by_order_html: "(menée par un ordre d'achat à %{amount})"
         see_listing: "VOIR L'ANNONCE ▸"
         entrusted_html: "Le 100-6-Tron a fabriqué %{amount}. La carte rejoint les Archives."
         gained: "reçus"
@@ -5472,6 +5474,7 @@ fr:
       market_closed: "Le marché est suspendu pour le moment."
       copy_not_free: "Cette carte n'est plus disponible."
       best_order_changed: "Cet ordre d'achat vient d'être servi. Vérifiez le nouveau meilleur ordre, puis validez de nouveau."
+      direct_sale_not_for_rarity: "Une Rare ou plus se vend aux enchères, que les ordres d'achat soutiennent."
       invalid_duration: "Choisissez l'une des durées proposées."
       invalid_price: "Entrez un nombre entier de PiCoins, au-dessus de zéro."
       stamp_not_covered: "Il vous manque %{amount} PiCoins pour le timbre."

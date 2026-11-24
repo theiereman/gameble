@@ -11,6 +11,8 @@ module Game
 
       def self.buyer_ids(data) = data.fetch(:sales).map { it.fetch(:buyer_id) }
 
+      def self.converted_owner_ids(data) = data.fetch(:converted, []).map { it.fetch(:owner_id) }
+
       def self.player_ids(data) = [ data.fetch(:seller_id), *buyer_ids(data) ]
 
       def self.only(rows, keys) = rows.map { |row| keys.index_with { row.fetch(it) } }

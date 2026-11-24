@@ -20,17 +20,56 @@ const line = (ref: string, over: Partial<WantedLine> = {}): WantedLine => ({
   stamp: 20,
   average: null,
   orders: [],
+  direct: true,
   changed: false,
   ...over,
 })
 
 const blank: Picked = { choice: null, start: "", duration: "24" }
 
-const draw = (lines: WantedLine[], capLeft = 12_000, picked: Record<string, Picked> = {}) =>
+const draw = (lines: WantedLine[], capLeft = 12_000, picked: Record<string, Picked> = {}, available = 1_000_000) =>
   start(lines, Object.fromEntries(lines.map((each) => [each.ref, picked[each.ref] ?? blank])), {
     capLeft,
     basisPoints: 1_000,
+    available,
   })
+
+describe("the Prefill rule of a line above Uncommon", () => {
+  const rare = (ref: string, over: Partial<WantedLine> = {}) => line(ref, { direct: false, ...over })
+
+  it("opens its auction at the lowest eligible order's price so every order converts", () => {
+    const state = prefill(draw([rare("a", { orders: [400, 350], average: 1_000 })]))
+    expect(state.picked.a).toEqual({ choice: "auction", start: "350", duration: "24" })
+  })
+
+  it("opens at the average with no order, else at the minimum", () => {
+    expect(prefill(draw([rare("a", { average: 1_000 })])).picked.a?.start).toBe("1000")
+    expect(prefill(draw([rare("a")])).picked.a?.start).toBe("78")
+  })
+
+  it("entrusts when its stamps cannot be paid and the copies fit under the cap", () => {
+    expect(prefill(draw([rare("a", { stamp: 20 })], 12_000, {}, 19)).picked.a?.choice).toBe("entrust")
+    expect(prefill(draw([rare("a", { stamp: 20 })], 10, {}, 19)).picked.a?.choice).toBe("auction")
+  })
+
+  it("counts the proceeds of the lines before it when it checks its stamps", () => {
+    const lines = [line("a", { orders: [900], average: 1_000 }), rare("b", { stamp: 20 })]
+    expect(prefill(draw(lines, 12_000, {}, 0)).picked.b?.choice).toBe("auction")
+  })
+
+  it("counts the stamps of an auction before it and the copies entrusted before it when it checks its stamps", () => {
+    const stamps = [rare("a", { stamp: 20 }), rare("b", { stamp: 20 })]
+    expect(prefill(draw(stamps, 12_000, {}, 30)).picked.b?.choice).toBe("entrust")
+    const entrusted = [line("a", { value: 50 }), rare("b", { stamp: 20 })]
+    const picked = { a: { choice: "entrust", start: "", duration: "24" } satisfies Picked }
+    expect(prefill(draw(entrusted, 12_000, picked, 0)).picked.b?.choice).toBe("auction")
+  })
+
+  it("never chooses an order", () => {
+    const state = draw([rare("a", { orders: [400] })])
+    expect(choose(state, "a", "order")).toBe(state)
+  })
+})
 
 describe("the Prefill rule", () => {
   it("sells to an order at 90% of the average price or more", () => {

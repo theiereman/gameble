@@ -47,6 +47,7 @@ function lineFrom(element: HTMLElement): WantedLine {
     stamp: Number(data.stamp),
     average: data.average ? Number(data.average) : null,
     orders: (data.orders ?? "").split(",").filter(Boolean).map(Number),
+    direct: data.direct === "true",
     changed: data.changed === "true",
   }
 }
@@ -68,12 +69,20 @@ function pickedFrom(line: HTMLElement): Picked {
 
 export default class WantedTableController extends Controller<HTMLFormElement> {
   static targets = ["line"]
-  static values = { locale: String, capLeft: Number, basisPoints: Number, strings: Object, focus: String }
+  static values = {
+    locale: String,
+    capLeft: Number,
+    available: Number,
+    basisPoints: Number,
+    strings: Object,
+    focus: String,
+  }
   static outlets = ["wanted-dock"]
 
   declare readonly lineTargets: HTMLElement[]
   declare readonly localeValue: string
   declare readonly capLeftValue: number
+  declare readonly availableValue: number
   declare readonly basisPointsValue: number
   declare readonly stringsValue: WantedStrings
   declare readonly focusValue: string
@@ -99,7 +108,13 @@ export default class WantedTableController extends Controller<HTMLFormElement> {
   connect(): void {
     const lines = this.lineTargets.map(lineFrom)
     const picked = Object.fromEntries(this.lineTargets.map((line) => [line.dataset.ref ?? "", pickedFrom(line)]))
-    this.state = prefill(start(lines, picked, { capLeft: this.capLeftValue, basisPoints: this.basisPointsValue }))
+    this.state = prefill(
+      start(lines, picked, {
+        capLeft: this.capLeftValue,
+        basisPoints: this.basisPointsValue,
+        available: this.availableValue,
+      }),
+    )
     document.addEventListener("keydown", this.guardEscape, true)
     this.render(true)
     this.focusOnArrival()

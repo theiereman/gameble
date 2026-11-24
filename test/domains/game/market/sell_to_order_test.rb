@@ -21,7 +21,7 @@ class Game::Market::SellToOrderTest < ActiveSupport::TestCase
   setup do
     @seller = accounts_players(:player)
     @buyer = accounts_players(:moderator)
-    @card = catalog_card_seasons(:rare_card_one)
+    @card = catalog_card_seasons(:uncommon_card_one)
     @settings = open_market!(commission_basis_points: 1_000)
     fund!(@seller, 1_000)
     fund!(@buyer, 10_000)
@@ -120,6 +120,20 @@ class Game::Market::SellToOrderTest < ActiveSupport::TestCase
 
     assert_equal [ 900, 3 ], Game::Market::EditionPrice.find_by!(card_season_id: @card.id).attributes.values_at("average", "sales_used")
     assert_equal 900, @order.reload.average_after_sale
+  end
+
+  test "a Rare and above is never sold to an order, after the market and the version are checked, and nothing moves" do
+    cards = %i[rare_card_one portal_one].map { catalog_card_seasons(it) }
+    orders = cards.map { |card| hold(@seller, card.id, 1) && order!(@buyer, card, 900) }
+
+    cards.zip(orders).each do |card, order|
+      assert_no_difference([ -> { Game::Market::LedgerEntry.count }, -> { Game::Holding.sum(:quantity) }, -> { Game::Holding.sum(:reserved) },
+        -> { Rails.configuration.event_store.read.count } ]) do
+        assert_equal :direct_sale_not_for_rarity, sell(order, card:).failure
+        assert_equal :amounts_changed, sell(order, card:, settings_token: "stale").failure
+      end
+      assert_equal "open", order.reload.status
+    end
   end
 
   test "a buyer banned since the screen was drawn is no longer served" do

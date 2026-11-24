@@ -6,7 +6,7 @@
   <button type="button" class="sale-fields__back" data-action="listing-fields#back"><%= t("market.sales.new.back") %></button>
 
   <% if @open %>
-    <div class="sale-order-slot" data-listing-fields-target="orderSlot" data-ref="<%= chosen&.ref %>"><% if chosen %><%= render "market/sales/order_banner", order: @orders[chosen.ref], refusal: (@refusal if @refusal_slot == :order) %><% end %></div>
+    <div class="sale-order-slot" data-listing-fields-target="orderSlot" data-ref="<%= chosen&.ref %>"><% if chosen && sale_direct?(chosen) %><%= render "market/sales/order_banner", order: @orders[chosen.ref], refusal: (@refusal if @refusal_slot == :order) %><% end %></div>
   <% end %>
 
   <% if @price_offered %>

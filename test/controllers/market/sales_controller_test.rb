@@ -21,6 +21,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     @player = accounts_players(:player)
     @common = catalog_card_seasons(:common_card_one)
     @rare = catalog_card_seasons(:rare_card_one)
+    @uncommon = catalog_card_seasons(:uncommon_card_one)
     Game::Market::Settings.delete_all
     @settings = open_market!
     fund(500)
@@ -574,18 +575,18 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-sale__notice", false
   end
 
-  def buyer_order(price = 900, player: accounts_players(:moderator))
+  def buyer_order(price = 900, player: accounts_players(:moderator), card: @uncommon)
     fund!(player, 10_000)
-    order!(player, @rare, price)
+    order!(player, card, price)
   end
 
-  def post_order_sale(order, card_season = @rare, **overrides)
+  def post_order_sale(order, card_season = @uncommon, **overrides)
     post market_order_sale_path(locale: :en), params: { settings: @settings.token, ref: ref(card_season), order: order.token, starting_price: "",
       duration_hours: "24", **overrides }
   end
 
   test "the chosen copy shows the best order's banner, the listing button turning secondary, and the others carry theirs in templates" do
-    hold(@player, @rare.id, 1)
+    hold(@player, @uncommon.id, 1)
     hold(@player, @common.id, 1)
     order = buyer_order
     sign_in(@player)
@@ -593,16 +594,16 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     get new_market_sale_path(locale: :en)
     assert_select ".sale-order-slot:empty"
 
-    get new_market_sale_path(locale: :en, ref: ref(@rare))
+    get new_market_sale_path(locale: :en, ref: ref(@uncommon))
 
-    assert_select ".sale-fields .sale-order-slot[data-ref=?] .sale-order", ref(@rare) do
+    assert_select ".sale-fields .sale-order-slot[data-ref=?] .sale-order", ref(@uncommon) do
       assert_select ".sale-order__title", text: /A buy order is waiting for you: 900/
       assert_select ".sale-order__terms", text: /Instant sale, no stamp\. You receive 810\s+\(Brotherhood Effort: 90\s*\)\./
       assert_select "button.button--primary[type=submit][name=order][value=?][formaction=?][aria-label=?]", order.token, market_order_sale_path(locale: :en),
         "Sell now to the buy order, 810 PiCoins received", text: "SELL NOW"
     end
     assert_select ".sale-summary button.button--secondary[type=submit]", text: /PUT UP FOR SALE/
-    assert_select "[role=option][data-ref=?][data-order='900']", ref(@rare)
+    assert_select "[role=option][data-ref=?][data-order='900']", ref(@uncommon)
     assert_select "[data-listing-form-target=edition][data-order='900']"
     assert_select "[role=option][data-ref=?][data-order='']", ref(@common)
     assert_select "template[data-listing-form-target=orderTemplate][data-ref=?]", ref(@common)
@@ -611,12 +612,12 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "without an order the no-order line takes the banner's place and the listing button stays primary" do
-    hold(@player, @rare.id, 1)
+    hold(@player, @uncommon.id, 1)
     fund!(@player, 10_000)
-    order!(@player, @rare, 900)
+    order!(@player, @uncommon, 900)
     sign_in(@player)
 
-    get new_market_sale_path(locale: :fr, ref: ref(@rare))
+    get new_market_sale_path(locale: :fr, ref: ref(@uncommon))
 
     assert_select ".sale-order-slot .sale-order-none", "Aucun ordre d'achat pour cette carte."
     assert_select ".sale-order", false
@@ -626,8 +627,8 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   test "an edition with orders says how many wait, prefills the start at the lowest, and carries every price in its cell and its template" do
     hold(@player, @rare.id, 1)
     hold(@player, @common.id, 1)
-    order = buyer_order(900)
-    buyer_order(700, player: accounts_players(:administrator))
+    order = buyer_order(900, card: @rare)
+    buyer_order(700, card: @rare, player: accounts_players(:administrator))
     sign_in(@player)
 
     get new_market_sale_path(locale: :en, ref: ref(@rare))
@@ -647,9 +648,37 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#sale-start[value=?]", "850"
   end
 
+  test "a Rare edition with an order draws no banner, no sell-now button and no direct-sale template, only its orders line" do
+    hold(@player, @rare.id, 1)
+    buyer_order(900, card: @rare)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en, ref: ref(@rare))
+
+    assert_select ".sale-order-slot:empty"
+    assert_select ".sale-order", false
+    assert_select "button[name=order]", false
+    assert_select "template[data-listing-form-target=orderTemplate]", false
+    assert_select "[role=option][data-ref=?][data-order='']", ref(@rare)
+    assert_select ".sale-orders", text: /1 buy order, the best at 900/
+    assert_select ".sale-summary button.button--primary[type=submit]", text: /PUT UP FOR SALE/
+  end
+
+  test "a direct sale of a Rare is refused above the button and nothing moves" do
+    hold(@player, @rare.id, 1)
+    order = buyer_order(900, card: @rare)
+    sign_in(@player)
+
+    nothing_moves { post_order_sale(order, @rare) }
+
+    assert_response :unprocessable_content
+    assert_select ".market-sale__refusal", "A Rare or better is sold at auction, which buy orders back."
+    assert_equal "open", order.reload.status
+  end
+
   test "a refused listing with no start typed leaves the start empty beside its error" do
     hold(@player, @rare.id, 1)
-    buyer_order(900)
+    buyer_order(900, card: @rare)
     sign_in(@player)
 
     post_sale(@rare, starting_price: "", duration_hours: "7")
@@ -660,8 +689,8 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
   test "the only free edition is chosen with the start prefilled at the lowest order" do
     hold(@player, @rare.id, 1)
-    buyer_order(900)
-    buyer_order(700, player: accounts_players(:administrator))
+    buyer_order(900, card: @rare)
+    buyer_order(700, card: @rare, player: accounts_players(:administrator))
     sign_in(@player)
 
     get new_market_sale_path(locale: :en)
@@ -672,7 +701,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
   test "a closed market draws no orders block" do
     hold(@player, @rare.id, 1)
-    buyer_order
+    buyer_order(card: @rare)
     sign_in(@player)
     @settings = close_market!(first_opened_at: 2.days.ago)
 
@@ -683,34 +712,34 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a closed market draws no banner" do
-    hold(@player, @rare.id, 1)
+    hold(@player, @uncommon.id, 1)
     buyer_order
     sign_in(@player)
     @settings = close_market!(first_opened_at: 2.days.ago)
 
-    get new_market_sale_path(locale: :en, ref: ref(@rare))
+    get new_market_sale_path(locale: :en, ref: ref(@uncommon))
 
     assert_select ".sale-order-slot", false
     assert_select "template[data-listing-form-target=orderTemplate]", false
   end
 
   test "selling to the order serves it and lands on Mettre en vente with the sold panel" do
-    hold(@player, @rare.id, 2)
+    hold(@player, @uncommon.id, 2)
     order = buyer_order
     sign_in(@player)
 
-    post_order_sale(order, card: @rare.card.slug)
+    post_order_sale(order, card: @uncommon.card.slug)
 
-    assert_redirected_to new_market_card_sale_path(locale: :en, slug: @rare.card.slug)
+    assert_redirected_to new_market_card_sale_path(locale: :en, slug: @uncommon.card.slug)
     assert_response :see_other
     assert_equal "served", order.reload.status
     follow_redirect!
     assert_select ".market-outcome--success h2[tabindex='-1'][data-row-focus-target=heading]", "SOLD"
-    assert_select ".market-outcome__body", text: /Blue Depths is sold to a buy order. You receive 810/
+    assert_select ".market-outcome__body", text: /Green Hills is sold to a buy order. You receive 810/
   end
 
   test "a better order placed meanwhile is refused inline: the banner redraws it with its sentence and nothing moves" do
-    hold(@player, @rare.id, 1)
+    hold(@player, @uncommon.id, 1)
     seen = buyer_order
     better = buyer_order(1_000, player: accounts_players(:administrator))
     sign_in(@player)
@@ -724,7 +753,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "an order served meanwhile is refused with the served line, the no-order line drawn" do
-    hold(@player, @rare.id, 1)
+    hold(@player, @uncommon.id, 1)
     seen = buyer_order
     seen.update_columns(status: "cancelled")
     sign_in(@player)
@@ -737,7 +766,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "an order changed meanwhile while the market closed is refused above the button, no banner being drawn" do
-    hold(@player, @rare.id, 1)
+    hold(@player, @uncommon.id, 1)
     seen = buyer_order
     seen.update_columns(status: "cancelled")
     sign_in(@player)
@@ -751,7 +780,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a stale settings version refuses the direct sale like a listing" do
-    hold(@player, @rare.id, 1)
+    hold(@player, @uncommon.id, 1)
     order = buyer_order
 
     sign_in(@player)

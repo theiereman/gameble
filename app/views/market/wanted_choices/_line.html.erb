@@ -5,6 +5,7 @@
 <% posted = @posted[line.ref] %>
 <% id = "wanted-line-#{index}" %>
 <% order = line.orders.first %>
+<% best_price = line.best_price %>
 <% rarity_name = t("catalog.rarity.#{line.rarity}") %>
 <% line_refusal = @field_refusals&.dig([ line.ref, :line ]) %>
 <%= tag.tbody id:, class: class_names("wanted-line", "wanted-line--#{line.rarity}", "wanted-line--changed": changed),
@@ -22,8 +23,8 @@
     </td>
     <td class="wanted-line__figure">
       <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.order") %></span>
-      <% if order %>
-        <%= render PicoinAmountComponent.new(amount: order.price) %>
+      <% if best_price %>
+        <%= render PicoinAmountComponent.new(amount: best_price) %>
       <% else %>
         <span id="<%= id %>-no-order" class="wanted-line__none"><%= t("market.wanted_choices.new.no_order") %></span>
       <% end %>
@@ -39,9 +40,10 @@
     <td class="wanted-line__choice">
       <%= render SegmentedComponent.new(name: "lines[#{index}][choice]", id: "#{id}-choice", vertical_on_phone: true,
             label: t("market.wanted_choices.new.group", card: name.title, rarity: rarity_name.downcase, season: name.season_number),
-            describedby: [ ("wanted-dock-refusal #{id}-changed" if changed), ("#{id}-no-order" unless order) ].compact.join(" ").presence,
+            describedby: wanted_group_description(line, id:, changed:),
             options: wanted_choice_options(line, choice: (posted&.choice unless changed || (posted&.choice == "order" && order.nil?)), note_id: "#{id}-auction-note")) %>
       <span id="<%= id %>-auction-note" class="visually-hidden"><%= t("market.wanted_choices.new.auction_note") %></span>
+      <% unless line.direct? %><span id="<%= id %>-backed-note" class="visually-hidden"><%= t("market.wanted_choices.new.backed_note") %></span><% end %>
     </td>
     <td class="wanted-line__receive">
       <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.receive") %></span>

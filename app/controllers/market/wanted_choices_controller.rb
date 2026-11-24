@@ -36,6 +36,7 @@ module Market
         @cards = Catalog::CardViews.call(@lines.map(&:card_season_id), locale: I18n.locale)
         @names = Game::Market::CardNames.call(@lines.map(&:card_season_id))
         @cap_left = @settings ? Game::Market::CapLeft.call(current_player.id, settings: @settings) : 0
+        @available = Game::Market::Balance.call(current_player).available
         @posted = {}
       end
 

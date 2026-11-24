@@ -26,6 +26,7 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
     @other = accounts_players(:moderator)
     @common = catalog_card_seasons(:common_card_one)
     @rare = catalog_card_seasons(:rare_card_one)
+    @uncommon = catalog_card_seasons(:uncommon_card_one)
     @settings = open_market!
     fund!(@player, 10_000)
     fund!(@other, 10_000)
@@ -100,13 +101,13 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
   end
 
   test "a sale to an order refreshes both players, the buyer's completed goal dropped first" do
-    insert_set([ @rare.id ], { complete: 1 }, key: "solo", params: { "theme" => "solo" })
-    hold(@player, @rare.id)
+    insert_set([ @uncommon.id ], { complete: 1 }, key: "solo", params: { "theme" => "solo" })
+    hold(@player, @uncommon.id)
     aim(@player)
     aim(@other, key: "solo")
-    order = place_order(@other, @rare, 900)
+    order = place_order(@other, @uncommon, 900)
 
-    Game::Market::SellToOrder.new.call(player: @player, card_season_id: @rare.id, order_token: order.token, settings_token: @settings.token).value!
+    Game::Market::SellToOrder.new.call(player: @player, card_season_id: @uncommon.id, order_token: order.token, settings_token: @settings.token).value!
 
     assert_empty Game::Goal.where(player_id: @other.id)
     assert_empty rows(@other)
@@ -115,25 +116,38 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
   end
 
   test "applied wanted choices refresh the seller and each buyer" do
-    hold(@player, @rare.id)
-    aim(@player)
-    aim(@other)
-    order = place_order(@other, @rare, 900)
-    line = { card_season_id: @rare.id, copies: 1, choice: "order", order_tokens: [ order.token ] }
+    insert_set([ @common.id, @uncommon.id ], { complete: 2 }, key: "pair", params: { "theme" => "pair" })
+    hold(@player, @uncommon.id)
+    aim(@player, key: "pair")
+    aim(@other, key: "pair")
+    order = place_order(@other, @uncommon, 900)
+    line = { card_season_id: @uncommon.id, copies: 1, choice: "order", order_tokens: [ order.token ] }
 
     Game::Market::ApplyWantedChoices.new.call(player: @player, lines: [ line ], settings_token: @settings.token).value!
 
-    assert_equal goal_rows(@common, @rare), rows(@player)
+    assert_equal goal_rows(@common, @uncommon), rows(@player)
     assert_equal [ goal_row(@common) ], rows(@other)
     assert_fresh(@player, @other)
   end
 
-  test "a wanted-table sale that completes the buyer's goal drops it and its rows" do
-    insert_set([ @rare.id ], { complete: 1 }, key: "solo", params: { "theme" => "solo" })
+  test "a wanted-table auction that converts an order refreshes the order's owner, whose order row goes" do
     hold(@player, @rare.id)
+    place_order(@other, @rare, 900)
+    assert_includes rows(@other).map(&:second), "order"
+    line = { card_season_id: @rare.id, copies: 1, choice: "auction", starting_price: 800, duration_hours: 24 }
+
+    Game::Market::ApplyWantedChoices.new.call(player: @player, lines: [ line ], settings_token: @settings.token).value!
+
+    assert_not_includes rows(@other).map(&:second), "order"
+    assert_fresh(@player, @other)
+  end
+
+  test "a wanted-table sale that completes the buyer's goal drops it and its rows" do
+    insert_set([ @uncommon.id ], { complete: 1 }, key: "solo", params: { "theme" => "solo" })
+    hold(@player, @uncommon.id)
     aim(@other, key: "solo")
-    order = place_order(@other, @rare, 900)
-    line = { card_season_id: @rare.id, copies: 1, choice: "order", order_tokens: [ order.token ] }
+    order = place_order(@other, @uncommon, 900)
+    line = { card_season_id: @uncommon.id, copies: 1, choice: "order", order_tokens: [ order.token ] }
 
     Game::Market::ApplyWantedChoices.new.call(player: @player, lines: [ line ], settings_token: @settings.token).value!
 

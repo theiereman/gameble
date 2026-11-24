@@ -76,6 +76,14 @@ class MarketPushNoticeTest < ActiveSupport::TestCase
     assert_equal "/en/market/my-orders", expired.data[:path]
   end
 
+  test "the wanted table pushes the owners of the orders its auctions converted beside its buyers" do
+    sale = { order_id: 4, buyer_id: 8, card_season_id: 5, price: 90 }
+    converted = [ { order_id: 9, owner_id: 2, listing_id: 7, price: 400, status: "bid" } ]
+
+    assert_equal [ { player_id: 8, order_id: 4 }, { player_id: 2, order_id: 9 } ],
+      MarketPushNotice.notices(Game::Market::WantedChoicesApplied.with(seller_id: 1, sales: [ sale ], listing_ids: [ 7 ], entrusted: [], converted:))
+  end
+
   test "a listing pushes each converted order's owner, and the notification leads to the listing" do
     converted = [ { order_id: 9, owner_id: 2, listing_id: 7, price: 400, status: "bid" }, { order_id: 10, owner_id: 3, listing_id: 7, price: 350, status: "beaten" } ]
 

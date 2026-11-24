@@ -25,10 +25,10 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     [ @rare, @uncommon, @epic ].each { hold(@camille, it.id) }
     hold(@camille, @common.id, 2)
     fund!(@buyer, 10_000)
-    @order = order!(@buyer, @rare, 900)
+    @order = order!(@buyer, @uncommon, 900)
     Game::Market::RebuildWanted.new.call(player: @buyer).value!
-    Game::Market::Wanted.insert_all([ @uncommon, @epic ].map { { player_id: @seeker.id, card_id: it.card_id, reason: "goal", rarities: nil } })
-    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 950, sales_used: 5)
+    Game::Market::Wanted.insert_all([ @rare, @epic ].map { { player_id: @seeker.id, card_id: it.card_id, reason: "goal", rarities: nil } })
+    Game::Market::EditionPrice.create!(card_season_id: @uncommon.id, average: 950, sales_used: 5)
     mock_steam_sign_in(@camille.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
@@ -64,17 +64,18 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
     assert_selector ".wanted-strip__first", text: "The 2 other copies are already entrusted: 20 PiCoins minted."
     assert_selector "#market-wanted-heading:focus"
-    within(line(@rare)) { assert_selector "input[value=order]:checked", visible: :all }
-    within(line(@epic)) { assert_selector "input[value=entrust]:checked", visible: :all }
-    within(line(@uncommon)) { assert_selector "input[value=entrust]:checked", visible: :all }
-    assert_dock_now "980"
+    within(line(@uncommon)) { assert_selector "input[value=order]:checked", visible: :all }
+    within(line(@epic)) do
+      assert_selector "input[value=auction]:checked", visible: :all
+      assert_no_selector "input[value=order]", visible: :all
+    end
+    within(line(@rare)) { assert_selector "input[value=auction]:checked", visible: :all }
+    assert_dock_now "810"
     assert_selector ".wanted-dock__all button", text: /ENTRUST ALL ANYWAY · 220/i
 
-    within(line(@epic)) do
-      find("label", text: "AUCTION").click
-      find("input[name$='[starting_price]']").set("5000")
-    end
-    assert_dock_now "830"
+    within(line(@epic)) { find("input[name$='[starting_price]']").set("5000") }
+    within(line(@rare)) { find("label", text: "ENTRUST").click }
+    assert_dock_now "860"
     click_on "VALIDATE THE 3 CHOICES"
 
     assert_selector "#wanted-result-heading:focus", text: "YOUR 3 CHOICES ARE APPLIED"
@@ -82,8 +83,8 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     assert_selector ".wanted-result__line--listed", text: "RUNNING"
     assert_selector ".wanted-result__line--listed a", text: "SEE THE LISTING ▸"
     assert_selector ".wanted-result__line--entrusted", text: "ENTRUSTED"
-    assert_equal [ 1, 1 ], [ Game::Holding.find_by(player_id: @buyer.id, card_season_id: @rare.id).quantity, Game::Market::Listing.where(seller: @camille, status: "open").count ]
-    assert_equal 1, Game::Market::ArchiveDeposit.find_by(player_id: @camille.id, card_season_id: @uncommon.id).quantity
+    assert_equal [ 1, 1 ], [ Game::Holding.find_by(player_id: @buyer.id, card_season_id: @uncommon.id).quantity, Game::Market::Listing.where(seller: @camille, status: "open").count ]
+    assert_equal 1, Game::Market::ArchiveDeposit.find_by(player_id: @camille.id, card_season_id: @rare.id).quantity
   end
 
   test "Enter in a starting price keeps the table and entrusts nothing" do
@@ -106,21 +107,21 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
 
   test "an order served before the press redraws its line with its new choice and nothing moves" do
     open_entrust
-    tick(@rare)
+    tick(@uncommon)
     click_on "CHOOSE FOR THE WANTED CARD ▸"
 
     assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
-    within(line(@rare)) { assert_selector "input[value=order]:checked", visible: :all }
+    within(line(@uncommon)) { assert_selector "input[value=order]:checked", visible: :all }
     @order.update_columns(status: "withdrawn")
     click_on "VALIDATE MY CHOICE"
 
-    assert_selector "#wanted-dock-refusal", text: "1 line changed: Blue Depths. Nothing was sold, listed or entrusted."
-    within(line(@rare)) do
+    assert_selector "#wanted-dock-refusal", text: "1 line changed: Green Hills. Nothing was sold, listed or entrusted."
+    within(line(@uncommon)) do
       assert_selector ".wanted-line__none", text: "No order"
       assert_selector ".wanted-line__changed", text: /This buy order has just been served, and no other reaches this card\..*Your choice is now ENTRUST\./
       assert_selector "input[value=entrust]:checked:focus", visible: :all
     end
-    assert_equal 1, Game::Holding.find_by(player_id: @camille.id, card_season_id: @rare.id).quantity
-    assert_nil Game::Holding.find_by(player_id: @buyer.id, card_season_id: @rare.id)
+    assert_equal 1, Game::Holding.find_by(player_id: @camille.id, card_season_id: @uncommon.id).quantity
+    assert_nil Game::Holding.find_by(player_id: @buyer.id, card_season_id: @uncommon.id)
   end
 end

@@ -27,11 +27,11 @@ const choice = (value: string): string =>
 
 const MARKUP = `
   <form id="table" data-controller="wanted-table" data-action="keydown.enter->wanted-table#holdEnter"
-        data-wanted-table-locale-value="en" data-wanted-table-cap-left-value="12000"
+        data-wanted-table-locale-value="en" data-wanted-table-cap-left-value="12000" data-wanted-table-available-value="5000"
         data-wanted-table-basis-points-value="1000" data-wanted-table-strings-value="${attr(STRINGS)}">
     <table>
       <tbody data-wanted-table-target="line" data-ref="a" data-title="A" data-copies="1" data-value="50"
-             data-minimum="78" data-stamp="20" data-average="" data-orders="" data-changed="false">
+             data-minimum="78" data-stamp="20" data-average="" data-orders="" data-direct="true" data-changed="false">
         <tr><td>
           ${choice("order")}${choice("auction")}${choice("entrust")}
           <div data-wanted-table-target="auction" hidden>
