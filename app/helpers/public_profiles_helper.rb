@@ -1,4 +1,13 @@
 module PublicProfilesHelper
+  def supporter_badge(player)
+    return unless Game::SupporterStatus.call(player)
+
+    badge, tooltip = t("public_profiles.supporter_badge"), t("public_profiles.supporter_tooltip")
+    tag.span(class: "supporter-badge", tabindex: 0, role: "note", aria: { label: "#{badge}, #{tooltip}" }, data: { tooltip: }) do
+      tag.span(badge, class: "supporter-badge__label")
+    end
+  end
+
   def public_profile_title(player)
     name = Accounts::PersonaName.clean(player.persona_name)
     if name

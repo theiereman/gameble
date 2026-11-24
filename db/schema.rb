@@ -1173,6 +1173,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_110006) do
     t.datetime "code_contribution_at"
     t.datetime "discord_member_at"
     t.datetime "discord_checked_at"
+    t.datetime "supporter_at"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
     t.check_constraint "(active_title_kind IS NULL) = (active_title_key IS NULL) AND (active_title_key IS NULL) = (active_title_rank IS NULL)", name: "game_player_states_active_title_whole_check"
     t.check_constraint "exchanges_tab::text = 'friends'::text OR exchanges_tab::text = 'market'::text", name: "game_player_states_exchanges_tab_check"

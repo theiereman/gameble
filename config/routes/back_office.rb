@@ -9,6 +9,7 @@ scope "back-office", module: :back_office, as: :back_office do
   end
 
   resources :code_contributions, path: "code-contributions", only: :create
+  resources :supporters, only: :create
 
   resources :seasons, only: %i[index show update], param: :number, constraints: { number: /\d+/ } do
     post :publish, on: :collection

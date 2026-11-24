@@ -1,0 +1,5 @@
+<%# locals: (player:, name:, back: {}) %>
+<% unless Game::GrantSupporter.refusal(staff: current_player, player:) %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: back_office_supporters_path, method: :post,
+        params: back.except(:return_to).merge(token: player.token), confirm: t("back_office.supporters.actions.grant_confirm", name:)) do %><%= t("back_office.supporters.actions.grant") %><% end %>
+<% end %>

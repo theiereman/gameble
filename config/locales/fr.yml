@@ -1220,6 +1220,12 @@ fr:
         grant_confirm: "Accorder à %{name} le succès de contribution au code ? Cela ne peut pas être annulé."
       create:
         granted: "%{name} a obtenu le succès de contribution au code."
+    supporters:
+      actions:
+        grant: "MARQUER VIP"
+        grant_confirm: "Marquer %{name} comme VIP ? Le badge VIP s'affichera à côté de son pseudo et cela ne peut pas être annulé."
+      create:
+        granted: "%{name} affiche maintenant le badge VIP."
     players:
       actions:
         erase: "EFFACER"
@@ -2099,6 +2105,8 @@ fr:
       title: "Titre retiré"
     title: "%{rank} · %{set}"
   public_profiles:
+    supporter_badge: "VIP"
+    supporter_tooltip: "A fait un don sur Tipeee"
     card:
       this_week: "Cette semaine"
       full_profile: "Voir le profil complet"
@@ -5469,6 +5477,7 @@ fr:
       profile_not_found: "Ce profil est introuvable."
       recently_visited: "Ce profil vient d'être visité."
       code_contribution_already_granted: "Ce joueur a déjà le succès de contribution au code."
+      supporter_already_granted: "Ce joueur affiche déjà le badge VIP."
       player_not_found: "Ce profil est introuvable."
       unknown_tab: "Cet onglet n'existe pas."
       unknown_back: "Ce dos de carte n'existe pas."

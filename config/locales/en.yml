@@ -545,6 +545,12 @@ en:
         grant_confirm: Grant the code contribution achievement to %{name}? It cannot be taken back.
       create:
         granted: "%{name} earned the code contribution achievement."
+    supporters:
+      actions:
+        grant: MARK AS VIP
+        grant_confirm: Mark %{name} as a VIP? The VIP badge shows next to their name and it cannot be taken back.
+      create:
+        granted: "%{name} now shows the VIP badge."
     market_closings:
       create:
         closed: "The market is closed and the announcement is on the banner."
@@ -2299,6 +2305,7 @@ en:
       profile_not_found: That profile could not be found.
       recently_visited: This profile was visited a moment ago.
       code_contribution_already_granted: This player already has the code contribution achievement.
+      supporter_already_granted: This player already shows the VIP badge.
       player_not_found: That profile could not be found.
       unknown_tab: This tab does not exist.
       card_already_showcased: This card is already in your showcase.
@@ -5085,6 +5092,8 @@ en:
       title: Title removed
     title: "%{rank} · %{set}"
   public_profiles:
+    supporter_badge: VIP
+    supporter_tooltip: Donated on Tipeee
     card:
       full_profile: See the full profile
       this_week: This week

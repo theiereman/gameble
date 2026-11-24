@@ -13,7 +13,10 @@
       <%= player_avatar(owner, class_name: "profile-band__avatar") %>
     <% end %>
     <div class="profile-band__identity">
-      <%= content_tag :h1, title, id: "profile-heading", class: "profile-band__name" %>
+      <div class="profile-band__name-row">
+        <%= content_tag :h1, title, id: "profile-heading", class: "profile-band__name" %>
+        <%= supporter_badge(owner) %>
+      </div>
       <%= active_title_tag(owner_title, class_name: "profile-band__title") %>
       <%= render "public_profiles/action", owner:, title:, relation: relation unless editing %>
       <p class="profile-band__meta">

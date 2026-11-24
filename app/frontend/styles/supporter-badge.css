@@ -1,0 +1,72 @@
+.profile-band__name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.supporter-badge {
+  position: relative;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-rarity-legendaire-lo);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.supporter-badge__label {
+  background: linear-gradient(
+      100deg,
+      var(--color-rarity-legendaire) 0 40%,
+      var(--color-rarity-legendaire-hi) 50%,
+      var(--color-rarity-legendaire) 60% 100%
+    )
+    100% 0 / 250% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: supporter-badge-shine 3.2s linear infinite;
+}
+
+.supporter-badge::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + var(--space-3));
+  left: 0;
+  z-index: 1;
+  width: max-content;
+  max-width: 220px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-line);
+  background: var(--color-panel-raised);
+  color: var(--color-text-bright);
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.supporter-badge:hover::after,
+.supporter-badge:focus-visible::after {
+  opacity: 1;
+}
+
+@keyframes supporter-badge-shine {
+  0% {
+    background-position: 100% 0;
+  }
+
+  60%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .supporter-badge__label {
+    background-position: 50% 0;
+    animation: none;
+  }
+}
