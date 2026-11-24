@@ -161,6 +161,22 @@ export const BACK_OFFICE_ICONS = {
       ".ccc.......",
     ],
   },
+  "credit-donors": {
+    look: "an outlined heart",
+    grid: [
+      ".ccc...ccc.",
+      "c...c.c...c",
+      "c....c....c",
+      "c.........c",
+      "c.........c",
+      ".c.......c.",
+      "..c.....c..",
+      "...c...c...",
+      "....c.c....",
+      ".....c.....",
+      "...........",
+    ],
+  },
   market: {
     look: "a stall with an awning over a coin",
     grid: [

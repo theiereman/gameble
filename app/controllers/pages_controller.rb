@@ -43,6 +43,7 @@ class PagesController < ApplicationController
 
   def credits
     authorize :page, :show?
+    @donors = Accounts::CreditDonors.names
     render_markdown if markdown_requested?
   end
 

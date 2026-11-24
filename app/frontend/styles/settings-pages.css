@@ -96,7 +96,8 @@
   color: var(--color-muted);
 }
 
-.credits__tester {
+.credits__tester,
+.credits__donor {
   color: var(--color-text-bright);
 }
 

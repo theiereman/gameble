@@ -378,6 +378,7 @@ fr:
         extras_back: "Retour au menu"
         extras_label: "Extras"
         community: "Discord"
+        credits: "Crédits"
         how_it_works: "Comment ça marche"
         release_notes: "Notes de version"
         support: "Soutenir"
@@ -446,6 +447,10 @@ fr:
       hearthstone:
         name: "Hearthstone"
         inspired: "La structure des dos de cartes ornementaux : cadre, médaillon et coins."
+      donors:
+        label: "Donateurs"
+        title: "Donateurs"
+        thanks: "Merci à toutes celles et ceux qui ont soutenu Gameble sur Tipeee."
       contributors:
         label: "Contributeurs"
         title: "Contributeurs"
@@ -1153,6 +1158,9 @@ fr:
           announcements:
             title: "Les annonces"
             text: "Le bandeau rouge, en français et en anglais."
+          credit_donors:
+            title: "Les donateurs des crédits"
+            text: "Les donateurs remerciés sur la page des crédits."
           roadmap:
             title: "La feuille de route"
             text: "Les jalons et les histoires de la page d'accueil."
@@ -1220,6 +1228,20 @@ fr:
         grant_confirm: "Accorder à %{name} le succès de contribution au code ? Cela ne peut pas être annulé."
       create:
         granted: "%{name} a obtenu le succès de contribution au code."
+    credit_donors:
+      create:
+        added: "Le donateur est sur la page des crédits."
+      destroy:
+        removed: "Le donateur n'est plus sur la page des crédits."
+      index:
+        add: "Ajouter le donateur"
+        empty: "Aucun donateur pour l'instant."
+        heading: "Les donateurs des crédits"
+        intro: "Les noms remerciés dans les crédits, %{length} caractères au plus chacun. Un donateur n'a pas besoin de compte : écrivez le nom comme il souhaite le lire."
+        list_heading: "Tous les donateurs, par ordre d'arrivée"
+        name_label: "Nom du donateur"
+        remove: "Retirer"
+        remove_confirm: "Retirer %{name} de la page des crédits ?"
     supporters:
       actions:
         grant: "MARQUER VIP"
@@ -5314,6 +5336,9 @@ fr:
       announcement_not_found: "Cette annonce est introuvable."
       announcement_not_shown: "Cette annonce n'est plus sur le bandeau."
       invalid_announcement: "Écrivez l'annonce dans les deux langues, 280 caractères au plus chacune."
+      invalid_credit_donor: "Écrivez un nom de 60 caractères au plus."
+      credit_donor_already_listed: "Ce donateur est déjà sur la page des crédits."
+      credit_donor_not_found: "Ce donateur est introuvable."
       invalid_push_device: "Cet appareil n'a pas pu être inscrit aux notifications. Réessayez."
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       export_too_soon: "Un export toutes les 5 minutes au plus. Réessayez dans quelques minutes."

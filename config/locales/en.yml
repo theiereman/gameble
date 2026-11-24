@@ -545,6 +545,20 @@ en:
         grant_confirm: Grant the code contribution achievement to %{name}? It cannot be taken back.
       create:
         granted: "%{name} earned the code contribution achievement."
+    credit_donors:
+      create:
+        added: "The donor is on the credits page."
+      destroy:
+        removed: "The donor is off the credits page."
+      index:
+        add: "Add the donor"
+        empty: "No donor listed yet."
+        heading: "The credits donors"
+        intro: "The names thanked in the credits, one per line, %{length} characters at most. A donor does not need an account: write the name as they want to read it."
+        list_heading: "Every donor, in order of arrival"
+        name_label: "Name of the donor"
+        remove: "Remove"
+        remove_confirm: "Take %{name} off the credits page?"
     supporters:
       actions:
         grant: MARK AS VIP
@@ -831,6 +845,9 @@ en:
           announcements:
             title: The announcements
             text: The red banner, in English and French.
+          credit_donors:
+            title: The credits donors
+            text: The donors thanked on the credits page.
           roadmap:
             title: The roadmap
             text: The landing's milestones and stories.
@@ -2203,6 +2220,9 @@ en:
       announcement_not_found: "That announcement could not be found."
       announcement_not_shown: "That announcement is no longer on the banner."
       invalid_announcement: "Write the announcement in both languages, 280 characters at most each."
+      invalid_credit_donor: "Write a name of 60 characters at most."
+      credit_donor_already_listed: "That donor is already on the credits page."
+      credit_donor_not_found: "That donor could not be found."
       invalid_push_device: That device could not be registered for notifications. Try again.
       administrator_required: Only an administrator can do that, officer.
       already_banned: That player is already banned, officer.
@@ -4325,6 +4345,10 @@ en:
           or ideas.'
         title: Contributors
         writing_and_ideas: Writing and ideas
+      donors:
+        label: Donors
+        thanks: Thank you to everyone who supported Gameble on Tipeee.
+        title: Donors
       hearthstone:
         inspired: 'The structure of ornamental card backs: frame, medallion and corners.'
         name: Hearthstone
@@ -4408,6 +4432,7 @@ en:
           one: "%{owned} unique card out of %{total}"
           other: "%{owned} unique cards out of %{total}"
         community: Discord
+        credits: Credits
         duels: Duels
         extras: Extras
         extras_back: Back to the menu

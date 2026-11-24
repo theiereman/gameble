@@ -38,4 +38,16 @@
       <% end %>
     </ul>
   <% end %>
+
+  <% if @donors.any? %>
+    <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { label: t(".donors.label") }) do %>
+      <h2 class="legal__heading"><%= t(".donors.title") %></h2>
+      <p class="credits__intro"><%= t(".donors.thanks") %></p>
+      <ul class="legal__list credits__list">
+        <% @donors.each do |name| %>
+          <li class="credits__donor"><%= name %></li>
+        <% end %>
+      </ul>
+    <% end %>
+  <% end %>
 </article>

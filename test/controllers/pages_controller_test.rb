@@ -133,6 +133,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
         assert_select ".menu-item__number", "02"
         assert_select ".menu-item__label", "Notes de version"
       end
+      assert_select "a.menu-item[href='/fr/credits'][aria-keyshortcuts='6'][data-hub-menu-target=item][data-action='hub-menu#remember'][data-turbo-prefetch=false]" do
+        assert_select ".menu-item__number", "06"
+        assert_select ".menu-item__label", "Crédits"
+      end
     end
     external = css_select("#hub-menu-extras a.menu-item[target=_blank]")
     assert_equal [ [ "3", "03", "Soutenir", "https://fr.tipeee.com/gameble-trading-card-game" ], [ "4", "04", "GitHub", "https://github.com/theiereman/gameble" ],

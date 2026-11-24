@@ -11,6 +11,10 @@ scope "back-office", module: :back_office, as: :back_office do
   resources :code_contributions, path: "code-contributions", only: :create
   resources :supporters, only: :create
 
+  # The donors the credits page thanks, administrators only: names typed in by hand.
+  resources :credit_donors, path: "credit-donors", param: :token, only: %i[index create destroy],
+    constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+
   resources :seasons, only: %i[index show update], param: :number, constraints: { number: /\d+/ } do
     post :publish, on: :collection
   end

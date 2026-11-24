@@ -61,7 +61,7 @@ module BackOffice
       get back_office_path(locale: :fr)
 
       assert_equal %w[Modération Catalogue Communication Duels Marché Technique], css_select(".office-group__heading").map(&:text)
-      assert_select "a.office-tile", 15
+      assert_select "a.office-tile", 16
       assert_select "a.office-tile[data-office-tile='jobs'][data-turbo='false'][href='/back-office/jobs/']"
     end
 

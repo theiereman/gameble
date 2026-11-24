@@ -1,0 +1,42 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro", length: Accounts::CreditDonor::NAME_LENGTH) %>
+  <% end %>
+
+  <%= form_with url: back_office_credit_donors_path, method: :post, class: "announcement-editor" do %>
+    <p class="announcement-editor__field">
+      <label for="credit-donor-name"><%= t(".name_label") %></label>
+      <%= text_field_tag :name, nil, id: "credit-donor-name", class: "ban-form__field", required: true, autocomplete: "off",
+            maxlength: Accounts::CreditDonor::NAME_LENGTH %>
+    </p>
+    <p class="announcement-editor__actions">
+      <%= render ButtonComponent.new(type: :submit) do %><%= t(".add") %><% end %>
+    </p>
+  <% end %>
+
+  <section class="stack" aria-labelledby="credit-donor-list-heading">
+    <h2 id="credit-donor-list-heading"><%= t(".list_heading") %></h2>
+
+    <% if @donors.empty? %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <%= t(".empty") %>
+      <% end %>
+    <% else %>
+      <ol class="announcement-list">
+        <% @donors.each do |donor| %>
+          <li class="announcement-editor" data-credit-donor-token="<%= donor.token %>">
+            <p class="announcement-editor__status"><%= donor.name %></p>
+            <p class="announcement-editor__actions">
+              <%= render ButtonComponent.new(variant: :danger, size: :small, method: :delete, href: back_office_credit_donor_path(token: donor.token),
+                    confirm: t(".remove_confirm", name: donor.name)) do %><%= t(".remove") %><% end %>
+            </p>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+  </section>
+</div>
