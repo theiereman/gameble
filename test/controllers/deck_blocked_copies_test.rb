@@ -139,7 +139,7 @@ class DeckBlockedCopiesTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("decks.removal.throttled", locale: :fr), flash[:alert]
   end
 
-  test "the entrust grid shows a decked edition with no free copy, its decks and its removal" do
+  test "the entrust grid leaves out an edition every copy of which a deck holds, and says nothing of decks" do
     open_market!
     card, free = ranked_cards(@player, 2, titles: [ "Portal", "Hades" ])
     put_in(deck(@player, "Vieux briscards"), card)
@@ -147,19 +147,13 @@ class DeckBlockedCopiesTest < ActionDispatch::IntegrationTest
 
     get new_market_entrustment_path(locale: :fr, filter: { query: "" })
 
-    assert_select ".entrust-cell", 2
-    assert_select ".entrust-cell[data-ref='#{ref_of(card)}'][data-free='0']" do
-      assert_select ".entrust-cell__reserved", "Dans un deck"
-      assert_select ".entrust-cell__toggle[aria-disabled='true'][aria-label*=?]", "dans un deck : Vieux briscards"
-      assert_select ".deck-holding__names", "Dans : Vieux briscards"
-      assert_select "button[data-dialog-opener-dialog-value=?]", dialog_id(card)
-    end
-    assert_select ".entrust-cell[data-ref='#{ref_of(free)}'] .deck-holding", 0
-    assert_select "form#entrust ##{dialog_id(card)}", 0
-    assert_select "dialog##{dialog_id(card)} input[name=ref][value=?]", ref_of(card)
+    assert_select ".entrust-cell", 1
+    assert_select ".entrust-cell[data-ref='#{ref_of(card)}']", false
+    assert_select ".entrust-cell[data-ref='#{ref_of(free)}']"
+    assert_select ".deck-holding", false
   end
 
-  test "a card page whose only edition a deck blocks opens with nothing ticked" do
+  test "a card page whose only edition a deck blocks offers nothing to tick" do
     open_market!
     card = ranked_cards(@player, 1, titles: [ "Portal" ]).sole
     put_in(deck(@player, "Vieux briscards"), card)
@@ -167,9 +161,7 @@ class DeckBlockedCopiesTest < ActionDispatch::IntegrationTest
 
     get new_market_card_entrustment_path(locale: :fr, slug: ref_of(card).split(":").first)
 
-    assert_select ".entrust-cell[data-ref='#{ref_of(card)}'][data-ticked='0']"
-    assert_select "input[name=selection][value='']"
-    assert_select ".entrust-ticks span", 0
+    assert_select ".entrust-cell", false
   end
 
   test "the sale grid shows a decked edition as not to be chosen, and lists its removal beside the grid" do

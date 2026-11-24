@@ -1,5 +1,14 @@
+// @vitest-environment happy-dom
 import { describe, expect, it } from "vitest"
-import { STREAM_EVENT_ACTION, STREAM_FOCUS_ACTION, registerStreamActions, streamSignal } from "./stream_actions"
+import {
+  STREAM_EVENT_ACTION,
+  STREAM_FOCUS_ACTION,
+  STREAM_RELOAD_ACTION,
+  STREAM_VISIT_ACTION,
+  registerStreamActions,
+  streamSignal,
+  visitablePath,
+} from "./stream_actions"
 import type { StreamAction } from "./turbo"
 
 function streamElement(attributes: Record<string, string>): Element {
@@ -85,5 +94,49 @@ describe("the gameble-focus stream action", () => {
     expect(() =>
       turbo.StreamActions[STREAM_FOCUS_ACTION]?.call({ targetElements: [] } as unknown as Element),
     ).not.toThrow()
+  })
+})
+
+describe("the gameble-reload stream action", () => {
+  it("reloads its frames from the page's own address and leaves other targets alone", () => {
+    const turbo = { StreamActions: {} as Record<string, StreamAction> }
+    registerStreamActions(turbo, new EventTarget())
+    const frame = {
+      tagName: "TURBO-FRAME",
+      attributes: {} as Record<string, string>,
+      setAttribute(name: string, value: string) {
+        this.attributes[name] = value
+      },
+    }
+    const other = {
+      tagName: "DIV",
+      attributes: {} as Record<string, string>,
+      setAttribute(name: string, value: string) {
+        this.attributes[name] = value
+      },
+    }
+
+    turbo.StreamActions[STREAM_RELOAD_ACTION]?.call({ targetElements: [frame, other] } as unknown as Element)
+
+    expect(frame.attributes).toEqual({ src: window.location.href })
+    expect(other.attributes).toEqual({})
+  })
+})
+
+describe("the gameble-visit stream action", () => {
+  it("visits a path of this site and nothing else", () => {
+    const visited: string[] = []
+    const turbo = {
+      StreamActions: {} as Record<string, StreamAction>,
+      visit: (location: string) => void visited.push(location),
+    }
+    registerStreamActions(turbo, new EventTarget())
+    const action = turbo.StreamActions[STREAM_VISIT_ACTION]!
+    action.call(streamElement({ location: "/en/market" }))
+    action.call(streamElement({ location: "//evil.example" }))
+    action.call(streamElement({ location: "https://evil.example" }))
+    action.call(streamElement({}))
+    expect(visited).toEqual(["/en/market"])
+    expect(visitablePath("/\\evil")).toBeNull()
   })
 })

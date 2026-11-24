@@ -13,7 +13,7 @@
   <tr class="wanted-line__figures">
     <th scope="row" class="wanted-line__card">
       <% if card %><img class="wanted-line__thumb" src="<%= card.image_url %>" alt="" width="30" height="30" loading="lazy" decoding="async"><% end %>
-      <span class="wanted-line__name"><%= name.title %></span>
+      <span class="wanted-line__name" title="<%= name.title %>"><%= name.title %></span>
       <span class="wanted-line__edition"><%= rarity_name %> · <%= t("market.entrustments.new.season", number: name.season_number) %></span>
       <% if line.copies > 1 %><span class="wanted-line__copies"><%= t("market.wanted_choices.new.copies", count: line.copies) %></span><% end %>
     </th>
@@ -33,10 +33,6 @@
       <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.average") %></span>
       <%= render AveragePriceComponent.new(price: line.price, compact: true, flag_few_sales: false) %>
     </td>
-    <td class="wanted-line__figure">
-      <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.value") %></span>
-      <%= render PicoinAmountComponent.new(amount: line.value * line.copies) %>
-    </td>
     <td class="wanted-line__choice">
       <%= render SegmentedComponent.new(name: "lines[#{index}][choice]", id: "#{id}-choice", vertical_on_phone: true,
             label: t("market.wanted_choices.new.group", card: name.title, rarity: rarity_name.downcase, season: name.season_number),
@@ -45,16 +41,9 @@
       <span id="<%= id %>-auction-note" class="visually-hidden"><%= t("market.wanted_choices.new.auction_note") %></span>
       <% unless line.direct? %><span id="<%= id %>-backed-note" class="visually-hidden"><%= t("market.wanted_choices.new.backed_note") %></span><% end %>
     </td>
-    <td class="wanted-line__receive">
-      <span class="wanted-line__label"><%= t("market.wanted_choices.new.heads.receive") %></span>
-      <span class="wanted-line__amount" data-wanted-table-target="receive" hidden>
-        <%= render PicoinAmountComponent.new(amount: 0) %>
-        <span class="wanted-line__when"></span>
-      </span>
-    </td>
   </tr>
   <tr class="wanted-line__more">
-    <td colspan="7">
+    <td colspan="5">
       <%= hidden_field_tag "lines[#{index}][ref]", line.ref, id: nil %>
       <%= hidden_field_tag "lines[#{index}][copies]", line.copies, id: nil %>
       <% line.orders.each do |drawn| %>

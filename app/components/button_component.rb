@@ -48,7 +48,7 @@ class ButtonComponent < ViewComponent::Base
     end
 
     def opener_options
-      { aria: { haspopup: "dialog", label: @aria_label }.compact,
+      { aria: { haspopup: "dialog", label: @aria_label, describedby: @describedby }.compact,
         data: { controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: @opens } }
     end
 

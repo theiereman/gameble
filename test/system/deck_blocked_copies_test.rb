@@ -56,17 +56,14 @@ class DeckBlockedCopiesSystemTest < ApplicationSystemTestCase
     end
   end
 
-  test "entrusting and selling show the decked card with its deck, and free it there" do
+  test "selling shows the decked card with its deck and frees it there, while entrusting leaves it out" do
     open_market!
     Game::Holding.create!(player_id: @hugo.id, card_season_id: catalog_card_seasons(:common_card_one).id, quantity: 1, reserved: 0)
     sign_in_hugo
 
     visit new_market_entrustment_path(locale: :en, filter: { query: "" })
-    within(".entrust-cell[data-ref='portal:1']") do
-      assert_selector ".entrust-cell__reserved", text: /in a deck/i
-      assert_selector ".deck-holding__names", text: "In: Vieux briscards"
-      assert_selector ".deck-holding button", text: /remove from decks/i
-    end
+    assert_no_selector ".entrust-cell[data-ref='portal:1']"
+    assert_selector ".entrust-cell", count: 1
 
     visit new_market_sale_path(locale: :en)
     assert_selector ".sale-cell[data-ref='portal:1'][aria-disabled='true'] .sale-cell__decks", text: "In: Vieux briscards"

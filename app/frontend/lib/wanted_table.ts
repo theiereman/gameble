@@ -27,21 +27,20 @@ export type WantedTableState = Readonly<{
   available: number
 }>
 
-export type LineAmount = Readonly<{ amount: number; when: "now" | "start" }> | null
-
 export type Totals = Readonly<{
   now: number
   sales: number
+  salesGross: number
   salesAmount: number
   entrusted: number
   entrustedAmount: number
   listed: number
+  listedGross: number
   listedAmount: number
   stamps: number
   allEntrust: number
   over: number
   overTitles: readonly string[]
-  lines: Readonly<Record<string, LineAmount>>
 }>
 
 // An order at 90% of the edition's average price or more is near enough to sell to.
@@ -151,20 +150,20 @@ export function setDuration(state: WantedTableState, ref: string, duration: stri
   return update(state, ref, { duration })
 }
 
-function startingNet(start: string, basisPoints: number): number {
+function startingPrice(start: string): bigint {
   const price = amountOf(start)
-  if (price === null || price <= 0n || price > BigInt(Number.MAX_SAFE_INTEGER)) return 0
-  return Number(received(price, basisPoints))
+  return price === null || price <= 0n || price > BigInt(Number.MAX_SAFE_INTEGER) ? 0n : price
 }
 
 export function totals(state: WantedTableState): Totals {
   const walk = { left: state.capLeft }
-  const lines: Record<string, LineAmount> = {}
   let sales = 0
+  let salesGross = 0
   let salesAmount = 0
   let entrusted = 0
   let entrustedAmount = 0
   let listed = 0
+  let listedGross = 0
   let listedAmount = 0
   let stamps = 0
   let over = 0
@@ -172,11 +171,11 @@ export function totals(state: WantedTableState): Totals {
   for (const line of state.lines) {
     const { choice, start: typed } = state.picked[line.ref] ?? { choice: null, start: "" }
     if (choice === "auction") {
-      const net = startingNet(typed, state.basisPoints) * line.copies
+      const price = startingPrice(typed)
       listed += line.copies
-      listedAmount += net
+      listedGross += Number(price) * line.copies
+      listedAmount += Number(received(price, state.basisPoints)) * line.copies
       stamps += line.stamp * line.copies
-      lines[line.ref] = { amount: net, when: "start" }
       continue
     }
     const sold = choice === "order" ? line.orders.slice(0, line.copies) : []
@@ -188,26 +187,27 @@ export function totals(state: WantedTableState): Totals {
       overTitles.push(line.title)
     }
     sales += sold.length
+    salesGross += sold.reduce((sum, price) => sum + price, 0)
     salesAmount += soldAmount
     entrusted += fits
     entrustedAmount += fits * line.value
-    lines[line.ref] = choice === null ? null : { amount: soldAmount + fits * line.value, when: "now" }
   }
   const all = { left: state.capLeft }
   const allEntrust = state.lines.reduce((sum, line) => sum + fitting(all, line.copies, line.value) * line.value, 0)
   return {
     now: salesAmount + entrustedAmount,
     sales,
+    salesGross,
     salesAmount,
     entrusted,
     entrustedAmount,
     listed,
+    listedGross,
     listedAmount,
     stamps,
     allEntrust,
     over,
     overTitles,
-    lines,
   }
 }
 

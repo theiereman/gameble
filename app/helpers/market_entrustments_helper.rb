@@ -23,9 +23,9 @@ module MarketEntrustmentsHelper
       seekers: wanted&.seekers.to_i }
   end
 
-  def entrust_cell_label(copy, decks = nil, wanted: nil)
+  def entrust_cell_label(copy, wanted: nil)
     [ copy.title, t("catalog.rarity.#{copy.rarity}"), t("market.entrustments.new.season", number: copy.season_number),
-      picoins_label(copy.value), t("market.entrustments.new.free", count: copy.free), (deck_holding_words(decks) if decks),
+      picoins_label(copy.value), t("market.entrustments.new.free", count: copy.free),
       (t("market.sales.new.wanted_words", count: wanted.seekers) if wanted) ].compact.join(", ")
   end
 

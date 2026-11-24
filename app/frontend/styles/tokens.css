@@ -308,6 +308,9 @@
   --chart-height-spark: 32px;
   --chart-swatch: 10px;
 
+  /* How far a floating summary dock hovers above the bottom of the screen. */
+  --dock-lift: var(--space-5);
+
   /* The one soft drop shadow of dialogs and toasts. */
   --dock-shadow: 0 -16px 40px 8px rgba(0, 0, 0, 0.75), 0 0 0 1px #06090d;
   --overlay-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);

@@ -16,12 +16,13 @@ const STRINGS: EntrustStrings = {
   valueText: "%{count} of %{max}",
   max: "of %{max}",
   maxPhone: "/%{max}",
-  submit: { one: "Entrust %{count} copy", other: "Entrust %{count} copies", zero: "Entrust" },
+  submit: "Validate (%{count})",
   line: "%{title}, season %{season}",
   count: "×%{count}",
   stays: "%{count} stays",
   overCap: "over",
-  rareNote: "rare",
+  rareNote: "Warning: %{rarities}",
+  rareNames: { rare: "Rare", epic: "Epic", legendary: "Legendary" },
   capText: "%{used} of %{cap} today",
   status: { one: "%{count} copy, %{amount}", other: "%{count} copies, %{amount}", zero: "0 copies, %{amount}" },
   barCount: { one: "%{count} copy", other: "%{count} copies", zero: "0 copies" },
@@ -29,7 +30,6 @@ const STRINGS: EntrustStrings = {
   setApartHeading: { one: "SET ASIDE · 1 WANTED CARD", other: "SET ASIDE · %{count} WANTED CARDS", zero: "" },
   setApartStatus: { one: "%{count} set aside", other: "%{count} set aside", zero: "" },
   seekers: { one: "%{count} player wants it", other: "%{count} players want it", zero: "" },
-  choose: { one: "CHOOSE FOR THE WANTED CARD", other: "CHOOSE FOR THE %{count} WANTED CARDS", zero: "" },
 }
 
 const RARE: Copy = { ref: "rare:1", title: "Rare", rarity: "rare", season: 1, free: 2, owned: 2, value: 5000 }
@@ -118,7 +118,7 @@ describe("wanted copies in the recap", () => {
       ["common:1", "×3", 3],
     ])
     expect(view.received).toBe(5030)
-    expect(view.label).toBe("Entrust 4 copies")
+    expect(view.label).toBe("Validate (5)")
     expect(view.status).toBe("4 copies, 5,030 PiCoins, 1 set aside")
     expect(view.finality).toBe(true)
   })
@@ -127,7 +127,7 @@ describe("wanted copies in the recap", () => {
     const view = recapViewOf(start([PYRE], 0, { "pyre:1": 1 }), STRINGS, forms)
     expect(view.lines).toEqual([])
     expect(view.prompt).toBe(false)
-    expect(view.label).toBe("CHOOSE FOR THE WANTED CARD")
+    expect(view.label).toBe("Validate (1)")
     expect(view.disabled).toBe(false)
     expect(view.finality).toBe(false)
   })
@@ -135,7 +135,7 @@ describe("wanted copies in the recap", () => {
   it("leads to the table when the cap entrusts nothing of the other ticked copies", () => {
     const view = recapViewOf(start([PYRE, COMMON], 0, { "pyre:1": 1, "common:1": 1 }), STRINGS, forms)
     expect(view.lines.map((line) => line.state)).toEqual(["stays"])
-    expect(view.label).toBe("CHOOSE FOR THE WANTED CARD")
+    expect(view.label).toBe("Validate (1)")
     expect(view.finality).toBe(false)
     expect(view.disabled).toBe(false)
   })

@@ -54,8 +54,7 @@ export type Preview = {
   stayedCount: number
   capUsed: number
   capLeft: number
-  rareNames: readonly string[]
-  rareCount: number
+  rareTones: readonly Rarity[]
   full: boolean
   canValidate: boolean
   pending: boolean
@@ -111,6 +110,23 @@ export function selectAll(state: EntrustState, copies: readonly Copy[]): Entrust
   const ticked: Record<string, number> = { ...state.ticked }
   for (const copy of copies) if (copy.free >= 1 && !(copy.ref in ticked)) ticked[copy.ref] = 1
   return { ...state, copies: { ...state.copies, ...byRef(copies) }, ticked, selecting: "idle" }
+}
+
+// Unticks every copy given: the matches a "select all" ticked, wherever their page is.
+export function deselectAll(state: EntrustState, copies: readonly Copy[]): EntrustState {
+  return {
+    ...untick(
+      state,
+      copies.map((copy) => copy.ref),
+    ),
+    selecting: "idle",
+  }
+}
+
+export function untick(state: EntrustState, refs: readonly string[]): EntrustState {
+  if (!refs.some((ref) => ref in state.ticked)) return state
+  const gone = new Set(refs)
+  return { ...state, ticked: Object.fromEntries(Object.entries(state.ticked).filter(([ref]) => !gone.has(ref))) }
 }
 
 export function selecting(state: EntrustState, phase: Selecting): EntrustState {
@@ -206,8 +222,7 @@ export function preview(state: EntrustState): Preview {
     stayedCount: lines.reduce((sum, line) => sum + line.stayed, 0),
     capUsed: received,
     capLeft: left,
-    rareNames: rare.map((line) => line.copy.title),
-    rareCount: rare.reduce((sum, line) => sum + line.entrusted, 0),
+    rareTones: RARE_OR_BETTER.filter((rarity) => rare.some((line) => line.copy.rarity === rarity)),
     full,
     canValidate: (lines.length > 0 && !full) || setApartCount > 0,
     pending: all.length > 0,

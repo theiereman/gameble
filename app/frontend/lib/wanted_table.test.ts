@@ -121,13 +121,15 @@ describe("the dock's totals", () => {
     const state = prefill(draw(lines, 150))
     const chosen = setStart(choose(choose(choose(state, "a", "order"), "b", "auction"), "c", "entrust"), "b", "1 000")
     const sum = totals(chosen)
-    expect(sum).toMatchObject({ sales: 2, salesAmount: 810 + 720, entrusted: 2, entrustedAmount: 150, now: 1_680 })
-    expect(sum).toMatchObject({ listed: 2, listedAmount: 1_800, stamps: 20, over: 1, overTitles: ["C"] })
-    expect(sum.lines).toEqual({
-      a: { amount: 1_580, when: "now" },
-      b: { amount: 1_800, when: "start" },
-      c: { amount: 100, when: "now" },
+    expect(sum).toMatchObject({
+      sales: 2,
+      salesGross: 1_700,
+      salesAmount: 810 + 720,
+      entrusted: 2,
+      entrustedAmount: 150,
     })
+    expect(sum).toMatchObject({ now: 1_680, listed: 2, listedGross: 2_000, listedAmount: 1_800, stamps: 20 })
+    expect(sum).toMatchObject({ over: 1, overTitles: ["C"] })
   })
 
   it("counts no proceeds for an auction without a valid start", () => {

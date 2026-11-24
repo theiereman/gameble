@@ -1,35 +1,26 @@
 <div id="market-wanted-choices-region" class="market-wanted-choices__region">
-  <% if @applied %>
-    <%= render "market/wanted_choices/result", applied: @applied %>
-  <% elsif @entrusted_all %>
-    <%= render "market/entrustments/result", entrusted: @entrusted_all %>
-    <div class="wanted-result__back">
-      <%= render ButtonComponent.new(href: market_path) do %><%= t("market.wanted_choices.result.back") %><% end %>
-    </div>
-  <% else %>
-    <% if @suspended %>
-      <%= render "market/suspended_banner" %>
-    <% elsif !@open %>
-      <%= render PanelComponent.new(class: "market-entrust__notice", role: "status") do %>
-        <p><%= t("market.entrustments.new.closed") %></p>
-        <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t("market.entrustments.new.closed_action") %><% end %>
-      <% end %>
+  <% if @suspended %>
+    <%= render "market/suspended_banner" %>
+  <% elsif !@open %>
+    <%= render PanelComponent.new(class: "market-entrust__notice", role: "status") do %>
+      <p><%= t("market.entrustments.new.closed") %></p>
+      <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t("market.entrustments.new.closed_action") %><% end %>
     <% end %>
-    <div class="wanted-strip">
-      <p class="wanted-strip__step"><%= t("market.wanted_choices.new.step") %></p>
-      <% if @first && @first[:copies].to_i.positive? %>
-        <p class="wanted-strip__first"><%= t("market.wanted_choices.new.first", count: @first[:copies], amount: picoins(@first[:minted])) %></p>
-      <% end %>
-      <% if @first && @first[:stayed].any? %>
-        <%= render "market/entrustments/stayed", lines: @first[:stayed], count: @first[:stayed_count], cap_left: @first[:cap_left] %>
-      <% end %>
-    </div>
-    <%= form_with url: market_wanted_choices_path, id: "wanted-table", class: "wanted-choices", data: wanted_root_data(focus: @focus) do %>
-      <%= hidden_field_tag :settings, @settings.token, id: nil %>
-      <%= hidden_field_tag :selection, params[:selection].to_s, id: nil %>
-      <h2 id="market-wanted-heading" class="wanted-choices__heading" tabindex="-1"><%= t("market.wanted_choices.new.intro", count: @lines.size) %></h2>
-      <%= render "market/wanted_choices/table" %>
-      <%= render "market/wanted_choices/dock" %>
+  <% end %>
+  <div class="wanted-strip">
+    <p class="wanted-strip__step"><%= t("market.wanted_choices.new.step") %></p>
+    <% if @first && @first[:copies].to_i.positive? %>
+      <p class="wanted-strip__first"><%= t("market.wanted_choices.new.first", count: @first[:copies], amount: picoins(@first[:minted])) %></p>
     <% end %>
+    <% if @first && @first[:stayed].any? %>
+      <%= render "market/entrustments/stayed", lines: @first[:stayed], count: @first[:stayed_count], cap_left: @first[:cap_left] %>
+    <% end %>
+  </div>
+  <%= form_with url: market_wanted_choices_path, id: "wanted-table", class: "wanted-choices", data: wanted_root_data(focus: @focus) do %>
+    <%= hidden_field_tag :settings, @settings.token, id: nil %>
+    <%= hidden_field_tag :selection, params[:selection].to_s, id: nil %>
+    <h2 id="market-wanted-heading" class="wanted-choices__heading" tabindex="-1"><%= t("market.wanted_choices.new.intro", count: @lines.size) %></h2>
+    <%= render "market/wanted_choices/table" %>
+    <%= render "market/wanted_choices/dock" %>
   <% end %>
 </div>

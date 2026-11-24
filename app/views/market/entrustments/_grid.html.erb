@@ -8,10 +8,12 @@
       <% if @card_slug.nil? && @pagy.count.positive? %>
         <%= tag.button t("market.entrustments.new.select_all", number: number_with_delimiter(@pagy.count)), type: "button",
               class: "button button--secondary button--small entrust-grid__select-all",
-              data: { entrust_grid_target: "selectAll", action: "entrust-grid#selectAll", url: market_entrustment_matches_path(filter: @filter.to_params) } %>
+              data: { entrust_grid_target: "selectAll", action: "entrust-grid#selectAll", url: market_entrustment_matches_path(filter: @filter.to_params),
+                      select_label: t("market.entrustments.new.select_all", number: number_with_delimiter(@pagy.count)),
+                      clear_label: t("market.entrustments.new.deselect_all", number: number_with_delimiter(@pagy.count)) } %>
       <% end %>
+      <p class="entrust-grid__hint"><%= t("market.entrustments.new.keys_hint") %></p>
     </div>
-    <p class="entrust-grid__hint"><%= t("market.entrustments.new.keys_hint") %></p>
     <p class="entrust-grid__failed" role="alert" data-entrust-grid-target="failed" hidden><%= t("market.entrustments.new.select_failed") %></p>
     <% if @copies.empty? %>
       <p class="entrust-grid__empty">

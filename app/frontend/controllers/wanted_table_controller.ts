@@ -1,6 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
 import { writeChecked, writeDisabled, writeHidden, writeText, writeValue } from "../lib/dom_writes"
-import { drawAmount } from "../lib/entrust_view"
 import { t, type Template } from "../lib/i18n"
 import { picoins } from "../lib/picoins"
 import {
@@ -20,8 +19,6 @@ import type WantedDockController from "./wanted_dock_controller"
 
 export type WantedStrings = {
   amount: string
-  now: string
-  atStart: string
   changedTo: string
   choiceOrder: string
   choiceAuction: string
@@ -181,17 +178,12 @@ export default class WantedTableController extends Controller<HTMLFormElement> {
       const ref = line.dataset.ref ?? ""
       const picked = state.picked[ref]
       if (!picked) continue
-      this.reflectLine(line, picked, sums.lines[ref] ?? null, drawing)
+      this.reflectLine(line, picked, drawing)
     }
     if (this.hasWantedDockOutlet) this.wantedDockOutlet.render(sums, this.stringsValue)
   }
 
-  private reflectLine(
-    line: HTMLElement,
-    picked: Picked,
-    amount: { amount: number; when: "now" | "start" } | null,
-    drawing: boolean,
-  ): void {
+  private reflectLine(line: HTMLElement, picked: Picked, drawing: boolean): void {
     for (const input of choiceInputs(line)) writeChecked(input, input.value === picked.choice)
     const auction = picked.choice === "auction"
     const fields = line.querySelector<HTMLElement>("[data-wanted-table-target~='auction']")
@@ -200,18 +192,6 @@ export default class WantedTableController extends Controller<HTMLFormElement> {
     const startField = line.querySelector<HTMLInputElement>("[data-wanted-table-target~='start']")
     if (drawing && startField && startField.value.trim() === "" && picked.start !== "")
       writeValue(startField, picoins(Number(picked.start), { locale: this.localeValue }))
-    const receive = line.querySelector<HTMLElement>("[data-wanted-table-target~='receive']")
-    if (receive) {
-      writeHidden(receive, amount === null)
-      const figure = receive.querySelector(".picoin-amount")
-      if (amount && figure)
-        drawAmount(figure, amount.amount, { locale: this.localeValue, accessible: this.stringsValue.amount })
-      if (amount)
-        writeText(
-          receive.querySelector(".wanted-line__when"),
-          amount.when === "now" ? this.stringsValue.now : this.stringsValue.atStart,
-        )
-    }
     if (drawing && line.dataset.changed === "true" && picked.choice !== null)
       writeText(
         line.querySelector(".wanted-line__changed-to"),

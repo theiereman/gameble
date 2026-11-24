@@ -1,7 +1,1 @@
 <%= turbo_stream.replace "market-wanted-choices-region" do %><%= render "market/wanted_choices/region" %><% end %>
-<% if shell_balance && (@applied || @entrusted_all) %>
-  <%= turbo_stream.update_all ".balance-chip", partial: "shell/balance_figures", locals: { balance: shell_balance } %>
-<% end %>
-<% if @applied || @entrusted_all %>
-  <%= turbo_stream_action_tag "gameble-focus", target: @applied ? "wanted-result-heading" : "entrust-result-heading" %>
-<% end %>

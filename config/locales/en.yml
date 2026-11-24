@@ -3918,7 +3918,7 @@ en:
         select_all: "Select all (%{number})"
         select_failed: The editions could not be loaded. Nothing was ticked, try again.
         step_one: "Step 1 of 2"
-        set_apart_sentence: "Other players are looking for them. You will choose what to do with them right after: sell them, or entrust them anyway."
+        deselect_all: "Deselect all (%{number})"
       result:
         close: Dismiss
         copies:
@@ -3957,10 +3957,7 @@ en:
           other: "%{count} copies will exceed your daily cap and stay in your collection: %{cards}."
           zero: Nothing exceeds your daily cap.
         quantity_label: Copies of %{title} to entrust
-        rare_note:
-          one: "Note: %{count} copy of Rare or better, %{cards}."
-          other: "Note: %{count} copies of Rare or better, %{cards}."
-          zero: No copy of Rare or better.
+        rare_note: "Warning: contains %{rarities} cards"
         stays:
           one: "%{count} stays"
           other: "%{count} stay"
@@ -3969,15 +3966,12 @@ en:
           one: "%{count} copy, %{amount}"
           other: "%{count} copies, %{amount}"
           zero: "No copy, %{amount}"
-        submit:
-          one: Entrust 1 copy
-          other: Entrust %{count} copies
-          zero: Entrust
+        submit: "Validate (%{count})"
         value_text: "%{count} of %{max}"
         set_apart_heading:
-          zero: "SET ASIDE · %{count} WANTED CARDS"
-          one: "SET ASIDE · %{count} WANTED CARD"
-          other: "SET ASIDE · %{count} WANTED CARDS"
+          zero: "Players want your cards"
+          one: "Players want your card"
+          other: "Players want your cards"
         set_apart_status:
           zero: "%{count} set aside"
           one: "%{count} set aside"
@@ -3986,10 +3980,10 @@ en:
           zero: "%{count} players want it"
           one: "%{count} player wants it"
           other: "%{count} players want it"
-        choose:
-          zero: "CHOOSE FOR THE WANTED CARD"
-          one: "CHOOSE FOR THE WANTED CARD"
-          other: "CHOOSE FOR THE %{count} WANTED CARDS"
+        rare_names:
+          epic: "Epic"
+          legendary: "Legendary"
+          rare: "Rare"
     sales:
       create:
         throttled: Slow down, the Archives are counting. Try again in a minute.
@@ -4061,6 +4055,12 @@ en:
     wanted_choices:
       create:
         throttled: "Slow down, the Archives are counting. Try again in a minute."
+        entrusted_all: "%{copies}: %{amount} PiCoins minted."
+        applied_partial: "%{applied} of %{count} choices applied. You received %{amount} PiCoins."
+        applied:
+          one: "Your choice is applied. You received %{amount} PiCoins."
+          other: "Your %{count} choices are applied. You received %{amount} PiCoins."
+          zero: "No choice was applied."
       new:
         step: "Step 2 of 2"
         first:
@@ -4076,9 +4076,7 @@ en:
           seekers: "PLAYERS"
           order: "BEST ORDER"
           average: "AVERAGE PRICE"
-          value: "ENTRUSTED"
           choice: "YOUR CHOICE"
-          receive: "YOU RECEIVE"
         copies:
           zero: "×%{count}"
           one: "×%{count}"
@@ -4099,13 +4097,20 @@ en:
           label: "Your choices"
           now: "YOU RECEIVE NOW"
           listed: "PUT UP FOR SALE"
-          stamp: "STAMP TO PAY"
           all: "ENTRUST ALL ANYWAY"
           finality: "A sale to an order is immediate and cannot be undone. If you leave without validating, these cards stay in your collection."
           validate:
             zero: "VALIDATE MY CHOICE"
             one: "VALIDATE MY CHOICE"
             other: "VALIDATE THE %{count} CHOICES"
+          listed_net: "Net at the starting price"
+          heading_now: "Cashed in now"
+          commission: "Brotherhood's Effort (%{percent})"
+          all_dialog:
+            cancel: "Cancel"
+            close: "Close"
+            text: "Every card set aside is entrusted to the Brotherhood now, even though other players want them. Entrusted cards are not given back, and no choice of the table is applied."
+            title: "Entrust all anyway?"
         changed:
           zero: "No line changed."
           one: "1 line changed: %{cards}. Nothing was sold, listed or entrusted."
@@ -4116,31 +4121,8 @@ en:
           one: "1 price to fix."
           other: "%{count} prices to fix."
         stamps_short: "You are %{amount} PiCoins short for the auction stamps."
-      result:
-        heading:
-          zero: "YOUR CHOICE IS APPLIED"
-          one: "YOUR CHOICE IS APPLIED"
-          other: "YOUR %{count} CHOICES ARE APPLIED"
-        partial: "%{applied} OF %{count} CHOICES APPLIED"
-        received: "You receive now"
-        stamp_paid_html: "Stamp paid: %{amount}."
-        chips:
-          sold: "SOLD"
-          listed: "RUNNING"
-          entrusted: "ENTRUSTED"
-        commission_html: "(Brotherhood Effort: %{amount})"
-        listed_html: "Listed at %{amount}, ending %{end}. Stamp paid: %{stamp}."
-        listed_received_html: "Sold at the starting price, you receive %{amount}."
-        led_by_order_html: "(led by a buy order at %{amount})"
-        see_listing: "SEE THE LISTING"
-        entrusted_html: "The 100-6-Tron minted %{amount}. The card joins the Archives."
-        gained: "received"
-        stamp: "stamp"
-        back: "BACK TO THE MARKET"
       strings:
         amount: "%{amount} PiCoins"
-        now: "now"
-        at_start: "at the start"
         changed_to: "Your choice is now %{choice}."
         choice_order: "TO THE ORDER"
         choice_auction: "AUCTION"
@@ -4155,8 +4137,8 @@ en:
           other: "%{count} cards entrusted"
         listed:
           zero: "No card at the starting price"
-          one: "1 card at the starting price, you would receive"
-          other: "%{count} cards at the starting price, you would receive"
+          one: "1 card at the starting price"
+          other: "%{count} cards at the starting price"
         all_entrust: "ENTRUST ALL ANYWAY · %{amount}"
         status: "You receive %{amount} now."
   markets:

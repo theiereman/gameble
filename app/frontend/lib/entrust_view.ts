@@ -15,7 +15,8 @@ export type EntrustStrings = {
   count: string
   stays: Template
   overCap: Template
-  rareNote: Template
+  rareNote: string
+  rareNames: Record<string, string>
   capText: string
   status: Template
   barCount: Template
@@ -23,7 +24,6 @@ export type EntrustStrings = {
   setApartHeading: Template
   setApartStatus: Template
   seekers: Template
-  choose: Template
 }
 
 export type CellView = {
@@ -38,6 +38,7 @@ export type GridView = {
   cells: ReadonlyMap<string, CellView>
   selecting: Selecting
   firstOfTwoSteps: boolean
+  allTicked: boolean
 }
 
 export type TickView = { copy: Copy; copies: number }
@@ -69,6 +70,7 @@ export type RecapView = {
   full: boolean
   over: string | null
   rare: string | null
+  rareTones: readonly { rarity: string; name: string }[]
   more: string | null
   label: string
   disabled: boolean
@@ -110,7 +112,9 @@ export function gridViewOf(state: EntrustState, strings: EntrustStrings): GridVi
     })
   }
   const firstOfTwoSteps = Object.keys(state.ticked).some((ref) => (state.copies[ref]?.seekers ?? 0) > 0)
-  return { cells, selecting: state.selecting, firstOfTwoSteps }
+  const tickable = state.loaded.filter((ref) => (state.copies[ref]?.free ?? 0) >= 1)
+  const allTicked = tickable.length > 0 && tickable.every((ref) => ref in state.ticked)
+  return { cells, selecting: state.selecting, firstOfTwoSteps, allTicked }
 }
 
 // What the form posts: every ticked edition, in the list's order.
@@ -154,11 +158,11 @@ export function recapViewOf(
     t(strings.status, { count: result.count, amount: t(accessible, { amount: picoins(result.received, { locale }) }) }),
     ...(result.setApartCount > 0 ? [t(strings.setApartStatus, { count: result.setApartCount })] : []),
   ].join(", ")
-  const onlyWanted = result.count === 0 && result.setApartCount > 0
+  const rareTones = result.rareTones.map((rarity) => ({ rarity, name: strings.rareNames[rarity] ?? rarity }))
   return {
     prompt: result.lines.length === 0 && result.setApartCount === 0,
     setApart: setApartViewOf(result.setApart, result.setApartCount, strings),
-    finality: !onlyWanted,
+    finality: !(result.count === 0 && result.setApartCount > 0),
     lines: result.lines.slice(0, RECAP_LINES).map(({ copy, copies, entrusted, stayed }) => ({
       ref: copy.ref,
       label: t(strings.line, { title: copy.title, season: copy.season }),
@@ -182,9 +186,10 @@ export function recapViewOf(
         ? t(strings.overCap, { count: result.stayedCount, cards: names(staying.map((line) => line.copy.title)) })
         : null,
     rare:
-      result.rareCount > 0 ? t(strings.rareNote, { count: result.rareCount, cards: names(result.rareNames) }) : null,
+      rareTones.length > 0 ? t(strings.rareNote, { rarities: rareTones.map((tone) => tone.name).join(", ") }) : null,
+    rareTones,
     more: result.lines.length > RECAP_LINES ? t(strings.more, { count: result.lines.length - RECAP_LINES }) : null,
-    label: onlyWanted ? t(strings.choose, { count: result.setApartCount }) : t(strings.submit, { count: result.count }),
+    label: t(strings.submit, { count: result.count + result.setApartCount }),
     disabled: !open || !result.canValidate,
     status,
     bar: { count: t(strings.barCount, { count: result.count }), amount: result.received },

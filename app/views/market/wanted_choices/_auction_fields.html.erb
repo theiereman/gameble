@@ -21,20 +21,17 @@
         aria: { label: t("market.wanted_choices.new.duration_label", **named), invalid: ("true" if duration_refusal),
                 describedby: ("#{id}-duration-error" if duration_refusal) } do %>
     <legend class="sale-field__label"><%= t("market.sales.new.duration_label") %></legend>
-    <% sale_durations(@settings, checked: posted&.duration_hours.presence || @settings.preselected_duration_hours).each do |duration| %>
-      <label class="sale-durations__choice">
-        <%= radio_button_tag "lines[#{index}][duration_hours]", duration[:hours], duration[:checked], id: nil, disabled: !shown,
-              data: { wanted_table_target: "duration", action: "change->wanted-table#pickDuration" } %>
-        <span><%= duration[:label] %></span>
-      </label>
-    <% end %>
+    <div class="segmented sale-durations__options">
+      <% sale_durations(@settings, checked: posted&.duration_hours.presence || @settings.preselected_duration_hours).each do |duration| %>
+        <label class="segmented__option sale-durations__choice">
+          <%= radio_button_tag "lines[#{index}][duration_hours]", duration[:hours], duration[:checked], id: nil, disabled: !shown, class: "segmented__input",
+                data: { wanted_table_target: "duration", action: "change->wanted-table#pickDuration" } %>
+          <span class="segmented__label"><%= duration[:label] %></span>
+        </label>
+      <% end %>
+    </div>
     <% if duration_refusal %>
       <p id="<%= id %>-duration-error" class="sale-field__error"><%= duration_refusal %></p>
     <% end %>
   <% end %>
-  <p class="wanted-auction__stamp">
-    <span class="sale-field__label"><%= t("market.sales.new.stamp_name") %></span>
-    <%= render PicoinAmountComponent.new(amount: line.stamp * line.copies) %>
-    <span class="wanted-auction__stamp-text"><%= t("market.sales.new.stamp_text") %></span>
-  </p>
 <% end %>

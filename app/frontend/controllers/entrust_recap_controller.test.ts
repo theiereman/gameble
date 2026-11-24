@@ -74,6 +74,7 @@ const view = (over: Partial<RecapView> = {}): RecapView => ({
   full: false,
   over: null,
   rare: null,
+  rareTones: [],
   more: null,
   label: "Entrust 2 copies",
   disabled: false,
@@ -179,6 +180,22 @@ describe("the submit button", () => {
   it("is described by the not-given-back sentence alone", () => {
     recap.render(view())
     expect(described()).toBe("not-returned")
+  })
+
+  it("wraps each rarity word of the warning in a span of that rarity, the sentence unchanged", () => {
+    const rareTones = [
+      { rarity: "rare", name: "Rare" },
+      { rarity: "epic", name: "Epic" },
+    ]
+    recap.render(view({ rare: "Warning: Rare, Epic", rareTones }))
+    const note = document.getElementById("rare-note")!
+    expect(note.textContent).toBe("Warning: Rare, Epic")
+    expect(
+      [...note.querySelectorAll<HTMLElement>("span")].map((span) => [span.textContent, span.dataset.rarity]),
+    ).toEqual([
+      ["Rare", "rare"],
+      ["Epic", "epic"],
+    ])
   })
 
   it("gains the Rare-or-better note while it is shown and loses it after", () => {

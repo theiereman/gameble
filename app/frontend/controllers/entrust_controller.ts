@@ -5,11 +5,13 @@ import {
   bump,
   know,
   moveActive,
+  deselectAll,
   selectAll,
   selecting,
   setCopies,
   start,
   toggle,
+  untick,
   type Copy,
   type EntrustState,
   type Layout,
@@ -93,6 +95,8 @@ export default class EntrustController extends Controller<HTMLElement> {
   private arrival?: number
   private arrived: HTMLElement[] = []
   private cellsChanged = false
+  // What the last "select all" ticked, and the filters it answered: a ticked copy no filter keeps any more is let go.
+  private bulk: { url: string; refs: Set<string> } | null = null
 
   // Esc here closes an overlay and nothing else: it never clears the ticks nor leaves the screen.
   private readonly guardEscape = (event: KeyboardEvent): void => {
@@ -162,12 +166,28 @@ export default class EntrustController extends Controller<HTMLElement> {
     this.filters()?.clear()
   }
 
-  async selectAll({ detail: { url } }: Intent<{ url: string }>): Promise<void> {
+  async selectAll({ detail: { url, clear } }: Intent<{ url: string; clear?: boolean }>): Promise<void> {
     if (!this.state || this.state.selecting === "loading") return
     this.apply(selecting(this.state, "loading"))
     const copies = await fetchMatches(url)
     if (!this.state) return
-    this.apply(copies ? selectAll(this.state, copies) : selecting(this.state, "failed"))
+    if (!copies) {
+      this.apply(selecting(this.state, "failed"))
+      return
+    }
+    this.bulk = clear ? null : { url, refs: new Set(copies.filter((copy) => copy.free >= 1).map((copy) => copy.ref)) }
+    this.apply(clear ? deselectAll(this.state, copies) : selectAll(this.state, copies))
+  }
+
+  private async followFilters(url: string): Promise<void> {
+    const { bulk } = this
+    if (!bulk || !this.state || url === bulk.url) return
+    const matches = await fetchMatches(url)
+    if (!this.state || this.bulk !== bulk) return
+    const kept = new Set(matches ? matches.map((copy) => copy.ref) : this.state.loaded)
+    const dropped = [...bulk.refs].filter((ref) => !kept.has(ref))
+    this.bulk = { url, refs: new Set([...bulk.refs].filter((ref) => kept.has(ref))) }
+    this.apply(untick(this.state, dropped))
   }
 
   toggle({ detail: { ref } }: Intent<{ ref: string }>): void {
@@ -236,6 +256,8 @@ export default class EntrustController extends Controller<HTMLElement> {
             this.cellTargets.map((cell) => cell.dataset.ref ?? ""),
           ),
         )
+      const url = this.grid()?.matchesUrl()
+      if (url) void this.followFilters(url)
     })
   }
 

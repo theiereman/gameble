@@ -119,28 +119,22 @@ class Market::WantedChoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#wanted-line-0-choice input[checked]", false
     assert_select ".wanted-auction[hidden] input[disabled]", minimum: 1
     assert_select "button[type=submit]", "VALIDER LES 3 CHOIX"
-    assert_select "button[type=submit][name=all][value='1'][aria-describedby=wanted-not-returned]"
+    assert_select "button[type=button][aria-haspopup=dialog][aria-describedby=wanted-not-returned]", "TOUT CONFIER QUAND MÊME"
+    assert_select "dialog#wanted-all-dialog button[type=submit][name=all][value='1']"
     assert_select "[style]", false
     assert_no_match(/lines\[\d\]\[card_season_id\]|value="#{@uncommon.id}"/, response.body)
   end
 
-  test "an order, an auction and an entrustment apply together and the result names each" do
+  test "an order, an auction and an entrustment apply together and the market says so" do
     fund!(@player, 100)
     sign_in(@player)
 
     validate([ line(@uncommon, "order", orders: [ @order.token ]), line(@rare, "auction", price: "100", hours: "24"), line(@common, "entrust") ])
 
-    assert_response :success
-    listing = Game::Market::Listing.find_by!(seller: @player)
+    assert_select "turbo-stream[action=gameble-visit][location=?]", market_path(locale: :fr)
+    assert_match(/Vos 3 choix sont appliqués/, flash[:notice])
     assert_equal [ "served", 1 ], [ @order.reload.status, deposited(@common) ]
-    assert_select "turbo-stream[action=replace][target=market-wanted-choices-region]"
-    assert_select "turbo-stream[action=gameble-focus][target=wanted-result-heading]"
-    assert_select "#wanted-result-heading", "VOS 3 CHOIX SONT APPLIQUÉS"
-    assert_select ".wanted-result__line--sold .market-row__chip", "VENDUE"
-    assert_select ".wanted-result__line--listed .market-row__chip", "EN COURS"
-    assert_select ".wanted-result__line--listed a[href=?]", market_listing_path(locale: :fr, token: listing.token), text: "VOIR L'ANNONCE"
-    assert_select ".wanted-result__line--entrusted .market-row__chip", "CONFIÉE"
-    assert_select ".wanted-result__back a[href=?]", market_path(locale: :fr), text: "RETOUR AU MARCHÉ"
+    assert_equal 1, Game::Market::Listing.where(seller: @player).count
   end
 
   test "an order served meanwhile refuses the table, flags its line and keeps every typed price" do
@@ -267,7 +261,7 @@ class Market::WantedChoicesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "open", rare_order.reload.status
   end
 
-  test "an auction at or below an order converts it and its result line says it is led by the order" do
+  test "an auction at or below an order converts it and the listing is led by the order" do
     fund!(@seeker, 2_000)
     rare_order = order!(@seeker, @rare, 1_000)
     fund!(@player, 100)
@@ -275,33 +269,29 @@ class Market::WantedChoicesControllerTest < ActionDispatch::IntegrationTest
 
     validate([ line(@rare, "auction", price: "800", hours: "24") ], selected: [ @rare ])
 
-    assert_response :success
+    assert_select "turbo-stream[action=gameble-visit][location=?]", market_path(locale: :fr)
     assert_equal [ "bid", @seeker.id ], [ rare_order.reload.status, Game::Market::Listing.find_by!(seller: @player).leader_id ]
-    assert_select ".wanted-result__line--listed", /\(menée par un ordre d'achat à\s+800/
   end
 
-  test "entrusting all anyway entrusts every set-apart copy and shows Confier's result" do
+  test "entrusting all anyway entrusts every set-apart copy and goes back to the market" do
     sign_in(@player)
 
     validate([ line(@uncommon, "order", orders: [ @order.token ]), line(@common, "auction") ], selected: [ @uncommon, @common ], all: "1")
 
-    assert_response :success
+    assert_select "turbo-stream[action=gameble-visit][location=?]", market_path(locale: :fr)
     assert_equal [ 1, 1, "open" ], [ deposited(@uncommon), deposited(@common), @order.reload.status ]
-    assert_select "#entrust-result-heading"
-    assert_select "turbo-stream[action=gameble-focus][target=entrust-result-heading]"
-    assert_select ".wanted-result__back a[href=?]", market_path(locale: :fr)
+    assert_match(/PiCoins fabriqués/, flash[:notice])
   end
 
-  test "a copy over the cap at validation is skipped and named while the rest applies" do
+  test "a copy over the cap at validation is skipped while the rest applies" do
     @settings = open_market!(first_opened_at: 1.day.ago, daily_cap: @settings.entrustment(:common))
     sign_in(@player)
 
     validate([ line(@uncommon, "order", orders: [ @order.token ]), line(@rare, "entrust"), line(@common, "entrust") ])
 
-    assert_response :success
+    assert_select "turbo-stream[action=gameble-visit][location=?]", market_path(locale: :fr)
     assert_equal [ 0, 1 ], [ deposited(@rare), deposited(@common) ]
-    assert_select "#wanted-result-heading", "2 CHOIX SUR 3 APPLIQUÉS"
-    assert_select ".wanted-result .entrust-result__stayed-line", /saison 1.{3}1 exemplaire reste dans votre collection/
+    assert_match(/2 choix sur 3 appliqués/, flash[:notice])
   end
 
   test "a line the cap lets only part of through counts as applied" do
@@ -311,9 +301,8 @@ class Market::WantedChoicesControllerTest < ActionDispatch::IntegrationTest
 
     validate([ line(@uncommon, "order", orders: [ @order.token ]), line(@common, "entrust").merge(copies: 2) ], selected: [ @uncommon, @common ])
 
-    assert_response :success
+    assert_select "turbo-stream[action=gameble-visit][location=?]", market_path(locale: :fr)
     assert_equal 1, deposited(@common)
-    assert_select "#wanted-result-heading", "VOS 2 CHOIX SONT APPLIQUÉS"
-    assert_select ".wanted-result .entrust-result__stayed-line", /saison 1.{3}1 exemplaire reste dans votre collection/
+    assert_match(/Vos 2 choix sont appliqués/, flash[:notice])
   end
 end

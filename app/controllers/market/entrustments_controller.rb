@@ -2,7 +2,6 @@ module Market
   class EntrustmentsController < ApplicationController
     include PublicRead
     include CopyGrid
-    include DeckHoldingLoading
     include SetApart
 
     SELECTION_SEPARATOR = ",".freeze
@@ -81,7 +80,6 @@ module Market
         @cap_left = listed? ? Game::Market::CapLeft.call(current_player.id, settings: @settings) : 0
         @wanted = wanted_by_ref
         load_grid
-        load_deck_holding
         @ticked_copies = keep_ticks ? ticked_copies : []
         @ticked_copies = [ [ @copies.first, 1 ] ] if lone_card_edition?
         @ticked = @ticked_copies.to_h { |copy, count| [ copy.ref, count ] }

@@ -91,22 +91,26 @@ module Market
         result = Game::Market::EntrustCards.new.call(player: current_player, lines:, settings_token: params[:settings].to_s)
         return refuse_choices(result.failure) if result.failure?
 
-        @entrusted_all = result.value!
-        @stayed_names = Game::Market::CardNames.call(@entrusted_all.stayed.first(MarketEntrustmentsHelper::RESULT_LINES).map(&:card_season_id))
-        answer(status: :ok)
+        entrusted = result.value!
+        done t("market.wanted_choices.create.entrusted_all", copies: t("market.entrustments.result.copies", count: entrusted.copies),
+          amount: helpers.picoins(entrusted.minted))
       end
 
       def show_applied(applied)
-        @applied = applied
-        ids = posted_lines.map { posted_ids[it.ref] }
-        @result_cards = Catalog::CardViews.call(ids.compact, locale: I18n.locale)
-        @result_lines = ids.each_with_index.filter_map { |id, index| [ index, @result_cards[id] ] if @result_cards.key?(id) }
-        @skipped = applied.skipped.filter_map do |skipped|
-          card = @result_cards[ids[skipped.line]]
-          [ card.title, card.season_number, skipped.copies, @settings.entrustment(card.rarity.to_sym) ] if card
+        landed = (applied.sold + applied.listed + applied.entrusted).map(&:line).uniq.size
+        received = applied.sold.sum(&:received) + applied.entrusted.sum(&:minted)
+        amount = helpers.picoins(received)
+        done landed == posted_lines.size ? t("market.wanted_choices.create.applied", count: landed, amount:)
+          : t("market.wanted_choices.create.applied_partial", applied: landed, count: posted_lines.size, amount:)
+      end
+
+      # The table has served its purpose: back to the market, which says what happened.
+      def done(notice)
+        flash[:notice] = notice
+        respond_to do |format|
+          format.turbo_stream { render turbo_stream: helpers.turbo_stream_action_tag("gameble-visit", location: market_path) }
+          format.html { redirect_to market_path, status: :see_other }
         end
-        @cap_before = Game::Market::CapLeft.call(current_player.id, settings: @settings) + applied.entrusted.sum(&:minted)
-        answer(status: :ok)
       end
 
       def refuse_choices(code, details = [])

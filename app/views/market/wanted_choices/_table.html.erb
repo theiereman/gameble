@@ -1,7 +1,7 @@
 <table class="wanted-table" aria-labelledby="market-wanted-heading">
   <thead>
     <tr>
-      <% %w[card seekers order average value choice receive].each do |head| %>
+      <% %w[card seekers order average choice].each do |head| %>
         <th scope="col" class="wanted-table__head wanted-table__head--<%= head %>"><%= t("market.wanted_choices.new.heads.#{head}") %></th>
       <% end %>
     </tr>

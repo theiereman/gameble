@@ -22,21 +22,30 @@ export default class EntrustGridController extends Controller<HTMLElement> {
   declare readonly stepTarget: HTMLElement
 
   private drawn = new WeakMap<Element, CellView>()
+  private allTicked = false
 
   // Only a cell that just connected or whose view changed is touched: a grid of loaded pages holds thousands.
-  render({ cells, selecting, firstOfTwoSteps }: GridView): void {
+  render({ cells, selecting, firstOfTwoSteps, allTicked }: GridView): void {
     for (const cell of this.cellTargets) {
       const view = cells.get(cell.dataset.ref ?? "")
       if (!view || sameCell(this.drawn.get(cell), view)) continue
       this.reflectCell(cell, view)
       this.drawn.set(cell, view)
     }
+    this.allTicked = allTicked
     if (this.hasSelectAllTarget) {
+      const { selectLabel, clearLabel } = this.selectAllTarget.dataset
+      const label = allTicked ? clearLabel : selectLabel
+      if (label && this.selectAllTarget.textContent !== label) this.selectAllTarget.textContent = label
       writeDisabled(this.selectAllTarget, selecting === "loading")
       writeFlag(this.selectAllTarget, "aria-busy", selecting === "loading")
     }
     if (this.hasFailedTarget) writeHidden(this.failedTarget, selecting !== "failed")
     if (this.hasStepTarget) writeHidden(this.stepTarget, !firstOfTwoSteps)
+  }
+
+  matchesUrl(): string | undefined {
+    return this.hasSelectAllTarget ? this.selectAllTarget.dataset.url : undefined
   }
 
   focusActive(): void {
@@ -50,7 +59,7 @@ export default class EntrustGridController extends Controller<HTMLElement> {
 
   selectAll(): void {
     const url = this.hasSelectAllTarget ? this.selectAllTarget.dataset.url : undefined
-    if (url) this.dispatch("select", { detail: { url } })
+    if (url) this.dispatch("select", { detail: { url, clear: this.allTicked } })
   }
 
   stepperKey(event: KeyboardEvent): void {

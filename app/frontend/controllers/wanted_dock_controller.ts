@@ -14,16 +14,23 @@ export default class WantedDockController extends Controller<HTMLElement> {
     "salesPart",
     "salesCount",
     "salesAmount",
+    "commissionPart",
+    "commissionAmount",
     "entrustedPart",
     "entrustedCount",
     "entrustedAmount",
+    "listedPart",
     "listedCount",
+    "listedGross",
+    "listedCommission",
     "listedAmount",
+    "stampPart",
     "stamps",
     "over",
     "refusal",
     "status",
     "all",
+    "allConfirm",
   ]
   static values = { locale: String, accessible: String }
 
@@ -31,15 +38,23 @@ export default class WantedDockController extends Controller<HTMLElement> {
   declare readonly salesPartTarget: HTMLElement
   declare readonly salesCountTarget: HTMLElement
   declare readonly salesAmountTarget: HTMLElement
+  declare readonly commissionPartTarget: HTMLElement
+  declare readonly commissionAmountTarget: HTMLElement
   declare readonly entrustedPartTarget: HTMLElement
   declare readonly entrustedCountTarget: HTMLElement
   declare readonly entrustedAmountTarget: HTMLElement
+  declare readonly listedPartTarget: HTMLElement
   declare readonly listedCountTarget: HTMLElement
+  declare readonly listedGrossTarget: HTMLElement
+  declare readonly listedCommissionTarget: HTMLElement
   declare readonly listedAmountTarget: HTMLElement
+  declare readonly stampPartTarget: HTMLElement
   declare readonly stampsTarget: HTMLElement
   declare readonly overTarget: HTMLElement
   declare readonly statusTarget: HTMLElement
   declare readonly allTarget: HTMLElement
+  declare readonly hasAllConfirmTarget: boolean
+  declare readonly allConfirmTarget: HTMLElement
   declare readonly hasRefusalTarget: boolean
   declare readonly refusalTarget: HTMLElement
   declare readonly localeValue: string
@@ -67,20 +82,25 @@ export default class WantedDockController extends Controller<HTMLElement> {
     drawAmount(this.nowTarget, sums.now, forms)
     writeHidden(this.salesPartTarget, sums.sales === 0)
     writeText(this.salesCountTarget, t(strings.sales, { count: sums.sales }))
-    drawAmount(this.salesAmountTarget, sums.salesAmount, forms)
+    drawAmount(this.salesAmountTarget, sums.salesGross, forms)
+    writeHidden(this.commissionPartTarget, sums.salesGross === sums.salesAmount)
+    drawAmount(this.commissionAmountTarget, sums.salesGross - sums.salesAmount, forms)
     writeHidden(this.entrustedPartTarget, sums.entrusted === 0)
     writeText(this.entrustedCountTarget, t(strings.entrusted, { count: sums.entrusted }))
     drawAmount(this.entrustedAmountTarget, sums.entrustedAmount, forms)
+    writeHidden(this.listedPartTarget, sums.listed === 0)
     writeText(this.listedCountTarget, t(strings.listed, { count: sums.listed }))
+    drawAmount(this.listedGrossTarget, sums.listedGross, forms)
+    drawAmount(this.listedCommissionTarget, sums.listedGross - sums.listedAmount, forms)
     drawAmount(this.listedAmountTarget, sums.listedAmount, forms)
+    writeHidden(this.stampPartTarget, sums.stamps === 0)
     drawAmount(this.stampsTarget, sums.stamps, forms)
     writeHidden(this.overTarget, sums.over === 0)
     if (sums.over > 0)
       writeText(this.overTarget, t(strings.overCap, { count: sums.over, cards: sums.overTitles.join(", ") }))
-    writeText(
-      this.allTarget.querySelector("button"),
-      t(strings.allEntrust, { amount: picoins(sums.allEntrust, { locale: this.localeValue }) }),
-    )
+    const allEntrust = t(strings.allEntrust, { amount: picoins(sums.allEntrust, { locale: this.localeValue }) })
+    writeText(this.allTarget.querySelector("button"), allEntrust)
+    if (this.hasAllConfirmTarget) writeText(this.allConfirmTarget, allEntrust)
     this.postStatus(
       t(strings.status, {
         amount: t(this.accessibleValue, { amount: picoins(sums.now, { locale: this.localeValue }) }),

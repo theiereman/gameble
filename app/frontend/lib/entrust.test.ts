@@ -9,6 +9,7 @@ import {
   listOrder,
   moveActive,
   preview,
+  deselectAll,
   selectAll,
   selecting,
   setCopies,
@@ -94,6 +95,15 @@ describe("selecting every edition the filters keep", () => {
     expect(all.ticked).toEqual({ "rare:1": 3, "legendary:1": 1, "common:1": 1, "uncommon:1": 1 })
     expect(all.copies["uncommon:1"]?.title).toBe("The uncommon game")
     expect(all.selecting).toBe("idle")
+  })
+
+  it("unticks every edition the filters keep, whichever page it is on, and leaves the others", () => {
+    const ticked = selectAll(start(LIST, CAP, {}), [...LIST, copy("uncommon")])
+    const other = copy("epic")
+    const state = selectAll(ticked, [other])
+    const cleared = deselectAll(selecting(state, "loading"), [...LIST, copy("uncommon")])
+    expect(cleared.ticked).toEqual({ "epic:1": 1 })
+    expect(cleared.selecting).toBe("idle")
   })
 
   it("says when the editions could not be loaded and leaves the ticks", () => {
@@ -184,15 +194,17 @@ describe("preview", () => {
     expect(sorted.map((entry) => entry.ref)).toEqual(["z:9", "a:1", "b:1", "b:2"])
   })
 
-  it("names the entrusted Rare or better", () => {
-    const result = preview(toggle(toggle(start(LIST, CAP, {}), "rare:1"), "common:1"))
-    expect(result.rareNames).toEqual(["The rare game"])
-    expect(result.rareCount).toBe(1)
+  it("lists, from the lowest, every rarity of Rare or better among the entrusted copies", () => {
+    expect(preview(toggle(toggle(start(LIST, CAP, {}), "rare:1"), "common:1")).rareTones).toEqual(["rare"])
+    expect(preview(toggle(toggle(start(LIST, CAP, {}), "legendary:1"), "rare:1")).rareTones).toEqual([
+      "rare",
+      "legendary",
+    ])
   })
 
   it("does not name a Rare that stays", () => {
     const result = preview(toggle(start(LIST, 1000, {}), "rare:1"))
-    expect(result.rareNames).toEqual([])
+    expect(result.rareTones).toEqual([])
     expect(result.canValidate).toBe(true)
     expect(result.count).toBe(0)
   })

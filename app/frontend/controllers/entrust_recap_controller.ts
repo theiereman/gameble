@@ -155,7 +155,7 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     this.reflectGauge(view)
     writeText(this.capTextTarget, view.capText)
     this.reflectNote(this.overTarget, view.over)
-    this.reflectNote(this.rareTarget, view.rare)
+    this.reflectRare(view)
     this.fullTarget.hidden = !view.full
     this.sentenceTarget.hidden = !view.finality
     if (this.hasSetApartTarget) this.reflectSetApart(view.setApart)
@@ -197,6 +197,26 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     return { locale: this.localeValue, accessible: this.accessibleValue }
   }
 
+  // The warning reads as plain text; each rarity word in it is wrapped in a span carrying that rarity.
+  private reflectRare({ rare, rareTones }: RecapView): void {
+    this.reflectNote(this.rareTarget, rare)
+    if (rare === null) return
+    const parts: (string | HTMLElement)[] = []
+    let cursor = 0
+    for (const { rarity, name } of rareTones) {
+      const at = rare.indexOf(name, cursor)
+      if (at < 0) continue
+      const span = document.createElement("span")
+      span.className = "entrust-recap__rare-title"
+      span.dataset.rarity = rarity
+      span.textContent = name
+      parts.push(rare.slice(cursor, at), span)
+      cursor = at + name.length
+    }
+    parts.push(rare.slice(cursor))
+    this.rareTarget.replaceChildren(...parts)
+  }
+
   private reflectNote(note: HTMLElement, text: string | null): void {
     note.hidden = text === null
     if (text !== null) writeText(note, text)
@@ -227,7 +247,9 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
       if (!node.parentElement) list.append(node)
       writeData(node, "ref", line.ref)
       writeData(node, "rarity", line.rarity)
-      writeText(node.querySelector(".entrust-recap__set-apart-name"), line.label)
+      const name = node.querySelector<HTMLElement>(".entrust-recap__set-apart-name")
+      writeText(name, line.label)
+      name?.setAttribute("title", line.label)
       writeText(node.querySelector(".entrust-recap__set-apart-seekers"), line.seekers)
     })
   }

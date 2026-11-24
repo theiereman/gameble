@@ -1,30 +1,55 @@
 <%= render PanelComponent.new(tag: :aside, class: "wanted-dock dock", aria: { labelledby: "wanted-dock-heading" },
       data: { controller: "wanted-dock", wanted_dock_locale_value: I18n.locale, wanted_dock_accessible_value: t("market.wanted_choices.strings.amount") }) do %>
   <h2 id="wanted-dock-heading" class="visually-hidden"><%= t("market.wanted_choices.new.dock.label") %></h2>
-  <div class="wanted-dock__totals">
-    <div class="wanted-dock__total wanted-dock__total--now">
-      <span class="wanted-dock__label"><%= t("market.wanted_choices.new.dock.now") %></span>
-      <%= render PicoinAmountComponent.new(amount: 0, size: :large, data: { wanted_dock_target: "now" }) %>
-      <span class="wanted-dock__parts">
-        <span class="wanted-dock__part" data-wanted-dock-target="salesPart" hidden>
-          <span data-wanted-dock-target="salesCount"></span> <%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "salesAmount" }) %>
-        </span>
-        <span class="wanted-dock__part" data-wanted-dock-target="entrustedPart" hidden>
-          <span data-wanted-dock-target="entrustedCount"></span> <%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "entrustedAmount" }) %>
-        </span>
-      </span>
-    </div>
-    <div class="wanted-dock__total">
-      <span class="wanted-dock__label"><%= t("market.wanted_choices.new.dock.listed") %></span>
-      <span class="wanted-dock__parts">
-        <span data-wanted-dock-target="listedCount"></span> <%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "listedAmount" }) %>
-      </span>
-    </div>
-    <div class="wanted-dock__total">
-      <span class="wanted-dock__label"><%= t("market.wanted_choices.new.dock.stamp") %></span>
-      <%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "stamps" }) %>
-      <span class="wanted-dock__parts"><%= t("market.sales.new.stamp_text") %></span>
-    </div>
+  <% percent = basis_points_percent(@settings.commission_basis_points) %>
+  <div class="wanted-slip">
+    <section class="wanted-slip__group wanted-slip__group--now">
+      <p class="wanted-slip__heading"><%= t("market.wanted_choices.new.dock.heading_now") %></p>
+      <dl class="wanted-slip__rows">
+        <div class="wanted-slip__row" data-wanted-dock-target="salesPart" hidden>
+          <dt data-wanted-dock-target="salesCount"></dt>
+          <dd><%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "salesAmount" }) %></dd>
+        </div>
+        <div class="wanted-slip__row wanted-slip__row--deduction" data-wanted-dock-target="commissionPart" hidden>
+          <dt><%= t("market.wanted_choices.new.dock.commission", percent:) %></dt>
+          <dd><span class="wanted-slip__sign" aria-hidden="true">−</span><%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "commissionAmount" }) %></dd>
+        </div>
+        <div class="wanted-slip__row" data-wanted-dock-target="entrustedPart" hidden>
+          <dt data-wanted-dock-target="entrustedCount"></dt>
+          <dd><%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "entrustedAmount" }) %></dd>
+        </div>
+        <div class="wanted-slip__row wanted-slip__row--total">
+          <dt><%= t("market.wanted_choices.new.dock.now") %></dt>
+          <dd><%= render PicoinAmountComponent.new(amount: 0, size: :large, data: { wanted_dock_target: "now" }) %></dd>
+        </div>
+      </dl>
+    </section>
+    <section class="wanted-slip__group" data-wanted-dock-target="listedPart" hidden>
+      <p class="wanted-slip__heading"><%= t("market.wanted_choices.new.dock.listed") %></p>
+      <dl class="wanted-slip__rows">
+        <div class="wanted-slip__row">
+          <dt data-wanted-dock-target="listedCount"></dt>
+          <dd><%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "listedGross" }) %></dd>
+        </div>
+        <div class="wanted-slip__row wanted-slip__row--deduction">
+          <dt><%= t("market.wanted_choices.new.dock.commission", percent:) %></dt>
+          <dd><span class="wanted-slip__sign" aria-hidden="true">−</span><%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "listedCommission" }) %></dd>
+        </div>
+        <div class="wanted-slip__row wanted-slip__row--net">
+          <dt><%= t("market.wanted_choices.new.dock.listed_net") %></dt>
+          <dd><%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "listedAmount" }) %></dd>
+        </div>
+      </dl>
+    </section>
+    <section class="wanted-slip__group" data-wanted-dock-target="stampPart" hidden>
+      <p class="wanted-slip__heading"><%= t("market.sales.new.stamp_name") %></p>
+      <dl class="wanted-slip__rows">
+        <div class="wanted-slip__row wanted-slip__row--deduction">
+          <dt><%= t("market.sales.new.stamp_text") %></dt>
+          <dd><span class="wanted-slip__sign" aria-hidden="true">−</span><%= render PicoinAmountComponent.new(amount: 0, data: { wanted_dock_target: "stamps" }) %></dd>
+        </div>
+      </dl>
+    </section>
   </div>
   <p class="wanted-dock__over" data-wanted-dock-target="over" hidden></p>
   <p id="wanted-dock-refusal" class="wanted-dock__refusal" tabindex="-1" data-wanted-dock-target="refusal" <%= "hidden" if @dock_refusal.blank? %>><%= @dock_refusal %></p>
@@ -32,7 +57,7 @@
   <p id="wanted-not-returned" class="visually-hidden"><%= t("market.entrustments.new.not_returned") %></p>
   <div class="wanted-dock__actions">
     <span class="wanted-dock__all" data-wanted-dock-target="all">
-      <%= render ButtonComponent.new(variant: :secondary, type: :submit, name: "all", value: "1", disabled: !@open,
+      <%= render ButtonComponent.new(variant: :secondary, opens: "wanted-all-dialog", disabled: !@open,
             describedby: [ ("market-suspended-banner" if @suspended), "wanted-not-returned" ].compact.join(" ")) do %><%= t("market.wanted_choices.new.dock.all") %><% end %>
     </span>
     <span class="wanted-dock__validate">
@@ -41,4 +66,22 @@
     </span>
   </div>
   <p class="visually-hidden" role="status" aria-live="polite" data-wanted-dock-target="status"></p>
+  <dialog id="wanted-all-dialog" class="modal" aria-labelledby="wanted-all-dialog-title" aria-describedby="wanted-all-dialog-text"
+          data-controller="dialog" data-action="click->dialog#closeOnScrim">
+    <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+      <span class="modal__handle" aria-hidden="true"></span>
+      <div class="modal__head">
+        <p id="wanted-all-dialog-title" class="modal__title"><%= t("market.wanted_choices.new.dock.all_dialog.title") %></p>
+        <button type="button" class="modal__close" aria-label="<%= t("market.wanted_choices.new.dock.all_dialog.close") %>" data-action="dialog#close">
+          <%= pixel_icon("close", class: "modal__close-icon") %>
+        </button>
+      </div>
+      <p id="wanted-all-dialog-text" class="wanted-all-dialog__text"><%= t("market.wanted_choices.new.dock.all_dialog.text") %></p>
+      <div class="wanted-all-dialog__actions">
+        <%= tag.button t("market.wanted_choices.new.dock.all"), type: :submit, name: "all", value: "1", class: "button button--primary",
+              data: { wanted_dock_target: "allConfirm" } %>
+        <%= tag.button t("market.wanted_choices.new.dock.all_dialog.cancel"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
+      </div>
+    <% end %>
+  </dialog>
 <% end %>

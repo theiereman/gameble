@@ -54,9 +54,9 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     cell(@common).find(".stepper__button--more").click
 
     assert_selector ".entrust-grid__step", text: /\AStep 1 of 2\z/i
-    assert_selector ".entrust-recap__set-apart-heading", text: "SET ASIDE · 3 WANTED CARDS"
+    assert_selector ".entrust-recap__set-apart-heading", text: "PLAYERS WANT YOUR CARDS"
     assert_selector ".entrust-recap__set-apart-line", count: 3
-    click_on "Entrust 2 copies"
+    click_on "Validate (5)"
 
     assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
     assert_selector ".wanted-strip__first", text: "The 2 other copies are already entrusted: 20 PiCoins minted."
@@ -75,11 +75,8 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     assert_dock_now "860"
     click_on "VALIDATE THE 3 CHOICES"
 
-    assert_selector "#wanted-result-heading:focus", text: "YOUR 3 CHOICES ARE APPLIED"
-    assert_selector ".wanted-result__line--sold", text: "SOLD"
-    assert_selector ".wanted-result__line--listed", text: "RUNNING"
-    assert_selector ".wanted-result__line--listed a", text: "SEE THE LISTING"
-    assert_selector ".wanted-result__line--entrusted", text: "ENTRUSTED"
+    assert_text "Your 3 choices are applied"
+    assert_current_path market_path(locale: :en)
     assert_equal [ 1, 1 ], [ Game::Holding.find_by(player_id: @buyer.id, card_season_id: @uncommon.id).quantity, Game::Market::Listing.where(seller: @camille, status: "open").count ]
     assert_equal 1, Game::Market::ArchiveDeposit.find_by(player_id: @camille.id, card_season_id: @rare.id).quantity
   end
@@ -87,7 +84,7 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
   test "Enter in a starting price keeps the table and entrusts nothing" do
     open_entrust
     tick(@epic)
-    click_on "CHOOSE FOR THE WANTED CARD"
+    click_on "Validate (1)"
 
     assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
     within(line(@epic)) do
@@ -96,7 +93,6 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     end
 
     assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
-    assert_no_selector "#wanted-result-heading"
     assert_selector ".wanted-dock__all button", text: /ENTRUST ALL ANYWAY/i
     assert_nil Game::Market::ArchiveDeposit.find_by(player_id: @camille.id, card_season_id: @epic.id)
     assert_equal 0, Game::Market::Listing.where(seller: @camille).count
@@ -105,7 +101,7 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
   test "an order served before the press redraws its line with its new choice and nothing moves" do
     open_entrust
     tick(@uncommon)
-    click_on "CHOOSE FOR THE WANTED CARD"
+    click_on "Validate (1)"
 
     assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
     within(line(@uncommon)) { assert_selector "input[value=order]:checked", visible: :all }
@@ -120,5 +116,27 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     end
     assert_equal 1, Game::Holding.find_by(player_id: @camille.id, card_season_id: @uncommon.id).quantity
     assert_nil Game::Holding.find_by(player_id: @buyer.id, card_season_id: @uncommon.id)
+  end
+
+  test "entrusting everything anyway asks first, a cancel changes nothing and the confirmation goes back to the market" do
+    open_entrust
+    tick(@uncommon)
+    click_on "Validate (1)"
+    assert_selector ".wanted-strip__step", text: /\AStep 2 of 2\z/i
+
+    click_on "ENTRUST ALL ANYWAY"
+    within "dialog#wanted-all-dialog[open]" do
+      assert_selector ".modal__title", text: /entrust all anyway\?/i
+      assert_selector "button[type=submit]", text: /ENTRUST ALL ANYWAY · 20/i
+      click_on "Cancel"
+    end
+    assert_no_selector "dialog[open]"
+    assert_nil Game::Market::ArchiveDeposit.find_by(player_id: @camille.id, card_season_id: @uncommon.id)
+
+    click_on "ENTRUST ALL ANYWAY"
+    within("dialog#wanted-all-dialog[open]") { find("button[type=submit]").click }
+    assert_current_path market_path(locale: :en)
+    assert_text "minted"
+    assert_equal 1, Game::Market::ArchiveDeposit.find_by!(player_id: @camille.id, card_season_id: @uncommon.id).quantity
   end
 end

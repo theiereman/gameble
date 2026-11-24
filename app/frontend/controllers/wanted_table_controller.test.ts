@@ -6,8 +6,6 @@ import WantedTableController, { type WantedStrings } from "./wanted_table_contro
 
 const STRINGS: WantedStrings = {
   amount: "%{amount} PiCoins",
-  now: "now",
-  atStart: "at the start",
   changedTo: "Your choice is now %{choice}.",
   choiceOrder: "TO THE ORDER",
   choiceAuction: "AUCTION",
@@ -37,7 +35,6 @@ const MARKUP = `
           <div data-wanted-table-target="auction" hidden>
             <input id="start" name="lines[0][starting_price]" data-wanted-table-target="start" data-action="input->wanted-table#typeStart">
           </div>
-          <span data-wanted-table-target="receive" hidden><span class="picoin-amount"><span class="picoin-amount__figure"></span></span><span class="wanted-line__when"></span></span>
         </td></tr>
       </tbody>
     </table>

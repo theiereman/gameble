@@ -43,7 +43,7 @@ class MarketSuspensionTest < ApplicationSystemTestCase
       assert_selector "#announcement-banner", text: "The market is suspended"
       visit new_market_entrustment_path(locale: :en)
       assert_selector "#market-suspended-banner", text: "THE MARKET IS SUSPENDED"
-      assert_button "Entrust", disabled: true
+      assert_button "Validate (0)", disabled: true
       find("#market-suspended-banner a", text: /back to the market/i).click
       assert_selector "h1", text: "Market", visible: :all
     end
@@ -62,7 +62,7 @@ class MarketSuspensionTest < ApplicationSystemTestCase
       visit new_market_entrustment_path(locale: :en)
       assert_no_selector "#market-suspended-banner"
       find(".entrust-cell[data-ref='#{@card.card.slug}:#{@card.season.number}'] .entrust-cell__toggle").click
-      click_on "Entrust 1 copy"
+      click_on "Validate (1)"
       assert_selector ".entrust-result__copies", text: "1 copy entrusted"
     end
   end

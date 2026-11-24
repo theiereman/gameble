@@ -146,6 +146,19 @@
   font: var(--font-body-small);
 }
 
+.entrust-recap__rare-title {
+  color: var(--color-rarity-rare);
+  font-weight: var(--font-weight-bold);
+}
+
+.entrust-recap__rare-title[data-rarity="epic"] {
+  color: var(--color-rarity-epique);
+}
+
+.entrust-recap__rare-title[data-rarity="legendary"] {
+  color: var(--color-rarity-legendaire);
+}
+
 .entrust-recap__submit .button {
   width: 100%;
 }
@@ -160,7 +173,7 @@
 
 [data-layout="wide"] .entrust-recap {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) minmax(220px, 300px) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3) var(--space-6);
   padding: var(--space-4) var(--space-5);
@@ -187,13 +200,40 @@
 }
 
 [data-layout="wide"] .entrust-recap__detail {
+  display: none;
+  grid-row: 2;
+  grid-column: 1 / -1;
   max-height: 6.5rem;
   overflow-y: auto;
+}
+
+[data-layout="wide"] .entrust-recap__detail:has(> :not([hidden], .entrust-recap__lines)),
+[data-layout="wide"]
+  .entrust-recap__detail:has(> .entrust-recap__lines > :is([data-state="stays"], [data-state="partial"])) {
+  display: flex;
+}
+
+[data-layout="wide"] .entrust-recap__cap {
+  padding: 0;
+  background: none;
+}
+
+[data-layout="wide"] .entrust-recap__sentence {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 [data-layout="wide"] .entrust-recap__lines {
   flex-flow: row wrap;
   gap: var(--space-2) var(--space-5);
+}
+
+[data-layout="wide"] .entrust-recap__line:not([data-state="stays"], [data-state="partial"]) {
+  display: none;
 }
 
 [data-layout="wide"] .entrust-recap__line {
@@ -224,6 +264,16 @@
   display: none;
 }
 
+[data-layout="wide"] .entrust-recap__set-apart {
+  grid-column: 1 / -1;
+}
+
+[data-layout="wide"] .entrust-recap__set-apart-lines {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-1) var(--space-6);
+}
+
 .entrust-recap__set-apart-heading {
   margin: 0;
   color: var(--color-accent);
@@ -236,42 +286,58 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  max-block-size: 7.5rem;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
   list-style: none;
 }
 
 .entrust-recap__set-apart-line {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-1) var(--space-3);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding-block: var(--space-1);
+  border-block-end: 1px solid var(--color-line-soft);
   font: var(--font-body-small);
 }
 
 .entrust-recap__set-apart-name {
-  color: var(--color-text-max);
+  overflow: hidden;
   font-weight: var(--font-weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.entrust-recap__set-apart-line[data-rarity="rare"] .entrust-recap__set-apart-name {
-  color: var(--color-rarity-rare);
+.entrust-recap__set-apart-line {
+  --rarity-tone: var(--color-rarity-commune-hi);
+
+  padding-inline-start: var(--space-2);
+  border-inline-start: 3px solid var(--rarity-tone);
 }
 
-.entrust-recap__set-apart-line[data-rarity="epic"] .entrust-recap__set-apart-name {
-  color: var(--color-rarity-epique);
+.entrust-recap__set-apart-line[data-rarity="uncommon"] {
+  --rarity-tone: var(--color-rarity-peu-commune);
 }
 
-.entrust-recap__set-apart-line[data-rarity="legendary"] .entrust-recap__set-apart-name {
-  color: var(--color-gold);
+.entrust-recap__set-apart-line[data-rarity="rare"] {
+  --rarity-tone: var(--color-rarity-rare);
+}
+
+.entrust-recap__set-apart-line[data-rarity="epic"] {
+  --rarity-tone: var(--color-rarity-epique);
+}
+
+.entrust-recap__set-apart-line[data-rarity="legendary"] {
+  --rarity-tone: var(--color-rarity-legendaire);
+}
+
+.entrust-recap__set-apart-name {
+  color: var(--rarity-tone);
 }
 
 .entrust-recap__set-apart-seekers {
   color: var(--color-muted);
-}
-
-.entrust-recap__set-apart-sentence {
-  margin: 0;
-  color: var(--color-text);
-  font: var(--font-body-small);
+  white-space: nowrap;
 }

@@ -13,12 +13,13 @@ const STRINGS = {
   valueText: "%{count} of %{max}",
   max: "of %{max}",
   maxPhone: "/%{max}",
-  submit: { one: "Entrust %{count} copy", other: "Entrust %{count} copies", zero: "Entrust" },
+  submit: "Validate (%{count})",
   line: "%{title}, season %{season}",
   count: "×%{count}",
   stays: "%{count} stays",
   overCap: "over",
-  rareNote: "rare",
+  rareNote: "Warning: %{rarities}",
+  rareNames: { rare: "Rare", epic: "Epic", legendary: "Legendary" },
   capText: "%{used} of %{cap}",
   status: { one: "%{count} copy, %{amount}", other: "%{count} copies, %{amount}", zero: "0 copies, %{amount}" },
   barCount: { one: "%{count} copy", other: "%{count} copies", zero: "0 copies" },
@@ -26,7 +27,6 @@ const STRINGS = {
   setApartHeading: { one: "SET ASIDE · 1 WANTED CARD", other: "SET ASIDE · %{count} WANTED CARDS", zero: "" },
   setApartStatus: { one: "%{count} set aside", other: "%{count} set aside", zero: "" },
   seekers: { one: "%{count} player wants it", other: "%{count} players want it", zero: "" },
-  choose: { one: "CHOOSE FOR THE WANTED CARD", other: "CHOOSE FOR THE %{count} WANTED CARDS", zero: "" },
 }
 
 const attr = (value: unknown): string => JSON.stringify(value).replace(/"/g, "&quot;")
@@ -327,11 +327,26 @@ describe("the cells and the posted fields", () => {
     await root().selectAll(new CustomEvent("select", { detail: { url: "/matching" } }))
     expect(posted()).toBe("a:1=1,far:1=1,off:1=2")
 
+    await root().selectAll(new CustomEvent("select", { detail: { url: "/matching", clear: true } }))
+    expect(posted()).toBe("a:1=1,off:1=2")
+
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => new Response("", { status: 500 })),
     )
     await root().selectAll(new CustomEvent("select", { detail: { url: "/matching" } }))
-    expect(posted()).toBe("a:1=1,far:1=1,off:1=2")
+    expect(posted()).toBe("a:1=1,off:1=2")
+  })
+
+  it("lets go of what a select all ticked once the filters no longer keep it, and keeps the ticks made by hand", async () => {
+    const row = (ref: string) => ({ ref, title: ref, rarity: "common", season: 1, free: 1, owned: 1, value: 1000 })
+    const answer = (rows: object[]) => vi.fn(async () => new Response(JSON.stringify(rows), { status: 200 }))
+    vi.stubGlobal("fetch", answer([row("far:1"), row("near:1")]))
+    await root().selectAll(new CustomEvent("select", { detail: { url: "/all" } }))
+    expect(posted()).toBe("a:1=1,off:1=2,far:1=1,near:1=1")
+
+    vi.stubGlobal("fetch", answer([row("near:1")]))
+    await (root() as unknown as { followFilters(url: string): Promise<void> }).followFilters("/narrower")
+    expect(posted()).toBe("a:1=1,off:1=2,near:1=1")
   })
 })

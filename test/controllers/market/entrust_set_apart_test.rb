@@ -33,12 +33,11 @@ class Market::EntrustSetApartTest < ActionDispatch::IntegrationTest
 
     get new_market_entrustment_path(locale: :fr, filter: { query: "" })
 
-    assert_select ".entrust-cell[data-ref=?][data-seekers=1] .wanted-badge[aria-hidden=true]", ref(@rare), text: "DEMANDÉE · 1"
+    assert_select ".entrust-cell[data-ref=?][data-seekers=1] .entrust-cell__wanted[aria-hidden=true]", ref(@rare), text: "DEMANDÉE · 1"
     assert_match "demandée par 1 joueur", css_select(".entrust-cell[data-ref='#{ref(@rare)}'] .entrust-cell__toggle").sole["aria-label"]
     assert_select ".entrust-cell[data-ref='#{ref(@common)}'][data-seekers='0']"
-    assert_select ".entrust-cell[data-ref='#{ref(@common)}'] .wanted-badge", false
+    assert_select ".entrust-cell[data-ref='#{ref(@common)}'] .entrust-cell__wanted", false
     assert_select ".entrust-grid__step[hidden]", "Étape 1 sur 2"
-    assert_select ".entrust-recap__set-apart[hidden] .entrust-recap__set-apart-sentence", /Vous choisirez quoi en faire juste après/
   end
 
   test "the selection of every match carries each edition's seekers" do

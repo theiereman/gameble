@@ -2,8 +2,6 @@ module MarketWantedChoicesHelper
   WANTED_CHILDREN = %w[wanted-dock].freeze
   WANTED_ACTIONS = "submit->wanted-table#submit turbo:submit-end->wanted-table#released keydown.enter->wanted-table#holdEnter".freeze
 
-  ResultRow = Data.define(:kind, :copies, :amount, :commission, :listing, :stamp, :led_price)
-
   def wanted_root_data(focus:)
     { controller: "wanted-table", action: WANTED_ACTIONS, wanted_table_locale_value: I18n.locale, wanted_table_cap_left_value: @cap_left, wanted_table_available_value: @available,
       wanted_table_basis_points_value: @settings.commission_basis_points, wanted_table_focus_value: focus,
@@ -31,24 +29,4 @@ module MarketWantedChoicesHelper
     [ ("wanted-dock-refusal #{id}-changed" if changed), (("#{id}-no-order" unless line.orders.any?) if line.direct?), ("#{id}-backed-note" unless line.direct?) ]
       .compact.join(" ").presence
   end
-
-  def wanted_result_heading(choices, applied)
-    return t("market.wanted_choices.result.heading", count: choices) if applied == choices
-
-    t("market.wanted_choices.result.partial", applied:, count: choices)
-  end
-
-  # What one table line became: a row for its sales, one for its auctions and one for its entrusted copies, each said once with its count.
-  def wanted_result_rows(applied, index, stamp:)
-    sold = applied.sold.select { it.line == index }
-    listed = applied.listed.select { it.line == index }
-    entrusted = applied.entrusted.select { it.line == index }
-    [ (ResultRow.new(:sold, sold.size, sold.sum(&:received), sold.sum { it.order.price - it.received }, nil, 0, nil) if sold.any?),
-      (ResultRow.new(:listed, listed.size, listed.sum { listed_received(it.listing) }, 0, listed.first.listing, stamp * listed.size,
-        listed.map(&:listing).find(&:leader_id)&.current_price) if listed.any?),
-      (ResultRow.new(:entrusted, entrusted.sum(&:copies), entrusted.sum(&:minted), 0, nil, 0, nil) if entrusted.any?) ].compact
-  end
-
-  private
-    def listed_received(listing) = listing.starting_price - Game::Market::AuctionMath.commission(listing.starting_price, @settings.commission_basis_points)
 end

@@ -42,7 +42,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     tick(@rare)
     raise_copies(@common)
     assert_total "70"
-    click_on "Entrust 3 copies"
+    click_on "Validate (3)"
 
     assert_selector ".entrust-result__minted .picoin-amount[aria-label='70 PiCoins']"
     assert_selector ".entrust-result__minted .picoin-amount__figure", text: "70"
@@ -58,7 +58,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     visit new_market_entrustment_path(locale: :en)
     tick(@common)
-    click_on "Entrust 1 copy"
+    click_on "Validate (1)"
 
     assert_selector ".entrust-result__minted .picoin-amount__figure", text: "10"
     assert_selector "#entrust-result-heading:focus"
@@ -70,7 +70,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     tick(@rare)
     assert_no_selector ".entrust-result"
-    click_on "Entrust 1 copy"
+    click_on "Validate (1)"
 
     assert_selector ".entrust-result__minted .picoin-amount__figure", text: "50"
     assert_selector ".entrust-recap__cap-text", text: "60 of 12,000 today"
@@ -103,8 +103,8 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     raise_copies(@uncommon)
 
     assert_total "50"
-    assert_selector "button[type=submit]", text: /entrust 3 copies/i
-    click_on "Entrust 3 copies"
+    assert_selector "button[type=submit]", text: /validate \(3\)/i
+    click_on "Validate (3)"
 
     assert_selector ".entrust-result__minted .picoin-amount__figure", text: "50"
     assert_selector "[role=status] .entrust-result__stayed-line .picoin-amount[aria-label='1,000 PiCoins']"
@@ -162,7 +162,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     tick(@common)
 
     assert_selector ".entrust-recap__full", text: "Your daily cap is reached. It renews at 00:00 UTC."
-    assert_button "Entrust", disabled: true
+    assert_button "Validate (0)", disabled: true
   end
 
   test "nothing ticked prompts to choose, filters with no match offer to clear them, a hidden tick stays in the recap, and the sentence and note describe the button" do
@@ -173,7 +173,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     visit new_market_entrustment_path(locale: :en)
     assert_selector ".entrust-recap__prompt", text: "Tick the cards to entrust."
-    assert_button "Entrust", disabled: true
+    assert_button "Validate (0)", disabled: true
 
     visit new_market_entrustment_path(locale: :en)
     fill_in "entrust-search", with: "zzzz"
@@ -186,7 +186,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     tick(@common)
     fill_in "entrust-search", with: "blue"
     assert_selector ".entrust-cell:not([hidden])", count: 1
-    assert_selector ".entrust-recap__line", text: "Tin Soldier"
+    assert_selector ".entrust-recap__line", text: "Tin Soldier", visible: :all
     assert_selector "input[name=selection][value='#{@common.card.slug}:#{@common.season.number}=1']", visible: :all
 
     visit new_market_entrustment_path(locale: :en)
@@ -197,7 +197,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector "button[type=submit][aria-describedby='entrust-not-returned']"
     tick(@rare)
     assert_selector "button[type=submit][aria-describedby='entrust-not-returned entrust-rare-note']"
-    assert_selector "#entrust-rare-note", text: /Rare or better/
+    assert_selector "#entrust-rare-note", text: "Warning: contains Rare cards"
     assert_selector "aside [data-entrust-recap-target=status][role=status][aria-live=polite]", text: "2 copies, 60 PiCoins", visible: :all
 
     fill_in "entrust-search", with: "blue"
@@ -206,7 +206,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector ".entrust-cell", count: 1
     assert_equal "blue", find("#entrust-search").value
     assert_selector ".entrust-cell--picked", count: 1
-    assert_selector ".entrust-recap__line", count: 2
+    assert_selector ".entrust-recap__line", count: 2, visible: :all
     assert_current_path new_market_entrustment_path(locale: :en), ignore_query: true
   end
 
@@ -218,7 +218,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     visit new_market_entrustment_path(locale: :en)
     tick(@common)
     open_market!(entrustment_common: 15)
-    click_on "Entrust 1 copy"
+    click_on "Validate (1)"
 
     assert_selector ".market-entrust__refusal", text: /amounts changed/i
     assert_selector ".entrust-cell__value .picoin-amount[aria-label='15 PiCoins']"
@@ -233,7 +233,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     tick(@common)
     open_market!(entrustment_common: 15)
     click_on "Entrust"
-    within("dialog[open]") { click_on "Entrust 1 copy" }
+    within("dialog[open]") { click_on "Validate (1)" }
 
     assert_no_selector "dialog[open]"
     assert_selector "form#entrust > .market-entrust__refusal[role=alert]", text: /amounts changed/i
@@ -260,7 +260,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     tick(@common)
 
     assert_selector ".market-entrust__notice", text: "closed"
-    assert_button "Entrust 1 copy", disabled: true
+    assert_button "Validate (1)", disabled: true
   end
 
   test "on a phone Confier ticks in two columns, sets copies in the sheet and validates from it" do
@@ -292,7 +292,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector "dialog[open] .entrust-recap__total .picoin-amount__figure", text: "70"
     assert_selector ".entrust-bar .picoin-amount__figure", text: "70", visible: :all
 
-    within("dialog[open]") { click_on "Entrust 3 copies" }
+    within("dialog[open]") { click_on "Validate (3)" }
 
     assert_no_selector "dialog[open]"
     assert_selector ".entrust-result__minted .picoin-amount__figure", text: "70"
@@ -344,7 +344,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector ".balance-chip--bar .balance-chip__available[aria-label='0 PiCoins']"
     visit new_market_entrustment_path(locale: :en)
     tick(@rare)
-    click_on "Entrust 1 copy"
+    click_on "Validate (1)"
 
     assert_selector ".balance-chip--bar .balance-chip__available[aria-label='50 PiCoins']"
     assert_selector ".balance-chip--bar .balance-chip__committed .visually-hidden", text: "0 committed", visible: :all

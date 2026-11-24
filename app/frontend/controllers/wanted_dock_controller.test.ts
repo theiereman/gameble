@@ -13,9 +13,10 @@ const MARKUP = (refusal: string): string => `
   <aside id="dock" data-controller="wanted-dock" data-wanted-dock-locale-value="en" data-wanted-dock-accessible-value="%{amount} PiCoins">
     ${amount("now")}
     <span id="sales" data-wanted-dock-target="salesPart" hidden><span data-wanted-dock-target="salesCount"></span>${amount("salesAmount")}</span>
+    <span id="commission" data-wanted-dock-target="commissionPart" hidden>${amount("commissionAmount")}</span>
     <span id="entrusted" data-wanted-dock-target="entrustedPart" hidden><span data-wanted-dock-target="entrustedCount"></span>${amount("entrustedAmount")}</span>
-    <span id="listed" data-wanted-dock-target="listedCount"></span>${amount("listedAmount")}
-    ${amount("stamps")}
+    <span id="listedPart" data-wanted-dock-target="listedPart" hidden><span id="listed" data-wanted-dock-target="listedCount"></span>${amount("listedGross")}${amount("listedCommission")}${amount("listedAmount")}</span>
+    <span id="stampPart" data-wanted-dock-target="stampPart" hidden>${amount("stamps")}</span>
     <p id="over" data-wanted-dock-target="over" hidden></p>
     <p id="refusal" data-wanted-dock-target="refusal" ${refusal ? "" : "hidden"}>${refusal}</p>
     <span class="wanted-dock__all" data-wanted-dock-target="all"><button type="submit" name="all" value="1">ENTRUST ALL ANYWAY</button></span>
@@ -24,8 +25,6 @@ const MARKUP = (refusal: string): string => `
 
 const STRINGS: WantedStrings = {
   amount: "%{amount} PiCoins",
-  now: "now",
-  atStart: "at the start",
   changedTo: "Your choice is now %{choice}.",
   choiceOrder: "TO THE ORDER",
   choiceAuction: "AUCTION",
@@ -44,16 +43,17 @@ const STRINGS: WantedStrings = {
 const sums = (over: Partial<Totals> = {}): Totals => ({
   now: 1_580,
   sales: 2,
+  salesGross: 1_700,
   salesAmount: 1_530,
   entrusted: 1,
   entrustedAmount: 50,
   listed: 0,
+  listedGross: 0,
   listedAmount: 0,
   stamps: 0,
   allEntrust: 2_000,
   over: 0,
   overTitles: [],
-  lines: {},
   ...over,
 })
 
@@ -92,8 +92,23 @@ describe("the wanted table's dock", () => {
     expect(text("listed")).toBe("0 cards at the starting price")
     expect(text("over")).toBe("1 copy will exceed your daily cap: Pyre.")
     expect(document.querySelector("button")!.textContent).toBe("ENTRUST ALL ANYWAY · 2,000")
-    dock.render(sums({ sales: 0, salesAmount: 0 }), STRINGS)
+    expect(document.getElementById("commission")!.hidden).toBe(false)
+    expect(document.querySelector("[data-wanted-dock-target=commissionAmount]")!.getAttribute("aria-label")).toBe(
+      "170 PiCoins",
+    )
+    expect(document.getElementById("listedPart")!.hidden).toBe(true)
+    expect(document.getElementById("stampPart")!.hidden).toBe(true)
+    dock.render(
+      sums({ sales: 0, salesGross: 0, salesAmount: 0, listed: 2, listedGross: 200, listedAmount: 180, stamps: 2 }),
+      STRINGS,
+    )
     expect(document.getElementById("sales")!.hidden).toBe(true)
+    expect(document.getElementById("commission")!.hidden).toBe(true)
+    expect(document.getElementById("listedPart")!.hidden).toBe(false)
+    expect(document.querySelector("[data-wanted-dock-target=listedCommission]")!.getAttribute("aria-label")).toBe(
+      "20 PiCoins",
+    )
+    expect(document.getElementById("stampPart")!.hidden).toBe(false)
     expect(document.getElementById("over")!.hidden).toBe(true)
   })
 

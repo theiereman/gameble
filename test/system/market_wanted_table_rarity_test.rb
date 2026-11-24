@@ -43,7 +43,8 @@ class MarketWantedTableRaritySystemTest < ApplicationSystemTestCase
     end
     click_on "VALIDATE MY CHOICE"
 
-    assert_selector ".wanted-result__line--sold", text: "SOLD"
+    assert_text "Your choice is applied"
+    assert_current_path market_path(locale: :en)
     assert_equal "served", order.reload.status
     assert_equal 1, Game::Holding.find_by!(player_id: @buyer.id, card_season_id: @uncommon.id).quantity
   end
@@ -61,7 +62,7 @@ class MarketWantedTableRaritySystemTest < ApplicationSystemTestCase
     end
     click_on "VALIDATE MY CHOICE"
 
-    assert_selector ".wanted-result__line--listed", text: /\(led by a buy order at\s+700\s*\)/
+    assert_text "Your choice is applied"
     listing = Game::Market::Listing.find_by!(seller: @seller)
     assert_equal [ "bid", @buyer.id, 700 ], [ order.reload.status, listing.leader_id, listing.current_price ]
   end
