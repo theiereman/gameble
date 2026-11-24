@@ -31,13 +31,15 @@ module Game
         player = step require_player(player)
         lines = step parse(lines)
         drawn = Order.where(token: lines.flat_map(&:order_tokens)).to_a
-        owners = drawn.map(&:player_id)
+        candidates = conversion_candidates(lines, player)
+        drawn_owners = drawn.map(&:player_id)
+        owners = [ *drawn_owners, *candidates.values.flatten(1).map(&:last) ]
 
         transaction do
           TradeLocks.players(player.id, *owners)
           step lock_bank(player)
           settings = step current_settings(settings_token.to_s)
-          holdings = lock_holdings([ player.id, *owners ], lines.map(&:card_season_id))
+          holdings = lock_holdings([ player.id, *drawn_owners ], lines.map(&:card_season_id))
           now = Time.current
           rarities = rarities_of(lines)
           step direct_sale_only(lines, rarities)
@@ -49,7 +51,7 @@ module Game
           step fields_valid(lines, holdings.fetch(player.id), rarities, settings, funds)
           step(Failure(:nothing_fits)) if sales.empty? && entrusted.empty? && lines.none?(&:auction?)
 
-          applied = apply(player, lines, sales, entrusted, skipped, holdings:, rarities:, values:, settings:, now:)
+          applied = apply(player, lines, sales, entrusted, skipped, holdings:, rarities:, values:, settings:, candidates:, now:)
           step publish(applied_event(player, lines, applied), stream_name: stream_name(player.id))
           applied
         end
@@ -80,6 +82,13 @@ module Game
 
         Line.new(index:, card_season_id:, copies:, choice:, order_tokens: tokens.map(&:to_s), starting_price: raw[:starting_price],
           duration_hours: raw[:duration_hours])
+      end
+
+      def conversion_candidates(lines, player)
+        lines.select(&:auction?).to_h do |line|
+          price = amount(line.starting_price)
+          [ line.index, price.success? ? reaching_candidates(line.card_season_id, player.id, price.value!) : [] ]
+        end
       end
 
       def direct_sale_only(lines, rarities)
@@ -168,12 +177,12 @@ module Game
         [ price, (price_rule(settings, rarity, price.value!) if price.success? && rarity), duration_rule(settings, line.duration_hours) ].compact.filter_map(&:failure)
       end
 
-      def apply(player, lines, sales, entrusted, skipped, holdings:, rarities:, values:, settings:, now:)
+      def apply(player, lines, sales, entrusted, skipped, holdings:, rarities:, values:, settings:, candidates:, now:)
         sales.each { |line, order| move_order_copy(order:, seller_id: player.id, card_season_id: line.card_season_id, holdings:, now:) }
         settled = sales.each_with_index.sort_by { |(line, _), position| [ line.card_season_id, position ] }.flat_map do |(line, order), _|
           settle_order(order:, seller_id: player.id, card_season_id: line.card_season_id, commission_settings: settings, now:)
         end
-        opened = open_auctions(player, lines, holdings:, rarities:, settings:, now:)
+        opened = open_auctions(player, lines, holdings:, rarities:, settings:, candidates:)
         quantities = entrusted_quantities(lines, entrusted)
         mint = entrust(player.id, quantities, holdings.fetch(player.id), values, settings, now:) if quantities.any?
         Ledger.post([ *settled, *opened.flat_map { [ it.stamp, *it.entries ] }, *mint ])
@@ -181,12 +190,12 @@ module Game
           listed: opened.map { Listed.new(line: it.line.index, listing: it.listing) }, entrusted:, skipped:, converted: opened.flat_map(&:converted))
       end
 
-      def open_auctions(player, lines, holdings:, rarities:, settings:, now:)
+      def open_auctions(player, lines, holdings:, rarities:, settings:, candidates:)
         lines.select(&:auction?).flat_map do |line|
           holding = holdings.fetch(player.id).fetch(line.card_season_id)
           Array.new(line.copies) do
             listing, stamp = open_listing(player, holding, settings, rarities.fetch(line.card_season_id), amount(line.starting_price).value!, line.duration_hours)
-            converted, entries = convert_orders(listing, settings, now)
+            converted, entries = convert_orders(listing, settings, candidates.fetch(line.index).map(&:first))
             Opened.new(line:, listing:, stamp:, converted:, entries:)
           end
         end

@@ -27,10 +27,11 @@
                   action: "beforeinput->amount-field#remember input->amount-field#group input->listing-fields#type keydown->listing-fields#keydown" } %>
     <p id="sale-start-hint" class="sale-field__hint" data-listing-fields-target="hint"><%= hint %></p>
     <p id="sale-start-error" class="sale-field__error" data-listing-fields-target="startError" <%= "hidden" unless start_refused %>><%= @refusal if start_refused %></p>
-    <div class="sale-opening" aria-live="polite">
+    <div class="sale-opening" aria-hidden="true">
       <p class="sale-opening__line" data-listing-fields-target="openingLine" hidden></p>
       <p class="sale-opening__line" data-listing-fields-target="leftLine" hidden></p>
     </div>
+    <p class="visually-hidden" role="status" aria-live="polite" data-listing-fields-target="status"></p>
   </div>
 
   <fieldset class="sale-field sale-durations" role="radiogroup" aria-describedby="sale-duration-error"

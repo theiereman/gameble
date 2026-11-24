@@ -42,8 +42,11 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#archive-offer-blue-depths-1 a[href=?][data-turbo-frame=archive-purchase][data-action='purchase-dialog#open']",
       new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1)
     assert_select "#archive-offer-blue-depths-1 a[aria-label^='Profondeurs bleues, Rare, saison 1, Archives de la Confrérie, prix fixe 500']" \
-      "[aria-label$=', 1 en stock, Encore 1 Rare par jour. Acheter']"
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "Encore 1 Rare par jour"
+      "[aria-label$=', 1 en stock. Acheter']"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap[data-archive-cap=rare]", "Encore 1 Rare par jour"
+    described = css_select("#archive-offer-blue-depths-1 a").first["aria-describedby"]
+    assert_select "##{described}.visually-hidden[data-archive-cap=rare]", "Encore 1 Rare par jour"
+    assert_select "#archive-offer-tin-soldier-1 a[aria-describedby]", 0
     assert_select "#archive-offer-tin-soldier-1 .archive-offer__cap", 0
     assert_select ".archive-offer__buy", 2
   end
@@ -52,13 +55,30 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
     bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
       price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
-    date = (bought.created_at + 1.day).to_date
+    reopens = (bought.created_at + 1.day).utc
+    text = reopens.strftime("%Y-%m-%d %H:%M UTC")
 
     get market_shop_path(locale: :fr)
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare par jour · prochaine le #{I18n.l(date, format: :day_month, locale: :fr)}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare par jour · prochaine le #{text}"
 
     get market_shop_path(locale: :en)
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare per day · next on #{I18n.l(date, format: :day_month, locale: :en)}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare per day · next on #{text}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap time[datetime=?][data-controller=local-time]", reopens.iso8601
+  end
+
+  test "the date a capped rarity reopens is drawn in the viewer's time zone" do
+    sign_in(@player)
+    bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
+      price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
+    reopens = (bought.created_at + 1.day).utc
+    cookies[:time_zone] = "Pacific/Auckland"
+
+    get market_shop_path(locale: :en)
+
+    local = I18n.l(reopens.in_time_zone("Pacific/Auckland"), format: :local_datetime, locale: :en)
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare per day · next on #{local}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap time[datetime=?]", reopens.iso8601
+    assert_select ".market-shop__rarity-cap time[datetime=?]", reopens.iso8601
   end
 
   test "a visitor reads no cap line" do
@@ -73,15 +93,16 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     get market_shop_path(locale: :fr)
     assert_select ".market-shop__rarities .filter-chip", text: /Rare\s+Encore 1 Rare par jour/
+    assert_select ".market-shop__rarity-cap[data-archive-cap=rare]", 1
     assert_select ".market-shop__rarities .filter-chip", text: /Commune/
     assert_select ".market-shop__rarity-cap", 1
 
     bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
       price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
-    date = (bought.created_at + 1.day).to_date
+    text = (bought.created_at + 1.day).utc.strftime("%Y-%m-%d %H:%M UTC")
 
     get market_shop_path(locale: :en)
-    assert_select ".market-shop__rarity-cap", "1 Rare per day · next on #{I18n.l(date, format: :day_month, locale: :en)}"
+    assert_select ".market-shop__rarity-cap", "1 Rare per day · next on #{text}"
   end
 
   test "a wanted card wears the VOULUE tag and the chip counts the wanted offers" do
@@ -92,7 +113,7 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#archive-offer-blue-depths-1 .archive-offer__tag--wanted", "VOULUE"
     assert_select "#archive-offer-tin-soldier-1 .archive-offer__tag--wanted", 0
-    assert_select "#archive-offer-blue-depths-1 a[aria-label$=', voulue, Encore 1 Rare par jour. Acheter']"
+    assert_select "#archive-offer-blue-depths-1 a[aria-label$=', voulue. Acheter']"
     assert_select ".market-filters__wanted", /VOULUES · 1/
     assert_select ".market-filters__wanted input[aria-label=?]", "Voulues, 1 carte"
 

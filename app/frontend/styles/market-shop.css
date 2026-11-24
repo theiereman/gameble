@@ -93,6 +93,11 @@
   font-weight: var(--font-weight-regular);
 }
 
+.listing-tile__line.archive-offer__cap,
+.order-listing__facts.archive-offer__cap {
+  display: block;
+}
+
 .archive-offer__buy {
   color: var(--color-accent);
   font-weight: var(--font-weight-bold);

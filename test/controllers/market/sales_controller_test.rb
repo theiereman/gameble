@@ -639,7 +639,9 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[role=option][data-ref=?][data-orders='']", ref(@common)
     assert_select "template[data-listing-form-target=ordersTemplate][data-ref=?] .sale-orders", ref(@rare)
     assert_select "template[data-listing-form-target=ordersTemplate][data-ref=?]", ref(@common), false
-    assert_select ".sale-opening [data-listing-fields-target=openingLine][hidden]"
+    assert_select ".sale-opening[aria-hidden=true] [data-listing-fields-target=openingLine][hidden]"
+    assert_select ".sale-opening[aria-live]", false
+    assert_select ".visually-hidden[role=status][aria-live=polite][data-listing-fields-target=status]"
     assert_no_match(/(?:data-[a-z-]+|id|name|value)="#{order.id}"/, response.body)
 
     get new_market_sale_path(locale: :fr, ref: ref(@rare), start: "850")

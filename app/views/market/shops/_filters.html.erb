@@ -27,7 +27,7 @@
           <%= check_box_tag "rarity[]", rarity, filters.rarities.include?(rarity), id: nil, class: "filter-chip__box" %>
           <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
           <% cap_line = archive_rarity_cap_line(rarity, caps) %>
-          <% if cap_line %><span class="market-shop__rarity-cap"><%= cap_line %></span><% end %>
+          <% if cap_line %><span class="market-shop__rarity-cap" data-archive-cap="<%= rarity %>"><%= cap_line %></span><% end %>
         </label>
       <% end %>
     </fieldset>

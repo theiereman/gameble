@@ -305,7 +305,7 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get new_market_card_order_path(locale: :fr, slug: "blue-depths")
-    assert_select ".order-archive .archive-offer__cap", "Encore 1 Rare par jour"
+    assert_select ".order-archive .archive-offer__cap[data-archive-cap=rare]", "Encore 1 Rare par jour"
 
     Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:rare_card_one).id, purchase_token: SecureRandom.base58(24),
       price: 500, settings_id: Game::Market::CurrentSettings.call.id, created_at: 2.hours.ago)

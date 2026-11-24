@@ -118,7 +118,18 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".purchase-confirmation form", 0
     assert_select ".purchase-confirmation button[type=submit]", 0
     assert_select ".purchase-confirmation__refusal[role=alert]",
-      "Vous avez atteint la limite des Archives pour cette rareté. Prochain achat le #{I18n.l((bought.created_at + 1.day).to_date, format: :day_month, locale: :fr)}."
+      "Vous avez atteint la limite des Archives pour cette rareté. Prochain achat le #{(bought.created_at + 1.day).utc.strftime("%Y-%m-%d %H:%M UTC")}."
+  end
+
+  test "the next purchase date of the refusal is written in the viewer's time zone" do
+    bought = withdraw!
+    sign_in(@player)
+    cookies[:time_zone] = "Pacific/Auckland"
+
+    confirmation
+
+    local = I18n.l((bought.created_at + 1.day).in_time_zone("Pacific/Auckland"), format: :local_datetime, locale: :fr)
+    assert_select ".purchase-confirmation__refusal[role=alert]", "Vous avez atteint la limite des Archives pour cette rareté. Prochain achat le #{local}."
   end
 
   test "a purchase refused for the cap is a 422 with the same message and nothing charged" do
@@ -140,6 +151,29 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "turbo-stream[action=replace][target=archive-offer-blue-depths-1] template .archive-offer__cap", /\A1 Rare par jour · prochaine le /
+    assert_select "turbo-stream[action=update][targets=?] template", "[data-archive-cap='rare']", text: /\A1 Rare par jour · prochaine le /
+    assert_select "turbo-stream[action=update][targets=?] template time[data-controller=local-time]", "[data-archive-cap='rare']"
+  end
+
+  test "a purchase leaving copies of the cap rewrites every cap line of the rarity" do
+    @settings = open_market!(first_opened_at: 1.day.ago, archive_price_rare: 500, archive_cap_rare: 3)
+    sign_in(@player)
+
+    buy
+
+    assert_select "turbo-stream[action=update][targets=?] template", "[data-archive-cap='rare']", text: "Encore 2 Rares par jour"
+  end
+
+  test "a purchase of an uncapped rarity rewrites no cap line" do
+    @settings = open_market!(first_opened_at: 1.day.ago, archive_price_rare: 500, archive_price_common: 50)
+    Game::Market::ArchiveStock.create!(card_season_id: catalog_card_seasons(:common_card_one).id, quantity: 2)
+    sign_in(@player)
+
+    post market_archive_purchase_path(locale: :fr, slug: "tin-soldier", number: 1), params: { settings_token: @settings.token, purchase_token: SecureRandom.base58(24) },
+      headers: { "Accept" => STREAM }
+
+    assert_response :success
+    assert_select "turbo-stream[action=update][targets*='data-archive-cap']", 0
   end
 
   test "a purchase answers the result in the frame and the tile with its stock lowered" do

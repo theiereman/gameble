@@ -29,7 +29,7 @@
           </p>
           <p class="order-listing__facts"><span><%= t("market.orders.new.fixed") %> <span class="order-listing__price"><%= amount %></span></span></p>
           <% cap_line = archive_cap_line(row.card, caps) %>
-          <% if cap_line %><p class="order-listing__facts archive-offer__cap"><%= cap_line %></p><% end %>
+          <% if cap_line %><p class="order-listing__facts archive-offer__cap" data-archive-cap="<%= row.card.rarity %>"><%= cap_line %></p><% end %>
           <%= render ButtonComponent.new(variant: :secondary, size: :small, href: archive_offer_path(row.card, buyable: true), disabled: !buyable,
                 describedby: ("market-suspended-banner" unless buyable), turbo_frame: "archive-purchase", data: { action: "purchase-dialog#open" },
                 aria_label: t("market.orders.new.buy_label", card: card.title, rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, amount:)) do %>
