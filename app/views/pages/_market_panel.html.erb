@@ -2,12 +2,12 @@
 <section class="hub-market" aria-labelledby="hub-market-title">
   <%= render PanelComponent.new(class: "hub-market__frame hub-linked") do %>
     <h2 id="hub-market-title" class="hub-section-title">
-      <%= link_to market_path, class: "hub-linked__link" do %><%= t("pages.home.market.title") %><%= pixel_icon("arrow-small-right", class: "hub-linked__arrow") %><% end %>
+      <%= link_to market_path, class: "hub-linked__link" do %><%= t("pages.home.market.title") %><% end %>
     </h2>
     <% if outbid.positive? %>
       <%= link_to market_my_bids_path, class: "hub-market__alert" do %>
         <span><%= t("pages.home.market.outbid", count: outbid, number: number_with_delimiter(outbid)) %></span>
-        <span class="hub-market__alert-action"><%= t("markets.screen.mine.raise") %><%= pixel_icon("arrow-small-right", class: "hub-market__arrow") %></span>
+        <span class="hub-market__alert-action"><%= t("markets.screen.mine.raise") %></span>
       <% end %>
     <% end %>
     <% if pulse.volume.traded? %><%= render "pages/market_volume", volume: pulse.volume %><% end %>

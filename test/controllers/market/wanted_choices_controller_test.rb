@@ -132,7 +132,7 @@ class Market::WantedChoicesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#wanted-result-heading", "VOS 3 CHOIX SONT APPLIQUÉS"
     assert_select ".wanted-result__line--sold .market-row__chip", "VENDUE"
     assert_select ".wanted-result__line--listed .market-row__chip", "EN COURS"
-    assert_select ".wanted-result__line--listed a[href=?]", market_listing_path(locale: :fr, token: listing.token), text: "VOIR L'ANNONCE ▸"
+    assert_select ".wanted-result__line--listed a[href=?]", market_listing_path(locale: :fr, token: listing.token), text: "VOIR L'ANNONCE"
     assert_select ".wanted-result__line--entrusted .market-row__chip", "CONFIÉE"
     assert_select ".wanted-result__back a[href=?]", market_path(locale: :fr), text: "RETOUR AU MARCHÉ"
   end

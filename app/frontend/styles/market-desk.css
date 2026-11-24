@@ -124,11 +124,6 @@
   letter-spacing: var(--tracking-kicker);
 }
 
-.market-mine__arrow {
-  width: 6px;
-  height: auto;
-}
-
 .market-mine__item--alert {
   box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
 }

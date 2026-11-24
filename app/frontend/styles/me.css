@@ -104,11 +104,6 @@
   color: var(--color-text-max);
 }
 
-.me-opener__arrow {
-  width: 12px;
-  height: 12px;
-}
-
 /* "See all" sits quietly at the end of the achievements heading. */
 .me-achievements__all {
   display: inline-flex;

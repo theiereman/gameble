@@ -235,7 +235,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     visit new_market_entrustment_path(locale: :en)
     tick(@common)
     open_market!(entrustment_common: 15)
-    click_on "Entrust ▸"
+    click_on "Entrust"
     within("dialog[open]") { click_on "Entrust 1 copy" }
 
     assert_no_selector "dialog[open]"
@@ -286,7 +286,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector ".entrust-bar .entrust-bar__count", text: "2 copies"
     assert_selector ".entrust-bar .picoin-amount__figure", text: "60"
 
-    click_on "Entrust ▸"
+    click_on "Entrust"
     assert_selector "dialog#entrust-recap-sheet[open] .entrust-recap__line", count: 2
     eventually("the sheet should be done rising") { evaluate_script("document.querySelector('#entrust-recap-sheet').getAnimations({ subtree: true }).length === 0") }
     stepper = find("dialog[open] .entrust-recap__line .stepper__button--more")

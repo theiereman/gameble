@@ -17,11 +17,6 @@
   display: inline;
 }
 
-.grand-inventory-panel .hub-linked__arrow {
-  margin-inline: var(--space-2) calc(-6px - var(--space-2));
-  vertical-align: middle;
-}
-
 .grand-inventory-panel__count {
   color: var(--color-text-bright);
   font: var(--font-body);

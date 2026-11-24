@@ -2558,7 +2558,7 @@ fr:
           other: "Voulues, %{count} cartes"
       offer:
         archives: "ARCHIVES"
-        buy: "ACHETER ▸"
+        buy: "ACHETER"
         buy_spoken: "Acheter"
         fixed: "prix fixe"
         label: "%{card}, %{rarity}, saison %{season}, Archives de la Confrérie, prix fixe %{price}"
@@ -2799,7 +2799,7 @@ fr:
         reached: "Raretés atteintes"
       listed_above_html: "%{name} vend %{card} à %{amount}, au-dessus de votre ordre."
       returned: "PiCoins rendus"
-      see_listing: "VOIR L'ANNONCE ▸"
+      see_listing: "VOIR L'ANNONCE"
       served_html: "Vendue par %{name} · %{rarity} S%{season}"
       show:
         empty: "Vous n'avez passé aucun ordre."
@@ -2909,7 +2909,7 @@ fr:
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
       new:
         all_cards: "Toutes les cartes"
-        bar_action: "Confier ▸"
+        bar_action: "Confier"
         bar_label: "Votre sélection à confier"
         card_only: "Seulement %{title}."
         cap_full: "Votre plafond du jour est atteint. Il se renouvelle à 00:00 UTC."
@@ -3009,9 +3009,9 @@ fr:
           one: "%{count} joueur la veut"
           other: "%{count} joueurs la veulent"
         choose:
-          zero: "CHOISIR POUR LA CARTE VOULUE ▸"
-          one: "CHOISIR POUR LA CARTE VOULUE ▸"
-          other: "CHOISIR POUR LES %{count} CARTES VOULUES ▸"
+          zero: "CHOISIR POUR LA CARTE VOULUE"
+          one: "CHOISIR POUR LA CARTE VOULUE"
+          other: "CHOISIR POUR LES %{count} CARTES VOULUES"
     sales:
       create:
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
@@ -3147,7 +3147,7 @@ fr:
         commission_html: "(Effort de la Confrérie : %{amount})"
         listed_html: "Mise en vente à %{amount}, fin %{end}. Timbre payé : %{stamp}."
         listed_received_html: "Vendue au prix de départ, vous recevez %{amount}."
-        see_listing: "VOIR L'ANNONCE ▸"
+        see_listing: "VOIR L'ANNONCE"
         entrusted_html: "Le 100-6-Tron a fabriqué %{amount}. La carte rejoint les Archives."
         gained: "reçus"
         stamp: "timbre"
@@ -3183,7 +3183,7 @@ fr:
         other: "%{count} cartes aux Archives"
       line: "Les Archives revendent les cartes confiées, à prix fixe."
       list_label: "Cartes à la une des Archives"
-      see_all: "Voir toute la boutique ▸"
+      see_all: "Voir toute la boutique"
       see_all_label: "Voir toute la boutique de la Confrérie"
     wanted:
       heading: "VOS CARTES VOULUES"
