@@ -272,26 +272,13 @@
   display: none;
 }
 
-.sale-durations {
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
-}
-
-.sale-durations .sale-field__label,
-.sale-durations .sale-field__error {
-  flex: 1 0 100%;
+.sale-durations__options {
+  align-self: flex-start;
 }
 
 .sale-durations__choice {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
+  min-width: 5.5rem;
   min-height: var(--space-touch-min);
-  color: var(--color-text-bright);
-  font: var(--font-body);
-  cursor: pointer;
 }
 
 .sale-summary {

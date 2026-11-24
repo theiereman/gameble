@@ -37,13 +37,15 @@
   <fieldset class="sale-field sale-durations" role="radiogroup" aria-describedby="sale-duration-error"
     <%= tag.attributes(aria: { invalid: ("true" if duration_refused) }) %>>
     <legend class="sale-field__label"><%= t("market.sales.new.duration_label") %></legend>
-    <% sale_durations(@settings, checked: @values[:duration]).each do |duration| %>
-      <label class="sale-durations__choice">
-        <%= radio_button_tag :duration_hours, duration[:hours], duration[:checked], id: nil,
-              data: { listing_fields_target: "duration", listing_form_target: "duration", action: "change->listing-fields#pick keydown->listing-fields#keydown" } %>
-        <span><%= duration[:label] %></span>
-      </label>
-    <% end %>
+    <div class="segmented sale-durations__options">
+      <% sale_durations(@settings, checked: @values[:duration]).each do |duration| %>
+        <label class="segmented__option sale-durations__choice">
+          <%= radio_button_tag :duration_hours, duration[:hours], duration[:checked], id: nil, class: "segmented__input",
+                data: { listing_fields_target: "duration", listing_form_target: "duration", action: "change->listing-fields#pick keydown->listing-fields#keydown" } %>
+          <span class="segmented__label"><%= duration[:label] %></span>
+        </label>
+      <% end %>
+    </div>
     <p id="sale-duration-error" class="sale-field__error" data-listing-fields-target="durationError" <%= "hidden" unless duration_refused %>><%= @refusal if duration_refused %></p>
   </fieldset>
 <% end %>

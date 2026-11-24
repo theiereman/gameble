@@ -37,12 +37,12 @@ class MarketListingSystemTest < ApplicationSystemTestCase
     click_on "Put up for sale"
 
     assert_selector ".sale-cell[aria-selected=true]"
-    assert_selector "input[name=duration_hours][value='24']:checked"
+    assert_selector "input[name=duration_hours][value='24']:checked", visible: :all
     fill_in "sale-start", with: "15"
     assert_selector ".sale-line--received .picoin-amount__figure", text: "14"
     assert_selector ".sale-line:nth-child(2) .picoin-amount__figure", text: "1"
     find("#sale-start").send_keys(:enter)
-    assert_selector "input[name=duration_hours][value='24']:focus"
+    assert_selector "input[name=duration_hours][value='24']:focus", visible: :all
     assert_equal 0, Game::Market::Listing.count
 
     click_on "PUT UP FOR SALE"
