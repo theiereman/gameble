@@ -20,7 +20,9 @@
 
   <div class="market-listing__layout">
     <div class="market-listing__card">
-      <%= render CardComponent.new(card: @listing.card, size: :l) %>
+      <%= link_to card_detail_path(@listing.card.id, @listing.card.season_number), class: "card-link", aria: { label: @listing.card.title }, data: { turbo_prefetch: false } do %>
+        <%= render CardComponent.new(card: @listing.card, size: :l) %>
+      <% end %>
       <dl class="market-listing__facts">
         <% if @price %>
           <div class="market-listing__fact market-listing__fact--price">

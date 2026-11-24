@@ -34,6 +34,14 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".balance-chip", false
   end
 
+  test "the card leads to its detail for the season on sale" do
+    annonce
+
+    card_season = catalog_card_seasons(:rare_card_one)
+    assert_select ".market-listing__card a.card-link[href=?][aria-label='Blue Depths'] .card",
+      card_season_path(locale: :en, slug: card_season.card.slug, number: card_season.season.number)
+  end
+
   test "the way back leads to the market" do
     annonce
 
