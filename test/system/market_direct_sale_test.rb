@@ -24,10 +24,7 @@ class MarketDirectSaleSystemTest < ApplicationSystemTestCase
     hold(@seller, @uncommon.id, 1)
     hold(@seller, @common.id, 1)
     @order = order!(@buyer, @uncommon, 900)
-    mock_steam_sign_in(@seller.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@seller.steam_id)
     visit new_market_sale_path(locale: :en)
   end
 

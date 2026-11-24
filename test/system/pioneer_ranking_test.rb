@@ -32,9 +32,7 @@ class PioneerRankingTest < ApplicationSystemTestCase
   def focused_id = evaluate_script("document.activeElement.id")
 
   test "the pinned place loads the viewer's page and focuses their row; the Total chip keeps focus and the address" do
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser
     resize_to(1280, 800)
 
     visit pioneer_ranking_path(locale: :en)

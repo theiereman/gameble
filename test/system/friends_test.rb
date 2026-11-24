@@ -19,9 +19,7 @@ class FriendsTest < ApplicationSystemTestCase
   end
 
   def sign_in
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser
     visit friends_path(locale: :en)
   end
 

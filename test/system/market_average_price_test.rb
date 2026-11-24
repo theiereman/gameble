@@ -23,10 +23,7 @@ class MarketAveragePriceSystemTest < ApplicationSystemTestCase
     Game::Market::EditionPrice.create!(card_season_id: @second.id, average: 40_000, sales_used: 3)
     hold(@player, @first.id, 1)
     hold(@player, @second.id, 1)
-    mock_steam_sign_in(@player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@player.steam_id)
   end
 
   test "a player with two editions sees both prices in EDITIONS, the price on the Annonce, and the form's price follows the chosen cell" do

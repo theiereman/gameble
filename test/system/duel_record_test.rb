@@ -45,10 +45,7 @@ class DuelRecordSystemTest < ApplicationSystemTestCase
     rate_deck_of(@lea, 50)
     rate_deck_of(@hugo, 100)
     lost = play_a_duel
-    mock_steam_sign_in(@lea.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@lea.steam_id)
 
     visit me_path(locale: :en)
     assert_selector ".profile-figure", text: /Capsules opened/i

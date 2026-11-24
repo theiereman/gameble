@@ -21,10 +21,7 @@ class TradeUpdatesTest < ApplicationSystemTestCase
   end
 
   def sign_in
-    mock_steam_sign_in(@hugo.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@hugo.steam_id)
     visit home_path(locale: :en)
   end
 

@@ -44,9 +44,7 @@ class DuelStatsFeedTest < ApplicationSystemTestCase
     Game::FeedEntry.insert_all!([ { kind: "pull", player_id: friend.id, pack_id: create_pack(friend).id, position: 0,
       card_season_id: catalog_card_seasons(:portal_one).id, rarity: 4, notable: true, occurred_at: at, created_at: at, updated_at: at } ])
     mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :fr)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(locale: :fr)
     assert_selector "#live-ticker .ticker__sentence", text: "Sam a tiré Portal", visible: :all
     assert_no_selector "#live-ticker .ticker__sentence", text: /cours des cartes/, visible: :all
 

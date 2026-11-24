@@ -20,10 +20,7 @@ class TradeBoardTest < ApplicationSystemTestCase
   end
 
   def sign_in_hugo
-    mock_steam_sign_in(@hugo.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@hugo.steam_id)
   end
 
   test "the picker and the placed lines show the card faces the board loads in batches, a placed card arriving with its cell's average price, under its stepper" do

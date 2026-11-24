@@ -26,9 +26,7 @@ class BoosterTest < ApplicationSystemTestCase
     @player = accounts_players(:player)
     mock_steam_sign_in(@player.steam_id)
     reduce_motion(true)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser
   end
 
   teardown do

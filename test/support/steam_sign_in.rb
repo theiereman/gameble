@@ -31,6 +31,23 @@ module SteamSignIn
 
   def sign_in_origin = "/en"
 
+  SESSION_COOKIE = "_gameble_session".freeze
+
+  # Signs a system test's browser in without its screens: the session the
+  # Steam mock opens in a throwaway integration session becomes the browser's
+  # cookie, and the browser lands on the home page as after the real sign-in.
+  # A test of the sign-in screens themselves clicks through them instead.
+  def sign_in_browser(steam_id = nil, locale: :en)
+    mock_steam_sign_in(steam_id) if steam_id
+    session = ActionDispatch::Integration::Session.new(Rails.application)
+    session.post "/auth/steam", params: { origin: "/#{locale}" }
+    session.follow_redirect!
+    page.driver.browser.execute_cdp("Network.setCookie", name: SESSION_COOKIE, value: CGI.escape(session.cookies[SESSION_COOKIE]),
+      url: Capybara.current_session.server.base_url, path: "/")
+    visit home_path(locale:)
+    assert_signed_in
+  end
+
   private
 
   def sign_in_with_steam_id(steam_id, origin:)

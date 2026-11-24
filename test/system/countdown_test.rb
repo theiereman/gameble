@@ -17,9 +17,7 @@ class CountdownTest < ApplicationSystemTestCase
 
   test "elsewhere the chip alone refreshes at zero: the count rises without a page visit" do
     create_pack(@player)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser
 
     create_pack(@player, available_at: 5.seconds.from_now)
     visit card_path(locale: :en, slug: "portal")

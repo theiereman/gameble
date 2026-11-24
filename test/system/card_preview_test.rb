@@ -44,10 +44,7 @@ class CardPreviewTest < ApplicationSystemTestCase
 
   setup do
     administrator = accounts_players(:administrator)
-    mock_steam_sign_in(administrator.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(administrator.steam_id)
   end
 
   teardown do

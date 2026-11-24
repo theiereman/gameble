@@ -19,9 +19,7 @@ class MarketShopSystemTest < ApplicationSystemTestCase
 
   def sign_in_and_visit_shop
     mock_steam_sign_in(@player.steam_id)
-    visit home_path(locale: :fr)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(locale: :fr)
     visit market_shop_path(locale: :fr)
   end
 

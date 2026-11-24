@@ -13,9 +13,7 @@ class BoosterReservesTest < ApplicationSystemTestCase
     @player = accounts_players(:player)
     mock_steam_sign_in(@player.steam_id)
     page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "reduce" } ])
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser
   end
 
   teardown do

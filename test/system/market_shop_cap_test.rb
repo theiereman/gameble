@@ -26,9 +26,7 @@ class MarketShopCapSystemTest < ApplicationSystemTestCase
   test "a capped edition's tile names the next purchase, and its confirmation draws no form" do
     page.driver.browser.execute_cdp("Emulation.setTimezoneOverride", timezoneId: "Europe/Paris")
     mock_steam_sign_in(@player.steam_id)
-    visit home_path(locale: :fr)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(locale: :fr)
     visit market_shop_path(locale: :fr)
 
     date = I18n.l((@withdrawal.created_at + 7.days).in_time_zone("Europe/Paris"), format: :local_datetime, locale: :fr)
@@ -47,9 +45,7 @@ class MarketShopCapSystemTest < ApplicationSystemTestCase
     other = Catalog::CardSeason.create!(card_id: @epic.card_id, season: Catalog::Season.create!(number: 2), prestige_score: 0.9, rating: 95.5, rarity: :epic, number: 4)
     Game::Market::ArchiveStock.create!(card_season_id: other.id, quantity: 2)
     mock_steam_sign_in(@player.steam_id)
-    visit home_path(locale: :fr)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(locale: :fr)
     visit market_shop_path(locale: :fr)
     assert_selector "#archive-offer-portal-1 .archive-offer__cap", text: "Encore 1 Épique par semaine"
     assert_selector "#archive-offer-portal-2 .archive-offer__cap", text: "Encore 1 Épique par semaine"

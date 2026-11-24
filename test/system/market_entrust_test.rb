@@ -18,10 +18,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
   end
 
   def sign_in_through_the_site
-    mock_steam_sign_in(@player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@player.steam_id)
   end
 
   def cell(card_season) = find(".entrust-cell[data-ref='#{card_season.card.slug}:#{card_season.season.number}']")

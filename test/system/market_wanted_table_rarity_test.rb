@@ -23,10 +23,7 @@ class MarketWantedTableRaritySystemTest < ApplicationSystemTestCase
     fund!(@seller, 1_000)
     fund!(@buyer, 10_000)
     [ @rare, @uncommon ].each { hold(@seller, it.id, 1) }
-    mock_steam_sign_in(@seller.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@seller.steam_id)
   end
 
   def ref(card_season) = "#{card_season.card.slug}:#{card_season.season.number}"

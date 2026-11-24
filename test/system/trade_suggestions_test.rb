@@ -36,10 +36,7 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
   end
 
   def sign_in(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
   end
 
   def lea_draft = page.evaluate_script("localStorage.getItem('gameble:trade-draft:#{@hugo.token}:#{@lea.token}')")

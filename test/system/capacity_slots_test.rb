@@ -20,10 +20,7 @@ class CapacitySlotsTest < ApplicationSystemTestCase
   end
 
   def sign_in
-    mock_steam_sign_in(@player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@player.steam_id)
   end
 
   test "a player with five goals buys the sixth slot from an album, and the set becomes goal 6" do

@@ -27,10 +27,7 @@ class MarketOrderBackedAuctionSystemTest < ApplicationSystemTestCase
   end
 
   def sign_in_through_the_site(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
   end
 
   test "the seller sees the orders and the start they give, lists, and the leading order reads in the auction until another bid outbids it" do

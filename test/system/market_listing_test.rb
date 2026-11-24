@@ -18,10 +18,7 @@ class MarketListingSystemTest < ApplicationSystemTestCase
   end
 
   def sign_in_through_the_site
-    mock_steam_sign_in(@player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@player.steam_id)
   end
 
   test "a start under the minimum is refused inline and the amount stays, then the player lists a copy from the card detail at 24 H, lands on the Annonce and finds it on the market" do

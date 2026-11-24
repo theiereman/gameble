@@ -26,9 +26,7 @@ class GrandInventoryTest < ApplicationSystemTestCase
   end
 
   test "a player switches to the current season, narrows the grid to the cards to discover, opens one and comes back; on a phone the tabs switch views" do
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser
     visit grand_inventory_path(locale: :en)
 
     assert_selector ".grand-inventory__found", text: "4"

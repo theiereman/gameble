@@ -17,10 +17,7 @@ class CustomSetsTest < ApplicationSystemTestCase
   end
 
   def sign_in(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
   end
 
   def title(index) = Catalog::CardText.find_by!(card_id: Catalog::CardSeason.find(@cards[index]).card_id, locale: "en").title

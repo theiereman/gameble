@@ -16,10 +16,7 @@ class EditionSalesChartTest < ApplicationSystemTestCase
   end
 
   def sign_in_as(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
   end
 
   def visit_detail(edition = @edition) = visit(card_season_path(locale: :en, slug: edition.card.slug, number: edition.season.number))

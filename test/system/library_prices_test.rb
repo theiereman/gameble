@@ -12,10 +12,7 @@ class LibraryPricesSystemTest < ApplicationSystemTestCase
     { common_card_one: 1_000, uncommon_card_one: 4_000, rare_card_one: 9_000, portal_one: 30_000 }.each do |name, average|
       Game::Market::EditionPrice.create!(card_season_id: catalog_card_seasons(name).id, average:, sales_used: 5)
     end
-    mock_steam_sign_in(accounts_players(:moderator).steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(accounts_players(:moderator).steam_id)
   end
 
   def titles = all(".collection-slot .card__title").map { it.text.downcase }

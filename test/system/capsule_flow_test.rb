@@ -24,9 +24,7 @@ class CapsuleFlowTest < ApplicationSystemTestCase
   end
 
   def sign_in_to_capsules
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser
     assert_current_path home_path(locale: :en)
     visit booster_path(locale: :en)
     assert_selector ".booster[data-layout]"

@@ -23,10 +23,7 @@ class DuelLandscapeTest < ApplicationSystemTestCase
   teardown { resize_to(*SCREEN_SIZE) }
 
   def sign_in(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
   end
 
   # The window size includes the browser's own frame: ask again for the difference.

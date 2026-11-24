@@ -11,10 +11,7 @@ class BankCounterSystemTest < ApplicationSystemTestCase
   test "the Capsule tab's badge follows a change of the bank" do
     player = accounts_players(:player)
     create_pack(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
     resize_to(*PHONE)
 
     page.execute_script(<<~JS)
@@ -34,10 +31,7 @@ class BankCounterSystemTest < ApplicationSystemTestCase
   test "the Capsule tab's icon sits level with the other tabs' while the badge shows" do
     player = accounts_players(:player)
     create_pack(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
     resize_to(*PHONE)
 
     assert_selector ".tab-bar__capsules .tab-bar__badge"

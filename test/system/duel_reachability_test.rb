@@ -18,10 +18,7 @@ class DuelReachabilityTest < ApplicationSystemTestCase
   teardown { travel_back }
 
   def sign_in(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
   end
 
   test "Hugo is reachable while his page is open and no longer once his lease lapses" do

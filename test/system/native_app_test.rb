@@ -12,10 +12,7 @@ class NativeAppSystemTest < ApplicationSystemTestCase
 
   setup do
     player = accounts_players(:player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
     resize_to(*PHONE)
     page.driver.browser.execute_cdp("Emulation.setUserAgentOverride", userAgent: APP)
     # The user agent override reaches the page, not the service worker, which would fetch the capsule screen as a browser.

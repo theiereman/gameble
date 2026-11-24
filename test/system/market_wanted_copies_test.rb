@@ -25,10 +25,7 @@ class MarketWantedCopiesSystemTest < ApplicationSystemTestCase
     order!(buyer, @uncommon, 900)
     Game::Market::RebuildWanted.new.call(player: buyer).value!
     Game::Market::Wanted.insert_all([ { player_id: accounts_players(:moderator).id, card_id: @uncommon.card_id, reason: "goal", rarities: nil } ])
-    mock_steam_sign_in(@seller.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@seller.steam_id)
   end
 
   test "a wanted copy leads from the market's panel to its sale, its cell and its card detail carrying the count" do

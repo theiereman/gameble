@@ -24,10 +24,7 @@ class MarketExchangeTest < ApplicationSystemTestCase
   teardown { clear_snapshots }
 
   def sign_in_as(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
   end
 
   def loaded_scripts = evaluate_script("performance.getEntriesByType('resource').map((entry) => entry.name)")

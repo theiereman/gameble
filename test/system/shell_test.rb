@@ -14,9 +14,7 @@ class ShellTest < ApplicationSystemTestCase
 
   def sign_in(player, locale: :en)
     mock_steam_sign_in(player.steam_id)
-    visit home_path(locale:)
-    click_steam_sign_in
-    assert_selector ".top-bar .player-chip", visible: :all
+    sign_in_browser(locale:)
     visit home_path(locale:)
   end
 

@@ -16,10 +16,7 @@ class BackOfficeRoadmapTest < ApplicationSystemTestCase
     @alpha, @beta = create_roadmap_milestones("alpha", "beta")
     show_roadmap_milestone(@alpha, status: "done")
     @story = add_roadmap_story(@alpha, "one")
-    mock_steam_sign_in(accounts_players(:administrator).steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(accounts_players(:administrator).steam_id)
     visit back_office_roadmap_path(locale: :en)
   end
 

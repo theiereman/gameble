@@ -29,10 +29,7 @@ class MarketConfierWantedSystemTest < ApplicationSystemTestCase
     Game::Market::RebuildWanted.new.call(player: @buyer).value!
     Game::Market::Wanted.insert_all([ @rare, @epic ].map { { player_id: @seeker.id, card_id: it.card_id, reason: "goal", rarities: nil } })
     Game::Market::EditionPrice.create!(card_season_id: @uncommon.id, average: 950, sales_used: 5)
-    mock_steam_sign_in(@camille.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(@camille.steam_id)
   end
 
   def cell(card_season) = find(".entrust-cell[data-ref='#{card_season.card.slug}:#{card_season.season.number}']")

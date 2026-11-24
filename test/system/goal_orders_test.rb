@@ -24,9 +24,7 @@ class GoalOrdersTest < ApplicationSystemTestCase
 
   def sign_in_through_the_site(player)
     mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :fr)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(locale: :fr)
   end
 
   def place_order(price)

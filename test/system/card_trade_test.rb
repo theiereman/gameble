@@ -24,9 +24,7 @@ class CardTradeTest < ApplicationSystemTestCase
     window = page.driver.browser.manage.window
     original = window.size
     window.resize_to(*PHONE)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser
     visit card_season_path(slug: catalog_cards(:portal).slug, number: @portal.season.number, locale: :en)
 
     within(".card-trade-section .card-trade__row", text: "Lea") { click_on "Propose" }

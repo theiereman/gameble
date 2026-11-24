@@ -19,9 +19,7 @@ class SettingsTest < ApplicationSystemTestCase
   end
 
   def sign_in(path = nil)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser
     visit path if path
   end
 

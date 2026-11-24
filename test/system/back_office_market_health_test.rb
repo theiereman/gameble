@@ -20,10 +20,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
   teardown { clear_snapshots }
 
   def visit_health_as(player)
-    mock_steam_sign_in(player.steam_id)
-    visit home_path(locale: :en)
-    click_steam_sign_in
-    assert_signed_in
+    sign_in_browser(player.steam_id)
     visit back_office_market_health_path(locale: :en)
   end
 
