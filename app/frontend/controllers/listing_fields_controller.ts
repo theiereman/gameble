@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { LIVE_DELAY } from "../lib/annonce"
 import { writeText } from "../lib/dom_writes"
 import type { Field } from "../lib/listing_form"
 import type { FieldsView, FieldView } from "../lib/listing_form_view"
@@ -17,6 +18,7 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
     "ordersSlot",
     "openingLine",
     "leftLine",
+    "status",
     "orderRefusal",
   ]
 
@@ -33,13 +35,19 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   declare readonly ordersSlotTarget: HTMLElement
   declare readonly openingLineTarget: HTMLElement
   declare readonly leftLineTarget: HTMLElement
+  declare readonly statusTarget: HTMLElement
   declare readonly hasOrderRefusalTarget: boolean
   declare readonly orderRefusalTarget: HTMLElement
 
   private pristine = true
+  private timer?: ReturnType<typeof setTimeout>
 
   connect(): void {
     if (this.hasOrderRefusalTarget) this.orderRefusalTarget.focus()
+  }
+
+  disconnect(): void {
+    clearTimeout(this.timer)
   }
 
   render({ hint, startText, opening, left, start, duration, locked }: FieldsView): void {
@@ -47,6 +55,7 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
     if (this.startTarget.value !== startText) this.startTarget.value = startText
     this.reflectLine(this.openingLineTarget, opening)
     this.reflectLine(this.leftLineTarget, left)
+    this.announce([opening, left].filter(Boolean).join(" "))
     this.reflectField(this.startTarget, this.startErrorTarget, start, START_HINT)
     this.reflectDuration(duration)
     this.element.toggleAttribute("inert", locked)
@@ -96,6 +105,11 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   // Every eligible buy order of the chosen edition, said above the start field.
   showOrders(ref: string, template: HTMLTemplateElement | null): void {
     if (this.hasOrdersSlotTarget) this.showIn(this.ordersSlotTarget, ref, template)
+  }
+
+  private announce(text: string): void {
+    clearTimeout(this.timer)
+    this.timer = setTimeout(() => writeText(this.statusTarget, text), LIVE_DELAY)
   }
 
   private reflectLine(line: HTMLElement, text: string): void {

@@ -52,13 +52,30 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
     bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
       price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
-    date = (bought.created_at + 1.day).to_date
+    reopens = (bought.created_at + 1.day).utc
+    text = reopens.strftime("%Y-%m-%d %H:%M UTC")
 
     get market_shop_path(locale: :fr)
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare par jour · prochaine le #{I18n.l(date, format: :day_month, locale: :fr)}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare par jour · prochaine le #{text}"
 
     get market_shop_path(locale: :en)
-    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare per day · next on #{I18n.l(date, format: :day_month, locale: :en)}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare per day · next on #{text}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap time[datetime=?][data-controller=local-time]", reopens.iso8601
+  end
+
+  test "the date a capped rarity reopens is drawn in the viewer's time zone" do
+    sign_in(@player)
+    bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
+      price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
+    reopens = (bought.created_at + 1.day).utc
+    cookies[:time_zone] = "Pacific/Auckland"
+
+    get market_shop_path(locale: :en)
+
+    local = I18n.l(reopens.in_time_zone("Pacific/Auckland"), format: :local_datetime, locale: :en)
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "1 Rare per day · next on #{local}"
+    assert_select "#archive-offer-blue-depths-1 .archive-offer__cap time[datetime=?]", reopens.iso8601
+    assert_select ".market-shop__rarity-cap time[datetime=?]", reopens.iso8601
   end
 
   test "a visitor reads no cap line" do
@@ -78,10 +95,10 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     bought = Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
       price: 500, settings_id: @settings.id, created_at: 2.hours.ago)
-    date = (bought.created_at + 1.day).to_date
+    text = (bought.created_at + 1.day).utc.strftime("%Y-%m-%d %H:%M UTC")
 
     get market_shop_path(locale: :en)
-    assert_select ".market-shop__rarity-cap", "1 Rare per day · next on #{I18n.l(date, format: :day_month, locale: :en)}"
+    assert_select ".market-shop__rarity-cap", "1 Rare per day · next on #{text}"
   end
 
   test "a wanted card wears the VOULUE tag and the chip counts the wanted offers" do

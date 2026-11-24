@@ -20,13 +20,14 @@ class MarketShopCapSystemTest < ApplicationSystemTestCase
   end
 
   test "a capped edition's tile names the next purchase, and its confirmation draws no form" do
+    page.driver.browser.execute_cdp("Emulation.setTimezoneOverride", timezoneId: "Europe/Paris")
     mock_steam_sign_in(@player.steam_id)
     visit home_path(locale: :fr)
     click_steam_sign_in
     assert_signed_in
     visit market_shop_path(locale: :fr)
 
-    date = I18n.l((1.hour.ago + 7.days).to_date, format: :day_month, locale: :fr)
+    date = I18n.l((1.hour.ago + 7.days).in_time_zone("Europe/Paris"), format: :local_datetime, locale: :fr)
     assert_selector "#archive-offer-portal-1 .archive-offer__cap", text: "1 Épique par semaine · prochaine le #{date}"
 
     find("#archive-offer-portal-1 a").click

@@ -118,7 +118,18 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".purchase-confirmation form", 0
     assert_select ".purchase-confirmation button[type=submit]", 0
     assert_select ".purchase-confirmation__refusal[role=alert]",
-      "Vous avez atteint la limite des Archives pour cette rareté. Prochain achat le #{I18n.l((bought.created_at + 1.day).to_date, format: :day_month, locale: :fr)}."
+      "Vous avez atteint la limite des Archives pour cette rareté. Prochain achat le #{(bought.created_at + 1.day).utc.strftime("%Y-%m-%d %H:%M UTC")}."
+  end
+
+  test "the next purchase date of the refusal is written in the viewer's time zone" do
+    bought = withdraw!
+    sign_in(@player)
+    cookies[:time_zone] = "Pacific/Auckland"
+
+    confirmation
+
+    local = I18n.l((bought.created_at + 1.day).in_time_zone("Pacific/Auckland"), format: :local_datetime, locale: :fr)
+    assert_select ".purchase-confirmation__refusal[role=alert]", "Vous avez atteint la limite des Archives pour cette rareté. Prochain achat le #{local}."
   end
 
   test "a purchase refused for the cap is a 422 with the same message and nothing charged" do

@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { Application } from "@hotwired/stimulus"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { LIVE_DELAY } from "../lib/annonce"
 import { serverTemplate } from "../lib/server_html"
 import ListingFieldsController from "./listing_fields_controller"
 import ListingFormController from "./listing_form_controller"
@@ -41,6 +42,7 @@ const markup = (refused: boolean): string => `
       <p data-listing-fields-target="hint"></p>
       <p data-listing-fields-target="openingLine" hidden></p>
       <p data-listing-fields-target="leftLine" hidden></p>
+      <p role="status" data-listing-fields-target="status"></p>
       <p id="sale-start-error" data-listing-fields-target="startError" hidden></p>
       <p data-listing-fields-target="durationError" hidden></p>
     </div>
@@ -84,7 +86,15 @@ function submitWith(submitter: HTMLElement): Event {
 
 afterEach(() => {
   application.stop()
+  vi.useRealTimers()
 })
+
+function typeStart(value: string): void {
+  const input = target("start") as HTMLInputElement
+  input.value = value
+  input.dispatchEvent(new Event("input", { bubbles: true }))
+  form().typed(new CustomEvent("typed", { detail: { field: "start", value } }))
+}
 
 describe("the best-order banner", () => {
   beforeEach(() => mount())
@@ -156,6 +166,29 @@ describe("orders turning into bids", () => {
 
     expect(target("openingLine").textContent).toBe("With these orders, the auction starts at 350, led by a buy order.")
     expect(target("leftLine").textContent).toBe("The order at 300 stays open.")
+  })
+
+  it("posts the opening lines to the status region once, after the typing stops, and only when they changed", () => {
+    form().chosen(new CustomEvent("chosen", { detail: { ref: "alpha:1" } }))
+    vi.useFakeTimers()
+    const posts = new MutationObserver(() => {})
+    posts.observe(target("status"), { childList: true })
+
+    for (const value of ["35", "350", "360"]) {
+      typeStart(value)
+      vi.advanceTimersByTime(LIVE_DELAY / 2 - 50)
+    }
+    expect(posts.takeRecords()).toHaveLength(0)
+
+    vi.advanceTimersByTime(LIVE_DELAY)
+    expect(posts.takeRecords()).toHaveLength(1)
+    expect(target("status").textContent).toBe(
+      "With these orders, the auction starts at 360, led by a buy order. The order at 300 stays open.",
+    )
+
+    typeStart("360")
+    vi.advanceTimersByTime(1000)
+    expect(posts.takeRecords()).toHaveLength(0)
   })
 
   it("says nothing for an edition without orders", () => {
