@@ -387,11 +387,13 @@ gameble is an open-source passion project, and the game its author wants to play
     - Opening an auction at or below the eligible orders turns them into bids (CAP-30). Opening it above an order opens an ordinary auction with its stamp, the order's owner is notified, and the order stays open until a direct sale or a conversion consumes it.
     - Every listing form shows the best eligible order.
 - **CAP-48**
-  - **intent:** PiCoins buy a specific card from the Archives' stock, at a price that caps the market without undercutting players.
+  - **intent:** The Brotherhood's shop destroys PiCoins by selling, at a dear price, the entrusted cards players look for.
   - **success:**
-    - The Brotherhood's shop lists the Archives' stock per card and edition; a player buys one copy, which keeps its minted rarity and season.
-    - Archive offers also appear in market search results next to player listings.
-    - An Archive offer is priced at a multiple of the entrustment value (`market-economy.md`), well above a player's usual offer and never below its rarity's player minimum price. A rarity whose Archive price is not set is absent from the shop. Above Uncommon, a player buys at most a set number of copies of each rarity per period (settings, starting at 1 Rare a day and 1 Epic a week); Commons and Uncommons have no limit (author, 2026-11-24).
+    - The shop's measure is PiCoins destroyed over minted (market and shop, rolling 4 weeks), set point 60 %.
+    - Every Monday 00:00 UTC the Brotherhood lists the same editions for every player, 20 by default (settings): up to 10 wanted cards (CAP-44), most sought first, then Rares up to 10, then Uncommons and Commons drawn for the week. A player buys one copy, which keeps its minted rarity and season. Archive offers also appear in market search results next to player listings.
+    - An edition keeps one price all week: a coefficient times its rarity's reference, the median auction sale of the rarity over 90 days (top and bottom tenth left out) from 5 sales, else a free back-office reference. Each Monday the coefficient moves toward the set point by at most 20 %, from 6, between 2 and 10, and a price never falls under 5 times the entrustment value; at 10 with the ratio under the set point, the economy alert proposes lowering entrustment amounts (author, 2026-11-24).
+    - Epics (up to 5 a week) and the Legendary (1 a week) are sold as Brotherhood auctions on the market, reserve at twice the reference, payment destroyed.
+    - A player buys an edition once a week and at most 5 Archive cards a week. Every open market and shop page shows a purchase at once.
     - An Archive purchase never makes a feed entry. Staff keep which account entrusted each Archive copy; players never see it.
 - **CAP-49**
   - **intent:** A player spends PiCoins on more room for goals, custom sets and decks, nothing that changes what they draw or win.

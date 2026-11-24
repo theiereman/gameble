@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boutique de la Confrérie</title>
+<style>
+:root{--bg:#f6f1e7;--panel:#fffdf8;--ink:#2a2420;--muted:#6f655c;--line:#ddd3c4;--seal:#9b1c1c;--accent:#7a4b12}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16130f;--panel:#201b16;--ink:#efe7da;--muted:#a99d8e;--line:#3a322a;--seal:#d14a4a;--accent:#e0a95a}}
+:root[data-theme="dark"]{--bg:#16130f;--panel:#201b16;--ink:#efe7da;--muted:#a99d8e;--line:#3a322a;--seal:#d14a4a;--accent:#e0a95a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Georgia,"Times New Roman",serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+header{display:flex;gap:24px;align-items:center;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:20px}
+h1{margin:0;font-size:30px}
+.sub{color:var(--muted);margin:4px 0 0}
+h2{font-size:19px;margin:32px 0 10px;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}
+section{background:var(--panel);border:1px solid var(--line);padding:16px 20px;margin-top:12px}
+ul{margin:0;padding-left:20px}li{margin:6px 0}
+.cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.who{border:1px solid var(--line);padding:12px;background:var(--panel)}
+.who b{display:block}.who span{color:var(--muted);font-size:14px}
+table{border-collapse:collapse;width:100%;font-size:15px}td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
+.seal{flex:none}
+</style>
+</head>
+<body>
+<main>
+<header>
+<svg class="seal" width="132" height="132" viewBox="0 0 132 132" role="img" aria-label="Sceau : idée durcie">
+<circle cx="66" cy="66" r="60" fill="var(--seal)"/>
+<circle cx="66" cy="66" r="50" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-dasharray="4 3"/>
+<path id="arc" d="M24 66a42 42 0 0 1 84 0" fill="none"/>
+<text font-family="Georgia,serif" font-size="11" fill="#fff" letter-spacing="3"><textPath href="#arc" startOffset="50%" text-anchor="middle">LA FORGE · BMAD</textPath></text>
+<text x="66" y="74" text-anchor="middle" font-family="Georgia,serif" font-weight="bold" font-size="17" fill="#fff" letter-spacing="1">HARDENED</text>
+<text x="66" y="94" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="#fff" fill-opacity=".85">24·11·2026</text>
+</svg>
+<div>
+<h1>La boutique de la Confrérie</h1>
+<p class="sub">Un puits à PiCoins qui vend ce que les joueurs cherchent, réglé par un thermostat plutôt que par des chiffres devinés.</p>
+</div>
+</header>
+
+<h2>Décisions verrouillées</h2>
+<section><ul>
+<li><b>Rôle :</b> puits à monnaie. Mesure : PiCoins détruits / créés (marché + boutique, 4 semaines glissantes), consigne <b>60 %</b>. Aujourd'hui, 4 à 16 %.</li>
+<li><b>Liste commune de 20 éditions</b>, renouvelée le lundi et réglable au back-office : jusqu'à 10 cartes voulues, puis les Rares (10 au plus), puis des Peu communes et des Communes.</li>
+<li><b>Prix fixe toute la semaine</b> = coefficient × médiane de la rareté (90 jours, à partir de 5 ventes, valeurs extrêmes retirées), sinon une référence libre au back-office.</li>
+<li><b>Thermostat :</b> coefficient de départ 6×, ±20 % par semaine, entre 2× et 10×, jamais moins de 5× la valeur confiée. Au plafond, l'alerte du back-office propose de baisser les montants de confiance.</li>
+<li><b>Épiques et Légendaire</b> en enchère de la Confrérie sur le marché, réserve au plancher, paiement détruit.</li>
+<li><b>Par joueur :</b> une fois par édition et par semaine, et 5 achats par semaine au plus.</li>
+<li><b>Références pré-remplies :</b> Commune 35, Peu commune 100, Rare 150, Épique 1 650, Légendaire 4 000.</li>
+</ul></section>
+
+<h2>Rejeté, et pourquoi</h2>
+<section><table>
+<tr><th>Idée</th><th>Raison</th></tr>
+<tr><td>Prix qui baisse chaque nuit, ligne « demain »</td><td>Crée un jeu d'attente et alourdit la boutique ; un prix au-dessus du marché suffit à empêcher la ruée.</td></tr>
+<tr><td>Budget de liste à 50 % des PiCoins créés</td><td>La quantité est fixe, c'est le prix qui règle ce qui est détruit.</td></tr>
+<tr><td>Plafonds par rareté et par période</td><td>Redondants avec la nouvelle règle ; remplacés par 5 achats par semaine.</td></tr>
+<tr><td>Vitrine des plus rares, 12 cartes, multiples fixes 5× / 6×</td><td>Des chiffres devinés, sans mesure derrière.</td></tr>
+</table></section>
+
+<h2>Points faibles qui ont survécu</h2>
+<section><ul>
+<li>Monter les prix quand le ratio est bas peut faire baisser les achats. Le plancher et la priorité aux cartes voulues limitent ce risque sans le supprimer.</li>
+<li>10 Rares par semaine épuisent les 67 Rares du stock en 7 semaines environ.</li>
+<li>60 % et 20 éditions sont des valeurs de départ : aucune source ne fixe de cible pour un puits.</li>
+<li>Les enchères de la Confrérie demandent une vente sans vendeur joueur, donc un vrai changement dans le code des enchères.</li>
+</ul></section>
+
+<h2>Ceux qui ont éprouvé l'idée</h2>
+<div class="cast">
+<div class="who"><b>📊 Mary, analyste</b><span>« Le problème est un débit, pas une forme. » Elle a proposé les enchères de la Confrérie.</span></div>
+<div class="who"><b>🏗️ Winston, architecte</b><span>A imposé un ratio plutôt qu'un montant, et les bornes du thermostat.</span></div>
+<div class="who"><b>🧭 John, produit</b><span>« Le levier visible, c'est le prix. »</span></div>
+<div class="who"><b>🎨 Sally, UX</b><span>« 20 cartes, ça se parcourt en une minute. »</span></div>
+<div class="who"><b>😤 Grumbal, le grincheux</b><span>A repéré le joueur riche qui vide la vitrine, d'où les 5 achats par semaine.</span></div>
+<div class="who"><b>🪙 Ilse Varga, économiste de MMO</b><span>Voix extérieure : « Un puits ne marche que si l'on veut ce qu'il vend. »</span></div>
+<div class="who"><b>🔎 La recherche</b><span>Old School RuneScape, a16z, Neopets, Warframe, Hearthstone : <code>recon-archive-shop.md</code>.</span></div>
+</div>
+</main>
+</body>
+</html>
