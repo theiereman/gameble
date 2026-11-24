@@ -15,9 +15,15 @@ en:
     market_lead_voided:
       body: "The leading player on %{card} was removed. The auction restarts from its starting price."
       title: Auction restarted
+    market_order_beaten:
+      body: "Your order on %{card} became a bid and was outbid. Your %{amount} are available again."
+      title: Order outbid
     market_order_expired:
       body: "Your order on %{card} expired. Your %{amount} are available again."
       title: Order expired
+    market_order_leads:
+      body: "Your order on %{card} became a bid: it leads the auction up to %{amount}."
+      title: Order leading
     market_order_served:
       body: "Your order on %{card} was filled: the card joins your collection."
       title: Order filled
@@ -3722,6 +3728,7 @@ en:
         closing: Free cancellation. An order never bids for you.
         heading: "ORDER PLACED ON %{card}"
         reached: Rarities reached
+      joins_collection: The card joins your collection.
       listed_above_html: "%{name} is selling %{card} for %{amount}, above your order."
       returned: PiCoins returned
       see_listing: SEE THE LISTING ▸
@@ -3730,9 +3737,12 @@ en:
         empty: You have placed no order.
         heading: My orders
       status:
+        bid: IN AUCTION
         cancelled: CANCELLED
         expired: EXPIRED
+        outbid: OUTBID
         served: SERVED
+        won: WON
     order_cancellations:
       create:
         cancelled: "Order cancelled: your %{amount} PiCoins are returned to you."
@@ -3980,6 +3990,11 @@ en:
         submit_label: "Sell now to the buy order, %{amount} PiCoins received"
         terms_html: "Instant sale, no stamp. You receive %{received} (Brotherhood Effort: %{commission})."
         waiting_html: "A buy order is waiting for you: %{amount}"
+      orders:
+        summary_html:
+          zero: "%{number} buy orders, the best at %{amount}"
+          one: "%{number} buy order, the best at %{amount}"
+          other: "%{number} buy orders, the best at %{amount}"
       sold:
         body_html: "%{card} is sold to a buy order. You receive %{amount}."
         title: SOLD
@@ -3988,6 +4003,8 @@ en:
         invalid_price: Enter a whole number of PiCoins, above zero.
         minimum_hint: "At least %{amount} for a %{rarity}"
         minimum_refusal: "At least %{amount} for a %{rarity}."
+        opening: "With these orders, the auction starts at %{amount}, led by a buy order."
+        order_left: "The order at %{amount} stays open."
         order_waiting: "A buy order is waiting for you: %{amount} PiCoins"
         stamp_short: "You are short of %{amount} PiCoins for the stamp."
         status: You receive %{amount} PiCoins
@@ -5391,7 +5408,9 @@ en:
       market:
         lead_voided_html: "The leading player on %{card} was removed. The auction restarts from its starting price."
         listed_above_order_html: "%{card} is on sale for %{amount}, above your order."
+        order_beaten_html: "Your order on %{card} became a bid and was outbid. Your %{amount} are available again."
         order_expired_html: "Your order on %{card} expired. Your %{amount} are available again."
+        order_leads_html: "Your order on %{card} became a bid: it leads the auction up to %{amount}."
         order_served_html: "Your order on %{card} was filled: the card joins your collection."
         outbid_html: "%{name} went past your maximum on %{card}."
         sold_html: "%{card} sold. You receive %{amount}."

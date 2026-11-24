@@ -23,7 +23,7 @@ class Game::Market::RefreshWantedJobTest < ActiveSupport::TestCase
 
   def every_key_data
     { player_id: @player.id, proposer_id: @player.id, recipient_id: @other.id, seller_id: @player.id, winner_id: @other.id,
-      buyer_id: @other.id, goal_id: 1, sales: [ { buyer_id: @other.id } ] }
+      buyer_id: @other.id, goal_id: 1, sales: [ { buyer_id: @other.id } ], converted: [ { owner_id: @other.id } ] }
   end
 
   def named_by_every_event
@@ -31,7 +31,7 @@ class Game::Market::RefreshWantedJobTest < ActiveSupport::TestCase
     both = [ @player.id, @other.id ]
     {
       Game::PackOpened => player, Game::TradeAccepted => both, Game::Market::AuctionSold => both,
-      Game::Market::OrderServed => [ @other.id, @player.id ], Game::Market::WantedChoicesApplied => both,
+      Game::Market::OrderServed => [ @other.id, @player.id ], Game::Market::WantedChoicesApplied => both, Game::Market::CardListed => [ @other.id ],
       Game::Market::CardsEntrusted => player, Game::Market::ArchivePurchased => player, Game::GoalAdded => player,
       Game::GoalRemoved => player, Game::SlotBought => player, Game::CustomSetEdited => player, Game::CustomSetDeleted => player,
       Game::LibrarySetSynced => player, Game::Market::OrderPlaced => player, Game::Market::OrderCancelled => player,

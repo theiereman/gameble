@@ -35,12 +35,12 @@
     <% else %>
       <%= form_with url: market_sales_path, id: "listing-form", class: "market-sale__form",
             data: { turbo: false, layout: "wide", chosen: @chosen_ref.present?.to_s, step: (@chosen_ref ? "2" : "1"),
-                    **sale_root_data(open: @open, basis_points: @settings.commission_basis_points, available: @available) } do %>
+                    **sale_root_data(open: @open, basis_points: @settings.commission_basis_points, increment: @settings.increment_basis_points, available: @available) } do %>
         <%= hidden_field_tag :settings, @settings.token, id: nil %>
         <%= hidden_field_tag :card, @card_slug, id: nil if @card_slug %>
         <%= hidden_field_tag :ref, @chosen_ref.to_s, id: nil, data: { listing_form_target: "ref" } %>
         <% if @chosen_copy %>
-          <%= tag.span hidden: true, data: { listing_form_target: "edition", **sale_edition_data(@chosen_copy, @settings, order: @orders[@chosen_ref]) } %>
+          <%= tag.span hidden: true, data: { listing_form_target: "edition", **sale_edition_data(@chosen_copy, @settings, order: @orders[@chosen_ref], orders: @order_prices.fetch(@chosen_ref, [])) } %>
         <% end %>
         <p class="market-sale__step" data-listing-form-target="step"><%= t(".step", step: @chosen_ref ? 2 : 1) %></p>
         <% if @card_slug %>

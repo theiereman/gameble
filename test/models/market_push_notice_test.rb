@@ -76,6 +76,24 @@ class MarketPushNoticeTest < ActiveSupport::TestCase
     assert_equal "/en/market/my-orders", expired.data[:path]
   end
 
+  test "a listing pushes each converted order's owner, and the notification leads to the listing" do
+    converted = [ { order_id: 9, owner_id: 2, listing_id: 7, price: 400, status: "bid" }, { order_id: 10, owner_id: 3, listing_id: 7, price: 350, status: "beaten" } ]
+
+    assert_equal [ { player_id: 2, order_id: 9 }, { player_id: 3, order_id: 10 } ],
+      MarketPushNotice.notices(Game::Market::CardListed.with(listing_id: 7, seller_id: 1, card_season_id: 5, converted:))
+    assert_empty MarketPushNotice.notices(Game::Market::CardListed.with(listing_id: 7, seller_id: 1, card_season_id: 5))
+    edition = Catalog::CardViews.call([ catalog_card_seasons(:portal_one).id ], locale: :en).values.sole
+    line = Game::Market::OrderNoticeLines::Line.new(kind: :order_leads, token: "ord", listing_token: "lst", card: "Portal", edition:, other: nil,
+      amount: 400, noticed_at: Time.current)
+
+    leads = MarketPushNotice.notification(line, locale: "en")
+    beaten = MarketPushNotice.notification(line.with(kind: :order_beaten), locale: "fr")
+
+    assert_equal [ "Order leading", "/en/market/listings/lst" ], [ leads.title, leads.data[:path] ]
+    assert_match(/\AYour order on Portal became a bid: it leads the auction up to 400 PiCoins\.\z/, leads.body)
+    assert_equal [ "Ordre dépassé", "/fr/market/listings/lst" ], [ beaten.title, beaten.data[:path] ]
+  end
+
   test "the notification is written in the device's locale and leads to the listing, or to the sales for what concerns the seller" do
     line = Game::Market::MarketNotices::Line.new(kind: :won, token: "abc", card: "Portal", other: nil, amount: 1_200, noticed_at: Time.current)
     won = MarketPushNotice.notification(line, locale: "fr")

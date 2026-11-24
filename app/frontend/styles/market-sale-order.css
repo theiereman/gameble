@@ -70,3 +70,34 @@
 [data-layout="phone"] .sale-order .button {
   width: 100%;
 }
+
+.sale-orders-slot:empty {
+  display: none;
+}
+
+.sale-orders {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-body);
+  font-weight: 700;
+}
+
+.sale-orders .picoin-amount {
+  color: var(--color-gold);
+}
+
+.sale-opening {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sale-opening__line {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.sale-opening__line[hidden] {
+  display: none;
+}

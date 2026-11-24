@@ -15,6 +15,12 @@
     </div>
   <% end %>
 
+  <% if @open %>
+    <div class="sale-field sale-orders-slot" data-listing-fields-target="ordersSlot" data-ref="<%= chosen&.ref %>">
+      <% if chosen && @order_prices.key?(chosen.ref) %><%= render "market/sales/orders", prices: @order_prices[chosen.ref] %><% end %>
+    </div>
+  <% end %>
+
   <div class="sale-field">
     <label for="sale-start" class="sale-field__label"><%= t("market.sales.new.start_label") %></label>
     <%= text_field_tag :starting_price, typed_picoins(@values[:start]), id: "sale-start", inputmode: "numeric", autocomplete: "off",
@@ -23,6 +29,10 @@
                   action: "beforeinput->amount-field#remember input->amount-field#group input->listing-fields#type keydown->listing-fields#keydown" } %>
     <p id="sale-start-hint" class="sale-field__hint" data-listing-fields-target="hint"><%= hint %></p>
     <p id="sale-start-error" class="sale-field__error" data-listing-fields-target="startError" <%= "hidden" unless start_refused %>><%= @refusal if start_refused %></p>
+    <div class="sale-opening" aria-live="polite">
+      <p class="sale-opening__line" data-listing-fields-target="openingLine" hidden></p>
+      <p class="sale-opening__line" data-listing-fields-target="leftLine" hidden></p>
+    </div>
   </div>
 
   <fieldset class="sale-field sale-durations" role="radiogroup" aria-describedby="sale-duration-error"

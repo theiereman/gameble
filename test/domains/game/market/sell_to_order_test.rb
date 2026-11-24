@@ -102,7 +102,7 @@ class Game::Market::SellToOrderTest < ActiveSupport::TestCase
     deck = Game::CreateDeck.new.call(player: @seller, name: "Tide").value!
     Game::AddCardToDeck.new.call(player: @seller, token: deck.token, card_season_id: @card.id).value!
     Game::ProposeTrade.new.call(player: @seller, recipient: friend, offer: { @card.id => 1 }, request: { common.id => 1 }).value!
-    Game::Market::ListCard.new.call(player: @seller, card_season_id: @card.id, starting_price: 100, duration_hours: 24, settings_token: @settings.token).value!
+    Game::Market::ListCard.new.call(player: @seller, card_season_id: @card.id, starting_price: 1_000, duration_hours: 24, settings_token: @settings.token).value!
     assert_equal [ 4, 3 ], copies(@seller)
 
     assert sell.success?

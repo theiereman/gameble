@@ -2,6 +2,7 @@ module Game
   module Market
     class ListCard < Operation
       include ListingOpening
+      include OrderConversion
 
       def call(player:, card_season_id:, starting_price:, duration_hours:, settings_token:)
         player = step require_player(player)
@@ -15,9 +16,11 @@ module Game
           step price_rule(settings, rarity, starting_price)
           step duration_rule(settings, duration_hours)
           step stamp_covered(settings, rarity, player)
+          now = Time.current
           listing, stamp = open_listing(player, holding, settings, rarity, starting_price, duration_hours)
-          Ledger.post(stamp)
-          step publish(CardListed.with(listing_id: listing.id, seller_id: player.id, card_season_id:), stream_name: stream_name(player.id))
+          converted, entries = convert_orders(listing, settings, now)
+          Ledger.post([ stamp, *entries ])
+          step publish(CardListed.with(listing_id: listing.id, seller_id: player.id, card_season_id:, converted:), stream_name: stream_name(player.id))
           listing
         end
       rescue ActiveRecord::Deadlocked

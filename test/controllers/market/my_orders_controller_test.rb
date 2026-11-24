@@ -1,11 +1,13 @@
 require "test_helper"
 require_relative "../../support/steam_sign_in"
 require_relative "../../support/market"
+require_relative "../../support/holdings"
 require_relative "../../support/market_auctions"
 require_relative "../../support/market_listings"
 require_relative "../../support/market_orders"
 
 class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
+  include Holdings
   include MarketAuctions
   include MarketListings
   include MarketOrders
@@ -118,6 +120,39 @@ class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[SERVI ANNULÉ EXPIRÉ], css_select("#{recent} .market-row__chip").map { it.text.strip }
     assert_select ".market-row__note", "Vendue par Ada · Rare S1"
     assert_select ".market-row__note", text: "PiCoins rendus", count: 2
+  end
+
+  test "orders turned into bids read from their auction: in the auction, won or outbid, each linked and none cancellable" do
+    seller = accounts_players(:moderator)
+    rival = accounts_players(:administrator)
+    [ seller, rival ].each { fund!(it, 10_000) }
+    cards = %i[common_card_one uncommon_card_one rare_card_one].map { catalog_card_seasons(it) }
+    cards.each { |card| hold(seller, card.id, 1) }
+    cards.each { |card| place(100, card: card.card) }
+    listings = cards.map do |card|
+      Game::Market::ListCard.new.call(player: seller, card_season_id: card.id, starting_price: 90, duration_hours: 24, settings_token: @settings.token).value!
+    end
+    listings[1].update_columns(ends_at: 1.minute.ago)
+    Game::Market::CloseAuction.new.call(player: seller, listing_id: listings[1].id).value!
+    Game::Market::PlaceBid.new.call(player: rival, listing_id: listings[2].id, maximum: 500).value!
+    sign_in(@player)
+
+    get market_my_orders_path(locale: :en)
+
+    assert_equal [ "IN AUCTION" ], css_select("section[aria-labelledby=my-orders-in-progress-heading] .market-row__chip").map { it.text.strip }
+    assert_equal %w[OUTBID WON], css_select("section[aria-labelledby=my-orders-recent-heading] .market-row__chip").map { it.text.strip }.sort
+    listings.each { |listing| assert_select ".market-row__note a.button--link[href=?]", market_listing_path(locale: :en, token: listing.token), "SEE THE LISTING ▸" }
+    assert_select ".market-row__note", text: /The card joins your collection\./
+    assert_select ".market-row__note", text: /PiCoins returned/
+    assert_select ".market-row button", false
+    assert_select "form[action*=cancellation]", false
+    assert_no_match(/listing[\w-]*[-_\/]#{listings.first.id}\b/, response.body)
+
+    get market_my_orders_path(locale: :fr)
+
+    assert_select ".market-row__chip", text: "EN ENCHÈRE"
+    assert_select ".market-row__chip", text: "GAGNÉE"
+    assert_select ".market-row__chip", text: "DÉPASSÉE"
   end
 
   test "a player whose orders all ended this week sees only RECENTLY ENDED" do

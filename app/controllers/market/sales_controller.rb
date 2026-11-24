@@ -52,6 +52,7 @@ module Market
         choose(@copies.first.ref) if @pagy.count == 1 && !@filter.narrowing?
         @available = listed? ? Game::Market::Balance.call(current_player).available : 0
         @values = { start: "", duration: @settings&.preselected_duration_hours.to_s }
+        fill_start("") if @chosen_ref
         @sold_to_order = flash[:sold_to_order]
       end
 
@@ -65,6 +66,7 @@ module Market
         @price_offered = Game::Market::MarketState.call(@settings).first_opened?
         @prices = sale_prices(@copies.map(&:ref))
         @orders = best_orders(@copies.map(&:ref))
+        @order_prices = order_prices(@copies.map(&:ref))
       end
 
       def listed? = current_player.present? && @settings.present?
@@ -85,6 +87,7 @@ module Market
         @chosen_copy = copy
         @prices = @prices.merge(sale_prices([ ref ])) unless @prices.key?(ref)
         @orders = @orders.merge(best_orders([ ref ])) unless @orders.key?(ref)
+        @order_prices = @order_prices.merge(order_prices([ ref ])) unless @order_prices.key?(ref)
         true
       end
 
@@ -105,6 +108,20 @@ module Market
         ids.transform_values { best[it] }.compact
       end
 
+      # Every eligible order price each edition holds, best first, by ref; only while the market is open.
+      def order_prices(refs)
+        return {} unless @open && current_player && refs.any?
+
+        ids = Game::Market::EntrustableCopies.resolve(refs)
+        prices = Game::Market::EligibleOrders.prices(ids.values, except: current_player.id)
+        ids.transform_values { prices[it] }.compact
+      end
+
+      # The start the seller has not typed: the lowest eligible order's price, which turns every order into a bid.
+      def fill_start(typed)
+        @values[:start] = typed.presence || @order_prices[@chosen_ref]&.last.to_s
+      end
+
       def sold_to_order(order, card_season_id)
         amounts = helpers.order_sale_amounts(order.price, Game::Market::FindSettings.call(params[:settings]))
         flash[:sold_to_order] = { "card" => Game::Market::CardNames.call([ card_season_id ])[card_season_id].title, "received" => amounts[:received] }
@@ -122,7 +139,7 @@ module Market
       def prefill
         return unless choose(params[:ref].to_s)
 
-        @values[:start] = Game::Market::TypedAmount.price(params[:start]).to_s
+        fill_start(Game::Market::TypedAmount.price(params[:start]).to_s)
         @relisting = params[:relisting].to_s == "1"
       end
 

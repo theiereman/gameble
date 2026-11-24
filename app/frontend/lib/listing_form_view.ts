@@ -1,4 +1,4 @@
-import { chosenEdition, lines, type Field, type ListingState, type Refusal } from "./listing_form"
+import { chosenEdition, lines, opening, type Field, type ListingState, type Refusal } from "./listing_form"
 import { t } from "./i18n"
 import { picoins } from "./picoins"
 
@@ -7,6 +7,8 @@ export type ListingStrings = {
   invalidPrice: string
   minimumHint: string
   minimumRefusal: string
+  opening: string
+  orderLeft: string
   orderWaiting: string
   stampShort: string
   status: string
@@ -24,6 +26,9 @@ export type FieldView = { error: string | null }
 export type FieldsView = {
   chosen: string
   hint: string
+  startText: string
+  opening: string
+  left: string
   start: FieldView
   duration: string
   locked: boolean
@@ -60,9 +65,21 @@ function fieldView(field: Field, state: ListingState, forms: Forms): FieldView {
   return { error: shown && shown.field === field ? refusalText(shown, state, forms) : null }
 }
 
+function openingText(state: ListingState, { locale, strings }: Forms): Pick<FieldsView, "opening" | "left"> {
+  const shown = opening(state)
+  if (shown === null) return { opening: "", left: "" }
+  const amount = (figure: number) => picoins(figure, { locale })
+  return {
+    opening: shown.price === null ? "" : t(strings.opening, { amount: amount(shown.price) }),
+    left: shown.left.map((order) => t(strings.orderLeft, { amount: amount(order) })).join(" "),
+  }
+}
+
 export function fieldsViewOf(state: ListingState, forms: Forms): FieldsView {
   const edition = chosenEdition(state)
   return {
+    ...openingText(state, forms),
+    startText: state.start,
     chosen: edition?.ref ?? "",
     hint: edition
       ? t(forms.strings.minimumHint, {

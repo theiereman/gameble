@@ -1,9 +1,9 @@
 module MarketPushNotice
   EVENTS = [ Game::Market::BidPlaced, Game::Market::AuctionSold, Game::Market::AuctionUnsold, Game::Market::ListingWithdrawn,
-    Game::Market::LeadVoided, Game::Market::OrderServed, Game::Market::OrderExpired, Game::Market::WantedChoicesApplied ].freeze
+    Game::Market::LeadVoided, Game::Market::OrderServed, Game::Market::OrderExpired, Game::Market::WantedChoicesApplied, Game::Market::CardListed ].freeze
 
   KINDS = %w[outbid won sold unsold lead_voided withdrawn].freeze
-  ORDER_KINDS = %w[order_served order_expired].freeze
+  ORDER_KINDS = %w[order_served order_expired order_leads order_beaten].freeze
   SALES_KINDS = %w[sold unsold lead_voided].freeze
 
   BATCHES = :market_push_notice_batches
@@ -20,6 +20,7 @@ module MarketPushNotice
       when Game::Market::OrderServed then [ { player_id: data[:buyer_id], order_id: data[:order_id] } ]
       when Game::Market::OrderExpired then [ { player_id: data[:player_id], order_id: data[:order_id] } ]
       when Game::Market::WantedChoicesApplied then data[:sales].map { { player_id: it[:buyer_id], order_id: it[:order_id] } }
+      when Game::Market::CardListed then data.fetch(:converted, []).map { { player_id: it[:owner_id], order_id: it[:order_id] } }
       else listing_players(event, data).compact.map { { player_id: it, listing_id: data[:listing_id] } }
       end
     end
@@ -50,6 +51,7 @@ module MarketPushNotice
       case line.kind.to_s
       when "order_served" then helpers.card_season_path(locale:, slug: line.edition.id, number: line.edition.season_number)
       when "order_expired" then helpers.market_my_orders_path(locale:)
+      when "order_leads", "order_beaten" then helpers.market_listing_path(locale:, token: line.listing_token)
       when *SALES_KINDS then helpers.market_my_sales_path(locale:)
       else helpers.market_listing_path(locale:, token: line.token)
       end

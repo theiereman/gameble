@@ -16,9 +16,15 @@ fr:
     market_lead_voided:
       body: "Le joueur en tête sur %{card} a été retiré. L'enchère repart de son prix de départ."
       title: "Enchère relancée"
+    market_order_beaten:
+      body: "Votre ordre sur %{card} est devenu une enchère et a été dépassé. Vos %{amount} sont de nouveau disponibles."
+      title: "Ordre dépassé"
     market_order_expired:
       body: "Votre ordre sur %{card} a expiré. Vos %{amount} sont de nouveau disponibles."
       title: "Ordre expiré"
+    market_order_leads:
+      body: "Votre ordre sur %{card} est devenu une enchère : il mène jusqu'à %{amount}."
+      title: "Ordre en tête"
     market_order_served:
       body: "Votre ordre sur %{card} est servi : la carte rejoint votre collection."
       title: "Ordre servi"
@@ -158,6 +164,8 @@ fr:
         sold_html: "%{card} s'est vendue. Vous recevez %{amount}."
         unsold_html: "%{card} n'a reçu aucune offre. La carte vous est rendue."
         order_served_html: "Votre ordre sur %{card} est servi : la carte rejoint votre collection."
+        order_leads_html: "Votre ordre sur %{card} est devenu une enchère : il mène jusqu'à %{amount}."
+        order_beaten_html: "Votre ordre sur %{card} est devenu une enchère et a été dépassé. Vos %{amount} sont de nouveau disponibles."
         order_expired_html: "Votre ordre sur %{card} a expiré. Vos %{amount} sont de nouveau disponibles."
         listed_above_order_html: "%{card} est en vente à %{amount}, au-dessus de votre ordre."
         wanted_grouped:
@@ -2804,6 +2812,7 @@ fr:
         closing: "Annulation sans frais. Un ordre n'enchérit jamais à votre place."
         heading: "ORDRE PASSÉ SUR %{card}"
         reached: "Raretés atteintes"
+      joins_collection: "La carte rejoint votre collection."
       listed_above_html: "%{name} vend %{card} à %{amount}, au-dessus de votre ordre."
       returned: "PiCoins rendus"
       see_listing: "VOIR L'ANNONCE ▸"
@@ -2812,9 +2821,12 @@ fr:
         empty: "Vous n'avez passé aucun ordre."
         heading: "Mes ordres"
       status:
+        bid: "EN ENCHÈRE"
         cancelled: "ANNULÉ"
         expired: "EXPIRÉ"
+        outbid: "DÉPASSÉE"
         served: "SERVI"
+        won: "GAGNÉE"
     order_cancellations:
       create:
         cancelled: "Ordre annulé : vos %{amount} PiCoins vous sont rendus."
@@ -3070,6 +3082,11 @@ fr:
         submit_label: "Vendre maintenant à l'ordre d'achat, %{amount} PiCoins reçus"
         terms_html: "Vente immédiate, sans timbre. Vous recevez %{received} (Effort de la Confrérie : %{commission})."
         waiting_html: "Un ordre d'achat vous attend : %{amount}"
+      orders:
+        summary_html:
+          zero: "%{number} ordre d'achat, le meilleur à %{amount}"
+          one: "%{number} ordre d'achat, le meilleur à %{amount}"
+          other: "%{number} ordres d'achat, le meilleur à %{amount}"
       sold:
         body_html: "%{card} est vendue à un ordre d'achat. Vous recevez %{amount}."
         title: "VENDUE"
@@ -3078,6 +3095,8 @@ fr:
         invalid_price: "Entrez un nombre entier de PiCoins, au-dessus de zéro."
         minimum_hint: "Au moins %{amount} pour une %{rarity}"
         minimum_refusal: "Au moins %{amount} pour une %{rarity}."
+        opening: "Avec ces ordres, l'enchère part à %{amount}, menée par un ordre d'achat."
+        order_left: "L'ordre à %{amount} reste ouvert."
         order_waiting: "Un ordre d'achat vous attend : %{amount} PiCoins"
         stamp_short: "Il vous manque %{amount} PiCoins pour le timbre."
         status: "Vous recevez %{amount} PiCoins"

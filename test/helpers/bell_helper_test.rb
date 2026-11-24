@@ -101,6 +101,19 @@ class BellHelperTest < ActionView::TestCase
     I18n.with_locale(:fr) { assert_includes text_of(bell_order_line(order_notice(kind: :listed_above_order)).sentence), "Portal est en vente à" }
   end
 
+  test "an order turned into a bid leads to its Annonce, leading or outbid, in both languages" do
+    leads = bell_order_line(order_notice(kind: :order_leads))
+    beaten = bell_order_line(order_notice(kind: :order_beaten))
+
+    assert_equal [ market_listing_path(token: "lst") ] * 2, [ leads.href, beaten.href ]
+    assert_includes text_of(leads.sentence), "Your order on Portal became a bid: it leads the auction up to"
+    assert_includes text_of(beaten.sentence), "Your order on Portal became a bid and was outbid."
+    I18n.with_locale(:fr) do
+      assert_includes text_of(bell_order_line(order_notice(kind: :order_leads)).sentence), "Votre ordre sur Portal est devenu une enchère"
+      assert_includes text_of(bell_order_line(order_notice(kind: :order_beaten)).sentence), "a été dépassé"
+    end
+  end
+
   def grouped(count:, seen: false) = Game::Market::GroupedWanted::Grouped.new(count:, card: "Portal", newest_at: Time.utc(2026, 11, 10, 12), seen:)
 
   test "the grouped wanted line counts the cards on sale, opens the wanted market and carries its seen state" do

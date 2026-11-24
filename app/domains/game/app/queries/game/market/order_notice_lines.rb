@@ -1,6 +1,6 @@
 module Game
   module Market
-    # The notices about a player's buy orders: served with the edition received, expired, or a listing above the order's price.
+    # The notices about a player's buy orders: served with the edition received, expired, a listing above the order's price, or turned into a bid on a listing.
     module OrderNoticeLines
       LIMIT = 5
 
@@ -36,7 +36,7 @@ module Game
         _token, card_id, served_card_season_id = order
         case notice.kind
         when "order_served" then served_card_season_id
-        when "listed_above_order" then listing&.second
+        when "listed_above_order", "order_leads", "order_beaten" then listing&.second
         else faces[card_id]
         end
       end

@@ -20,18 +20,19 @@ module MarketSalesHelper
 
   WHOLE_DAYS_FROM_HOURS = 48
 
-  def sale_root_data(open:, basis_points:, available:)
+  def sale_root_data(open:, basis_points:, increment:, available:)
     { controller: "listing-form", action: "#{screen_actions("listing-form", SALE_ACTIONS)} #{SALE_SUBMIT_ACTION}",
-      listing_form_locale_value: I18n.locale, listing_form_basis_points_value: basis_points, listing_form_open_value: open,
+      listing_form_locale_value: I18n.locale, listing_form_basis_points_value: basis_points, listing_form_increment_value: increment, listing_form_open_value: open,
       listing_form_available_value: available,
       listing_form_strings_value: screen_strings("market.sales.strings") }
       .merge(screen_outlets("listing-form", SALE_ACTIONS.keys))
   end
 
-  def sale_edition_data(copy, settings, order: nil)
+  def sale_edition_data(copy, settings, order: nil, orders: [])
     rarity = copy.card.rarity.to_sym
     { ref: copy.ref, title: copy.card.title, rarity:, rarity_name: sale_rarity_name(rarity), season: copy.card.season_number,
-      free: copy.free, minimum: settings.minimum_price(rarity), stamp: settings.stamp(rarity), order: order&.price.to_s }
+      free: copy.free, minimum: settings.minimum_price(rarity), stamp: settings.stamp(rarity), order: order&.price.to_s,
+      orders: orders.join(",") }
   end
 
   # What the seller receives selling to an order at this price, the commission drawn at the settings version shown.

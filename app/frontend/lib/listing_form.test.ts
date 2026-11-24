@@ -7,6 +7,7 @@ import {
   know,
   layoutAsked,
   lines,
+  opening,
   received,
   refusal,
   setDuration,
@@ -31,6 +32,7 @@ const rare: Edition = {
   minimum: 1_000,
   stamp: 500,
   order: null,
+  orders: [],
 }
 const common: Edition = { ...rare, ref: "beta:1", title: "Beta", rarity: "common", minimum: 100, stamp: 50 }
 
@@ -77,6 +79,58 @@ describe("choosing", () => {
     const state = choose(chosenState({ start: "1500" }), "beta:1")
 
     expect(state.start).toBe("1500")
+  })
+})
+
+describe("orders turning into bids", () => {
+  const ordered: Edition = { ...rare, orders: [400, 350, 280] }
+  const withOrders = (values: Partial<typeof typed> = {}): ListingState =>
+    start([ordered, common], 1_000, { ...typed, ...values }, null, "wide", undefined, 500)
+
+  it("prefills the start at the lowest order's price when the seller has not typed", () => {
+    expect(choose(withOrders(), "alpha:1", "en").start).toBe("280")
+    expect(choose(withOrders(), "alpha:1", "fr").start).toBe("280")
+    expect(
+      choose(start([{ ...ordered, orders: [1_500, 1_200] }], 1_000, typed, null, "wide"), "alpha:1", "en").start,
+    ).toBe("1,200")
+  })
+
+  it("keeps what the seller typed", () => {
+    expect(choose(withOrders({ start: "1500" }), "alpha:1").start).toBe("1500")
+  })
+
+  it("replaces a prefill that the next edition does not share", () => {
+    const prefilled = choose(withOrders(), "alpha:1")
+
+    expect(choose(prefilled, "beta:1").start).toBe("")
+  })
+
+  it("opens at the runner-up raised by an increment, capped by the best, over the orders at or above the start", () => {
+    const state = setStart(choose(withOrders(), "alpha:1"), "300")
+
+    expect(opening(state)).toEqual({ price: 368, left: [280] })
+  })
+
+  it("opens at the start itself when one order reaches it", () => {
+    expect(opening(setStart(choose(withOrders(), "alpha:1"), "400"))).toEqual({ price: 400, left: [350, 280] })
+    expect(opening(setStart(choose(withOrders(), "alpha:1"), "350"))).toEqual({ price: 368, left: [280] })
+  })
+
+  it("caps the price at the best order when the increment overshoots it", () => {
+    const close = { ...ordered, orders: [360, 350] }
+    const state = start([close], 1_000, { ...typed, start: "300" }, "alpha:1", "wide", undefined, 500)
+
+    expect(opening(state)).toEqual({ price: 360, left: [] })
+  })
+
+  it("leaves every order open and names no price above them all", () => {
+    expect(opening(setStart(choose(withOrders(), "alpha:1"), "500"))).toEqual({ price: null, left: [400, 350, 280] })
+  })
+
+  it("says nothing without orders or without a valid start", () => {
+    expect(opening(chosenState({ start: "300" }))).toBeNull()
+    expect(opening(setStart(choose(withOrders(), "alpha:1"), "abc"))).toBeNull()
+    expect(opening(withOrders())).toBeNull()
   })
 })
 

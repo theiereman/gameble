@@ -42,6 +42,7 @@ function editionFrom(element: HTMLElement): Edition {
     minimum: Number(data.minimum),
     stamp: Number(data.stamp),
     order: data.order ? Number(data.order) : null,
+    orders: data.orders ? data.orders.split(",").map(Number) : [],
   }
 }
 
@@ -50,8 +51,25 @@ function sellsToOrder(event: Event): boolean {
 }
 
 export default class ListingFormController extends Controller<HTMLFormElement> {
-  static targets = ["cell", "edition", "ref", "priceTemplate", "orderTemplate", "start", "duration", "step"]
-  static values = { locale: String, basisPoints: Number, open: Boolean, available: Number, strings: Object }
+  static targets = [
+    "cell",
+    "edition",
+    "ref",
+    "priceTemplate",
+    "orderTemplate",
+    "ordersTemplate",
+    "start",
+    "duration",
+    "step",
+  ]
+  static values = {
+    locale: String,
+    basisPoints: Number,
+    increment: Number,
+    open: Boolean,
+    available: Number,
+    strings: Object,
+  }
   static outlets = ["copy-filters", "listing-grid", "listing-fields", "listing-summary"]
 
   declare readonly cellTargets: HTMLElement[]
@@ -60,12 +78,14 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
   declare readonly refTarget: HTMLInputElement
   declare readonly priceTemplateTargets: HTMLTemplateElement[]
   declare readonly orderTemplateTargets: HTMLTemplateElement[]
+  declare readonly ordersTemplateTargets: HTMLTemplateElement[]
   declare readonly startTarget: HTMLInputElement
   declare readonly durationTargets: HTMLInputElement[]
   declare readonly hasStepTarget: boolean
   declare readonly stepTarget: HTMLElement
   declare readonly localeValue: string
   declare readonly basisPointsValue: number
+  declare readonly incrementValue: number
   declare readonly openValue: boolean
   declare readonly availableValue: number
   declare readonly stringsValue: ListingStrings
@@ -128,7 +148,9 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
   chosen({ detail: { ref } }: Intent<{ ref: string }>): void {
     if (!this.state) return
     const phone = this.state.layout === "phone"
-    this.apply(choose(this.state, ref), () => (phone ? this.fields()?.focusField("start") : undefined))
+    this.apply(choose(this.state, ref, this.localeValue), () =>
+      phone ? this.fields()?.focusField("start") : undefined,
+    )
   }
 
   typed({ detail: { value } }: Intent<{ field: Field; value: string }>): void {
@@ -210,7 +232,7 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     const duration = this.durationTargets.find((radio) => radio.checked)?.value ?? ""
     const typed = { start: this.startTarget.value, duration }
     const loaded = cells.map((cell) => cell.dataset.ref ?? "")
-    return start(editions, this.basisPointsValue, typed, chosen, "wide", loaded)
+    return start(editions, this.basisPointsValue, typed, chosen, "wide", loaded, this.incrementValue)
   }
 
   private forms(): Forms {
@@ -230,6 +252,7 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     this.fields()?.render(fieldsViewOf(state, forms))
     this.fields()?.showPrice(state.chosen ?? "", this.templateFor(this.priceTemplateTargets, state.chosen))
     this.fields()?.showOrder(state.chosen ?? "", this.templateFor(this.orderTemplateTargets, state.chosen))
+    this.fields()?.showOrders(state.chosen ?? "", this.templateFor(this.ordersTemplateTargets, state.chosen))
     this.summary()?.render(summaryViewOf(state, forms, { open: this.openValue, available: this.availableValue }))
   }
 

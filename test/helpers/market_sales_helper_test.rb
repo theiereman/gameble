@@ -83,10 +83,10 @@ class MarketSalesHelperTest < ActionView::TestCase
   end
 
   test "the root data wires the screen's controllers, its settings and the balance the stamp draws on" do
-    data = sale_root_data(open: true, basis_points: 1_000, available: 4_200)
+    data = sale_root_data(open: true, basis_points: 1_000, increment: 500, available: 4_200)
 
     assert_equal "listing-form", data[:controller]
-    assert_equal 1_000, data[:listing_form_basis_points_value]
+    assert_equal [ 1_000, 500 ], data.values_at(:listing_form_basis_points_value, :listing_form_increment_value)
     assert_equal 4_200, data[:listing_form_available_value]
     assert_equal "#listing-form [data-controller~='listing-grid']", data[:listing_form_listing_grid_outlet]
     assert_includes data[:action], "listing-grid:chosen->listing-form#chosen"

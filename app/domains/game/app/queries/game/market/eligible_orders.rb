@@ -22,6 +22,15 @@ module Game
         end
       end
 
+      # Every eligible price of each edition, best first, by card-season id; an edition no order reaches is left out.
+      def self.prices(card_season_ids, except:, now: Time.current)
+        editions = Catalog::CardSeason.where(id: card_season_ids).where.not(rarity: nil).pluck(:id, :card_id, :rarity)
+        editions.group_by(&:third).each_with_object({}) do |(rarity, rows), found|
+          prices = eligible(rows.map(&:second), rarity, except:, now:).order(:card_id, PRIORITY).pluck(:card_id, :price).group_by(&:first)
+          rows.each { |id, card_id, _| found[id] = prices[card_id].map(&:last) if prices.key?(card_id) }
+        end
+      end
+
       def self.draw(edition_counts, except:, now: Time.current)
         editions = Catalog::CardSeason.where(id: edition_counts.map(&:first)).where.not(rarity: nil).pluck(:id, :card_id, :rarity).index_by(&:first)
         taken = []

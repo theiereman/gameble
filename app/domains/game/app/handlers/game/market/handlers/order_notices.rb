@@ -3,12 +3,13 @@ module Game
     module Handlers
       module OrderNotices
         LISTING_ENDS = [ AuctionSold, AuctionUnsold, ListingWithdrawn, ListingCancelled ].freeze
-        EVENTS = [ *LISTING_ENDS, OrderServed, OrderExpired, OrderCancelled, OrderWithdrawn, WantedChoicesApplied ].freeze
+        EVENTS = [ *LISTING_ENDS, CardListed, OrderServed, OrderExpired, OrderCancelled, OrderWithdrawn, WantedChoicesApplied ].freeze
 
         def self.call(event)
           data = event.data
           case event
           when *LISTING_ENDS then listing_ended(data[:listing_id])
+          when CardListed then data.fetch(:converted, []).sort_by { [ it[:owner_id], it[:order_id] ] }.each { converted(event, it) }
           when OrderServed then served(event, data)
           when WantedChoicesApplied then data[:sales].each { served(event, it) }
           when OrderExpired then expired(event, data)
@@ -35,6 +36,12 @@ module Game
           Notice.record_for(event, player_id: sale[:buyer_id], order_id: sale[:order_id], kind: "order_served", amount: sale[:price])
         end
 
+        def self.converted(event, row)
+          ended(row[:owner_id], row[:order_id])
+          Notice.record_for(event, player_id: row[:owner_id], order_id: row[:order_id], listing_id: row[:listing_id], amount: row[:price],
+            kind: row[:status] == "bid" ? "order_leads" : "order_beaten")
+        end
+
         def self.expired(event, data)
           ended(data[:player_id], data[:order_id])
           Notice.record_for(event, player_id: data[:player_id], order_id: data[:order_id], kind: "order_expired", amount: data[:amount])
@@ -42,7 +49,7 @@ module Game
 
         def self.ended(player_id, order_id) = Notice.listed_above_order.where(player_id:, order_id:).delete_all
 
-        private_class_method :listing_ended, :listing_above, :served, :expired, :ended
+        private_class_method :listing_ended, :listing_above, :served, :converted, :expired, :ended
       end
     end
   end

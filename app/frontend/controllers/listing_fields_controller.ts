@@ -14,6 +14,9 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
     "durationError",
     "priceSlot",
     "orderSlot",
+    "ordersSlot",
+    "openingLine",
+    "leftLine",
     "orderRefusal",
   ]
 
@@ -26,6 +29,10 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   declare readonly priceSlotTarget: HTMLElement
   declare readonly hasOrderSlotTarget: boolean
   declare readonly orderSlotTarget: HTMLElement
+  declare readonly hasOrdersSlotTarget: boolean
+  declare readonly ordersSlotTarget: HTMLElement
+  declare readonly openingLineTarget: HTMLElement
+  declare readonly leftLineTarget: HTMLElement
   declare readonly hasOrderRefusalTarget: boolean
   declare readonly orderRefusalTarget: HTMLElement
 
@@ -35,8 +42,11 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
     if (this.hasOrderRefusalTarget) this.orderRefusalTarget.focus()
   }
 
-  render({ hint, start, duration, locked }: FieldsView): void {
+  render({ hint, startText, opening, left, start, duration, locked }: FieldsView): void {
     writeText(this.hintTarget, hint)
+    if (this.startTarget.value !== startText) this.startTarget.value = startText
+    this.reflectLine(this.openingLineTarget, opening)
+    this.reflectLine(this.leftLineTarget, left)
     this.reflectField(this.startTarget, this.startErrorTarget, start, START_HINT)
     this.reflectDuration(duration)
     this.element.toggleAttribute("inert", locked)
@@ -81,6 +91,16 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   // The best order waiting for the chosen edition, or the line saying there is none, as the price.
   showOrder(ref: string, template: HTMLTemplateElement | null): void {
     if (this.hasOrderSlotTarget) this.showIn(this.orderSlotTarget, ref, template)
+  }
+
+  // Every eligible buy order of the chosen edition, said above the start field.
+  showOrders(ref: string, template: HTMLTemplateElement | null): void {
+    if (this.hasOrdersSlotTarget) this.showIn(this.ordersSlotTarget, ref, template)
+  }
+
+  private reflectLine(line: HTMLElement, text: string): void {
+    line.hidden = text === ""
+    writeText(line, text)
   }
 
   private showIn(slot: HTMLElement, ref: string, template: HTMLTemplateElement | null): void {

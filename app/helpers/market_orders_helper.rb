@@ -37,7 +37,7 @@ module MarketOrdersHelper
     end
   end
 
-  ORDER_TONES = { "open" => :accent, "served" => :lime, "expired" => :muted, "cancelled" => :muted }.freeze
+  ORDER_TONES = { "open" => :accent, "bid" => :accent, "served" => :lime, "won" => :lime, "expired" => :muted, "cancelled" => :muted, "outbid" => :muted }.freeze
 
   def order_row_facts(row)
     [ [ t("market.orders.labels.held"), row_amount(row.price) ], [ t("market.orders.labels.end"), row_end(row.expires_at, row.ended_at) ] ]
@@ -56,7 +56,14 @@ module MarketOrdersHelper
       t("market.my_orders.served_html", name: render(PlayerNameComponent.new(player: row.seller, viewer: current_player)),
         rarity: CardStrings.new.rarity_name(row.served.rarity), season: row.served.season_number)
     when "expired", "cancelled" then t("market.my_orders.returned")
+    when "bid" then order_listing_link(row)
+    when "won" then safe_join([ t("market.my_orders.joins_collection"), order_listing_link(row) ], " ")
+    when "outbid" then safe_join([ t("market.my_orders.returned"), order_listing_link(row) ], " ")
     end
+  end
+
+  def order_listing_link(row)
+    render(ButtonComponent.new(variant: :link, href: market_listing_path(token: row.listing_token)).with_content(t("market.my_orders.see_listing"))) if row.listing_token
   end
 
   def order_listed_above_note(row)

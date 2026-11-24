@@ -1,0 +1,3 @@
+<%# locals: (prices:) %>
+<p class="sale-orders"><%= t("market.sales.orders.summary_html", count: prices.size, number: number_with_delimiter(prices.size),
+      amount: render(PicoinAmountComponent.new(amount: prices.first))) %></p>

@@ -8,7 +8,8 @@ module Game
         end
 
         def self.notice(event, listing)
-          player_ids = WantingPlayers.call(listing.card_season_id, except: listing.seller_id)
+          converted = event.data.fetch(:converted, []).select { it[:listing_id] == listing.id }.map { it[:owner_id] }
+          player_ids = WantingPlayers.call(listing.card_season_id, except: [ listing.seller_id, *converted ])
           below = orders_below(listing, player_ids)
           player_ids.each do |player_id|
             attributes = { player_id:, listing_id: listing.id, amount: listing.starting_price }

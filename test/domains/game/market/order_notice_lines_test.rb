@@ -37,6 +37,17 @@ class Game::Market::OrderNoticeLinesTest < ActiveSupport::TestCase
     assert_equal @seller, lines.first.other
   end
 
+  test "an order turned into a bid shows the card of its listing" do
+    listing = listing!(seller: @seller, card_season: @rare, starting_price: 90)
+    leading = order(status: "bid")
+    Game::Market::Notice.record(player_id: @reader.id, order_id: leading.id, listing_id: listing.id, kind: "order_leads", amount: 100)
+
+    line = lines.sole
+
+    assert_equal [ :order_leads, leading.token, listing.token, 100, "Blue Depths" ], [ line.kind, line.token, line.listing_token, line.amount, line.card ]
+    assert_equal @rare.season.number, line.edition.season_number
+  end
+
   test "the push reads only the order kinds asked for, of the orders given" do
     expired = order(status: "expired")
     other = order(status: "cancelled")

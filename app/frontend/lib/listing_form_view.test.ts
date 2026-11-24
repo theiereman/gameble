@@ -16,6 +16,8 @@ const strings: ListingStrings = {
   invalidPrice: "Enter a whole number of PiCoins, above zero.",
   minimumHint: "At least %{amount} for a %{rarity}",
   minimumRefusal: "At least %{amount} for a %{rarity}.",
+  opening: "With these orders, the auction starts at %{amount}, led by a buy order.",
+  orderLeft: "The order at %{amount} stays open.",
   orderWaiting: "A buy order is waiting for you: %{amount} PiCoins",
   stampShort: "You are short of %{amount} PiCoins for the stamp.",
   status: "You receive %{amount} PiCoins",
@@ -34,6 +36,7 @@ const rare: Edition = {
   minimum: 1_000,
   stamp: 500,
   order: null,
+  orders: [],
 }
 const common: Edition = { ...rare, ref: "beta:1", rarity: "common", rarityName: "common", minimum: 100, stamp: 50 }
 

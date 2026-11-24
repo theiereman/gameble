@@ -8,6 +8,7 @@ module Game
           Game::Market::AuctionSold => [ :seller_id, :winner_id ],
           Game::Market::OrderServed => [ :buyer_id, :seller_id ],
           Game::Market::WantedChoicesApplied => Game::Market::WantedChoicesApplied.method(:player_ids),
+          Game::Market::CardListed => ->(data) { data.fetch(:converted, []).map { it.fetch(:owner_id) } },
           Game::Market::CardsEntrusted => [ :player_id ],
           Game::Market::ArchivePurchased => [ :player_id ],
           Game::GoalAdded => [ :player_id ],

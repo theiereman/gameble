@@ -623,6 +623,65 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".sale-summary button.button--primary[type=submit]"
   end
 
+  test "an edition with orders says how many wait, prefills the start at the lowest, and carries every price in its cell and its template" do
+    hold(@player, @rare.id, 1)
+    hold(@player, @common.id, 1)
+    order = buyer_order(900)
+    buyer_order(700, player: accounts_players(:administrator))
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en, ref: ref(@rare))
+
+    assert_select ".sale-orders-slot[data-ref=?] .sale-orders", ref(@rare), text: /2 buy orders, the best at 900/
+    assert_select "#sale-start[value=?]", "700"
+    assert_select "[role=option][data-ref=?][data-orders=?]", ref(@rare), "900,700"
+    assert_select "[role=option][data-ref=?][data-orders='']", ref(@common)
+    assert_select "template[data-listing-form-target=ordersTemplate][data-ref=?] .sale-orders", ref(@rare)
+    assert_select "template[data-listing-form-target=ordersTemplate][data-ref=?]", ref(@common), false
+    assert_select ".sale-opening [data-listing-fields-target=openingLine][hidden]"
+    assert_no_match(/(?:data-[a-z-]+|id|name|value)="#{order.id}"/, response.body)
+
+    get new_market_sale_path(locale: :fr, ref: ref(@rare), start: "850")
+
+    assert_select ".sale-orders", text: /2 ordres d'achat, le meilleur à 900/
+    assert_select "#sale-start[value=?]", "850"
+  end
+
+  test "a refused listing with no start typed leaves the start empty beside its error" do
+    hold(@player, @rare.id, 1)
+    buyer_order(900)
+    sign_in(@player)
+
+    post_sale(@rare, starting_price: "", duration_hours: "7")
+
+    assert_response :unprocessable_content
+    assert_select "#sale-start[value=?]", ""
+  end
+
+  test "the only free edition is chosen with the start prefilled at the lowest order" do
+    hold(@player, @rare.id, 1)
+    buyer_order(900)
+    buyer_order(700, player: accounts_players(:administrator))
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en)
+
+    assert_select "#sale-start[value=?]", "700"
+    assert_select ".sale-orders", text: /2 buy orders, the best at 900/
+  end
+
+  test "a closed market draws no orders block" do
+    hold(@player, @rare.id, 1)
+    buyer_order
+    sign_in(@player)
+    @settings = close_market!(first_opened_at: 2.days.ago)
+
+    get new_market_sale_path(locale: :en, ref: ref(@rare))
+
+    assert_select ".sale-orders-slot", false
+    assert_select "[data-orders='']"
+  end
+
   test "a closed market draws no banner" do
     hold(@player, @rare.id, 1)
     buyer_order

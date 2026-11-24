@@ -71,6 +71,17 @@ class Game::Market::EligibleOrdersTest < ActiveSupport::TestCase
       Game::Market::EligibleOrders.best([ @rare.id, @common.id, legendary.id ], except: @seller.id, now: @now))
   end
 
+  test "the prices read every eligible price of each edition, best first, and leave out the editions no order reaches" do
+    order!(funded_buyer, @rare, 800)
+    order!(funded_buyer, @rare, 900)
+    order!(funded_buyer, @common, 20)
+    legendary = catalog_card_seasons(:legendary_card_one)
+    order!(funded_buyer, legendary, 900)
+
+    assert_equal({ @rare.id => [ 900, 800 ], @common.id => [ 20 ] },
+      Game::Market::EligibleOrders.prices([ @rare.id, @common.id, legendary.id ], except: @seller.id, now: @now))
+  end
+
   test "the draw gives each edition in turn its count of best orders no earlier edition took" do
     best = order!(funded_buyer, @rare, 900)
     second = order!(funded_buyer, @rare, 800)

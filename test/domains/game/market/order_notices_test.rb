@@ -49,12 +49,24 @@ class Game::Market::OrderNoticesTest < ActiveSupport::TestCase
     assert_empty notices("wanted")
   end
 
-  test "a listing at or below the order's price is a wanted notice" do
-    place!(@rare, 100)
-    list(starting_price: 90)
+  test "a listing at or below the order's price turns the order into a bid, with neither a wanted nor a listed-above notice" do
+    order = place!(@rare, 100)
+    listing = list(starting_price: 90)
 
-    assert_equal [ 90 ], notices("wanted").pluck(:amount)
+    assert_equal [ [ listing.id, order.id, 100 ] ], notices("order_leads").pluck(:listing_id, :order_id, :amount)
+    assert_empty notices("wanted")
     assert_empty notices("listed_above_order")
+  end
+
+  test "an order noticed as listed above loses that notice when a later listing converts it" do
+    order = place!(@rare, 100)
+    list(starting_price: 150)
+    assert_equal 1, notices("listed_above_order").count
+
+    listing = list(starting_price: 100)
+
+    assert_empty notices("listed_above_order")
+    assert_equal [ [ listing.id, order.id ] ], notices("order_leads").pluck(:listing_id, :order_id)
   end
 
   test "an order that does not reach the edition's rarity leaves the goal's wanted notice" do

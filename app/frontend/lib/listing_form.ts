@@ -1,4 +1,4 @@
-import { amountDigits } from "./amount"
+import { amountDigits, groupDigits } from "./amount"
 import type { Rarity } from "./card_types"
 
 export type Layout = "wide" | "phone"
@@ -16,6 +16,7 @@ export type Edition = {
   minimum: number
   stamp: number
   order: number | null
+  orders: readonly number[]
 }
 
 export type Refusal = { field: Field; code: RefusalCode }
@@ -24,6 +25,7 @@ export type ListingState = {
   editions: Readonly<Record<string, Edition>>
   loaded: readonly string[]
   basisPoints: number
+  incrementBasisPoints: number
   chosen: string | null
   start: string
   duration: string
@@ -37,6 +39,8 @@ export type Lines = {
   commission: number | null
   received: number | null
 }
+
+export type Opening = { price: number | null; left: readonly number[] }
 
 export type Typed = Readonly<{ start: string; duration: string }>
 
@@ -55,6 +59,7 @@ export function start(
   chosen: string | null,
   layout: Layout,
   loaded: readonly string[] = editions.map((edition) => edition.ref),
+  incrementBasisPoints = 0,
 ): ListingState {
   const byRefs = byRef(editions)
   const known = chosen !== null && chosen in byRefs ? chosen : null
@@ -62,6 +67,7 @@ export function start(
     editions: byRefs,
     loaded,
     basisPoints,
+    incrementBasisPoints,
     chosen: known,
     ...typed,
     layout,
@@ -92,9 +98,23 @@ export function know(state: ListingState, editions: readonly Edition[], loaded: 
   return { ...state, editions: { ...state.editions, ...byRef(editions) }, loaded }
 }
 
-export function choose(state: ListingState, ref: string): ListingState {
+export function lowestOrder(edition: Edition | null): number | null {
+  return edition === null || edition.orders.length === 0 ? null : Math.min(...edition.orders)
+}
+
+// The start the seller has not typed: empty, or the lowest order's price the chosen edition prefilled.
+function untouched(state: ListingState): boolean {
+  const prefilled = lowestOrder(chosenEdition(state))
+  const typed = amountOf(state.start)
+  return state.start.trim() === "" || (prefilled !== null && typed === BigInt(prefilled))
+}
+
+// Choosing an edition whose orders exist starts the auction at the lowest one's price, so that every order becomes a bid.
+export function choose(state: ListingState, ref: string, locale = "en"): ListingState {
   if (!(ref in state.editions)) return state
-  return { ...state, chosen: ref, step: 2, shown: null }
+  const lowest = lowestOrder(state.editions[ref])
+  const start = untouched(state) ? (lowest === null ? "" : groupDigits(String(lowest), locale)) : state.start
+  return { ...state, chosen: ref, step: 2, shown: null, start }
 }
 
 export function back(state: ListingState): ListingState {
@@ -124,6 +144,31 @@ export function refusal(state: ListingState): Refusal | null {
   if (!positive(price)) return { field: "start", code: "invalidPrice" }
   if (price < BigInt(edition.minimum)) return { field: "start", code: "belowMinimum" }
   return null
+}
+
+function ceilDiv(numerator: bigint, denominator: bigint): bigint {
+  return (numerator + denominator - 1n) / denominator
+}
+
+// The price AuctionMath gives over the orders at or above the start, best first: the start for one, else the best or the runner-up raised by an increment.
+function openingPrice(reaching: readonly number[], at: bigint, incrementBasisPoints: number): number {
+  if (reaching.length === 1) return Number(at)
+  const second = BigInt(reaching[1])
+  const raised = second + ceilDiv(second * BigInt(incrementBasisPoints), BASIS_POINTS)
+  return Number(raised < BigInt(reaching[0]) ? raised : BigInt(reaching[0]))
+}
+
+// What the typed start does with the chosen edition's orders: the price the auction opens at, and the orders under the start that stay open.
+export function opening(state: ListingState): Opening | null {
+  const edition = chosenEdition(state)
+  const at = amountOf(state.start)
+  if (!edition || edition.orders.length === 0 || !positive(at)) return null
+  const orders = [...edition.orders].sort((first, second) => second - first)
+  const reaching = orders.filter((order) => BigInt(order) >= at)
+  return {
+    price: reaching.length === 0 ? null : openingPrice(reaching, at, state.incrementBasisPoints),
+    left: orders.filter((order) => BigInt(order) < at),
+  }
 }
 
 export function validate(state: ListingState): ListingState {
