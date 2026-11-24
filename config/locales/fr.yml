@@ -1241,11 +1241,11 @@ fr:
         list_heading: "Tous les donateurs, par ordre d'arrivée"
         name_label: "Nom du donateur"
         remove: "Retirer"
-        remove_confirm: "Retirer %{name} de la page des crédits ?"
+        remove_confirm: "Retirer %{name} de la page des crédits ?"
     supporters:
       actions:
         grant: "MARQUER VIP"
-        grant_confirm: "Marquer %{name} comme VIP ? Le badge VIP s'affichera à côté de son pseudo et cela ne peut pas être annulé."
+        grant_confirm: "Marquer %{name} comme VIP ? Le badge VIP s'affichera à côté de son pseudo et cela ne peut pas être annulé."
       create:
         granted: "%{name} affiche maintenant le badge VIP."
     players:
