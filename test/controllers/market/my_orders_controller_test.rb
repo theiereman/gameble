@@ -141,7 +141,7 @@ class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal [ "IN AUCTION" ], css_select("section[aria-labelledby=my-orders-in-progress-heading] .market-row__chip").map { it.text.strip }
     assert_equal %w[OUTBID WON], css_select("section[aria-labelledby=my-orders-recent-heading] .market-row__chip").map { it.text.strip }.sort
-    listings.each { |listing| assert_select ".market-row__note a.button--link[href=?]", market_listing_path(locale: :en, token: listing.token), "SEE THE LISTING ▸" }
+    listings.each { |listing| assert_select ".market-row__note a.button--link[href=?]", market_listing_path(locale: :en, token: listing.token), "SEE THE LISTING" }
     assert_select ".market-row__note", text: /The card joins your collection\./
     assert_select ".market-row__note", text: /PiCoins returned/
     assert_select ".market-row button", false
