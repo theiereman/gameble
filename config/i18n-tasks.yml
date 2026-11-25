@@ -25,6 +25,7 @@ ignore_unused:
   - "errors.*"
   - "shell.bell.market.*"
   - "back_office.markets.settings.groups.*"
+  - "back_office.markets.settings.help.*"
   - "back_office.markets.settings.labels.*"
   - "back_office.markets.settings.moments.*"
   - "back_office.markets.settings.rows.*"

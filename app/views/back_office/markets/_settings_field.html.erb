@@ -1,10 +1,14 @@
-<%# locals: (form:, field:, disabled:, labelled_by: nil) %>
+<%# locals: (form:, field:, disabled:, labelled_by: nil, help: true) %>
 <% id = "market-settings-#{field.to_s.dasherize}" %>
 <% error = form.violation_message(field) %>
 <% prepared = form.prepared_field?(field) %>
 <div class="<%= class_names("market-settings__field", "market-settings__field--prepared": prepared) %>">
   <% unless labelled_by %>
-    <label for="<%= id %>"><%= t("back_office.markets.settings.labels.#{field}") %></label>
+    <% label = t("back_office.markets.settings.labels.#{field}") %>
+    <div class="market-settings__label">
+      <label for="<%= id %>"><%= label %></label>
+      <%= render "back_office/markets/settings_help", key: field, label: label if help %>
+    </div>
   <% end %>
   <%= text_field_tag "market_settings[#{field}]", form.value_for(field), id:, class: "ban-form__field", autocomplete: "off", disabled:,
         autofocus: (true if field == form.first_prepared_field), data: { prepared: (true if prepared) },

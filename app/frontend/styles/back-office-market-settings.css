@@ -72,3 +72,46 @@
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
 }
+
+.market-settings__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.market-settings__help-button {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--space-6);
+  height: var(--space-6);
+  padding: 0;
+  border: var(--space-unit) solid var(--color-line);
+  border-radius: 50%;
+  background: var(--color-panel-raised);
+  color: var(--color-accent);
+  font: var(--font-label);
+  cursor: pointer;
+}
+
+.market-settings__help-button:hover,
+.market-settings__help-button:focus-visible {
+  border-color: var(--color-accent);
+}
+
+/* Centred on the screen, unlike the top bar's popovers pinned under it. */
+.market-settings__help {
+  inset: 0;
+  height: fit-content;
+  max-width: min(48ch, calc(100vw - 2 * var(--space-gutter-phone)));
+  margin: auto;
+  letter-spacing: normal;
+}
+
+.market-settings__help > span {
+  display: block;
+}
+
+.market-settings__help-text {
+  font: var(--font-body);
+}

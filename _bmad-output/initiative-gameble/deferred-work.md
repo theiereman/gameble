@@ -792,3 +792,7 @@
 - The non-Turbo HTML response of `Market::ArchivePurchasesController#create` has no test; the form lives in a turbo frame, so the fallback is rarely reached. Model it on the slot purchase "without Turbo" test.
 - The wanted result panel is both a live region (`role="status"`) and receives focus on its heading; whether a screen reader reads it twice is unverified. A screen-reader pass settles it.
 - Capsule quick entrust (`EntrustmentsController#create`, JSON) entrusts wanted copies without the set-apart step. Decided 2026-11-23: leave as is.
+
+- source_plan: `_bmad-output/initiative-gameble/plan-back-office-settings-help.md`
+  summary: The back-office labels of feed_threshold_multiple and unusual_maximum_multiple say "multiple of the average" but the code multiplies the rarity minimum price and the current auction price.
+  evidence: `feed_entry.rb:102` uses `feed_threshold_multiple * minimum_price`; `annonce_confirm.ts:8` uses `unusualMultiple * price`; the new help texts state this, beside the contradicting labels.

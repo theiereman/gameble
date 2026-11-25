@@ -29,10 +29,15 @@
 
       <% BackOffice::MarketSettingsForm::SINGLE_GROUPS.each do |group, fields| %>
         <fieldset class="market-settings__group">
-          <legend><%= t("back_office.markets.settings.groups.#{group}") %></legend>
+          <% legend = t("back_office.markets.settings.groups.#{group}") %>
+          <% if group == :slots %>
+            <legend class="market-settings__label"><%= legend %><%= render "back_office/markets/settings_help", key: group, label: legend %></legend>
+          <% else %>
+            <legend><%= legend %></legend>
+          <% end %>
           <div class="market-settings__fields">
             <% fields.each do |field| %>
-              <%= render "back_office/markets/settings_field", form:, field:, disabled: !allowed %>
+              <%= render "back_office/markets/settings_field", form:, field:, disabled: !allowed, help: group != :slots %>
             <% end %>
           </div>
         </fieldset>

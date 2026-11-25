@@ -12,7 +12,13 @@
     <tbody>
       <% %i[entrustment stamp minimum_price archive_price income_days_target].each do |row| %>
         <tr>
-          <th scope="row" id="market-settings-row-<%= row.to_s.dasherize %>"><%= t("back_office.markets.settings.rows.#{row}") %></th>
+          <th scope="row">
+            <% label = t("back_office.markets.settings.rows.#{row}") %>
+            <span class="market-settings__label">
+              <span id="market-settings-row-<%= row.to_s.dasherize %>"><%= label %></span>
+              <%= render "back_office/markets/settings_help", key: row, label: %>
+            </span>
+          </th>
           <% Game::Market::SettingsRules::RARITIES.each do |rarity| %>
             <td>
               <%= render "back_office/markets/settings_field", form:, field: :"#{row}_#{rarity}", disabled:,

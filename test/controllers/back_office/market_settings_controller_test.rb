@@ -63,7 +63,7 @@ module BackOffice
           get back_office_market_path(locale:)
 
           assert_select "#market-settings-row-archive-price", row
-          assert_select "#market-settings legend", slots
+          assert_select "#market-settings legend", /\A#{Regexp.escape(slots)}/
           assert_select "#market-settings legend", orders
         end
       Game::Market::ArchivePrices::REFERENCES.each do |rarity, reference|
@@ -216,7 +216,7 @@ module BackOffice
       assert_select "#market-settings-reason"
       assert_select "#market-settings input[name^='market_settings[']:not([type=hidden]):not([disabled])", false
       assert_select "#market-settings textarea:not([disabled])", false
-      assert_select "#market-settings button:not([disabled])", false
+      assert_select "#market-settings button:not([disabled]):not([popovertarget])", false
       assert_select "input[name='market_settings[stamp_rare]'][value='20']"
       assert_select "#market-settings-archive-price-rare[disabled]"
       assert_select "#market-settings-slot-price-goal-6[disabled]"
@@ -235,6 +235,37 @@ module BackOffice
       end
       assert_select "label[for=market-settings-daily-cap]"
       assert_select "[style]", false
+    end
+
+    test "each single setting, each rarity row and the slots carry an info button opening their help, in both languages" do
+      sign_in(accounts_players(:administrator))
+      fields = MarketSettingsForm::SINGLE_GROUPS.except(:slots).values.flatten
+      rows = %i[entrustment stamp minimum_price archive_price income_days_target]
+      keys = fields + rows + [ :slots ]
+
+      { en: "About", fr: "À propos" }.each do |locale, about|
+        get back_office_market_path(locale:)
+
+        assert_select "#market-settings button[popovertarget]", keys.size
+        keys.each do |key|
+          id = "market-settings-help-#{key.to_s.dasherize}"
+          assert_select "button[type=button][popovertarget=#{id}][aria-label^='#{about}']"
+          assert_select "##{id}[popover]", text: /#{Regexp.escape(I18n.t("back_office.markets.settings.help.#{key}", locale:))}/
+        end
+      end
+      get back_office_market_path(locale: :en)
+      assert_select "button[popovertarget=market-settings-help-commission-basis-points][aria-label='About Commission on a sale (%)']"
+      assert_select "#market-settings-stamp-rare[aria-labelledby='market-settings-row-stamp market-settings-col-rare']"
+      assert_select "#market-settings-row-stamp", "Stamp"
+      assert_select "[style]", false
+    end
+
+    test "every market settings help text exists in both languages" do
+      keys = MarketSettingsForm::SINGLE_GROUPS.except(:slots).values.flatten + %i[entrustment stamp minimum_price archive_price income_days_target slots]
+
+      %i[en fr].each do |locale|
+        keys.each { assert I18n.exists?("back_office.markets.settings.help.#{it}", locale), "#{locale}: help.#{it}" }
+      end
     end
 
     test "with the market closed the two sections share no id and each posts its own fields" do
