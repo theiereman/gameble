@@ -88,3 +88,29 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
+
+@media (max-width: 719px) {
+  .wanted-panel .market-screen__tiles {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .listing-tile__link.wanted-panel__tile {
+    flex-direction: row;
+    gap: var(--space-5);
+    padding: var(--space-3);
+  }
+
+  .wanted-panel__tile .listing-tile__card {
+    flex: none;
+    margin-bottom: 0;
+  }
+
+  .wanted-panel__tile .listing-tile__facts {
+    flex: 1 1 auto;
+    align-self: center;
+    min-width: 0;
+    margin-top: 0;
+    padding: 0;
+  }
+}

@@ -47,8 +47,8 @@ class Market::BuyersControllerTest < ActionDispatch::IntegrationTest
     get market_buyers_path(locale: :fr)
 
     assert_response :success
-    assert_select "title", /Acheteurs/
-    assert_select ".market-screen__chips .tabs__tab--current[aria-current=page]", /ACHETEURS\s*1/
+    assert_select "title", /Recherchées/
+    assert_select ".market-screen__chips .tabs__tab--current[aria-current=page]", /RECHERCHÉES\s*1/
     assert_select ".market-screen__chips .tabs__tab--current .visually-hidden", "1 avec un ordre d'achat"
     tiles = css_select(".tabs__panel .wanted-panel__tile")
     assert_equal [ new_market_card_sale_path(locale: :fr, slug: @rare.card.slug, ref: ref(@rare)),

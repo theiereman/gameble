@@ -28,9 +28,9 @@ class MarketWantedCopiesSystemTest < ApplicationSystemTestCase
     sign_in_browser(@seller.steam_id)
   end
 
-  test "a wanted copy leads from the market's BUYERS tab to its sale, its cell and its card detail carrying the count" do
+  test "a wanted copy leads from the market's SOUGHT tab to its sale, its cell and its card detail carrying the count" do
     visit market_path(locale: :en)
-    within(".market-screen__chips") { click_link "BUYERS" }
+    within(".market-screen__chips") { click_link "SOUGHT" }
     assert_selector ".market-screen__chips .tabs__tab--current .market-screen__badge", text: "1"
     within(".wanted-panel") do
       assert_selector ".wanted-panel__seekers", text: "2 players want it"

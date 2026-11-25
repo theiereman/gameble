@@ -3781,7 +3781,7 @@ en:
             zero: ", no bid yet."
     buyers:
       show:
-        heading: Buyers
+        heading: Sought
         list_label: Your cards other players want
         kinds_label: Show
         kinds:
@@ -4180,7 +4180,7 @@ en:
       see_all: See the whole shop
       see_all_label: See the whole shop of the Brotherhood
     wanted:
-      heading: BUYERS
+      heading: SOUGHT
       empty: None of your cards is wanted right now.
       seekers:
         zero: "%{count} players want it"

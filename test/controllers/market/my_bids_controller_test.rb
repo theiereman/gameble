@@ -124,7 +124,7 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@bidder)
     get market_path(locale: :en)
     assert_select "a.tabs__tab[href=?]", market_my_bids_path(locale: :en), "MY BIDS"
-    assert_equal %w[LISTINGS MY\ BIDS MY\ SALES MY\ ORDERS BUYERS], css_select(".market-screen__chips .tabs__tab").map { it.text.strip }
+    assert_equal %w[LISTINGS MY\ BIDS MY\ SALES MY\ ORDERS SOUGHT], css_select(".market-screen__chips .tabs__tab").map { it.text.strip }
   end
 
   test "a GET writes nothing, and no database id, leader maximum or style attribute is in the page" do

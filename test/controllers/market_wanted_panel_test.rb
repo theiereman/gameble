@@ -24,7 +24,7 @@ class MarketWantedPanelTest < ActionDispatch::IntegrationTest
 
   def buyers_chip = css_select(".market-screen__chips .tabs__tab").last
 
-  test "every tab ends on ACHETEURS, its badge counting the copies a buy order can take, not those only a goal wants" do
+  test "every tab ends on RECHERCHÉES, its badge counting the copies a buy order can take, not those only a goal wants" do
     %i[rare_card_one common_card_one uncommon_card_one].each do |name|
       hold(@player, catalog_card_seasons(name).id)
       want_by_goal(catalog_card_seasons(name), accounts_players(:moderator))
@@ -42,7 +42,7 @@ class MarketWantedPanelTest < ActionDispatch::IntegrationTest
       assert_equal market_buyers_path(locale: :fr), buyers_chip["href"]
       assert_select buyers_chip, ".market-screen__badge[aria-hidden=true]", "2"
       assert_select buyers_chip, ".visually-hidden", "2 avec un ordre d'achat"
-      assert_match(/\AACHETEURS/, buyers_chip.text.strip)
+      assert_match(/\ARECHERCHÉES/, buyers_chip.text.strip)
       assert_select ".wanted-panel", false
     end
   end
@@ -53,7 +53,7 @@ class MarketWantedPanelTest < ActionDispatch::IntegrationTest
 
     get market_path(locale: :fr)
 
-    assert_equal "ACHETEURS", buyers_chip.text.strip
+    assert_equal "RECHERCHÉES", buyers_chip.text.strip
     assert_select ".market-screen__chips .market-screen__badge", false
   end
 
@@ -61,7 +61,7 @@ class MarketWantedPanelTest < ActionDispatch::IntegrationTest
     get market_path(locale: :en)
 
     assert_response :success
-    assert_select ".market-screen__chips span.tabs__tab--disabled[aria-disabled=true]", "BUYERS"
+    assert_select ".market-screen__chips span.tabs__tab--disabled[aria-disabled=true]", "SOUGHT"
     assert_select ".market-screen__chips .market-screen__badge", false
   end
 end

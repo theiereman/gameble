@@ -2884,7 +2884,7 @@ fr:
         heading: "Mes ventes"
     buyers:
       show:
-        heading: "Acheteurs"
+        heading: "Recherchées"
         list_label: "Vos cartes que d'autres joueurs veulent"
         kinds_label: "Afficher"
         kinds:
@@ -3292,7 +3292,7 @@ fr:
       see_all: "Voir toute la boutique"
       see_all_label: "Voir toute la boutique de la Confrérie"
     wanted:
-      heading: "ACHETEURS"
+      heading: "RECHERCHÉES"
       empty: "Aucune de vos cartes n'est voulue pour le moment."
       seekers:
         zero: "%{count} joueur la veut"
