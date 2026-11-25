@@ -17,7 +17,7 @@
     <% else %>
       <span aria-hidden="true">–</span>
     <% end %>
-    <span class="duel-board__opponent"><%= duel_player_name(screen.opponent) %></span>
+    <span class="duel-board__opponent"><%= duel_player_name(screen.opponent, supporters: Game::SupporterStatus.for_players([ screen.opponent ])) %></span>
     <% if screen.bot_archetype %>
       <span class="duel-board__bot"><%= t("duels.board.bot_archetype", archetype: t("duels.archetypes.#{screen.bot_archetype}")) %></span>
     <% end %>

@@ -4,6 +4,7 @@ require_relative "../support/game_trades"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 require_relative "../support/feed_reactions"
+require_relative "../support/supporters"
 
 # The activity feed, readable without an account: newest pulls and first
 # discoveries first, under the All and Friends tabs (Friends a player's)
@@ -15,6 +16,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
   include GameSets
   include SteamSignIn
   include FeedReactions
+  include Supporters
 
   setup do
     @player = accounts_players(:player)
@@ -85,6 +87,23 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select "ul#feed-entries.feed__list[data-feed-announcer-target=list] > li.feed__entry", 6
     assert_select ".feed p.visually-hidden[role=status][data-feed-announcer-target=status]", text: ""
+  end
+
+  test "a supporter's entries carry the VIP badge after their name, asked in one query whatever the number of entries" do
+    sam = accounts_players(:moderator).tap { it.update!(persona_name: "Sam") }
+    grant_supporter(@player)
+    2.times { open_epic }
+    open_epic(sam)
+
+    assert_queries_match(/supporter_at/, count: 1) { get feed_path(locale: :en) }
+
+    assert_select ".feed__entry:not(.feed__entry--set)", 15
+    pulls = ".feed__entry:not(.feed__entry--set)"
+    badged = css_select("#{pulls} .feed__sentence a.feed__name + .supporter-badge.supporter-badge--compact")
+    assert_equal 10, badged.size
+    assert_equal [ "Hugo" ], badged.map { it.previous_element.text }.uniq
+    assert_select "#{pulls} .feed__who a.feed__name + .supporter-badge", 10
+    assert_select "#{pulls} .feed__sentence .supporter-badge[aria-label=?]", "VIP, Donated on Tipeee", 10
   end
 
   test "a trade's headline names the partner and both games" do

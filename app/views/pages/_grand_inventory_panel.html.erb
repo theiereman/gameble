@@ -17,7 +17,8 @@
       <span class="grand-inventory-panel__discovery">
         <span class="visually-hidden"><%= t("pages.home.grand_inventory.latest") %></span>
         <span class="grand-inventory-panel__game"><%= latest.card.title %></span>
-        <span class="grand-inventory-panel__by"><%= t("pages.home.grand_inventory.by_html", player: render(PlayerNameComponent.new(player: latest.player, viewer: current_player, linked: false))) %></span>
+        <span class="grand-inventory-panel__by"><%= t("pages.home.grand_inventory.by_html", player: render(PlayerNameComponent.new(player: latest.player, viewer: current_player, linked: false,
+          supporters: Game::SupporterStatus.for_players([ latest.player ])))) %></span>
       </span>
       <time class="grand-inventory-panel__age" datetime="<%= latest.discovered_at.utc.iso8601 %>"><%= set_gained_ago(latest.discovered_at) %></time>
     </p>

@@ -2,13 +2,14 @@
 <% if rows.any? %>
   <%= render PanelComponent.new(tag: :section, class: "duel-history", aria: { labelledby: "duel-history-heading" }) do %>
     <h2 id="duel-history-heading" class="duel-lobby__heading"><%= t("duels.history.heading") %></h2>
+    <% supporters = Game::SupporterStatus.for_players(rows.map(&:opponent)) %>
     <ul class="duel-history__list">
       <% rows.each do |row| %>
         <li class="duel-history__item">
           <%= link_to duel_path(token: row.token), class: "duel-history__row" do %>
             <span class="duel-history__face" data-outcome="<%= row.outcome %>" aria-hidden="true">
               <span class="duel-history__score"><%= row.score %>–<%= row.other_score %></span>
-              <span class="duel-history__name"><%= duel_player_name(row.opponent) %></span>
+              <span class="duel-history__name"><%= duel_player_name(row.opponent, supporters:) %></span>
             </span>
             <span class="visually-hidden"><%= duel_result_line_spoken(row) %></span>
           <% end %>

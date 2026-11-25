@@ -14,7 +14,8 @@
       <div class="<%= class_names("tabs__panel grand-inventory__views", "grand-inventory__views--#{@view}") %>">
         <%= render "grand_inventories/sets", inventory: @inventory, complete: @complete_sets, closest: @closest_sets %>
         <div class="grand-inventory__pioneers" data-grand-inventory-view>
-          <%= render "grand_inventories/pioneer_boards", inventory_scope: @inventory.scope, viewer: current_player %>
+          <%= render "grand_inventories/pioneer_boards", inventory_scope: @inventory.scope, viewer: current_player,
+            boards: @pioneer_boards, supporters: @supporters %>
         </div>
         <%= render "grand_inventories/cards", inventory: @inventory %>
       </div>

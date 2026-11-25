@@ -1,8 +1,10 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
+require_relative "../support/supporters"
 
 class HubGrandInventoryPanelTest < ActionDispatch::IntegrationTest
   include SteamSignIn
+  include Supporters
 
   setup do
     freeze_time
@@ -89,5 +91,17 @@ class HubGrandInventoryPanelTest < ActionDispatch::IntegrationTest
     assert_select ".grand-inventory-panel .gauge__segment--lit", false
     assert_select ".grand-inventory-panel__empty", "Aucune carte découverte pour l'instant."
     assert_select ".grand-inventory-panel__latest", false
+  end
+
+  test "the latest pioneer carries the VIP badge after their name when a supporter, none otherwise" do
+    explorer = other
+    discover_latest(explorer)
+
+    show_hub
+    assert_select ".grand-inventory-panel__by .supporter-badge", 0
+
+    grant_supporter(explorer)
+    show_hub
+    assert_select ".grand-inventory-panel__by .player-name-group span.player-name + .supporter-badge--compact", "VIP"
   end
 end

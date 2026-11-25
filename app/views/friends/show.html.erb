@@ -46,7 +46,7 @@
       <% else %>
         <ul class="friends__list friends__roster">
           <% @friends.each do |friend| %>
-            <%= render "friends/friend_row", friend: %>
+            <%= render "friends/friend_row", friend:, supporters: @supporters %>
           <% end %>
         </ul>
       <% end %>

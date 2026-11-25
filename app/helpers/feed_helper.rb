@@ -7,11 +7,11 @@ module FeedHelper
     return t("feeds.show.duel_stats") if item.entry.kind == "duel_stats"
     return feed_sale_sentence(item, card, links:, titles:, viewer:) if item.entry.kind == "sale"
 
-    words = { name: feed_name(item.player, item.player_title, links:, titles:), card: feed_game(card, links:) }
+    words = { name: feed_name(item.player, item.player_title, links:, titles:, supporter: item.player_supporter), card: feed_game(card, links:) }
     case item.entry.kind
     when "discovery" then t("feeds.show.discovered_html", **words)
     when "repost" then t("feeds.show.reposted_html", **words)
-    when "trade" then t("feeds.show.traded_html", **words, partner: feed_name(item.partner, item.partner_title, links:, titles:), partner_card: feed_game(partner_card, links:))
+    when "trade" then t("feeds.show.traded_html", **words, partner: feed_name(item.partner, item.partner_title, links:, titles:, supporter: item.partner_supporter), partner_card: feed_game(partner_card, links:))
     else t("feeds.show.pulled_html", **words)
     end
   end
@@ -19,7 +19,7 @@ module FeedHelper
   def feed_byline(item, viewer: nil)
     return feed_sale_buyer(item, links: true, titles: true, viewer:) if item.entry.kind == "sale"
 
-    feed_name(item.player, item.player_title, links: true, titles: true)
+    feed_name(item.player, item.player_title, links: true, titles: true, supporter: item.player_supporter)
   end
 
   def feed_headline(item, card, partner_card, set)
@@ -72,7 +72,7 @@ module FeedHelper
     when "verdict" then [ t("feeds.show.headline.verdict"), feed_register_link(t("feeds.show.headline.verdict_title")) ]
     when "duel_stats" then [ t("feeds.show.headline.duel_stats"), t("feeds.show.duel_stats") ]
     when "trade"
-      partner = feed_name(item.partner, nil, links: true, titles: false)
+      partner = feed_name(item.partner, nil, links: true, titles: false, supporter: item.partner_supporter)
       [ t("feeds.show.headline.traded_html", partner:), t("feeds.show.headline.trade_html", card: feed_game(card, links: true), partner_card: feed_game(partner_card, links: true)) ]
     when "discovery" then [ t("feeds.show.first_discovery"), feed_game(card, links: true) ]
     when "repost" then [ t("feeds.show.headline.reposted"), feed_game(card, links: true) ]
@@ -95,7 +95,7 @@ module FeedHelper
   end
 
   def feed_set_sentence(item, set, links:, titles:)
-    words = { name: feed_name(item.player, item.player_title, links:, titles:), set: tag.strong(SetLabel.for(set)) }
+    words = { name: feed_name(item.player, item.player_title, links:, titles:, supporter: item.player_supporter), set: tag.strong(SetLabel.for(set)) }
     tier = item.entry.tier
     if item.entry.set_count > 1
       t("feeds.show.sets_reached_html", **words, count: item.entry.set_count, tier: feed_tier_name(tier).upcase)
@@ -114,14 +114,14 @@ module FeedHelper
   end
 
   def feed_sale_buyer(item, links:, titles:, viewer:)
-    buyer = render(PlayerNameComponent.new(player: item.player, viewer:, linked: links))
+    buyer = render(PlayerNameComponent.new(player: item.player, viewer:, linked: links, supporters: (Set[item.player.id] if item.player_supporter)))
     titles ? safe_join([ buyer, feed_rank(item.player_title) ].compact, " ") : buyer
   end
 
   def feed_verdict_sentence(item, links:, titles:)
     label = t("feeds.show.verdict_register")
     register = links ? feed_register_link(label) : tag.strong(label)
-    t("feeds.show.verdict_html", name: feed_name(item.player, item.player_title, links:, titles:), register:)
+    t("feeds.show.verdict_html", name: feed_name(item.player, item.player_title, links:, titles:, supporter: item.player_supporter), register:)
   end
 
   def feed_duel_move(move)
@@ -135,13 +135,14 @@ module FeedHelper
     t("feeds.show.tiers.#{tier}")
   end
 
-  def feed_name(player, title, links:, titles:)
+  def feed_name(player, title, links:, titles:, supporter:)
     name = player.persona_name.presence
     shown = if name.nil? then tag.strong(t("feeds.show.nameless"))
     elsif links then link_to(name, brother_path(token: player.token), class: "feed__name", data: { turbo_prefetch: false })
     else tag.strong(name)
     end
-    titles ? safe_join([ shown, feed_rank(title) ].compact, " ") : shown
+    badge = supporter_badge_tag(compact: true) if supporter && name
+    safe_join([ shown, badge, (feed_rank(title) if titles) ].compact, " ")
   end
 
   def feed_rank(title)

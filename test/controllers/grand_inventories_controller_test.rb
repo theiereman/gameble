@@ -1,12 +1,14 @@
 require "test_helper"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
+require_relative "../support/supporters"
 
 # Le Grand Inventaire, open without an account: the fixture season's five
 # cards, each first found by the banned player long ago.
 class GrandInventoriesControllerTest < ActionDispatch::IntegrationTest
   include GameSets
   include SteamSignIn
+  include Supporters
 
   STREAM = { "Accept" => "text/vnd.turbo-stream.html" }.freeze
 
@@ -181,5 +183,23 @@ class GrandInventoriesControllerTest < ActionDispatch::IntegrationTest
     get card_season_path(locale: :en, slug: last.card.slug, number: season.number, inventory: { seasons: "current" })
 
     assert_equal grand_inventory_path(locale: :en, seasons: "current", page: 2), css_select(".top-bar__phone-back").sole["href"]
+  end
+
+  test "a supporter pioneer carries the VIP badge after their name, in the pace line and under their cards" do
+    grant_supporter(@player)
+    pioneer(:portal_one, @player)
+    pioneer(:rare_card_one, accounts_players(:moderator).tap { it.update!(persona_name: "Sam") }, at: 1.day.ago)
+
+    assert_queries_match(/supporter_at/, count: 1) { get grand_inventory_path(locale: :en, view: "pioneers") }
+
+    assert_select ".grand-inventory__pace .player-name-group a.player-name + .supporter-badge--compact", "VIP"
+    assert_select ".grand-inventory-slot__pioneer .supporter-badge", 1
+    assert_select ".grand-inventory-slot__pioneer", text: /Sam/ do |pioneer|
+      assert_select pioneer, ".supporter-badge", 0
+    end
+
+    get grand_inventory_path(locale: :en, page: 1), headers: STREAM
+
+    assert_select "turbo-stream[target=collection-slots] .grand-inventory-slot__pioneer .supporter-badge", 1
   end
 end

@@ -150,7 +150,7 @@
       "trade trade";
   }
 
-  .friends__friend > .friends__name {
+  .friends__friend > .friends__who-row {
     grid-area: name;
   }
 
@@ -177,6 +177,16 @@
     grid-column: 1 / -1;
     grid-template-columns: subgrid;
   }
+}
+
+.friends__who-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-self: start;
+  gap: var(--space-3);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .friends__name {

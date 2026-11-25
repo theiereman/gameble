@@ -16,7 +16,7 @@ module Game
       scopes << FeedEntry.where(kind: "sale", order_id: order_ids) if order_ids.any?
       return [] if scopes.empty?
 
-      FeedEntries.priced(visible_items(scopes.reduce(:or).where(notable: true).newest_first.to_a))
+      FeedEntries.supported(FeedEntries.priced(visible_items(scopes.reduce(:or).where(notable: true).newest_first.to_a)))
     end
 
     def self.visible_items(entries)

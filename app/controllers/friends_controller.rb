@@ -5,6 +5,7 @@ class FriendsController < ApplicationController
     authorize :friend, :show?
     @friend_code = Game::FriendCodeOf.call(current_player)
     @friends = Game::FriendsPresence.call(current_player)
+    @supporters = Game::SupporterStatus.for_players(@friends.map(&:player))
     @invitations = Game::InvitationsOf.call(current_player)
     @open_trade_counts = Game::OpenTradeCountsByFriend.call(current_player)
   end

@@ -7,10 +7,10 @@ module DuelsHelper
     @reachable_friends[friend.id]
   end
 
-  def duel_player_name(player)
+  def duel_player_name(player, supporters: nil)
     return tag.span(t("player_name.anonymous"), class: "player-name player-name--anonymous") if player.nil?
 
-    render PlayerNameComponent.new(player:, viewer: nil, linked: false)
+    render PlayerNameComponent.new(player:, viewer: nil, linked: false, supporters:)
   end
 
   def duel_plain_name(player)

@@ -1,10 +1,12 @@
 require "test_helper"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
+require_relative "../support/supporters"
 
 class PioneerRankingsControllerTest < ActionDispatch::IntegrationTest
   include GameSets
   include SteamSignIn
+  include Supporters
 
   STREAM = { "Accept" => "text/vnd.turbo-stream.html" }.freeze
 
@@ -110,5 +112,26 @@ class PioneerRankingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[action=replace][target=collection-pages] template nav#collection-pages [aria-current=page]", /2/
     assert_select "turbo-stream[action=replace][target=pioneer-ranking-address] template span#pioneer-ranking-address[data-url=?]",
       "/en/inventory/pioneers?page=2"
+  end
+
+  test "a supporter's row carries the VIP badge after their name, in the ranking and on the Grand Inventaire's boards" do
+    _season, cards = published_cards(2)
+    lea = pioneer(1, "Lea")
+    discover(lea, cards[0])
+    discover(pioneer(2, "Max"), cards[1])
+    grant_supporter(lea)
+
+    assert_queries_match(/supporter_at/, count: 1) { get pioneer_ranking_path(locale: :en) }
+
+    assert_select "#pioneer-ranking-rows .pioneer-row__who .supporter-badge--compact", 1
+    assert_select "#pioneer-ranking-rows .pioneer-row__who a.player-name + .supporter-badge", 1
+    assert_select ".pioneer-row__who", text: /Lea\s+VIP/, count: 1
+    assert_select ".pioneer-row__who", text: /Max/ do |who|
+      assert_select who, ".supporter-badge", 0
+    end
+
+    get grand_inventory_path(locale: :en, view: "pioneers")
+
+    assert_select ".pioneer-boards .pioneer-row__who .supporter-badge--compact", 2
   end
 end

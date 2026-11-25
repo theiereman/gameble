@@ -1,11 +1,13 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/steam_sign_in"
+require_relative "../support/supporters"
 
 class FriendsControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
   include CountingRateLimit
   include SteamSignIn
+  include Supporters
 
   setup do
     @player = accounts_players(:player)
@@ -344,5 +346,18 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     get friends_path(locale: :fr)
 
     assert_redirected_to home_path(locale: :fr)
+  end
+
+  test "a supporter friend carries the VIP badge after their name; another friend none" do
+    sam = accounts_players(:moderator).tap { it.update!(persona_name: "Sam") }
+    lea = accounts_players(:administrator).tap { it.update!(persona_name: "Lea") }
+    [ sam, lea ].each { Game::Friendship.create!(low_player_id: [ @player.id, it.id ].min, high_player_id: [ @player.id, it.id ].max) }
+    grant_supporter(sam)
+    sign_in(@player)
+
+    get friends_path(locale: :en)
+
+    names = css_select(".friends__friend .friends__who-row").map { [ it.at_css("button.friends__name").text, it.at_css(".supporter-badge--compact").present? ] }
+    assert_equal [ [ "Lea", false ], [ "Sam", true ] ], names.sort
   end
 end

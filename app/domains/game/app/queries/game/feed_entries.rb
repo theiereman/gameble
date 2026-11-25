@@ -1,7 +1,8 @@
 module Game
   module FeedEntries
-    Entry = Data.define(:entry, :player, :partner, :filler, :player_title, :partner_title, :price) do
-      def initialize(entry:, player:, filler:, partner: nil, player_title: nil, partner_title: nil, price: nil) = super
+    Entry = Data.define(:entry, :player, :partner, :filler, :player_title, :partner_title, :price, :player_supporter, :partner_supporter) do
+      def initialize(entry:, player:, filler:, partner: nil, player_title: nil, partner_title: nil, price: nil, player_supporter: false,
+        partner_supporter: false) = super
     end
 
     LIMIT = 30
@@ -81,9 +82,14 @@ module Game
 
     def self.titled(items)
       titles = ActiveProfileTitle.for_players(items.flat_map { [ it.player, it.partner ] }.compact.uniq)
-      priced(items).map { it.with(player_title: (titles[it.player.id] if it.player), partner_title: (titles[it.partner.id] if it.partner)) }
+      supported(priced(items)).map { it.with(player_title: (titles[it.player.id] if it.player), partner_title: (titles[it.partner.id] if it.partner)) }
     end
     private_class_method :titled
+
+    def self.supported(items)
+      supporters = SupporterStatus.for_players(items.flat_map { [ it.player, it.partner ] })
+      items.map { it.with(player_supporter: supporters.include?(it.player&.id), partner_supporter: supporters.include?(it.partner&.id)) }
+    end
 
     def self.visible(scope, viewer, limit, filler:, bound: nil)
       found = []

@@ -2,10 +2,11 @@
 <%= render PanelComponent.new(tag: :section, class: "duel-online", aria: { labelledby: "duel-online-heading" }) do %>
   <h2 id="duel-online-heading" class="duel-lobby__heading"><%= t("duels.online.heading", count: lobby.reachable.size) %></h2>
   <% if lobby.reachable.any? %>
+    <% supporters = Game::SupporterStatus.for_players(lobby.reachable.map(&:player)) %>
     <ul class="duel-online__list">
       <% lobby.reachable.each do |row| %>
         <li class="duel-online__row" data-duel-sheet-friend="<%= row.player.token %>">
-          <%= duel_player_name(row.player) %>
+          <%= duel_player_name(row.player, supporters:) %>
           <% if row.in_duel %>
             <span class="duel-online__note"><%= t("duels.challenge.in_duel") %></span>
           <% else %>

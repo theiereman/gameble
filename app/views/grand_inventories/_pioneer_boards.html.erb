@@ -1,6 +1,7 @@
-<%# locals: (inventory_scope:, viewer:) %>
+<%# locals: (inventory_scope:, viewer:, boards: pioneer_boards(inventory_scope, viewer), supporters: nil) %>
 <div class="pioneer-boards">
-  <% pioneer_boards(inventory_scope, viewer).each do |board| %>
+  <% supporters ||= Game::SupporterStatus.for_players(boards.flat_map { it.rows.map(&:player) }) %>
+  <% boards.each do |board| %>
     <% heading_id = "pioneer-board-#{board.period}" %>
     <% choice = board.period == :week ? :week : :season %>
     <% mine = viewer && board.rows.any? { it.player == viewer } %>
@@ -12,7 +13,7 @@
         <p class="pioneer-board__empty"><%= t("pioneer_rankings.boards.empty.#{board.period}") %></p>
       <% else %>
         <ol class="pioneer-rows">
-          <%= render "pioneer_rankings/rows", rows: board.rows, viewer:, anchored: false %>
+          <%= render "pioneer_rankings/rows", rows: board.rows, viewer:, supporters:, anchored: false %>
         </ol>
         <% if board.place && !mine %>
           <p class="pioneer-board__place">

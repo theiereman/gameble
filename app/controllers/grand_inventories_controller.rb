@@ -21,8 +21,10 @@ class GrandInventoriesController < ApplicationController
         load_pace
         load_set_rows
         load_set_filter(@filters)
+        @pioneer_boards = helpers.pioneer_boards(@inventory.scope, current_player)
+        load_supporters(@latest&.player, *@pioneer_boards.flat_map { it.rows.map(&:player) })
       end
-      format.turbo_stream
+      format.turbo_stream { load_supporters }
     end
   end
 
@@ -37,6 +39,10 @@ class GrandInventoriesController < ApplicationController
       views = Catalog::CardViews.call(tiles.map(&:first), locale: I18n.locale)
       pioneers = @inventory.pioneers_of(tiles.map(&:last))
       @slots = tiles.filter_map { |id, card_id| [ views[id], pioneers[card_id] ] if views.key?(id) }
+    end
+
+    def load_supporters(*players)
+      @supporters = Game::SupporterStatus.for_players(@slots.map { |_card, discovery| discovery&.player } + players)
     end
 
     def load_pace

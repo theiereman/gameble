@@ -31,7 +31,7 @@
     <% if @pagy.count.positive? %>
       <%= render PanelComponent.new(class: "pioneer-ranking__board") do %>
         <ol id="pioneer-ranking-rows" class="pioneer-rows">
-          <%= render "pioneer_rankings/rows", rows: @rows, viewer: current_player %>
+          <%= render "pioneer_rankings/rows", rows: @rows, viewer: current_player, supporters: @supporters %>
         </ol>
       <% end %>
     <% else %>

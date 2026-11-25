@@ -1,6 +1,9 @@
 require "test_helper"
+require_relative "../support/supporters"
 
 class PlayerNameComponentTest < ViewComponent::TestCase
+  include Supporters
+
   setup do
     @owner = Accounts::Player.create!(steam_id: "76561198000001111", persona_name: "Alice")
     @viewer = accounts_players(:player)
@@ -70,5 +73,32 @@ class PlayerNameComponentTest < ViewComponent::TestCase
     I18n.with_locale(:fr) { name_for(@owner) }
 
     assert_selector ".player-name--anonymous", text: "Un joueur anonyme"
+  end
+
+  test "a supporter in the list carries the compact VIP badge after the name; anyone else none" do
+    grant_supporter(@owner)
+    supporters = Game::SupporterStatus.for_players([ @owner ])
+
+    render_inline(PlayerNameComponent.new(player: @owner, viewer: @viewer, supporters:))
+    assert_selector ".player-name-group a.player-name + .supporter-badge.supporter-badge--compact[role=note]:not([tabindex])", text: "VIP"
+
+    render_inline(PlayerNameComponent.new(player: @owner, viewer: @viewer))
+    assert_no_selector ".supporter-badge"
+
+    render_inline(PlayerNameComponent.new(player: @viewer, viewer: @viewer, supporters:))
+    assert_no_selector ".supporter-badge"
+  end
+
+  test "a removed or nameless supporter shows no badge" do
+    grant_supporter(@owner)
+    supporters = Set[@owner.id]
+
+    @owner.update_columns(persona_name: "​")
+    render_inline(PlayerNameComponent.new(player: @owner, viewer: @viewer, supporters:))
+    assert_no_selector ".supporter-badge"
+
+    @owner.update_columns(persona_name: "Alice", banned_at: Time.current)
+    render_inline(PlayerNameComponent.new(player: @owner, viewer: @viewer, supporters:))
+    assert_no_selector ".supporter-badge"
   end
 end

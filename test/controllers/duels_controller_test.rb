@@ -4,6 +4,7 @@ require_relative "../support/decks"
 require_relative "../support/live_duels"
 require_relative "../support/duels"
 require_relative "../support/market"
+require_relative "../support/supporters"
 
 # GET /:locale/duels: the DUELS tab's root, the challenge block above the player's decks in creation order, each a link
 # to its editor with its twelve covers, and the way to a new deck while fewer than five. GET /:locale/duels/:token: a
@@ -14,6 +15,7 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
   include LiveDuels
   include Duels
   include MarketSettings
+  include Supporters
 
   setup do
     @player = accounts_players(:player)
@@ -466,5 +468,41 @@ class DuelsControllerTest < ActionDispatch::IntegrationTest
     get duels_path(locale: :en)
 
     assert_select ".duel-history__row[href='/en/duels/#{duel.token}']", 1
+  end
+
+  test "a supporter opponent carries the VIP badge after their name in the last results; anyone else none" do
+    hugo = accounts_players(:moderator).tap { it.update!(persona_name: "Hugo") }
+    accounts_players(:administrator).update!(persona_name: "Lea")
+    grant_supporter(hugo)
+    finished_duel("challenger", opponent: hugo, ended_at: 2.hours.ago)
+    finished_duel("challenger", opponent: accounts_players(:administrator), ended_at: 1.hour.ago)
+    sign_in(@player)
+
+    get duels_path(locale: :en)
+
+    names = css_select(".duel-history__name").map { [ it.at_css(".player-name").text, it.at_css(".supporter-badge.supporter-badge--compact").present? ] }
+    assert_equal [ [ "Lea", false ], [ "Hugo", true ] ], names
+  end
+
+  test "a supporter opponent carries the VIP badge on the board's header and in the online list; anyone else none" do
+    hugo = accounts_players(:moderator).tap { it.update!(persona_name: "Hugo") }
+    befriend(@player, hugo)
+    complete_deck(@player, "Lea")
+    complete_deck(hugo, "Hugo")
+    hugo.update_columns(reachable_until: 1.minute.from_now)
+    duel = start_duel(@player, hugo)
+    sign_in(@player)
+
+    get duel_path(locale: :en, token: duel.token)
+    assert_select "#duel-board .duel-board__opponent .supporter-badge", 0
+    get duels_path(locale: :en)
+    assert_select ".duel-online__row .supporter-badge", 0
+
+    grant_supporter(hugo)
+
+    get duel_path(locale: :en, token: duel.token)
+    assert_select "#duel-board .duel-board__opponent .player-name-group .player-name + .supporter-badge--compact", "VIP"
+    get duels_path(locale: :en)
+    assert_select ".duel-online__row .player-name-group .player-name + .supporter-badge--compact", "VIP"
   end
 end

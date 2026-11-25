@@ -4,5 +4,5 @@
 <% elsif you && player == current_player %>
   <span class="grand-inventory__you"><%= t("grand_inventories.card.you") %></span>
 <% else %>
-  <%= render PlayerNameComponent.new(player:, viewer: current_player, friends: @friends, linked:) %>
+  <%= render PlayerNameComponent.new(player:, viewer: current_player, friends: @friends, supporters: @supporters, linked:) %>
 <% end %>

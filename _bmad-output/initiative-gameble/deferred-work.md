@@ -796,3 +796,7 @@
 - source_plan: `_bmad-output/initiative-gameble/plan-back-office-settings-help.md`
   summary: The back-office labels of feed_threshold_multiple and unusual_maximum_multiple say "multiple of the average" but the code multiplies the rarity minimum price and the current auction price.
   evidence: `feed_entry.rb:102` uses `feed_threshold_multiple * minimum_price`; `annonce_confirm.ts:8` uses `unusualMultiple * price`; the new help texts state this, beside the contradicting labels.
+
+- source_plan: `_bmad-output/initiative-gameble/plan-vip-badge-beyond-profiles.md`
+  summary: Duel, Grand Inventaire and home views call `Game::SupporterStatus.for_players` from the template instead of a helper or controller.
+  evidence: `duels/_header.html.erb`, `duels/_history.html.erb`, `duels/_online.html.erb`, `grand_inventories/_pioneer_boards.html.erb`, `pages/_grand_inventory_panel.html.erb`; the duel header runs it on every board broadcast.

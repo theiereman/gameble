@@ -1,7 +1,11 @@
+<%# locals: (friend:, supporters:) %>
 <% player = friend.player %>
 <% name = friend_name(player) %>
 <li class="friends__row friends__friend">
-  <%= tag.button name, type: :button, class: "friends__name", **dialog_opener_attributes(friend_dialog_id(player.token), label: t(".see_profile_of", name:)) %>
+  <span class="friends__who-row">
+    <%= tag.button name, type: :button, class: "friends__name", **dialog_opener_attributes(friend_dialog_id(player.token), label: t(".see_profile_of", name:)) %>
+    <% if supporters.include?(player.id) && Accounts::PersonaName.clean(player.persona_name) %><%= supporter_badge_tag(compact: true) %><% end %>
+  </span>
   <%= render "friends/presence", presence: friend %>
   <div class="friends__trade">
     <% if (refusal = trades_refusal(player)) %>
