@@ -7,7 +7,7 @@
 
 .order-form__panel,
 .order-form__form,
-.order-form__reach {
+.order-form__side {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -21,75 +21,28 @@
   text-transform: uppercase;
 }
 
-.order-form__lead,
-.order-form__sentence {
+.order-form__lead {
   margin: 0;
   color: var(--color-text);
   font: var(--font-body);
 }
 
-.order-form__conversion {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-}
-
-.order-reach {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.order-reach__chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--space-chip-height);
-  padding: 0 var(--space-3);
-  background: var(--color-panel-sunken);
-  box-shadow: var(--control-border);
-  color: var(--color-text);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.order-reach__chip [hidden] {
-  display: none;
-}
-
-.order-reach__chip--reached {
-  color: var(--color-outline);
-}
-
-.order-reach__chip--reached::after {
-  content: "\2713";
-  margin-left: var(--space-1);
-}
-
-.order-reach__chip--common.order-reach__chip--reached,
 .order-pill--common {
   background: var(--color-rarity-commune);
 }
 
-.order-reach__chip--uncommon.order-reach__chip--reached,
 .order-pill--uncommon {
   background: var(--color-rarity-peu-commune);
 }
 
-.order-reach__chip--rare.order-reach__chip--reached,
 .order-pill--rare {
   background: var(--color-rarity-rare);
 }
 
-.order-reach__chip--epic.order-reach__chip--reached,
 .order-pill--epic {
   background: var(--color-rarity-epique);
 }
 
-.order-reach__chip--legendary.order-reach__chip--reached,
 .order-pill--legendary {
   background: var(--color-rarity-legendaire);
 }
@@ -218,10 +171,9 @@
   font: var(--font-body);
 }
 
-.order-form__running {
-  margin: 0;
-  color: var(--color-text-bright);
-  font: var(--font-body);
+.order-form__card {
+  display: flex;
+  justify-content: center;
 }
 
 .order-listings {

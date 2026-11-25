@@ -18,6 +18,7 @@ module Game
           Game::CustomSetDeleted => [ :player_id ],
           Game::LibrarySetSynced => [ :player_id ],
           Game::Market::OrderPlaced => [ :player_id ],
+          Game::Market::OrderRepriced => [ :player_id ],
           Game::Market::OrderCancelled => [ :player_id ],
           Game::Market::OrderExpired => [ :player_id ],
           Game::Market::OrderWithdrawn => [ :player_id ]

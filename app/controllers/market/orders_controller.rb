@@ -4,14 +4,12 @@ module Market
 
     BACK_FROM = %w[my_orders card].freeze
 
-    throttle_player to: 10, only: :create, alert: "market.orders.create.throttled",
-      path: -> { new_market_card_order_path(slug: params[:slug].to_s, **%i[from goal of].index_with { params[it].to_s }.compact_blank) }
+    throttle_player to: 10, only: %i[create update], alert: "market.orders.create.throttled", path: -> { order_screen_path }
 
     def new
       authorize %i[market order], :new?
       load_card
       load_terms
-      @price_text = ""
     end
 
     def create
@@ -21,12 +19,19 @@ module Market
       result = operation.new.call(player: current_player, card_id: @detail.card_id, price: params[:price], settings_token: params[:settings_token].to_s)
       return answer_placed(result.value!) if result.success?
 
-      load_terms
-      @price_text = params[:price].to_s
-      @refusal_code = result.failure
-      @refusal_code = :market_busy if @refusal_code == :order_already_open && @running.nil?
-      @refusal = operation.failure_message(@refusal_code, **refusal_values(@refusal_code)) unless @refusal_code == :order_already_open
-      render :new, status: :unprocessable_content
+      redraw_refused(operation, result.failure)
+    end
+
+    def update
+      authorize %i[market order], :update?
+      load_card
+      order_id = Game::Market::OrderIdByToken.on_card(params[:token], @detail.card_id) || raise(ActiveRecord::RecordNotFound)
+      operation = Game::Market::RepriceOrder
+      result = operation.new.call(player: current_player, order_id:, price: params[:price], settings_token: params[:settings_token].to_s)
+      return redraw_refused(operation, result.failure) if result.failure?
+
+      flash[:notice] = t(".repriced", card: @detail.view.title, amount: helpers.picoins(result.value!.price))
+      redirect_to order_screen_path, status: :see_other
     end
 
     private
@@ -45,9 +50,22 @@ module Market
         @caps = Game::Market::ArchiveCaps.call(player: current_player, settings: @settings)
         @best_order = Game::Market::BestVisibleOrder.call(@detail.card_id, viewer: current_player)
         @running = Game::Market::PlayerOrders.open_on(current_player, @detail.card_id)
+        @price_text = @running ? @running.price.to_s : ""
         @goal = goal_marks.needs.find { it.missing_card_ids.include?(@detail.card_id) }
         @from = params[:from].presence_in(BACK_FROM)
         @chain = chain_params
+      end
+
+      def order_screen_path
+        new_market_card_order_path(slug: params[:slug].to_s, **%i[from goal of].index_with { params[it].to_s }.compact_blank)
+      end
+
+      def redraw_refused(operation, code)
+        load_terms
+        @price_text = params[:price].to_s
+        @refusal_code = code == :order_already_open && @running.nil? ? :market_busy : code
+        @refusal = operation.failure_message(@refusal_code, **refusal_values(@refusal_code))
+        render :new, status: :unprocessable_content
       end
 
       def chain_params
@@ -85,7 +103,9 @@ module Market
 
       def refusal_values(code)
         case code
-        when :more_than_available then { amount: helpers.picoins(@available) }
+        when :more_than_available, :not_covered then { amount: helpers.picoins(@available) }
+        when :order_already_open
+          { card: @detail.view.title, amount: helpers.picoins(@running.price), days: [ ((@running.expires_at - Time.current) / 1.day).ceil, 0 ].max }
         when :order_below_minimum
           lowest, amount = @minimums.min_by(&:last)
           { amount: helpers.picoins(amount), rarity: CardStrings.new.rarity_name(lowest) }

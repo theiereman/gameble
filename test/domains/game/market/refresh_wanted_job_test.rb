@@ -34,7 +34,7 @@ class Game::Market::RefreshWantedJobTest < ActiveSupport::TestCase
       Game::Market::OrderServed => [ @other.id, @player.id ], Game::Market::WantedChoicesApplied => both, Game::Market::CardListed => [ @other.id ],
       Game::Market::CardsEntrusted => player, Game::Market::ArchivePurchased => player, Game::GoalAdded => player,
       Game::GoalRemoved => player, Game::SlotBought => player, Game::CustomSetEdited => player, Game::CustomSetDeleted => player,
-      Game::LibrarySetSynced => player, Game::Market::OrderPlaced => player, Game::Market::OrderCancelled => player,
+      Game::LibrarySetSynced => player, Game::Market::OrderPlaced => player, Game::Market::OrderRepriced => player, Game::Market::OrderCancelled => player,
       Game::Market::OrderExpired => player, Game::Market::OrderWithdrawn => player
     }
   end

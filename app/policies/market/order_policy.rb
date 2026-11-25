@@ -3,5 +3,7 @@ module Market
     def new? = player?
 
     def create? = player?
+
+    def update? = player?
   end
 end

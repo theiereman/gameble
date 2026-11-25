@@ -1,11 +1,13 @@
 <%# locals: (card:) %>
 <% price = Game::Market::TypedAmount.price(@price_text) %>
-<% reached = order_reached(@minimums, price) %>
 <% lowest = @minimums.values.min %>
 <% closed = !@settings.open %>
 <% closed_refusal = @refusal if @refusal_code == :market_closed %>
 <% field_refusal = @refusal unless closed_refusal %>
-<%= form_with url: market_card_orders_path(slug: card.id), id: "order-form", class: "order-form__form", data: order_form_data(@minimums) do %>
+<% running = @running %>
+<%= form_with url: (running ? market_order_path(token: running.token) : market_card_orders_path(slug: card.id)), method: (running ? :patch : :post),
+      id: "order-form", class: "order-form__form", data: order_form_data do %>
+  <%= hidden_field_tag :slug, card.id, id: nil if running %>
   <%= hidden_field_tag :settings_token, @settings.token, id: nil %>
   <%= hidden_field_tag :from, @from, id: nil if @from %>
   <% if @chain %>
@@ -23,22 +25,6 @@
                   action: "beforeinput->amount-field#remember input->amount-field#group input->order-form#type keydown->order-form#keydown" } %>
     <%= tag.p field_refusal, id: "order-error", class: "market-bid__error", role: "alert", data: { order_form_target: "error" },
           hidden: field_refusal.nil?, tabindex: (-1 if field_refusal), autofocus: field_refusal.present? %>
-  </div>
-  <div class="order-form__reach">
-    <p class="market-bid__label"><%= t("market.orders.new.reached") %></p>
-    <ul class="order-reach" aria-hidden="true">
-      <% @minimums.each do |rarity, minimum| %>
-        <% on = reached.include?(rarity) %>
-        <%= tag.li class: class_names("order-reach__chip", "order-reach__chip--#{rarity}", "order-reach__chip--reached": on),
-              data: { order_form_target: "chip", rarity: } do %>
-          <%= tag.span t("market.orders.new.chip_reached", rarity: CardStrings.new.rarity_name(rarity), amount: picoins(minimum)), data: { reach: "on" }, hidden: !on %>
-          <%= tag.span t("market.orders.new.chip_from", rarity: CardStrings.new.rarity_name(rarity), amount: picoins(minimum)), data: { reach: "off" }, hidden: on %>
-        <% end %>
-      <% end %>
-    </ul>
-    <p class="order-form__sentence" aria-hidden="true" data-order-form-target="sentence"><%= order_reach_sentence(@minimums, price) %></p>
-    <p class="order-form__conversion"><%= t("market.orders.new.conversion") %></p>
-    <p class="visually-hidden" role="status" aria-live="polite" data-order-form-target="status"></p>
   </div>
   <dl class="order-form__facts">
     <div class="order-form__fact">
@@ -63,10 +49,15 @@
   <p class="market-bid__small"><%= t("market.orders.new.free_cancel_html", amount: tag.span(picoins(price || 0), data: { order_form_target: "amount" })) %></p>
   <button type="submit" class="button button--primary order-form__submit" data-order-form-target="button" <%= "disabled" if closed %>
           <%= tag.attributes(aria: { describedby: ("market-suspended-banner" if @suspended) }) %>>
-    <%= t("market.orders.new.submit") %><%= tag.span t("market.orders.new.submit_amount_html", amount: tag.span(picoins(price || 0), data: { order_form_target: "amount" })), data: { order_form_target: "buttonAmount" }, hidden: price.nil? %>
+    <%= t(running ? "market.orders.new.reprice" : "market.orders.new.submit") %><%= tag.span t("market.orders.new.submit_amount_html", amount: tag.span(picoins(price || 0), data: { order_form_target: "amount" })), data: { order_form_target: "buttonAmount" }, hidden: price.nil? %>
   </button>
+  <% if running %>
+    <%= render ButtonComponent.new(variant: :secondary, opens: order_cancel_dialog_id(running.token), aria_label: t("market.my_orders.cancel_name", card: card.title)) do %>
+      <%= t("market.my_orders.cancel") %>
+    <% end %>
+  <% end %>
   <% if closed_refusal %>
     <p id="order-closed" class="market-bid__error" role="alert" tabindex="-1" autofocus><%= closed_refusal %></p>
   <% end %>
-  <p class="market-bid__small"><%= t("market.orders.new.available", amount: picoins(@available)) %></p>
 <% end %>
+<%= render "market/order_cancellations/dialog", token: running.token, price: running.price, card_title: card.title if running %>

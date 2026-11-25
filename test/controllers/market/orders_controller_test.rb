@@ -40,7 +40,7 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path(locale: :en)
   end
 
-  test "the form draws the field empty, the lowest minimum, every rarity chip and the order's duration" do
+  test "the form draws the card, the field empty, the lowest minimum and the order's duration, and no rarity chip or balance line" do
     sign_in(@player)
 
     get new_market_card_order_path(locale: :en, slug: "tin-soldier")
@@ -49,11 +49,12 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Tin Soldier"
     assert_select "#order-price[value='']"
     assert_select "#order-lowest", "At least 13"
-    assert_select ".order-reach__chip", 5
-    assert_select ".order-reach__chip [data-reach=off]", text: "Epic from 223"
+    assert_select ".order-form__side > .order-form__card .card"
+    assert_select "#order-form[action=?][method=post]", market_card_orders_path(locale: :en, slug: "tin-soldier")
     assert_select "input[name=settings_token][value=?]", @settings.token
     assert_select ".order-form__fact dd", text: "7 days"
-    assert_select ".order-form__conversion", "If a player lists this card at auction at this price or lower, your order becomes a bid and your PiCoins stay held in it."
+    assert_select ".order-reach__chip", 0
+    assert_not_includes response.body, "never bids for you"
     assert_no_match(/\b#{@player.id}\b.*order/, response.body.scan(/data-[\w-]+="[^"]*"/).join(" "))
   end
 
@@ -84,8 +85,6 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_select "#order-price[value=?][aria-invalid=true]", "1,001"
     assert_select "#order-error[tabindex='-1'][autofocus]", "You can commit at most 1,000."
-    assert_select ".order-reach__chip--reached", 5 - 1
-    assert_select ".order-form__sentence", "Your price reaches commons, uncommons, rares, and epics. Legendaries from 70,000."
   end
 
   test "a price under every minimum names the lowest rarity, in both languages" do
@@ -100,28 +99,108 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
 
   def open_form(from: nil, locale: :en) = get new_market_card_order_path(locale:, slug: "tin-soldier", from:)
 
-  test "a running order shows its line and MY ORDERS in place of the form" do
+  test "a running order draws the form prefilled with its price, posting a reprice, with its cancel beside and no MY ORDERS link" do
     sign_in(@player)
     place(price: "100")
+    order = Game::Market::Order.last
 
-    open_form
+    open_form(from: "my_orders")
 
     assert_response :success
-    assert_select "#order-running:not([autofocus])", "You already have an order on Tin Soldier: 100, 7 d left."
-    assert_select "#order-form-yours ~ a.button--link[href=?]", market_my_orders_path(locale: :en), "MY ORDERS"
-    assert_select "#order-form", 0
-    assert_select "#order-price", 0
+    assert_select "#order-form[action=?] input[name=_method][value=patch]", market_order_path(locale: :en, token: order.token)
+    assert_select "#order-form input[type=hidden][name=slug][value=tin-soldier]"
+    assert_select "#order-price[value='100']"
+    assert_select "button.order-form__submit", /UPDATE THE ORDER/
+    assert_select "#order-form button[data-dialog-opener-dialog-value=?]", "cancel-order-#{order.token}", "CANCEL"
+    assert_select "dialog#cancel-order-#{order.token} form[action=?]", market_order_cancellation_path(locale: :en, token: order.token)
+    assert_select "#order-form-yours ~ a[href=?]", market_my_orders_path(locale: :en), 0
   end
 
-  test "a second order on the card is refused with the running line, focused" do
+  test "a second order on the card is refused in the field, the form now repricing the running order" do
     sign_in(@player)
     place(price: "100")
 
     assert_no_difference(-> { Game::Market::LedgerEntry.count }) { place(price: "200") }
 
     assert_response :unprocessable_content
-    assert_select "#order-running[tabindex='-1'][autofocus]", "You already have an order on Tin Soldier: 100, 7 d left."
-    assert_select "#order-form", 0
+    assert_select "#order-error[tabindex='-1'][autofocus]", "You already have an order on Tin Soldier: 100, 7 d left."
+    assert_select "#order-price[value='200']"
+    assert_select "#order-form input[name=_method][value=patch]"
+  end
+
+  def reprice(order, price:, **params)
+    patch market_order_path(locale: :en, token: order.token), params: { price:, slug: "tin-soldier", settings_token: @settings.token, **params }
+  end
+
+  test "a reprice moves the held amount and returns to the order screen with its origin and a flash line" do
+    sign_in(@player)
+    place(price: "100")
+    order = Game::Market::Order.last
+
+    reprice(order, price: "150", from: "my_orders")
+
+    assert_redirected_to new_market_card_order_path(locale: :en, slug: "tin-soldier", from: "my_orders")
+    assert_equal "Order on Tin Soldier updated: 150 PiCoins held.", flash[:notice]
+    assert_equal "cancelled", order.reload.status
+    assert_equal 150, Game::Market::Order.find_by!(status: "open").price
+    follow_redirect!
+    assert_select "#order-price[value='150']"
+  end
+
+  test "a reprice keeps the goal chain on its way back" do
+    sign_in(@player)
+    place(price: "100")
+
+    reprice(Game::Market::Order.last, price: "120", goal: "1", of: "3")
+
+    assert_redirected_to new_market_card_order_path(locale: :en, slug: "tin-soldier", goal: "1", of: "3")
+  end
+
+  test "a reprice the balance does not cover is refused in the field and moves nothing" do
+    sign_in(@player)
+    place(price: "100")
+    order = Game::Market::Order.last
+
+    assert_no_difference(-> { Game::Market::LedgerEntry.count }) { reprice(order, price: "1,200") }
+
+    assert_response :unprocessable_content
+    assert_select "#order-error[autofocus]", "You can commit at most 900 more."
+    assert_select "#order-price[value=?]", "1,200"
+    assert_equal [ "open", 100 ], order.reload.attributes.values_at("status", "price")
+  end
+
+  test "a reprice of an order no longer open redraws the form as a new order" do
+    sign_in(@player)
+    place(price: "100")
+    order = Game::Market::Order.last
+    Game::Market::CancelOrder.new.call(player: @player, order_id: order.id).value!
+
+    reprice(order, price: "150")
+
+    assert_response :unprocessable_content
+    assert_select "#order-error", "This order is no longer in progress."
+    assert_select "#order-form[action=?]", market_card_orders_path(locale: :en, slug: "tin-soldier")
+    assert_select "#order-form input[name=_method]", 0
+  end
+
+  test "a reprice posted under another card's slug is a 404 and moves nothing" do
+    sign_in(@player)
+    place(price: "100")
+    order = Game::Market::Order.last
+
+    assert_no_difference(-> { Game::Market::LedgerEntry.count }) { reprice(order, price: "150", slug: "blue-depths") }
+
+    assert_response :not_found
+    assert_equal [ "open", 100 ], order.reload.attributes.values_at("status", "price")
+  end
+
+  test "a visitor cannot reprice and an unknown token is a 404" do
+    patch market_order_path(locale: :en, token: "nope"), params: { price: "10", slug: "tin-soldier" }
+    assert_redirected_to home_path(locale: :en)
+
+    sign_in(@player)
+    patch market_order_path(locale: :en, token: "nope"), params: { price: "10", slug: "tin-soldier" }
+    assert_response :not_found
   end
 
   test "an order refused as already open while none is open any more redraws the form with the retry line" do

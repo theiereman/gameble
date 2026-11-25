@@ -8,7 +8,7 @@ module PlayerStream
   SEEN_EVENTS = [ Game::TradeSeen ].freeze
   BALANCE_EVENTS = [
     Game::Market::CardsEntrusted, Game::Market::CardListed, Game::Market::AuctionSold, Game::Market::AuctionUnsold, Game::Market::ListingWithdrawn,
-    Game::Market::BidPlaced, Game::Market::OrderPlaced, Game::Market::OrderCancelled, Game::Market::OrderExpired, Game::Market::OrderWithdrawn,
+    Game::Market::BidPlaced, Game::Market::OrderPlaced, Game::Market::OrderRepriced, Game::Market::OrderCancelled, Game::Market::OrderExpired, Game::Market::OrderWithdrawn,
     Game::Market::OrderServed, Game::Market::WantedChoicesApplied, Game::Market::ArchivePurchased, Game::SlotBought
   ].freeze
   MARKET_EVENTS = [ Game::Market::LeadVoided, Game::Market::ListingCancelled ].freeze

@@ -16,15 +16,14 @@
   <% end %>
   <% if @suspended %><%= render "market/suspended_banner" %><% end %>
   <div class="order-form__columns">
-    <%= render "available", card:, listings: @listings, archive_offers: @archive_offers, buyable: @buyable, caps: @caps %>
+    <div class="order-form__side">
+      <div class="order-form__card"><%= render CardComponent.new(card:, size: :l) %></div>
+      <%= render "available", card:, listings: @listings, archive_offers: @archive_offers, buyable: @buyable, caps: @caps %>
+    </div>
     <%= render PanelComponent.new(tag: :section, class: "order-form__panel", aria: { labelledby: "order-form-yours" }) do %>
       <h2 id="order-form-yours" class="order-form__kicker"><%= t(".yours") %></h2>
       <p class="order-form__lead"><%= t(".all_editions", card: card.title) %></p>
-      <% if @running %>
-        <%= render "running", order: @running, card:, refused: @refusal_code.present? %>
-      <% else %>
-        <%= render "form", card: %>
-      <% end %>
+      <%= render "form", card: %>
     <% end %>
   </div>
   <%= render "shell/purchase_dialog", frame: "archive-purchase", loading: t("market.shops.dialog.loading") if @buyable && @archive_offers.any? %>

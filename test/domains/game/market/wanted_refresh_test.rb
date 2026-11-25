@@ -92,6 +92,16 @@ class Game::Market::WantedRefreshTest < ActiveSupport::TestCase
     assert_empty rows
   end
 
+  test "a repriced order wants its game at the rarities its new price reaches" do
+    order = place_order(@player, @common, @settings.minimum_price_common)
+    rows
+
+    Game::Market::RepriceOrder.new.call(player: @player, order_id: order.id, price: @settings.minimum_price_uncommon, settings_token: @settings.token).value!
+
+    assert_equal [ [ @common.card_id, "order", [ 1, 2 ] ] ], rows
+    assert_fresh(@player)
+  end
+
   test "a goal and an order on one game are two rows" do
     aim
     place_order(@player, @rare, @settings.minimum_price_rare)

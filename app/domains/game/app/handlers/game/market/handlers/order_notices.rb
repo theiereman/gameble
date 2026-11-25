@@ -3,7 +3,8 @@ module Game
     module Handlers
       module OrderNotices
         LISTING_ENDS = [ AuctionSold, AuctionUnsold, ListingWithdrawn, ListingCancelled ].freeze
-        EVENTS = [ *LISTING_ENDS, CardListed, OrderServed, OrderExpired, OrderCancelled, OrderWithdrawn, WantedChoicesApplied ].freeze
+        EVENTS = [ *LISTING_ENDS, CardListed, OrderServed, OrderExpired, OrderCancelled, OrderWithdrawn, OrderRepriced,
+          WantedChoicesApplied ].freeze
 
         def self.call(event)
           data = event.data
@@ -15,6 +16,7 @@ module Game
             data[:sales].each { served(event, it) }
             converted_rows(data).each { converted(event, it) }
           when OrderExpired then expired(event, data)
+          when OrderRepriced then ended(data[:player_id], data[:replaced_order_id])
           else ended(data[:player_id], data[:order_id])
           end
         end

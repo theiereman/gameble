@@ -46,10 +46,8 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
     find("a.button--primary", text: /place an order/i).click
 
     assert_selector "h1#order-form-heading", text: "Tin Soldier"
-    assert_selector ".order-form__sentence", text: "Commons from 13."
+    assert_selector ".order-form__card .card"
     fill_in "order-price", with: "300"
-    assert_selector ".order-reach__chip--reached", count: 4
-    assert_selector ".order-form__sentence", text: "Your price reaches commons, uncommons, rares, and epics. Legendaries from 70,000."
     assert_selector ".order-form__submit", text: /300/
     find(".order-form__submit").click
 
@@ -72,7 +70,7 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
     committed("0 committed")
   end
 
-  test "the form lists what is for sale now, and reopened from MY ORDERS shows the running order instead of the field" do
+  test "the form lists what is for sale now, and reopened from MY ORDERS reprices the running order in place" do
     seller = accounts_players(:moderator).tap { it.update!(persona_name: "Ada") }
     first = listing!(seller:, card_season: catalog_card_seasons(:common_card_one), current_price: 40, hours: 2)
     second = listing!(seller:, card_season: catalog_card_seasons(:common_card_one), current_price: 60, hours: 24)
@@ -90,11 +88,18 @@ class MarketOrdersSystemTest < ApplicationSystemTestCase
     assert_selector "#order-result-heading:focus", text: "ORDER PLACED ON Tin Soldier"
     find("section[aria-labelledby=my-orders-in-progress-heading] a.market-row__title", text: "Tin Soldier").click
 
-    assert_selector "#order-running", text: "You already have an order on Tin Soldier: 300, 7 d left."
-    assert_selector "a.button--link[href='#{market_my_orders_path(locale: :en)}']", text: "MY ORDERS"
-    assert_no_selector "#order-price"
-    assert_no_selector ".order-form__submit"
+    assert_field "order-price", with: "300"
+    assert_selector ".order-form__submit", text: /UPDATE THE ORDER/
+    assert_no_selector ".order-form__panel a[href='#{market_my_orders_path(locale: :en)}']"
     assert_selector ".top-bar__phone-back", text: "My orders", visible: :all
+
+    fill_in "order-price", with: "400"
+    find(".order-form__submit").click
+
+    assert_text "Order on Tin Soldier updated: 400 PiCoins held."
+    assert_field "order-price", with: "400"
+    assert_selector available(600)
+    committed("400 committed")
   end
 
   test "served, expired and cancelled orders show under RECENTLY ENDED with what became of them" do

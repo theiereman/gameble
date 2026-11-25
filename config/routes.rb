@@ -59,6 +59,7 @@ Rails.application.routes.draw do
     get "market/order/cards/:slug" => "market/orders#new", as: :new_market_card_order
     post "market/order/cards/:slug" => "market/orders#create", as: :market_card_orders
     get "market/my-orders" => "market/my_orders#show", as: :market_my_orders
+    patch "market/orders/:token" => "market/orders#update", as: :market_order
     post "market/orders/:token/cancellation" => "market/order_cancellations#create", as: :market_order_cancellation
     # The Brotherhood's shop, selling the Archives' copies at a fixed price, and the purchase of one edition.
     get "market/shop" => "market/shops#show", as: :market_shop

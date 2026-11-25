@@ -2457,6 +2457,7 @@ en:
       order_below_minimum: "At least %{amount} for a %{rarity}."
       order_already_open: "You already have an order on %{card}: %{amount}, %{days} d left."
       order_not_open: This order is no longer in progress.
+      not_covered: "You can commit at most %{amount} more."
       order_served: This order has just been served.
       order_not_found: This order does not exist.
       no_rarity: One of these cards has no rarity yet, so the Brotherhood cannot value it.
@@ -3814,12 +3815,8 @@ en:
         all_editions: "Every edition of %{card}. The first player who accepts sells you a copy at this price."
         at_least: "At least %{amount}"
         auctions: "These are auctions: to win one, bid on its listing."
-        available: "Available: %{amount} PiCoins. An order never bids for you."
         available_now: AVAILABLE NOW
         best_order: Best current order
-        chip_from: "%{rarity} from %{amount}"
-        chip_reached: "%{rarity} %{amount}"
-        conversion: If a player lists this card at auction at this price or lower, your order becomes a bid and your PiCoins stay held in it.
         current_price: Current price
         duration: Duration
         edition: "%{rarity} · S%{season}"
@@ -3829,7 +3826,6 @@ en:
         heading_for: "Buy order · %{card}"
         held_now: Held now
         listing_name: "See the listing, %{rarity} season %{season}, sold by %{name}, %{amount} PiCoins"
-        my_orders: MY ORDERS
         no_best_order: none
         no_player_listing: No player listing for %{card}.
         archives: ARCHIVES
@@ -3838,12 +3834,14 @@ en:
         buy_label: Buy from the Archives, %{card} %{rarity} season %{season}, %{amount} PiCoins
         nobody: "Nobody is selling %{card} right now. A player who has one will see your price when selling or entrusting it."
         price: MY PRICE
-        reached: RARITIES REACHED
         see_listing: SEE THE LISTING
         sold_by_html: "Sold by %{name}"
         submit: PLACE THE ORDER
         submit_amount_html: " · %{amount}"
         yours: YOUR ORDER
+        reprice: UPDATE THE ORDER
+      update:
+        repriced: "Order on %{card} updated: %{amount} PiCoins held."
       strings:
         all: Your price reaches every rarity.
         next:

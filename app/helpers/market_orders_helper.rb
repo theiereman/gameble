@@ -1,27 +1,11 @@
 module MarketOrdersHelper
-  # The form's rarity reach, for display only: the order's own reach is Order.reaching's.
-  def order_reached(minimums, price) = price ? minimums.select { |_, minimum| minimum <= price }.keys : []
-
-  def order_reach_sentence(minimums, price)
-    reached = order_reached(minimums, price)
-    return t("market.orders.strings.all") if reached.size == minimums.size
-
-    rarity, amount = minimums.except(*reached).min_by(&:last)
-    upcoming = { next: t("market.orders.strings.next.#{rarity}"), amount: picoins(amount) }
-    return t("market.orders.strings.none", **upcoming) if reached.empty?
-
-    t("market.orders.strings.some", reached: order_rarity_words(reached), **upcoming)
-  end
-
   def order_rarity_words(rarities)
     rarities.map { t("market.orders.strings.reached.#{it}") }
       .to_sentence(two_words_connector: t("market.orders.list.two_words"), last_word_connector: t("market.orders.list.last_word"))
   end
 
-  def order_form_data(minimums)
-    { controller: "order-form", action: "submit->order-form#submit turbo:submit-end->order-form#submitted",
-      order_form_minimums_value: minimums.to_json, order_form_strings_value: screen_strings("market.orders.strings").to_json,
-      order_form_locale_value: I18n.locale }
+  def order_form_data
+    { controller: "order-form", action: "submit->order-form#submit turbo:submit-end->order-form#submitted", order_form_locale_value: I18n.locale }
   end
 
   def order_days(days) = t("market.orders.days", count: days, number: number_with_delimiter(days))
@@ -85,11 +69,6 @@ module MarketOrdersHelper
   end
 
   def order_back_data(from) = from == "card" ? { controller: "history-back", action: "history-back#back" } : {}
-
-  def order_running_line(order, card_title)
-    days = [ ((order.expires_at - Time.current) / 1.day).ceil, 0 ].max
-    t("errors.game.order_already_open", card: card_title, amount: picoins(order.price), days:)
-  end
 
   def order_listing_name(row)
     t("market.orders.new.listing_name", rarity: CardStrings.new.rarity_name(row.card.rarity), season: row.card.season_number, name: (row.seller ? duel_plain_name(row.seller) : t("player_name.archives")),

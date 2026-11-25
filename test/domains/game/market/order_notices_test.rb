@@ -170,6 +170,15 @@ class Game::Market::OrderNoticesTest < ActiveSupport::TestCase
     assert_empty Game::Market::Notice.where(player_id: @buyer.id, order_id: withdrawn.id)
   end
 
+  test "a repriced order's replaced order forgets its listing above" do
+    replaced = place!(@rare, 100)
+    list(starting_price: 150)
+
+    Game::Market::RepriceOrder.new.call(player: @buyer, order_id: replaced.id, price: 120, settings_token: @settings.token).value!
+
+    assert_empty Game::Market::Notice.where(player_id: @buyer.id, order_id: replaced.id)
+  end
+
   test "a removed owner is not noticed" do
     banned = accounts_players(:banned)
     order = Game::Market::Order.create!(player: banned, card_id: @rare.card_id, settings: @settings, price: 100, expires_at: 1.minute.ago)

@@ -1,3 +1,0 @@
-<%# locals: (order:, card:, refused:) %>
-<%= tag.p order_running_line(order, card.title), id: "order-running", class: "order-form__running", tabindex: -1, autofocus: refused %>
-<%= render ButtonComponent.new(variant: :link, href: market_my_orders_path) do %><%= t("market.orders.new.my_orders") %><% end %>

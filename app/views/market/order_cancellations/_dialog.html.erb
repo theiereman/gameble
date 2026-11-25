@@ -1,5 +1,5 @@
-<%# locals: (row:) %>
-<% dialog_id = order_cancel_dialog_id(row.token) %>
+<%# locals: (token:, price:, card_title:) %>
+<% dialog_id = order_cancel_dialog_id(token) %>
 <dialog id="<%= dialog_id %>" class="modal" aria-labelledby="<%= dialog_id %>-title" aria-describedby="<%= dialog_id %>-text"
         data-controller="dialog" data-action="click->dialog#closeOnScrim">
   <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
@@ -10,8 +10,8 @@
         <%= pixel_icon("close", class: "modal__close-icon") %>
       </button>
     </div>
-    <%= form_with url: market_order_cancellation_path(token: row.token), class: "market-dialog__form", data: { turbo: false } do %>
-      <p id="<%= dialog_id %>-text" class="market-dialog__text"><%= t("market.order_cancellations.dialog.text", amount: picoins(row.price), card: row.card.title) %></p>
+    <%= form_with url: market_order_cancellation_path(token:), class: "market-dialog__form", data: { turbo: false } do %>
+      <p id="<%= dialog_id %>-text" class="market-dialog__text"><%= t("market.order_cancellations.dialog.text", amount: picoins(price), card: card_title) %></p>
       <div class="market-dialog__actions">
         <%= tag.button t("market.order_cancellations.dialog.keep"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
         <%= tag.button t("market.order_cancellations.dialog.confirm"), type: :submit, class: "button button--primary" %>

@@ -177,7 +177,7 @@ class PlayerStreamTest < ActiveSupport::TestCase
 
   test "each market-volume event yields a balance notice for every player whose PiCoins it moved" do
     order = { order_id: 1, player_id: @alice.id, card_id: 1, amount: 100 }
-    single = [ Game::Market::OrderPlaced, Game::Market::OrderCancelled, Game::Market::OrderWithdrawn ].map { it.new(data: order) }
+    single = [ Game::Market::OrderPlaced, Game::Market::OrderRepriced, Game::Market::OrderCancelled, Game::Market::OrderWithdrawn ].map { it.new(data: order) }
     single << Game::Market::ArchivePurchased.with(player_id: @alice.id, card_season_id: @one, price: 100)
     single << Game::SlotBought.with(player_id: @alice.id, kind: "goal")
     single.each do |event|
