@@ -800,3 +800,7 @@
 - source_plan: `_bmad-output/initiative-gameble/plan-vip-badge-beyond-profiles.md`
   summary: Duel, Grand Inventaire and home views call `Game::SupporterStatus.for_players` from the template instead of a helper or controller.
   evidence: `duels/_header.html.erb`, `duels/_history.html.erb`, `duels/_online.html.erb`, `grand_inventories/_pioneer_boards.html.erb`, `pages/_grand_inventory_panel.html.erb`; the duel header runs it on every board broadcast.
+
+## URGENT, next session: the author, testing v1.4.1-rc.1 (2026-11-25)
+
+- The buy-order form does not say which editions an order covers or why its minimum is what it is. On Wizard101 the form shows the goal's edition (S5, Rare) on the left, yet asks "Au moins 13", the Common minimum, because an order covers every published edition of the card and the lowest rarity sets the floor (`Market::OrdersController#load_terms`, `Catalog::PublishedCardRarities`). The author read it as a broken minimum. Make it clear on the form, for a new and an existing order: which editions and rarities the order reaches, which one its price can buy at the price typed, and why the floor is that rarity's minimum; the "rarities reached" line removed earlier after the author's feedback hid exactly this, so the fix must stay short. Author: "c'est vraiment pas clair cette partie il faudra l'améliorer".
