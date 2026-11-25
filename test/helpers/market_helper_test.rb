@@ -28,6 +28,12 @@ class MarketHelperTest < ActionView::TestCase
     assert_equal "1 h 05", wording(65 * 60, :en)
   end
 
+  test "from a day it reads days and whole hours" do
+    assert_equal "23 h 59", wording(86_399, :en)
+    assert_equal "6 d 22 h", wording((166 * 60 + 2) * 60, :en)
+    assert_equal "6 j 22 h", wording((166 * 60 + 2) * 60, :fr)
+  end
+
   test "under an hour is soon" do
     assert time_left_soon?(3599)
     assert_not time_left_soon?(3600)

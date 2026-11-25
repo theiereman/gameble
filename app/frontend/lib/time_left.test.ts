@@ -9,13 +9,19 @@ describe("timeLeft", () => {
   })
 
   it("reads whole minutes from 60 seconds to under an hour", () => {
-    expect(timeLeft(60)).toEqual({ kind: "minutes", hours: 0, minutes: 1 })
-    expect(timeLeft(59 * 60 + 59)).toEqual({ kind: "minutes", hours: 0, minutes: 59 })
+    expect(timeLeft(60)).toEqual({ kind: "minutes", days: 0, hours: 0, minutes: 1 })
+    expect(timeLeft(59 * 60 + 59)).toEqual({ kind: "minutes", days: 0, hours: 0, minutes: 59 })
   })
 
   it("reads hours and minutes from an hour", () => {
-    expect(timeLeft(3600)).toEqual({ kind: "hours", hours: 1, minutes: 0 })
-    expect(timeLeft(134 * 60 + 30)).toEqual({ kind: "hours", hours: 2, minutes: 14 })
+    expect(timeLeft(3600)).toEqual({ kind: "hours", days: 0, hours: 1, minutes: 0 })
+    expect(timeLeft(134 * 60 + 30)).toEqual({ kind: "hours", days: 0, hours: 2, minutes: 14 })
+    expect(timeLeft(86_399)).toEqual({ kind: "hours", days: 0, hours: 23, minutes: 59 })
+  })
+
+  it("reads days and hours from a day", () => {
+    expect(timeLeft(86_400)).toEqual({ kind: "days", days: 1, hours: 0, minutes: 0 })
+    expect(timeLeft(166 * 3600 + 2 * 60)).toEqual({ kind: "days", days: 6, hours: 22, minutes: 2 })
   })
 })
 

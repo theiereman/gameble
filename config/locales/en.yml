@@ -4313,6 +4313,7 @@ en:
         outbid_amount: min
         outbid_spoken: "your offer is outbid, minimum offer %{amount}"
     time_left:
+      days: "%{days} d %{hours} h"
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
       under: under a minute

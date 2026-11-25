@@ -5,6 +5,7 @@ import { msToNextChange, timeLeft } from "../lib/time_left"
 export default class extends Controller<HTMLElement> {
   static values = {
     seconds: Number,
+    daysTemplate: String,
     hoursTemplate: String,
     minutesTemplate: String,
     underTemplate: String,
@@ -13,6 +14,7 @@ export default class extends Controller<HTMLElement> {
   static targets = ["label"]
 
   declare readonly secondsValue: number
+  declare readonly daysTemplateValue: string
   declare readonly hoursTemplateValue: string
   declare readonly minutesTemplateValue: string
   declare readonly underTemplateValue: string
@@ -55,6 +57,7 @@ export default class extends Controller<HTMLElement> {
   private words(left: ReturnType<typeof timeLeft>): string {
     if (left.kind === "under") return this.underTemplateValue
     if (left.kind === "minutes") return t(this.minutesTemplateValue, { minutes: left.minutes })
+    if (left.kind === "days") return t(this.daysTemplateValue, { days: left.days, hours: left.hours })
     return t(this.hoursTemplateValue, { hours: left.hours, minutes: String(left.minutes).padStart(2, "0") })
   }
 

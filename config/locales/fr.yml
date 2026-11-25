@@ -3427,6 +3427,7 @@ fr:
         outbid_amount: "mini"
         outbid_spoken: "votre offre est dépassée, offre minimale %{amount}"
     time_left:
+      days: "%{days} j %{hours} h"
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
       under: "moins d'une minute"

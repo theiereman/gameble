@@ -1,5 +1,6 @@
 module MarketHelper
   SOON_SECONDS = 3600
+  DAY_SECONDS = 86_400
   FILTER_ROW = { rarity: %i[rarity], price: %i[price], more: %i[sets genre season] }.freeze
 
   def market_filter_pastilles(sets_offered:, genres:, seasons:)
@@ -19,6 +20,8 @@ module MarketHelper
   def listing_time_left(seconds)
     if seconds.zero?
       t("markets.time_left.ended")
+    elsif seconds >= DAY_SECONDS
+      t("markets.time_left.days", days: seconds / DAY_SECONDS, hours: seconds % DAY_SECONDS / SOON_SECONDS)
     elsif seconds >= SOON_SECONDS
       t("markets.time_left.hours", hours: seconds / SOON_SECONDS, minutes: format("%02d", seconds % SOON_SECONDS / 60))
     elsif seconds >= 60
@@ -87,6 +90,7 @@ module MarketHelper
 
   def clock_data(seconds)
     { controller: "listing-clock", listing_clock_seconds_value: seconds,
+      listing_clock_days_template_value: t("markets.time_left.days", days: "%{days}", hours: "%{hours}"),
       listing_clock_hours_template_value: t("markets.time_left.hours", hours: "%{hours}", minutes: "%{minutes}"),
       listing_clock_minutes_template_value: t("markets.time_left.minutes", minutes: "%{minutes}"),
       listing_clock_under_template_value: t("markets.time_left.under"),
