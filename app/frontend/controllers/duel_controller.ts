@@ -224,8 +224,10 @@ export default class extends Controller<HTMLElement> {
       this.revealTimer = window.setTimeout(() => this.dismissReveal(), Math.max(0, reveal.endsAt - performance.now()))
 
     this.refresh()
-    // Turbo puts the focus back on the element it held before a stream render once the render is done: move it after.
-    window.setTimeout(() => this.hasBoardTarget && focusTarget(this.boardTarget)?.focus(), 0)
+    // Turbo gives the focus back to the element it held before a stream render one animation frame later: move it after.
+    window.requestAnimationFrame(() =>
+      window.setTimeout(() => this.hasBoardTarget && focusTarget(this.boardTarget)?.focus(), 0),
+    )
   }
 
   private dismissReveal(): void {
