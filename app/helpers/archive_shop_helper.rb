@@ -9,14 +9,13 @@ module ArchiveShopHelper
     buyable ? new_market_archive_purchase_path(slug: card.id, number: card.season_number) : card_season_path(slug: card.id, number: card.season_number)
   end
 
-  def archive_offer_label(row, wanted:, buyable:, stock:)
+  def archive_offer_label(row, wanted:, stock:)
     card = row.card
     parts = [ t("market.shops.offer.label", card: card.title, rarity: CardStrings.new.rarity_name(card.rarity), season: card.season_number,
       price: picoins_label(row.price)) ]
     parts << t("market.shops.offer.stock", count: row.stock) if stock
     parts << t("market.shops.offer.wanted_spoken") if wanted
-    label = parts.join(", ")
-    buyable ? "#{label}. #{t("market.shops.offer.buy_spoken")}" : label
+    parts.join(", ")
   end
 
   def archive_cap_line(card, caps) = archive_rarity_cap_line(card.rarity, caps)

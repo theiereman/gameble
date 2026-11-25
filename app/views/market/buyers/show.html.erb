@@ -1,13 +1,10 @@
-<%# locals: (copies:, tiles:, cards:) %>
-<div class="wanted-panel">
-  <%= render PanelComponent.new(tag: :section, class: "wanted-panel__frame", aria: { labelledby: "wanted-panel-heading" }) do %>
-    <h2 id="wanted-panel-heading" class="market-screen__section wanted-panel__heading">
-      <%= t("markets.wanted.heading") %> <span class="wanted-panel__count"><%= number_with_delimiter(copies.size) %></span>
-    </h2>
-    <% if tiles.any? %>
-      <ul class="wanted-panel__list" aria-labelledby="wanted-panel-heading">
-        <% tiles.each do |copy| %>
-          <% card = cards[copy.card_season_id] %>
+<% content_for :title, t(".heading") %>
+<% tab = capture do %>
+  <div class="wanted-panel">
+    <% if @wanted_copies.any? %>
+      <ul class="wanted-panel__list" aria-label="<%= t(".list_label") %>">
+        <% @wanted_copies.each do |copy| %>
+          <% card = @wanted_cards[copy.card_season_id] %>
           <% next unless card %>
           <li class="wanted-panel__item">
             <%= link_to new_market_card_sale_path(slug: card.id, ref: copy.ref), class: "wanted-panel__tile", aria: { label: wanted_tile_label(copy, card) } do %>
@@ -25,13 +22,13 @@
           </li>
         <% end %>
       </ul>
+      <p class="wanted-panel__foot">
+        <%= render ButtonComponent.new(variant: :link, href: new_market_sale_path(filter: { wanted: "1" }), aria_label: t("markets.wanted.see_all_label")) do %><%= t("markets.wanted.see_all") %><% end %>
+      </p>
     <% else %>
       <%= render EmptyStateComponent.new(line: t("markets.wanted.empty")) %>
     <% end %>
-  <% end %>
-  <% if copies.any? %>
-    <p class="wanted-panel__foot">
-      <%= render ButtonComponent.new(variant: :link, href: new_market_sale_path(filter: { wanted: "1" }), aria_label: t("markets.wanted.see_all_label")) do %><%= t("markets.wanted.see_all") %><% end %>
-    </p>
-  <% end %>
-</div>
+  </div>
+<% end %>
+<%= render "exchanges/tabs", current: :market %>
+<%= render "markets/tab", title: content_for(:title), current: :buyers, pulse: @pulse, desk: @desk, suspended: @suspended, content: tab %>

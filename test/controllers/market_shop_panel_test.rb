@@ -36,7 +36,7 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".market-screen > .shop-panel"
     assert_select "section.shop-panel__frame h2", /BOUTIQUE DE LA CONFRÉRIE\s+2 cartes aux Archives/
-    assert_select ".shop-panel__line", "Chaque lundi, une nouvelle liste de cartes confiées, au même prix toute la semaine."
+    assert_select ".shop-panel__line", "Chaque lundi, une nouvelle liste de cartes confiées."
     assert_equal [ new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1),
       new_market_archive_purchase_path(locale: :fr, slug: "tin-soldier", number: 1) ], panel_tiles.map { it["href"] }
     assert_select ".shop-panel__list a[data-turbo-frame=archive-purchase][data-action='purchase-dialog#open']", 2
@@ -97,7 +97,7 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
       market_listing_path(locale: :fr, token: cheap.token),
       new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1),
       market_listing_path(locale: :fr, token: dear.token) ], grid_tiles.map { css_select(it, "a").first["href"] }
-    assert_select "#market-tiles .archive-offer__fixed", text: "prix du jour", count: 2
+    assert_no_match(/prix du jour/, response.body)
     assert_select "#market-tiles .archive-offer__stock", 0
     assert_select "[id^='archive-offer-']", 0
     assert_select "#market-tiles .archive-offer[data-archive-offer='blue-depths-1']"
@@ -114,6 +114,7 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
     get market_path(locale: :fr)
 
     assert_select ".shop-panel__list .archive-offer__cap", text: /\A5 achats aux Archives par semaine/
+    assert_select ".archive-offer__buy", 0
     assert_select "#market-tiles .archive-offer[data-archive-offer='tin-soldier-1'] .archive-offer__cap", 1
   end
 

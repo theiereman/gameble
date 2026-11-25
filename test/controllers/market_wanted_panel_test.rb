@@ -1,80 +1,59 @@
 require "test_helper"
 require_relative "../support/holdings"
 require_relative "../support/market"
-require_relative "../support/market_auctions"
-require_relative "../support/market_orders"
 require_relative "../support/steam_sign_in"
 
-# Above the market's chips, a signed-in player sees which of their copies other players want, the most sought first.
+# On every market tab, the last chip counts how many of the player's copies other players want.
 class MarketWantedPanelTest < ActionDispatch::IntegrationTest
   include Holdings
-  include MarketAuctions
-  include MarketOrders
   include MarketSettings
   include SteamSignIn
 
   setup do
     open_market!(first_opened_at: 1.day.ago)
     @player = accounts_players(:player)
-    @rare = catalog_card_seasons(:rare_card_one)
-    @common = catalog_card_seasons(:common_card_one)
   end
 
   def want_by_goal(card_season, *players)
     Game::Market::Wanted.insert_all(players.map { { player_id: it.id, card_id: card_season.card_id, reason: "goal", rarities: nil } })
   end
 
-  def place(player, card_season, price)
-    fund!(player, price)
-    order!(player, card_season, price).tap { Game::Market::RebuildWanted.new.call(player:).value! }
-  end
+  def buyers_chip = css_select(".market-screen__chips .tabs__tab").last
 
-  def ref(card_season) = "#{card_season.card.slug}:#{card_season.season.number}"
-
-  test "on ANNONCES and MES ORDRES the panel lists the wanted copies, most sought first, each a link to sell that edition" do
-    hold(@player, @rare.id)
-    hold(@player, @common.id)
-    place(accounts_players(:administrator), @rare, 100)
-    want_by_goal(@rare, accounts_players(:moderator))
-    want_by_goal(@common, accounts_players(:moderator))
+  test "every tab ends on ACHETEURS, its badge counting the wanted copies, with no panel above the chips" do
+    %i[rare_card_one common_card_one uncommon_card_one].each do |name|
+      hold(@player, catalog_card_seasons(name).id)
+      want_by_goal(catalog_card_seasons(name), accounts_players(:moderator))
+    end
     sign_in(@player)
 
-    [ market_path(locale: :fr), market_my_orders_path(locale: :fr) ].each do |path|
+    [ market_path(locale: :fr), market_my_bids_path(locale: :fr), market_my_sales_path(locale: :fr), market_my_orders_path(locale: :fr) ].each do |path|
       get path
 
       assert_response :success
-      assert_select ".market-screen .wanted-panel + nav.market-screen__chips"
-      assert_select "section.wanted-panel__frame h2", /VOS CARTES VOULUES\s+2/
-      tiles = css_select(".wanted-panel__tile")
-      assert_equal [ new_market_card_sale_path(locale: :fr, slug: @rare.card.slug, ref: ref(@rare)),
-        new_market_card_sale_path(locale: :fr, slug: @common.card.slug, ref: ref(@common)) ], tiles.map { it["href"] }
-      assert_select tiles.first, ".wanted-panel__seekers", "2 joueurs la veulent"
-      assert_select tiles.first, ".wanted-panel__order .picoin-amount__figure", "100"
-      assert_select tiles.last, ".wanted-panel__no-order", "Aucun ordre"
-      assert_match(/, 2 joueurs la veulent, ordre d'achat 100 PiCoins\. Mettre en vente\z/, tiles.first["aria-label"])
-      assert_select ".wanted-panel__foot a.button--link[href=?][aria-label=?]", new_market_sale_path(locale: :fr, filter: { wanted: "1" }),
-        "Tout voir, vos cartes voulues", text: "Tout voir"
+      assert_equal market_buyers_path(locale: :fr), buyers_chip["href"]
+      assert_select buyers_chip, ".market-screen__badge[aria-hidden=true]", "3"
+      assert_select buyers_chip, ".visually-hidden", "3 voulues"
+      assert_match(/\AACHETEURS/, buyers_chip.text.strip)
+      assert_select ".wanted-panel", false
     end
-    assert_no_match(/(?:data-[a-z-]+|id|name|value|href)="[^"]*\b#{@rare.id}\b/, response.body)
   end
 
-  test "with no wanted copy the panel keeps its place with its count at zero and its empty line, and no see-all link" do
-    hold(@player, @common.id)
+  test "with no wanted copy the chip carries no badge" do
+    hold(@player, catalog_card_seasons(:common_card_one).id)
     sign_in(@player)
 
-    get market_my_sales_path(locale: :fr)
+    get market_path(locale: :fr)
 
-    assert_select "section.wanted-panel__frame h2", /VOS CARTES VOULUES\s+0/
-    assert_select ".wanted-panel .empty-state", text: /Aucune de vos cartes n'est voulue pour le moment\./
-    assert_select ".wanted-panel__tile", false
-    assert_select ".wanted-panel__foot", false
+    assert_equal "ACHETEURS", buyers_chip.text.strip
+    assert_select ".market-screen__chips .market-screen__badge", false
   end
 
-  test "a visitor sees no panel" do
+  test "a visitor sees the chip greyed, with no badge" do
     get market_path(locale: :en)
 
     assert_response :success
-    assert_select ".market-screen"
-    assert_select ".wanted-panel", false
+    assert_select ".market-screen__chips span.tabs__tab--disabled[aria-disabled=true]", "BUYERS"
+    assert_select ".market-screen__chips .market-screen__badge", false
   end
 end

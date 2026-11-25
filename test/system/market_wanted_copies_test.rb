@@ -28,10 +28,11 @@ class MarketWantedCopiesSystemTest < ApplicationSystemTestCase
     sign_in_browser(@seller.steam_id)
   end
 
-  test "a wanted copy leads from the market's panel to its sale, its cell and its card detail carrying the count" do
+  test "a wanted copy leads from the market's BUYERS tab to its sale, its cell and its card detail carrying the count" do
     visit market_path(locale: :en)
+    within(".market-screen__chips") { click_link "BUYERS" }
+    assert_selector ".market-screen__chips .tabs__tab--current .market-screen__badge", text: "1"
     within(".wanted-panel") do
-      assert_selector "h2", text: /YOUR WANTED CARDS\s+1/
       assert_selector ".wanted-panel__seekers", text: "2 players want it"
       assert_selector ".wanted-panel__order", text: /Order\s+900/
       find(".wanted-panel__tile", text: "Green Hills").click
@@ -47,7 +48,7 @@ class MarketWantedCopiesSystemTest < ApplicationSystemTestCase
   end
 
   test "See all opens the sale grid on the wanted copies, and the chip lets the others back" do
-    visit market_path(locale: :en)
+    visit market_buyers_path(locale: :en)
     within(".wanted-panel__foot") { click_link "See all" }
 
     assert_selector "[role=option]", count: 1

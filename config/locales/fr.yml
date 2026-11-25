@@ -2625,8 +2625,7 @@ fr:
         archives: "ARCHIVES"
         buy: "ACHETER"
         buy_spoken: "Acheter"
-        fixed: "prix du jour"
-        label: "%{card}, %{rarity}, saison %{season}, Archives de la Confrérie, prix du jour %{price}"
+        label: "%{card}, %{rarity}, saison %{season}, Archives de la Confrérie, %{price}"
         stock:
           zero: "%{count} en stock"
           one: "%{count} en stock"
@@ -2654,10 +2653,8 @@ fr:
           heading: "Comment fonctionne la boutique"
           items:
           - "Chaque lundi, la Confrérie met en vente une liste de %{size} cartes que les joueurs lui ont confiées, la même pour tous : d'abord les cartes les plus recherchées, puis des Rares, des Peu communes et des Communes."
-          - "Une carte garde son prix toute la semaine. La Confrérie le fixe d'après les ventes du marché, assez haut pour qu'acheter aux Archives reste un effort."
           - "Chaque joueur achète une carte de la liste une fois par semaine, et au plus %{purchases} cartes par semaine."
-          - "Chaque lundi, la Confrérie met aussi aux enchères sur le marché jusqu'à %{epics} Épiques et %{legendaries} Légendaire, pendant %{hours} heures, à partir du double de leur référence. Leur prix est détruit aussi ; une carte que personne n'achète retourne aux Archives."
-          - "Les PiCoins dépensés ici sont détruits, ce qui garde en équilibre les PiCoins en circulation."
+          - "Chaque lundi, la Confrérie met aussi aux enchères sur le marché jusqu'à %{epics} Épiques et %{legendaries} Légendaire, pendant %{hours} heures, à partir du double de leur référence. Une carte que personne n'achète retourne aux Archives."
     copy_filters:
       wanted: "VOULUES PAR D'AUTRES · %{count}"
       wanted_label:
@@ -2805,6 +2802,10 @@ fr:
         other: "%{number} dépassées"
       sales: "MES VENTES"
       orders: "MES ORDRES"
+      buyers_wanted:
+        zero: "%{number} voulue"
+        one: "%{number} voulue"
+        other: "%{number} voulues"
     my_bids:
       groups:
         in_progress:
@@ -2856,6 +2857,10 @@ fr:
             one: ", dont %{number} avec une offre."
             other: ", dont %{number} avec une offre."
         heading: "Mes ventes"
+    buyers:
+      show:
+        heading: "Acheteurs"
+        list_label: "Vos cartes que d'autres joueurs veulent"
     my_orders:
       all_editions: "toutes éditions"
       cancel: "ANNULER"
@@ -3247,12 +3252,12 @@ fr:
         zero: "%{count} carte aux Archives"
         one: "%{count} carte aux Archives"
         other: "%{count} cartes aux Archives"
-      line: "Chaque lundi, une nouvelle liste de cartes confiées, au même prix toute la semaine."
+      line: "Chaque lundi, une nouvelle liste de cartes confiées."
       list_label: "Cartes à la une des Archives"
       see_all: "Voir toute la boutique"
       see_all_label: "Voir toute la boutique de la Confrérie"
     wanted:
-      heading: "VOS CARTES VOULUES"
+      heading: "ACHETEURS"
       empty: "Aucune de vos cartes n'est voulue pour le moment."
       seekers:
         zero: "%{count} joueur la veut"

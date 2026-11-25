@@ -23,24 +23,6 @@
   gap: var(--space-2);
 }
 
-.wanted-panel__frame {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.wanted-panel__heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.wanted-panel__count {
-  color: var(--color-text-max);
-  letter-spacing: 0;
-}
-
 .wanted-panel__list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -135,10 +117,6 @@
 @media (max-width: 719px) {
   .wanted-panel__list {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .wanted-panel__item:nth-child(n + 4) {
-    display: none;
   }
 }
 

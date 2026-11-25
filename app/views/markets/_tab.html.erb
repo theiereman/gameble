@@ -8,7 +8,6 @@
     <% end %>
     <% if market_exchange_shown? %><%= render "markets/exchange_preview" %><% end %>
     <% if @shop_offers %><%= render "markets/shop_panel", count: @shop_count, offers: @shop_offers, marks: @shop_marks, buyable: @buyable, caps: @caps %><% end %>
-    <% if @wanted_copies %><%= render "markets/wanted_panel", copies: @wanted_copies, tiles: @wanted_tiles, cards: @wanted_cards %><% end %>
     <%= render "markets/chips", current: %>
     <div class="tabs__panel">
       <%= content %>

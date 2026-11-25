@@ -3523,8 +3523,7 @@ en:
         archives: ARCHIVES
         buy: BUY
         buy_spoken: Buy
-        fixed: "today's price"
-        label: "%{card}, %{rarity}, season %{season}, Brotherhood's Archives, today's price %{price}"
+        label: "%{card}, %{rarity}, season %{season}, Brotherhood's Archives, %{price}"
         stock:
           zero: "%{count} in stock"
           one: "%{count} in stock"
@@ -3552,10 +3551,8 @@ en:
           heading: "How the shop works"
           items:
           - "Every Monday the Brotherhood puts up a list of %{size} cards players entrusted to it, the same for everyone: the most wanted first, then Rares, Uncommons and Commons."
-          - "A card keeps its price all week. The Brotherhood sets it from the market's sales, high enough that buying from the Archives stays an effort."
           - "Each player buys a card of the list once a week, and at most %{purchases} cards a week."
-          - "Each Monday the Brotherhood also auctions up to %{epics} Epics and %{legendaries} Legendary on the market, for %{hours} hours, from twice their reference. Their price is destroyed too; a card nobody buys goes back to the Archives."
-          - "The PiCoins spent here are destroyed, which keeps the PiCoins in circulation in balance."
+          - "Each Monday the Brotherhood also auctions up to %{epics} Epics and %{legendaries} Legendary on the market, for %{hours} hours, from twice their reference. A card nobody buys goes back to the Archives."
     copy_filters:
       wanted: "WANTED BY OTHERS · %{count}"
       wanted_label:
@@ -3702,6 +3699,10 @@ en:
         other: "%{number} outbid"
       sales: MY SALES
       orders: MY ORDERS
+      buyers_wanted:
+        zero: "%{number} wanted"
+        one: "%{number} wanted"
+        other: "%{number} wanted"
     my_bids:
       groups:
         in_progress:
@@ -3753,6 +3754,10 @@ en:
             one: ", %{number} with a bid."
             other: ", %{number} with a bid."
             zero: ", no bid yet."
+    buyers:
+      show:
+        heading: Buyers
+        list_label: Your cards other players want
     my_orders:
       all_editions: every edition
       cancel: CANCEL
@@ -4135,12 +4140,12 @@ en:
       count:
         one: "%{count} card in the Archives"
         other: "%{count} cards in the Archives"
-      line: "Every Monday, a new list of entrusted cards, at one price all week."
+      line: "Every Monday, a new list of entrusted cards."
       list_label: Featured Archive cards
       see_all: See the whole shop
       see_all_label: See the whole shop of the Brotherhood
     wanted:
-      heading: YOUR WANTED CARDS
+      heading: BUYERS
       empty: None of your cards is wanted right now.
       seekers:
         zero: "%{count} players want it"

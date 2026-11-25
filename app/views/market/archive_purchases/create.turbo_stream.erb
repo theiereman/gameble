@@ -7,5 +7,7 @@
   <%= turbo_stream.remove_all archive_offer_selector(@card) %>
 <% end %>
 <% if @caps.any? %>
-  <%= turbo_stream.update_all "[data-archive-cap]", h(archive_rarity_cap_line(@card.rarity, @caps)) %>
+  <% cap_line = archive_rarity_cap_line(@card.rarity, @caps) %>
+  <%= turbo_stream.update_all "[data-archive-cap]", h(cap_line) %>
+  <% if cap_line %><%= turbo_stream.remove_all "[data-archive-buy]" %><% end %>
 <% end %>

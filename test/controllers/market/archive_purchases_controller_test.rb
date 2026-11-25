@@ -162,6 +162,8 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[action=replace][target=archive-offer-blue-depths-1] template .archive-offer__cap", /\A5 achats aux Archives par semaine · prochain le /
     assert_select "turbo-stream[action=update][targets=?] template", "[data-archive-cap]", text: /\A5 achats aux Archives par semaine · prochain le /
     assert_select "turbo-stream[action=update][targets=?] template time[data-controller=local-time]", "[data-archive-cap]"
+    assert_select "turbo-stream[action=remove][targets=?]", "[data-archive-buy]"
+    assert_select "turbo-stream[action=replace][target=archive-offer-blue-depths-1] template [data-archive-buy]", 0
   end
 
   test "a purchase under the week's limit leaves the cap lines empty" do
@@ -171,6 +173,8 @@ class Market::ArchivePurchasesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "turbo-stream[action=replace][target=archive-offer-blue-depths-1] template .archive-offer__cap", ""
+    assert_select "turbo-stream[action=replace][target=archive-offer-blue-depths-1] template .archive-offer__buy[data-archive-buy=rare]"
+    assert_select "turbo-stream[action=remove][targets=?]", "[data-archive-buy]", 0
   end
 
   test "a purchase answers the result in the frame and the tile with its stock lowered" do

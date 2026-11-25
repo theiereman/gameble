@@ -28,7 +28,7 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, tiles.size
     assert_select "#archive-offer-blue-depths-1 a[href=?]", card_season_path(locale: :fr, slug: "blue-depths", number: 1)
     assert_select "#archive-offer-blue-depths-1 .archive-offer__stock", "1 en stock"
-    assert_select "#archive-offer-tin-soldier-1 .archive-offer__fixed", "prix du jour"
+    assert_no_match(/prix du jour/, response.body)
     assert_select ".archive-offer__buy", 0
     assert_select "dialog#archive-purchase-dialog", 0
     assert_select ".market-filters__wanted", 0
@@ -43,11 +43,12 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_select "dialog#archive-purchase-dialog turbo-frame#archive-purchase"
     assert_select "#archive-offer-blue-depths-1 a[href=?][data-turbo-frame=archive-purchase][data-action='purchase-dialog#open']",
       new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1)
-    assert_select "#archive-offer-blue-depths-1 a[aria-label^='Profondeurs bleues, Rare, saison 1, Archives de la Confrérie, prix du jour 500']" \
-      "[aria-label$=', 1 en stock. Acheter']"
+    assert_select "#archive-offer-blue-depths-1 a[aria-label^='Profondeurs bleues, Rare, saison 1, Archives de la Confrérie, 500']" \
+      "[aria-label$=', 1 en stock']"
     assert_select ".archive-offer__cap[data-archive-cap]", text: "", count: 2
-    described = css_select("#archive-offer-blue-depths-1 a").first["aria-describedby"]
-    assert_select "##{described}.visually-hidden[data-archive-cap=rare]", ""
+    cap, buy = css_select("#archive-offer-blue-depths-1 a").first["aria-describedby"].split
+    assert_select "##{cap}.visually-hidden[data-archive-cap=rare]", ""
+    assert_select "##{buy}.visually-hidden[data-archive-buy=rare]", "Acheter"
     assert_select ".archive-offer__buy", 2
   end
 
@@ -69,6 +70,9 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#archive-offer-tin-soldier-1 .archive-offer__cap", 1
     described = css_select("#archive-offer-blue-depths-1 a").first["aria-describedby"]
     assert_select "##{described}.visually-hidden[data-archive-cap=rare]", /5 achats/
+    assert_select ".archive-offer__buy", 0
+    assert_select "[data-archive-buy]", 0
+    assert_equal [ described ], css_select("#archive-offer-blue-depths-1 a").first["aria-describedby"].split
 
     get market_shop_path(locale: :en)
     assert_select "#archive-offer-blue-depths-1 .archive-offer__cap", "5 Archive purchases a week · next on #{text}"
@@ -102,7 +106,7 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#archive-offer-blue-depths-1 .archive-offer__tag--wanted", "VOULUE"
     assert_select "#archive-offer-tin-soldier-1 .archive-offer__tag--wanted", 0
-    assert_select "#archive-offer-blue-depths-1 a[aria-label$=', voulue. Acheter']"
+    assert_select "#archive-offer-blue-depths-1 a[aria-label$=', voulue']"
     assert_select ".market-filters__wanted", /VOULUES · 1/
     assert_select ".market-filters__wanted input[aria-label=?]", "Voulues, 1 carte"
 

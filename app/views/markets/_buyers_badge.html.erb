@@ -1,0 +1,5 @@
+<%# locals: (wanted:) %>
+<% if wanted.positive? %>
+  <span class="market-screen__badge" aria-hidden="true"><%= number_with_delimiter(wanted) %></span>
+  <span class="visually-hidden"><%= t("market.chips.buyers_wanted", count: wanted, number: number_with_delimiter(wanted)) %></span>
+<% end %>

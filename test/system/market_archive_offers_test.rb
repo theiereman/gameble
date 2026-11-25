@@ -38,7 +38,6 @@ class MarketArchiveOffersSystemTest < ApplicationSystemTestCase
       assert_link "Voir toute la boutique"
     end
     assert_selector "#market-tiles > li:nth-child(1) .listing-tile__price", text: "80"
-    assert_selector "#market-tiles > li:nth-child(2) .archive-offer__fixed", text: "prix du jour"
     assert_selector "#market-tiles > li:nth-child(2) .archive-offer__price", text: "500"
     assert_selector "#market-tiles > li:nth-child(3) .listing-tile__price", text: "900"
   end

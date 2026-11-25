@@ -67,7 +67,7 @@ module Game
       end
 
       # The panel's offers: the viewer's wanted cards first, then the latest entrusted.
-      def self.featured(settings:, wanted_card_ids:, locale:, limit: 4)
+      def self.featured(settings:, wanted_card_ids:, locale:, limit: 5)
         wanted = wanted_card_ids.any? ? ArchiveStock.sanitize_sql_array([ "catalog_card_seasons.card_id IN (?)", wanted_card_ids ]) : "FALSE"
         found = offers(settings, ListingFilters.none, locale)
           .order(Arel.sql("CASE WHEN #{wanted} THEN 0 ELSE 1 END, #{entrusted_day_sql} DESC NULLS LAST, game_market_archive_stocks.card_season_id ASC"))
