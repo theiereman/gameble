@@ -41,8 +41,10 @@
 }
 
 /* A wide table scrolls inside its own box on a narrow screen, never the page. */
-.market-settings__table-scroll {
-  overflow-x: auto;
+@media (max-width: 1023px) {
+  .market-settings__table-scroll {
+    overflow-x: auto;
+  }
 }
 
 .market-settings__table {
@@ -97,21 +99,4 @@
 .market-settings__help-button:hover,
 .market-settings__help-button:focus-visible {
   border-color: var(--color-accent);
-}
-
-/* Centred on the screen, unlike the top bar's popovers pinned under it. */
-.market-settings__help {
-  inset: 0;
-  height: fit-content;
-  max-width: min(48ch, calc(100vw - 2 * var(--space-gutter-phone)));
-  margin: auto;
-  letter-spacing: normal;
-}
-
-.market-settings__help > span {
-  display: block;
-}
-
-.market-settings__help-text {
-  font: var(--font-body);
 }

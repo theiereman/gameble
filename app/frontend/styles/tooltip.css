@@ -1,0 +1,52 @@
+/* The one tooltip: a small bubble above its host on hover or keyboard focus, read from the host's data-tip. */
+[data-tip] {
+  position: relative;
+}
+
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: 5;
+  width: max-content;
+  max-width: min(36ch, 80vw);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-panel-raised);
+  box-shadow:
+    inset 0 0 0 1px var(--color-line),
+    0 4px 0 var(--color-outline);
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity 120ms,
+    transform 120ms;
+}
+
+[data-tip]:is(:hover, :focus-visible)::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* At the left edge of a layout, the bubble opens from the host's start instead of its centre. */
+[data-tip][data-tip-align="start"]::after {
+  left: 0;
+  transform: translate(0, 4px);
+}
+
+[data-tip][data-tip-align="start"]:is(:hover, :focus-visible)::after {
+  transform: translate(0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-tip]::after {
+    transition: none;
+  }
+}

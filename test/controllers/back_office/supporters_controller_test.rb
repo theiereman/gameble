@@ -67,7 +67,7 @@ module BackOffice
 
       Game::GrantSupporter.new.call(staff: @administrator, player: @player).value!
       get me_path(locale: :fr)
-      assert_select ".profile-band__name-row h1#profile-heading + .supporter-badge[data-tooltip='#{I18n.t("public_profiles.supporter_tooltip", locale: :fr)}']", text: "VIP"
+      assert_select ".profile-band__name-row h1#profile-heading + .supporter-badge[data-tip='#{I18n.t("public_profiles.supporter_tooltip", locale: :fr)}']", text: "VIP"
     end
   end
 end

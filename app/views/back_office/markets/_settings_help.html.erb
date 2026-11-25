@@ -1,7 +1,6 @@
-<%# locals: (key:, label:) %>
+<%# locals: (key:, label:, align: nil) %>
 <% id = "market-settings-help-#{key.to_s.dasherize}" %>
-<button type="button" class="market-settings__help-button" popovertarget="<%= id %>" aria-label="<%= t("back_office.markets.settings.help_button", label:) %>">i</button>
-<span id="<%= id %>" class="shell-popover market-settings__help" popover role="dialog" aria-labelledby="<%= id %>-title" data-market-settings-help="<%= key %>">
-  <span id="<%= id %>-title" class="shell-popover__title"><%= label %></span>
-  <span class="market-settings__help-text"><%= t("back_office.markets.settings.help.#{key}") %></span>
-</span>
+<% help = t("back_office.markets.settings.help.#{key}") %>
+<button type="button" class="market-settings__help-button" data-tip="<%= help %>" data-market-settings-help="<%= key %>" <%= tag.attributes(data: { tip_align: align }) %>
+        aria-label="<%= t("back_office.markets.settings.help_button", label:) %>" aria-describedby="<%= id %>">i</button>
+<span id="<%= id %>" class="visually-hidden"><%= help %></span>

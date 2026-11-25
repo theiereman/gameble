@@ -216,7 +216,7 @@ module BackOffice
       assert_select "#market-settings-reason"
       assert_select "#market-settings input[name^='market_settings[']:not([type=hidden]):not([disabled])", false
       assert_select "#market-settings textarea:not([disabled])", false
-      assert_select "#market-settings button:not([disabled]):not([popovertarget])", false
+      assert_select "#market-settings button:not([disabled]):not([data-tip])", false
       assert_select "input[name='market_settings[stamp_rare]'][value='20']"
       assert_select "#market-settings-archive-price-rare[disabled]"
       assert_select "#market-settings-slot-price-goal-6[disabled]"
@@ -237,7 +237,7 @@ module BackOffice
       assert_select "[style]", false
     end
 
-    test "each single setting, each rarity row and the slots carry an info button opening their help, in both languages" do
+    test "each single setting, each rarity row and the slots carry an info button whose tooltip tells their help, in both languages" do
       sign_in(accounts_players(:administrator))
       fields = MarketSettingsForm::SINGLE_GROUPS.except(:slots).values.flatten
       rows = %i[entrustment stamp minimum_price archive_price income_days_target]
@@ -246,15 +246,18 @@ module BackOffice
       { en: "About", fr: "À propos" }.each do |locale, about|
         get back_office_market_path(locale:)
 
-        assert_select "#market-settings button[popovertarget]", keys.size
+        assert_select "#market-settings button[data-tip]", keys.size
         keys.each do |key|
           id = "market-settings-help-#{key.to_s.dasherize}"
-          assert_select "button[type=button][popovertarget=#{id}][aria-label^='#{about}']"
-          assert_select "##{id}[popover]", text: /#{Regexp.escape(I18n.t("back_office.markets.settings.help.#{key}", locale:))}/
+          help = I18n.t("back_office.markets.settings.help.#{key}", locale:)
+          assert_select "button[type=button][aria-describedby=#{id}][aria-label^='#{about}']" do |buttons|
+            assert_equal help, buttons.first["data-tip"]
+          end
+          assert_select "##{id}.visually-hidden", text: help
         end
       end
       get back_office_market_path(locale: :en)
-      assert_select "button[popovertarget=market-settings-help-commission-basis-points][aria-label='About Commission on a sale (%)']"
+      assert_select "button[aria-describedby=market-settings-help-commission-basis-points][aria-label='About Commission on a sale (%)']"
       assert_select "#market-settings-stamp-rare[aria-labelledby='market-settings-row-stamp market-settings-col-rare']"
       assert_select "#market-settings-row-stamp", "Stamp"
       assert_select "[style]", false
