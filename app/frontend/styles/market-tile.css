@@ -28,6 +28,9 @@
 }
 
 .listing-tile__card {
+  container-type: inline-size;
+  width: 100%;
+  max-width: var(--card-m-width);
   margin-bottom: var(--space-4);
 }
 

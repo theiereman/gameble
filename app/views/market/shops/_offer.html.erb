@@ -1,4 +1,4 @@
-<%# locals: (row:, marks: ListingMarks::NONE, buyable: false, stock: true, size: :m, tile_id: true, caps: {}) %>
+<%# locals: (row:, marks: ListingMarks::NONE, buyable: false, stock: true, size: :grid, tile_id: true, caps: {}) %>
 <% card = row.card %>
 <% mark = marks.for(card) %>
 <% wanted = marks.any? && mark.wanted? %>

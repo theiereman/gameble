@@ -32,7 +32,7 @@
             <%= link_to new_market_card_sale_path(slug: card.id, ref: copy.ref),
                   class: class_names("listing-tile__link", "wanted-panel__tile", "wanted-panel__tile--order": copy.order),
                   aria: { label: wanted_tile_label(copy, card) } do %>
-              <span class="listing-tile__card" aria-hidden="true"><%= render CardComponent.new(card:, size: :m, tilt: false) %></span>
+              <span class="listing-tile__card" aria-hidden="true"><%= render CardComponent.new(card:, size: :grid, tilt: false) %></span>
               <span class="listing-tile__facts" aria-hidden="true">
                 <span class="wanted-panel__kind"><%= t(copy.order ? ".kind_order" : ".kind_goal") %></span>
                 <% if copy.order %>
