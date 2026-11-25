@@ -1,6 +1,6 @@
-/* ---- The trades sub-tabs, phone only: between friends and the market, two
-   equal parts across the screen's content width. On desktop the hub menu
-   reaches each one. ---- */
+/* ---- The trades switch, phone only: between the market and friends, a
+   segmented block of two equal parts across the content width, the current
+   one filled with the accent. On desktop the hub menu reaches each one. ---- */
 
 .exchanges-tabs {
   width: 100%;
@@ -8,18 +8,19 @@
 
 .main > .exchanges-tabs {
   max-width: var(--space-content-max);
-  margin: 0 auto;
-  padding: 0 var(--space-gutter-phone);
+  margin: 0 auto var(--space-5);
   box-sizing: border-box;
 }
 
 .exchanges-tabs__list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-unit);
   margin: 0;
-  padding: 0;
+  padding: var(--space-unit);
   list-style: none;
-  box-shadow: var(--panel-border);
+  background: var(--color-line);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-deep);
 }
 
 .exchanges-tabs__item {
@@ -36,7 +37,7 @@
   min-height: var(--space-touch-min);
   padding: 0 var(--space-3);
   background: var(--color-panel-sunken);
-  color: var(--color-muted);
+  color: var(--color-text-bright);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-decoration: none;
@@ -44,13 +45,12 @@
 }
 
 .exchanges-tabs__tab:hover {
-  color: var(--color-text);
+  background: var(--color-panel-raised);
 }
 
 .exchanges-tabs__tab[aria-current="page"] {
-  background: var(--color-panel-raised);
-  color: var(--color-accent);
-  box-shadow: inset 0 -2px 0 0 var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
 }
 
 .exchanges-tabs__tab:focus-visible {
