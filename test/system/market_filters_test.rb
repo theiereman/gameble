@@ -32,6 +32,7 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
   end
 
   def close_filter_sheet(group)
+    assert_no_selector "turbo-frame#collection-results[busy]", visible: :all
     within(filter_sheet(group)) { find("button.modal__close").click }
     assert_no_selector filter_sheet(group), visible: true
   end

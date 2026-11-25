@@ -44,7 +44,7 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#archive-offer-blue-depths-1 a[href=?][data-turbo-frame=archive-purchase][data-action='purchase-dialog#open']",
       new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1)
     assert_select "#archive-offer-blue-depths-1 a[aria-label^='Profondeurs bleues, Rare, saison 1, Archives de la Confrérie, 500']" \
-      "[aria-label$=', 1 en stock']"
+      "[aria-label*=', 1 en stock']"
     assert_select ".archive-offer__cap[data-archive-cap]", text: "", count: 2
     cap, buy = css_select("#archive-offer-blue-depths-1 a").first["aria-describedby"].split
     assert_select "##{cap}.visually-hidden[data-archive-cap=rare]", ""
@@ -96,6 +96,7 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".archive-offer__cap", 0
     assert_select ".market-shop__rarity-cap", 0
+    assert_select ".listing-tile__mark", 0
   end
 
   test "a wanted card wears the VOULUE tag and the chip counts the wanted offers" do
@@ -106,6 +107,8 @@ class Market::ShopsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#archive-offer-blue-depths-1 .archive-offer__tag--wanted", "VOULUE"
     assert_select "#archive-offer-tin-soldier-1 .archive-offer__tag--wanted", 0
+    assert_select "#archive-offer-blue-depths-1 .listing-tile__mark", 0
+    assert_select "#archive-offer-tin-soldier-1 .listing-tile__mark--missing", "Non possédée"
     assert_select "#archive-offer-blue-depths-1 a[aria-label$=', voulue']"
     assert_select ".market-filters__wanted", /VOULUES · 1/
     assert_select ".market-filters__wanted input[aria-label=?]", "Voulues, 1 carte"
