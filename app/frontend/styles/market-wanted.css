@@ -20,63 +20,7 @@
 .wanted-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-}
-
-.wanted-panel__list {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.wanted-panel__tile {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  height: 100%;
-  min-height: var(--space-touch-min);
-  padding: var(--space-2);
-  background: var(--color-panel-sunken);
-  color: var(--color-text);
-  text-decoration: none;
-}
-
-.wanted-panel__tile:hover {
-  background: var(--color-panel-raised);
-}
-
-.wanted-panel__tile:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-.wanted-panel__card {
-  flex: none;
-}
-
-.wanted-panel__facts {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-.wanted-panel__name {
-  overflow: hidden;
-  color: var(--color-text-max);
-  font: var(--font-body);
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.wanted-panel__seekers {
-  color: var(--color-text);
-  font: var(--font-label);
+  gap: var(--space-4);
 }
 
 .wanted-panel__filters {
@@ -90,24 +34,26 @@
   max-width: 100%;
 }
 
-.wanted-panel__tile--order {
-  box-shadow: 0 0 0 2px var(--color-gold);
-}
-
 .wanted-panel__kind {
+  align-self: flex-start;
   color: var(--color-muted);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
 }
 
 .wanted-panel__tile--order .wanted-panel__kind {
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-gold);
+  color: var(--color-on-gold);
+}
+
+.wanted-panel__order .listing-tile__price {
   color: var(--color-gold);
 }
 
-.wanted-panel__order {
-  color: var(--color-gold);
-  font: var(--font-body);
-  font-weight: 700;
+.wanted-panel__seekers {
+  color: var(--color-muted);
 }
 
 .wanted-panel__foot {
@@ -133,12 +79,6 @@
 
 .card-detail__wanted-order {
   color: var(--color-gold);
-}
-
-@media (max-width: 719px) {
-  .wanted-panel__list {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 .entrust-cell__wanted {

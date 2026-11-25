@@ -36,7 +36,7 @@ class MarketWantedCopiesSystemTest < ApplicationSystemTestCase
       assert_selector ".wanted-panel__seekers", text: "2 players want it"
       assert_selector ".wanted-panel__tile--order .wanted-panel__kind", text: "BUY ORDER"
       assert_selector ".wanted-panel__order", text: "900"
-      find(".wanted-panel__tile", text: "Green Hills").click
+      find(".wanted-panel__tile", text: /green hills/i).click
     end
 
     assert_selector "[role=option][aria-selected=true]", text: "Green Hills"
