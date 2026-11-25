@@ -106,13 +106,13 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
     listing!(seller: @seller, card_season: @common)
 
     sales(landing: "ABC")
-    assert_select "[data-controller=row-focus][data-row-focus-landing-value=ABC]"
+    assert_select "[data-controller~=row-focus][data-row-focus-landing-value=ABC]"
 
     sales(landing: "")
-    assert_select "[data-controller=row-focus][data-row-focus-landing-value='']"
+    assert_select "[data-controller~=row-focus][data-row-focus-landing-value='']"
 
     sales
-    assert_select "[data-controller=row-focus]:not([data-row-focus-landing-value])"
+    assert_select "[data-controller~=row-focus]:not([data-row-focus-landing-value])"
   end
 
   test "the market screen draws the chips: links for a player, greyed for a visitor" do

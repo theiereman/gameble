@@ -26,7 +26,6 @@ class MarketsController < ApplicationController
     respond_to do |format|
       format.html do
         load_desk
-        load_shop_panel
         load_found
         load_wanted_count
         render :screen
@@ -36,12 +35,6 @@ class MarketsController < ApplicationController
   end
 
   private
-    def load_shop_panel
-      @shop_count = Game::Market::ArchiveOffers.count(settings: @settings, locale: I18n.locale).cards
-      @shop_offers = Game::Market::ArchiveOffers.featured(settings: @settings, wanted_card_ids:, locale: I18n.locale)
-      @shop_marks = ListingMarks.for(current_player, @shop_offers, goal_marks, wanted_card_ids)
-    end
-
     def load_found
       return unless @filters.any?
 

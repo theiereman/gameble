@@ -47,6 +47,18 @@ class MarketWantedPanelTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "the Archives' shop stays above the tabs on every market tab, so switching tabs does not shift the screen" do
+    sign_in(@player)
+
+    [ market_path(locale: :fr), market_my_bids_path(locale: :fr), market_my_sales_path(locale: :fr), market_my_orders_path(locale: :fr), market_buyers_path(locale: :fr) ].each do |path|
+      get path
+
+      assert_select ".shop-panel", 1
+      assert_select ".market-screen [data-controller~=purchase-dialog]", 0
+      assert_select ".market-screen[data-controller~=purchase-dialog]", 1
+    end
+  end
+
   test "with no wanted copy the chip carries no badge" do
     hold(@player, catalog_card_seasons(:common_card_one).id)
     sign_in(@player)

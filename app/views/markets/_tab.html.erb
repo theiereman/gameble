@@ -1,6 +1,6 @@
 <%# locals: (title:, current:, pulse:, desk:, suspended:, content:, data: {}) %>
 <%= turbo_frame_tag "market-tab", target: "_top", data: { controller: "market-tab", action: "turbo:frame-load->market-tab#arrive" } do %>
-  <%= tag.section class: "market-screen page page--wide", aria: { labelledby: "market-screen-heading" }, data: { market_tab_target: "screen", title: }.merge(data) do %>
+  <%= tag.section class: "market-screen page page--wide", aria: { labelledby: "market-screen-heading" }, data: { market_tab_target: "screen", title: }.merge(data, controller: class_names(data[:controller], "purchase-dialog")) do %>
     <%= render "markets/desk", pulse:, desk:, suspended: %>
     <% if suspended %><%= render "market/suspended_banner" %><% end %>
     <% if desk %>
@@ -12,5 +12,6 @@
     <div class="tabs__panel">
       <%= content %>
     </div>
+    <%= render "shell/purchase_dialog", frame: "archive-purchase", loading: t("market.shops.dialog.loading") if @buyable %>
   <% end %>
 <% end %>
