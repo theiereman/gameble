@@ -141,8 +141,8 @@ module FeedHelper
     elsif links then link_to(name, brother_path(token: player.token), class: "feed__name", data: { turbo_prefetch: false })
     else tag.strong(name)
     end
-    badge = supporter_badge_tag(compact: true) if supporter && name
-    safe_join([ shown, badge, (feed_rank(title) if titles) ].compact, " ")
+    shown = tag.span(safe_join([ shown, supporter_badge_tag(compact: true) ], " "), class: "player-name-group") if supporter && name
+    safe_join([ shown, (feed_rank(title) if titles) ].compact, " ")
   end
 
   def feed_rank(title)
