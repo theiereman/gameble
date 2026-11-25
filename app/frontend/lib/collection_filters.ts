@@ -6,6 +6,7 @@ export const PRICE_BOUNDS: readonly string[] = ["min_price", "max_price"]
 export const DEFAULT_SORT = ""
 export const RESULTS_FRAME = "collection-results"
 export const RESULTS_STATUS = "collection-results-status"
+export const SEARCH_PAUSE_MS = 250
 
 export interface ChipGroup {
   name: string

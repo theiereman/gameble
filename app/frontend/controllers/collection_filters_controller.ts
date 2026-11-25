@@ -11,13 +11,13 @@ import {
   reloadsSets,
   RESULTS_FRAME,
   RESULTS_STATUS,
+  SEARCH_PAUSE_MS,
   SET_OPTIONS_FRAME,
   submitToFrame,
   totalOf,
 } from "../lib/collection_filters"
 import { Debounce, summaryOf } from "../lib/set_search"
 
-const TYPING_PAUSE_MS = 250
 const ALL_STATE = "all"
 
 export default class extends Controller<HTMLFormElement> {
@@ -49,7 +49,7 @@ export default class extends Controller<HTMLFormElement> {
   declare readonly hasSetStatusTarget: boolean
 
   private timer: number | undefined
-  private readonly setsTyping = new Debounce(TYPING_PAUSE_MS)
+  private readonly setsTyping = new Debounce(SEARCH_PAUSE_MS)
 
   disconnect(): void {
     window.clearTimeout(this.timer)
@@ -90,7 +90,7 @@ export default class extends Controller<HTMLFormElement> {
     if (!this.hasSearchTarget || event.target !== this.searchTarget) return
     this.refresh()
     window.clearTimeout(this.timer)
-    this.timer = window.setTimeout(() => this.submit(), TYPING_PAUSE_MS)
+    this.timer = window.setTimeout(() => this.submit(), SEARCH_PAUSE_MS)
   }
 
   setKeydown(event: KeyboardEvent): void {
@@ -121,7 +121,7 @@ export default class extends Controller<HTMLFormElement> {
   // A bound changes as its field loses focus, often to the Apply button, whose own submit then cancels this one.
   private submitUnlessAppliedMeanwhile(): void {
     window.clearTimeout(this.timer)
-    this.timer = window.setTimeout(() => this.submit(), TYPING_PAUSE_MS)
+    this.timer = window.setTimeout(() => this.submit(), SEARCH_PAUSE_MS)
   }
 
   private submit(): void {

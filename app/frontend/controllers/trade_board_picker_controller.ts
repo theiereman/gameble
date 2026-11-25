@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import type { Rarity } from "../lib/card_types"
+import { SEARCH_PAUSE_MS } from "../lib/collection_filters"
 import { writeText } from "../lib/dom_writes"
 import {
   STEPPER,
@@ -9,6 +10,7 @@ import {
   reflectStepper,
   type StepperView,
 } from "../lib/stepper"
+import { Debounce } from "../lib/set_search"
 import { columnsOf, type Chip, type EmptyReason, type Side, type SideFilter } from "../lib/trade_board"
 import { cloneContent } from "../lib/templates"
 import type { FaceFor } from "./trade_board_side_controller"
@@ -89,6 +91,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   declare readonly stepperTemplateTarget: HTMLTemplateElement
 
   private observer?: IntersectionObserver
+  private readonly typing = new Debounce(SEARCH_PAUSE_MS)
   private observedShown = 0
 
   // Idiomorph matches siblings in quadratic time: thousands of held cards are swapped, not morphed.
@@ -112,6 +115,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   }
 
   disconnect(): void {
+    this.typing.cancel()
     this.element.removeEventListener("turbo:before-morph-element", this.replaceStash)
     this.observer?.disconnect()
     this.observer = undefined
@@ -181,7 +185,12 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     if (sent.defaultPrevented) event.preventDefault()
   }
 
+  typed(): void {
+    this.typing.call(() => this.filter())
+  }
+
   filter(): void {
+    this.typing.cancel()
     const side = this.element.dataset.side
     const filter: SideFilter = {
       query: this.searchTarget.value,

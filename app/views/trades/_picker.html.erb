@@ -21,7 +21,7 @@
         <label class="visually-hidden" for="trade-picker-search"><%= t("trade_board.search_label") %></label>
         <input id="trade-picker-search" type="search" class="filters__search-field" autocomplete="off"
                placeholder="<%= t("trade_board.search_placeholder") %>"
-               data-trade-board-picker-target="search" data-action="input->trade-board-picker#filter">
+               data-trade-board-picker-target="search" data-action="input->trade-board-picker#typed">
         <div class="trade-picker__filter-foot">
           <%= tag.a(**bottom_sheet_opener("trade-picker-filter-sheet"), class: "filter-chip filter-row__pastille") do %>
             <span class="filter-chip__text">
