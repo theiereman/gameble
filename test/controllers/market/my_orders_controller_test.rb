@@ -51,8 +51,8 @@ class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-row", 1
     assert_select "a.market-row__title[href=?]", new_market_card_order_path(locale: :en, slug: "tin-soldier", from: "my_orders"), "Tin Soldier"
     assert_select ".market-row__editions", "every edition"
-    assert_select ".market-row .order-pill", 3
-    assert_select ".market-row .order-pill .visually-hidden", "Rare"
+    assert_select ".market-row .order-pill", 1
+    assert_select ".market-row .order-pill .visually-hidden", "Common"
     assert_select ".market-row__chip", "IN PROGRESS"
     assert_select "button[aria-label=?]", "Cancel the order, Tin Soldier"
     assert_select "form[action=?]", market_order_cancellation_path(locale: :en, token: order.token)
@@ -175,16 +175,16 @@ class Market::MyOrdersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".order-result h2#order-result-heading[data-row-focus-target=heading]", "ORDER PLACED ON Tin Soldier"
     assert_select "[data-row-focus-landing-value='']"
     assert_select ".order-result__fact dd", text: /900 available/
-    assert_select ".order-result__words", text: "commons, uncommons, and rares"
+    assert_select ".order-result__words", text: "commons"
     assert_select ".order-result__words", text: "7 days"
   end
 
-  test "the result panel joins the rarities the French way" do
+  test "the result panel names the rarity in French" do
     sign_in(@player)
     post market_card_orders_path(locale: :fr, slug: "tin-soldier"), params: { price: "100", settings_token: @settings.token }
 
     follow_redirect!
 
-    assert_select ".order-result__words", text: "communes, peu communes et rares"
+    assert_select ".order-result__words", text: "communes"
   end
 end

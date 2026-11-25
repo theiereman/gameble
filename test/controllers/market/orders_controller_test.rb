@@ -97,6 +97,17 @@ class Market::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_select "#order-error", "Au moins 13 pour une Commune."
   end
 
+  test "a card published only as a rare asks for the rare minimum in the form and in the refusal" do
+    sign_in(@player)
+    rare = ActiveSupport::NumberHelper.number_to_delimited(@settings.minimum_price_rare)
+
+    get new_market_card_order_path(locale: :en, slug: "blue-depths")
+    assert_select "#order-lowest", "At least #{rare}"
+
+    post market_card_orders_path(locale: :en, slug: "blue-depths"), params: { price: (@settings.minimum_price_rare - 1).to_s, settings_token: @settings.token }
+    assert_select "#order-error", "At least #{rare} for a Rare."
+  end
+
   def open_form(from: nil, locale: :en) = get new_market_card_order_path(locale:, slug: "tin-soldier", from:)
 
   test "a running order draws the form prefilled with its price, posting a reprice, with its cancel beside and no MY ORDERS link" do

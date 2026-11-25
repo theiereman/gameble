@@ -42,7 +42,8 @@ module Market
       def load_terms
         @settings = Game::Market::CurrentSettings.call || raise(ActiveRecord::RecordNotFound)
         @suspended = Game::Market::MarketState.call(@settings).suspended?
-        @minimums = Game::Market::SettingsRules::RARITIES.index_with { @settings.minimum_price(it) }
+        rarities = Catalog::PublishedCardRarities.call([ @detail.card_id ])[@detail.card_id].presence || Game::Market::SettingsRules::RARITIES
+        @minimums = rarities.index_with { @settings.minimum_price(it) }
         @available = Game::Market::Balance.call(current_player).available
         @listings = Game::Market::CardListings.call(@detail.card_id, locale: I18n.locale)
         @archive_offers = @listings.empty? ? Game::Market::ArchiveOffers.for_card(settings: @settings, card_id: @detail.card_id, locale: I18n.locale) : []

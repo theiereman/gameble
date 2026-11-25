@@ -81,6 +81,11 @@ class Game::Market::PlaceOrderTest < ActiveSupport::TestCase
     refused(:order_below_minimum, @settings.minimum_price(:common) - 1)
   end
 
+  test "a price under the minimum of the one rarity its card is published at refuses, though a lower rarity's minimum is met" do
+    refused(:order_below_minimum, @settings.minimum_price(:rare) - 1, card_id: catalog_cards(:rare_card).id)
+    assert place(@settings.minimum_price(:rare), card_id: catalog_cards(:rare_card).id).success?
+  end
+
   test "a price over what is available refuses and leaves no order" do
     refused(:more_than_available, 1_001)
   end
