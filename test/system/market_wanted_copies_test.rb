@@ -34,7 +34,8 @@ class MarketWantedCopiesSystemTest < ApplicationSystemTestCase
     assert_selector ".market-screen__chips .tabs__tab--current .market-screen__badge", text: "1"
     within(".wanted-panel") do
       assert_selector ".wanted-panel__seekers", text: "2 players want it"
-      assert_selector ".wanted-panel__order", text: /Order\s+900/
+      assert_selector ".wanted-panel__tile--order .wanted-panel__kind", text: "BUY ORDER"
+      assert_selector ".wanted-panel__order", text: "900"
       find(".wanted-panel__tile", text: "Green Hills").click
     end
 

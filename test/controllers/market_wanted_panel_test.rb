@@ -1,11 +1,15 @@
 require "test_helper"
 require_relative "../support/holdings"
 require_relative "../support/market"
+require_relative "../support/market_auctions"
+require_relative "../support/market_orders"
 require_relative "../support/steam_sign_in"
 
-# On every market tab, the last chip counts how many of the player's copies other players want.
+# On every market tab, the last chip counts how many of the player's copies a buy order can take.
 class MarketWantedPanelTest < ActionDispatch::IntegrationTest
   include Holdings
+  include MarketAuctions
+  include MarketOrders
   include MarketSettings
   include SteamSignIn
 
@@ -20,11 +24,15 @@ class MarketWantedPanelTest < ActionDispatch::IntegrationTest
 
   def buyers_chip = css_select(".market-screen__chips .tabs__tab").last
 
-  test "every tab ends on ACHETEURS, its badge counting the wanted copies, with no panel above the chips" do
+  test "every tab ends on ACHETEURS, its badge counting the copies a buy order can take, not those only a goal wants" do
     %i[rare_card_one common_card_one uncommon_card_one].each do |name|
       hold(@player, catalog_card_seasons(name).id)
       want_by_goal(catalog_card_seasons(name), accounts_players(:moderator))
     end
+    buyer = accounts_players(:administrator)
+    fund!(buyer, 1_000)
+    %i[rare_card_one common_card_one].each { order!(buyer, catalog_card_seasons(it), 100) }
+    Game::Market::RebuildWanted.new.call(player: buyer).value!
     sign_in(@player)
 
     [ market_path(locale: :fr), market_my_bids_path(locale: :fr), market_my_sales_path(locale: :fr), market_my_orders_path(locale: :fr) ].each do |path|
@@ -32,8 +40,8 @@ class MarketWantedPanelTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_equal market_buyers_path(locale: :fr), buyers_chip["href"]
-      assert_select buyers_chip, ".market-screen__badge[aria-hidden=true]", "3"
-      assert_select buyers_chip, ".visually-hidden", "3 voulues"
+      assert_select buyers_chip, ".market-screen__badge[aria-hidden=true]", "2"
+      assert_select buyers_chip, ".visually-hidden", "2 avec un ordre d'achat"
       assert_match(/\AACHETEURS/, buyers_chip.text.strip)
       assert_select ".wanted-panel", false
     end

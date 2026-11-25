@@ -3725,9 +3725,9 @@ en:
       sales: MY SALES
       orders: MY ORDERS
       buyers_wanted:
-        zero: "%{number} wanted"
-        one: "%{number} wanted"
-        other: "%{number} wanted"
+        zero: "%{number} with a buy order"
+        one: "%{number} with a buy order"
+        other: "%{number} with a buy order"
     my_bids:
       groups:
         in_progress:
@@ -3783,6 +3783,16 @@ en:
       show:
         heading: Buyers
         list_label: Your cards other players want
+        kinds_label: Show
+        kinds:
+          all: All
+          orders: Buy orders
+          goals: Goals
+        rarities_label: Rarity
+        all_rarities: All
+        kind_order: BUY ORDER
+        kind_goal: GOAL
+        none_filtered: None of your wanted cards matches these filters.
     my_orders:
       all_editions: every edition
       cancel: CANCEL
@@ -4176,8 +4186,6 @@ en:
         zero: "%{count} players want it"
         one: "%{count} player wants it"
         other: "%{count} players want it"
-      order: Order
-      no_order: No order
       tile_label: "%{card}, %{rarity}, season %{season}, %{seekers}, buy order %{amount} PiCoins. Put up for sale"
       tile_label_no_order: "%{card}, %{rarity}, season %{season}, %{seekers}, no buy order. Put up for sale"
       see_all: See all

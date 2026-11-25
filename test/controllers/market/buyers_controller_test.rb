@@ -36,7 +36,7 @@ class Market::BuyersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path(locale: :en)
   end
 
-  test "the tab lists every wanted copy, most sought first, each a link to sell that edition, and the link to the filtered sale" do
+  test "the tab lists every wanted copy, buy orders first and framed, each a link to sell that edition, and the link to the filtered sale" do
     hold(@player, @rare.id)
     hold(@player, @common.id)
     place(accounts_players(:administrator), @rare, 100)
@@ -48,21 +48,25 @@ class Market::BuyersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "title", /Acheteurs/
-    assert_select ".market-screen__chips .tabs__tab--current[aria-current=page]", /ACHETEURS\s*2/
-    assert_select ".market-screen__chips .tabs__tab--current .visually-hidden", "2 voulues"
+    assert_select ".market-screen__chips .tabs__tab--current[aria-current=page]", /ACHETEURS\s*1/
+    assert_select ".market-screen__chips .tabs__tab--current .visually-hidden", "1 avec un ordre d'achat"
     tiles = css_select(".tabs__panel .wanted-panel__tile")
     assert_equal [ new_market_card_sale_path(locale: :fr, slug: @rare.card.slug, ref: ref(@rare)),
       new_market_card_sale_path(locale: :fr, slug: @common.card.slug, ref: ref(@common)) ], tiles.map { it["href"] }
+    assert_includes tiles.first["class"], "wanted-panel__tile--order"
+    assert_not_includes tiles.last["class"], "wanted-panel__tile--order"
+    assert_select tiles.first, ".wanted-panel__kind", "ORDRE D'ACHAT"
     assert_select tiles.first, ".wanted-panel__seekers", "2 joueurs la veulent"
     assert_select tiles.first, ".wanted-panel__order .picoin-amount__figure", "100"
-    assert_select tiles.last, ".wanted-panel__no-order", "Aucun ordre"
+    assert_select tiles.last, ".wanted-panel__kind", "OBJECTIF"
+    assert_select tiles.last, ".wanted-panel__order", false
     assert_match(/, 2 joueurs la veulent, ordre d'achat 100 PiCoins\. Mettre en vente\z/, tiles.first["aria-label"])
     assert_select ".wanted-panel__foot a.button--link[href=?][aria-label=?]", new_market_sale_path(locale: :fr, filter: { wanted: "1" }),
       "Tout voir, vos cartes voulues", text: "Tout voir"
     assert_no_match(/(?:data-[a-z-]+|id|name|value|href)="[^"]*\b#{@rare.id}\b/, response.body)
   end
 
-  test "five wanted copies are all listed and counted on the chip" do
+  test "copies wanted only by goals are all listed but leave the chip without a badge" do
     %i[portal_one common_card_one uncommon_card_one rare_card_one legendary_card_one].each do |name|
       hold(@player, catalog_card_seasons(name).id)
       want_by_goal(catalog_card_seasons(name), accounts_players(:moderator))
@@ -72,8 +76,35 @@ class Market::BuyersControllerTest < ActionDispatch::IntegrationTest
     get market_buyers_path(locale: :en)
 
     assert_select ".tabs__panel .wanted-panel__tile", 5
-    assert_select ".market-screen__chips .tabs__tab--current .market-screen__badge", "5"
-    assert_select ".market-screen__chips .tabs__tab--current .visually-hidden", "5 wanted"
+    assert_select ".market-screen__chips .market-screen__badge", false
+  end
+
+  test "the kind filter keeps the buy orders or the goals, and the rarity filter one rarity, each keeping the other" do
+    hold(@player, @rare.id)
+    hold(@player, @common.id)
+    place(accounts_players(:administrator), @rare, 100)
+    want_by_goal(@common, accounts_players(:moderator))
+    sign_in(@player)
+
+    get market_buyers_path(locale: :en)
+    assert_select ".wanted-panel__filters button[name=kind][aria-pressed=true]", "All"
+    assert_select ".wanted-panel__filters button[name=rarity]", 3
+    assert_select ".wanted-panel__tile", 2
+
+    get market_buyers_path(locale: :en, kind: "orders")
+    assert_equal [ ref(@rare) ], css_select(".wanted-panel__tile").map { Rack::Utils.parse_query(URI(it["href"]).query)["ref"] }
+
+    get market_buyers_path(locale: :en, kind: "goals")
+    assert_equal [ ref(@common) ], css_select(".wanted-panel__tile").map { Rack::Utils.parse_query(URI(it["href"]).query)["ref"] }
+    assert_select "form:has(button[name=rarity]) input[type=hidden][name=kind][value=goals]"
+
+    get market_buyers_path(locale: :en, kind: "orders", rarity: "common")
+    assert_select ".wanted-panel__tile", false
+    assert_select ".empty-state", text: /None of your wanted cards matches these filters\./
+    assert_select "form:has(button[name=kind]) input[type=hidden][name=rarity][value=common]"
+
+    get market_buyers_path(locale: :en, kind: "nonsense", rarity: "mythic")
+    assert_select ".wanted-panel__tile", 2
   end
 
   test "with no wanted copy the tab draws its empty line and no see-all link" do

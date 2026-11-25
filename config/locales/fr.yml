@@ -2828,9 +2828,9 @@ fr:
       sales: "MES VENTES"
       orders: "MES ORDRES"
       buyers_wanted:
-        zero: "%{number} voulue"
-        one: "%{number} voulue"
-        other: "%{number} voulues"
+        zero: "%{number} avec un ordre d'achat"
+        one: "%{number} avec un ordre d'achat"
+        other: "%{number} avec un ordre d'achat"
     my_bids:
       groups:
         in_progress:
@@ -2886,6 +2886,16 @@ fr:
       show:
         heading: "Acheteurs"
         list_label: "Vos cartes que d'autres joueurs veulent"
+        kinds_label: "Afficher"
+        kinds:
+          all: "Toutes"
+          orders: "Ordres d'achat"
+          goals: "Objectifs"
+        rarities_label: "Rareté"
+        all_rarities: "Toutes"
+        kind_order: "ORDRE D'ACHAT"
+        kind_goal: "OBJECTIF"
+        none_filtered: "Aucune de vos cartes voulues ne correspond à ces filtres."
     my_orders:
       all_editions: "toutes éditions"
       cancel: "ANNULER"
@@ -3288,8 +3298,6 @@ fr:
         zero: "%{count} joueur la veut"
         one: "%{count} joueur la veut"
         other: "%{count} joueurs la veulent"
-      order: "Ordre"
-      no_order: "Aucun ordre"
       tile_label: "%{card}, %{rarity}, saison %{season}, %{seekers}, ordre d'achat %{amount} PiCoins. Mettre en vente"
       tile_label_no_order: "%{card}, %{rarity}, saison %{season}, %{seekers}, aucun ordre d'achat. Mettre en vente"
       see_all: "Tout voir"

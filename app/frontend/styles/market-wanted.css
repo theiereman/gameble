@@ -79,14 +79,30 @@
   font: var(--font-label);
 }
 
-.wanted-panel__order {
-  color: var(--color-gold);
-  font: var(--font-label);
+.wanted-panel__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
 }
 
-.wanted-panel__no-order {
+.wanted-panel__tile--order {
+  box-shadow: inset 0 0 0 2px var(--color-gold);
+}
+
+.wanted-panel__kind {
   color: var(--color-muted);
   font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.wanted-panel__tile--order .wanted-panel__kind {
+  color: var(--color-gold);
+}
+
+.wanted-panel__order {
+  color: var(--color-gold);
+  font: var(--font-body);
+  font-weight: 700;
 }
 
 .wanted-panel__foot {

@@ -2,21 +2,43 @@
 <% tab = capture do %>
   <div class="wanted-panel">
     <% if @wanted_copies.any? %>
+      <div class="wanted-panel__filters">
+        <%= tag.form action: market_buyers_path, method: :get, class: "segmented", role: "group", aria: { label: t(".kinds_label") },
+              data: { turbo_frame: "market-tab", turbo_action: "advance" } do %>
+          <%= hidden_field_tag :rarity, @rarity, id: nil if @rarity %>
+          <% Market::BuyersController::KINDS.each do |kind| %>
+            <%= tag.button t(".kinds.#{kind}"), type: :submit, class: "segmented__option", name: "kind", value: kind, aria: { pressed: (kind == @kind).to_s } %>
+          <% end %>
+        <% end %>
+        <% if @rarities.size > 1 %>
+          <%= tag.form action: market_buyers_path, method: :get, class: "segmented", role: "group", aria: { label: t(".rarities_label") },
+                data: { turbo_frame: "market-tab", turbo_action: "advance" } do %>
+            <%= hidden_field_tag :kind, @kind, id: nil unless @kind == "all" %>
+            <%= tag.button t(".all_rarities"), type: :submit, class: "segmented__option", name: "rarity", value: "", aria: { pressed: @rarity.nil?.to_s } %>
+            <% @rarities.each do |rarity| %>
+              <%= tag.button CardStrings.new.rarity_name(rarity), type: :submit, class: "segmented__option", name: "rarity", value: rarity,
+                    aria: { pressed: (rarity == @rarity).to_s } %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+    <% if @shown_copies.any? %>
       <ul class="wanted-panel__list" aria-label="<%= t(".list_label") %>">
-        <% @wanted_copies.each do |copy| %>
+        <% @shown_copies.each do |copy| %>
           <% card = @wanted_cards[copy.card_season_id] %>
           <% next unless card %>
           <li class="wanted-panel__item">
-            <%= link_to new_market_card_sale_path(slug: card.id, ref: copy.ref), class: "wanted-panel__tile", aria: { label: wanted_tile_label(copy, card) } do %>
+            <%= link_to new_market_card_sale_path(slug: card.id, ref: copy.ref), class: class_names("wanted-panel__tile", "wanted-panel__tile--order": copy.order),
+                  aria: { label: wanted_tile_label(copy, card) } do %>
               <span class="wanted-panel__card" aria-hidden="true"><%= render CardComponent.new(card:, size: :s, tilt: false) %></span>
               <span class="wanted-panel__facts" aria-hidden="true">
+                <span class="wanted-panel__kind"><%= t(copy.order ? ".kind_order" : ".kind_goal") %></span>
                 <span class="wanted-panel__name"><%= card.title %></span>
-                <span class="wanted-panel__seekers"><%= t("markets.wanted.seekers", count: copy.seekers) %></span>
                 <% if copy.order %>
-                  <span class="wanted-panel__order"><%= t("markets.wanted.order") %> <%= render PicoinAmountComponent.new(amount: copy.order.price, compact: true) %></span>
-                <% else %>
-                  <span class="wanted-panel__no-order"><%= t("markets.wanted.no_order") %></span>
+                  <span class="wanted-panel__order"><%= render PicoinAmountComponent.new(amount: copy.order.price) %></span>
                 <% end %>
+                <span class="wanted-panel__seekers"><%= t("markets.wanted.seekers", count: copy.seekers) %></span>
               </span>
             <% end %>
           </li>
@@ -25,6 +47,8 @@
       <p class="wanted-panel__foot">
         <%= render ButtonComponent.new(variant: :link, href: new_market_sale_path(filter: { wanted: "1" }), aria_label: t("markets.wanted.see_all_label")) do %><%= t("markets.wanted.see_all") %><% end %>
       </p>
+    <% elsif @wanted_copies.any? %>
+      <%= render EmptyStateComponent.new(line: t(".none_filtered")) %>
     <% else %>
       <%= render EmptyStateComponent.new(line: t("markets.wanted.empty")) %>
     <% end %>

@@ -2,7 +2,7 @@
 <nav class="tabs market-screen__chips" aria-label="<%= t("markets.screen.chips_label") %>" data-market-tab-target="chips" data-action="focusin->market-tab#showChip">
   <% [ [ :listings, market_path, t("markets.screen.listings") ], [ :bids, market_my_bids_path, t("market.chips.bids") ], [ :sales, market_my_sales_path, t("market.chips.sales") ], [ :orders, market_my_orders_path, t("market.chips.orders") ], [ :buyers, market_buyers_path, t("markets.wanted.heading") ] ].each do |chip, path, label| %>
     <% badge = tag.span(render("markets/bids_badge", outbid: shell_outbid_count), id: "market-bids-badge", class: "stream-slot") if chip == :bids && current_player %>
-    <% badge = render("markets/buyers_badge", wanted: @wanted_copies.size) if chip == :buyers && @wanted_copies %>
+    <% badge = render("markets/buyers_badge", wanted: @wanted_copies.count(&:order)) if chip == :buyers && @wanted_copies %>
     <% content = safe_join([ label, badge ].compact) %>
     <% if chip == current %>
       <span class="tabs__tab tabs__tab--current" aria-current="page"><%= content %></span>
