@@ -114,3 +114,8 @@ a.market-screen__chip:hover {
     scroll-margin-inline: var(--space-8);
   }
 }
+
+.market-screen .tabs__panel > turbo-frame,
+.market-shop > turbo-frame {
+  display: contents;
+}

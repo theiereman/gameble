@@ -1,5 +1,18 @@
 module MarketHelper
   SOON_SECONDS = 3600
+  FILTER_ROW = { rarity: %i[rarity], price: %i[price], more: %i[sets genre season] }.freeze
+
+  def market_filter_pastilles(sets_offered:, genres:, seasons:)
+    offered = { rarity: true, price: true, more: sets_offered || genres.any? || seasons.any? }
+    FILTER_ROW.keys.select { offered.fetch(it) }
+  end
+
+  def market_filter_counts(filters)
+    { rarity: filters.rarities.size, price: [ filters.min_price, filters.max_price ].compact.size, sets: filters.sets.size,
+      genre: filters.genres.size, season: filters.seasons.size }
+  end
+
+  def market_filter_row_count(counts, pastille) = FILTER_ROW.fetch(pastille).sum { counts.fetch(it) }
 
   def listing_seconds_left(ends_at) = [ (ends_at - Time.current).floor, 0 ].max
 

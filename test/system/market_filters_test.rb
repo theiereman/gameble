@@ -21,6 +21,21 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
     sign_in_browser(player.steam_id)
   end
 
+  def pastille(group) = "a.filter-row__pastille[href='#filters-#{group}']"
+
+  def filter_sheet(group) = "dialog#filters-#{group}"
+
+  def open_filter_sheet(group)
+    find(pastille(group)).click
+    assert_selector filter_sheet(group), visible: true
+    wait_for_dialog_to_finish_opening(filter_sheet(group))
+  end
+
+  def close_filter_sheet(group)
+    within(filter_sheet(group)) { find("button.modal__close").click }
+    assert_no_selector filter_sheet(group), visible: true
+  end
+
   test "a visitor searches, filters by rarity, season and price, sorts and reads the empty line" do
     visit market_path(locale: :en)
     assert_selector ".listing-tile", count: 3
@@ -31,28 +46,42 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
     assert_selector ".listing-tile a[aria-label^='Blue Depths']"
 
     visit market_path(locale: :en)
-    find("summary", text: /filters/i).click
-    find(".filter-chip", text: /\Arare\z/i).click
+    open_filter_sheet(:rarity)
+    within(filter_sheet(:rarity)) { find(".filter-chip", text: /\Arare\z/i).click }
     assert_current_path(/rarity%5B%5D=rare/)
     assert_selector ".listing-tile", count: 1
-    assert_selector "details[open]"
-    find(".filter-chip", text: /season 1/i).click
+    assert_selector "#{filter_sheet(:rarity)} p.filter-sheet__status", text: "1 listing"
+    close_filter_sheet(:rarity)
+    assert_selector "#{pastille(:rarity)} .filter-row__count", text: "1"
+
+    open_filter_sheet(:more)
+    within(filter_sheet(:more)) { find(".filter-chip", text: /season 1/i).click }
     assert_current_path(/season%5B%5D=1/)
-    assert_selector ".listing-tile", count: 1
-    fill_in "max_price", with: "10000"
-    find("button", text: /apply/i).click
+    assert_selector ".listing-tile", count: 1, visible: :all
+    assert_selector "#{filter_sheet(:more)} p.filter-sheet__status", text: "1 listing"
+    close_filter_sheet(:more)
+
+    open_filter_sheet(:price)
+    within(filter_sheet(:price)) do
+      fill_in "max_price", with: "10000"
+      find_field("max_price").send_keys(:tab)
+    end
     assert_current_path(/max_price=10%2C000/)
-    assert_selector ".listing-tile", count: 1
-    assert_field "max_price", with: "10,000"
+    assert_selector ".listing-tile", count: 1, visible: :all
+    assert_selector "#{filter_sheet(:price)} p.filter-sheet__status", text: "1 listing"
+    close_filter_sheet(:price)
 
     choose_sort "Price, low to high"
     assert_selector ".sort__current", text: /\APrice, low to high\z/i
     assert_selector ".listing-tile", count: 1
-    assert_field "max_price", with: "10,000"
+    assert_field "max_price", with: "10,000", visible: :all
 
-    fill_in "max_price", with: "100"
-    find("button", text: /apply/i).click
-    assert_selector ".market-screen__empty", text: "No listings match these filters."
+    open_filter_sheet(:price)
+    within(filter_sheet(:price)) do
+      fill_in "max_price", with: "100"
+      find_field("max_price").send_keys(:tab)
+    end
+    assert_selector ".market-screen__empty", text: "No listings match these filters.", visible: :all
     assert_no_selector ".listing-tile"
   end
 

@@ -1,39 +1,3 @@
-.market-filters {
-  flex-flow: row wrap;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.market-filters .filters__search {
-  flex: 1 1 16rem;
-  min-width: 0;
-}
-
-.market-filters .filters__zone {
-  flex: 0 1 auto;
-}
-
-.market-filters .filters__zone[open] {
-  flex-basis: 100%;
-  order: 3;
-}
-
-.market-filters .filters__summary {
-  white-space: nowrap;
-}
-
-.market-filters__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.market-filters__actions .button {
-  min-height: var(--space-chip-height);
-  margin: 0;
-}
-
 .price-filter__fields {
   display: flex;
   flex-wrap: wrap;
@@ -56,10 +20,6 @@
 .price-filter__input {
   width: 10rem;
   max-width: 100%;
-}
-
-.market-filters__actions .filters__clear {
-  align-self: center;
 }
 
 .market-filters__wanted .filter-chip__text {

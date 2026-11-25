@@ -1,0 +1,8 @@
+<%# locals: (filters:, seasons:, sort:) %>
+<div class="market-shop__sorts">
+  <%= render SortComponent.new(prefix: t("market.shops.filters.season_prefix"), label: t("market.shops.filters.seasons_label"), link_data: { turbo_action: "replace" },
+        options: [ { label: t("market.shops.filters.season_all"), href: market_shop_filtered_path(filters.with(seasons: []), sort:), current: filters.seasons.empty? },
+          *seasons.map { |number| { label: number.to_s, href: market_shop_filtered_path(filters.with(seasons: [ number ]), sort:), current: filters.seasons == [ number ] } } ]) %>
+  <%= render SortComponent.new(prefix: t("markets.screen.sort_prefix"), label: t("market.shops.filters.sorts_label"), link_data: { turbo_action: "replace" },
+        options: Game::Market::ArchiveOffers::SORTS.keys.map { { label: t("market.shops.filters.sorts.#{it}"), href: market_shop_filtered_path(filters, sort: it), current: it == sort } }) %>
+</div>

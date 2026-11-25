@@ -1,7 +1,11 @@
 <% content_for :public_page, true unless current_player %>
 <% content_for :title, t(".heading") %>
 <% tab = capture do %>
-<%= render "markets/filters", filters: @filters, options: @options, sort: @sort, wanted_count: @wanted_count %>
+<% results = @filters.any? ? market_found_note(@found.to_i, @found_offers.to_i) : market_found_note(@pulse.open, 0) %>
+<%= render "markets/filters", filters: @filters, options: @options, sort: @sort, results:, wanted_count: @wanted_count %>
+<%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace" } do %>
+<p id="collection-results-status" class="visually-hidden" role="status"><%= results %></p>
+<%= render "markets/sorts", sort: @sort, filters: @filters %>
 
 <% if @pulse.soonest.any? && !@filters.any? %>
   <section class="market-soon" aria-labelledby="market-soon-heading">
@@ -32,6 +36,7 @@
   </ul>
 <% end %>
 <%= render "markets/pages", listings: @listings, sort: @sort, page: @page, filters: @filters %>
+<% end %>
 <% end %>
 <%= render "exchanges/tabs", current: :market %>
 <%= render "markets/tab", title: content_for(:title), current: :listings, pulse: @pulse, desk: @desk, suspended: @suspended,

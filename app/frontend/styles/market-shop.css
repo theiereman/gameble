@@ -318,3 +318,9 @@
     gap: var(--space-1);
   }
 }
+
+.market-shop__sorts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

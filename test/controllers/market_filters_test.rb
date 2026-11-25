@@ -16,13 +16,16 @@ class MarketFiltersTest < ActionDispatch::IntegrationTest
 
   def tokens = css_select(".listing-tile").map { it.at_css("a")["href"].split("/").last }
 
-  test "the screen draws the search, the folded filters with every group and the two price fields" do
+  test "the screen draws the search, the collection's filter row whose pastilles open their sheets, every group and the two price fields" do
     get market_path(locale: :en)
 
     assert_response :success
-    assert_select "form.market-filters[role=search][method=get]" do
+    assert_select "form.market-filters[role=search][method=get][data-controller=collection-filters][data-turbo-frame=collection-results]" do
       assert_select "input[type=search][name=q]"
-      assert_select "details.filters__zone:not([open])"
+      assert_select ".filter-row .filter-row__pastille", 3
+      assert_select ".filter-row__pastille[aria-controls=filters-rarity]", text: /Rarity/
+      assert_select ".filter-row__pastille[aria-controls=filters-price]", text: /Price/
+      assert_select ".filter-row__pastille[aria-controls=filters-more]", text: /More/
       assert_select "fieldset[data-group=rarity] input[name='rarity[]']", 5
       assert_select "fieldset[data-group=genre] input[name='genre[]'][value=roguelike]"
       assert_select "fieldset[data-group=season] input[name='season[]'][value='1']"
@@ -30,15 +33,16 @@ class MarketFiltersTest < ActionDispatch::IntegrationTest
       assert_select "fieldset[data-group=price] label", text: /Maximum price/
       assert_select "fieldset[data-group=price] input[type=text][inputmode=numeric][data-controller=amount-field]", 2
     end
-    assert_select ".filters__count:not([hidden])", 0
+    assert_select ".filter-row__count:not([hidden])", 0
+    assert_select "turbo-frame#collection-results #market-tiles"
   end
 
   test "the filters narrow the tiles, open the panel with their count and keep what was typed" do
     get market_path(locale: :en, rarity: [ "rare" ], min_price: "5000", max_price: "20000", q: "blue")
 
     assert_equal [ @blue.token ], tokens
-    assert_select "details.filters__zone[open]"
-    assert_select ".filters__count", text: /3/
+    assert_select ".filter-row__pastille[aria-controls=filters-rarity] .filter-row__count:not([hidden])", text: /1/
+    assert_select ".filter-row__pastille[aria-controls=filters-price] .filter-row__count:not([hidden])", text: /2/
     assert_select "input[name=q][value=blue]"
     assert_select "input[name='rarity[]'][value=rare][checked]"
     assert_select "input[name=min_price][value='5,000']"
@@ -48,7 +52,7 @@ class MarketFiltersTest < ActionDispatch::IntegrationTest
   test "price bounds grouped by thousands filter like plain ones, and a wrong grouping is no bound" do
     get market_path(locale: :en, rarity: [ "rare" ], min_price: "5,000", max_price: "20 000", q: "blue")
     assert_equal [ @blue.token ], tokens
-    assert_select ".filters__count", text: /3/
+    assert_select ".filter-row__pastille[aria-controls=filters-price] .filter-row__count:not([hidden])", text: /2/
 
     get market_path(locale: :en, min_price: "12,5")
     assert_select "input[name=min_price][value='']"
@@ -85,7 +89,7 @@ class MarketFiltersTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal [ @tin, @blue ].map(&:token), tokens
-    assert_select "details.filters__zone:not([open])"
+    assert_select ".filter-row__count:not([hidden])", 0
   end
 
   test "the screen reads in French" do

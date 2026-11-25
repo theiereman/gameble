@@ -1,61 +1,83 @@
-<%# locals: (filters:, options:, sort:, wanted_count: nil) %>
+<%# locals: (filters:, options:, sort:, results:, wanted_count: nil) %>
+<% counts = market_filter_counts(filters) %>
+<% pastilles = market_filter_pastilles(sets_offered: @set_kinds.any?, genres: options.genres, seasons: options.seasons) %>
 <%= form_with url: market_path, method: :get, class: "filters market-filters", html: { role: "search" }, data: {
-  controller: "market-filters",
-  action: "change->market-filters#changed input->market-filters#typed submit->market-filters#submitted turbo:frame-load->market-filters#setsLoaded"
+  controller: "collection-filters", turbo_frame: "collection-results",
+  action: "input->collection-filters#typed compositionend->collection-filters#typed change->collection-filters#changed " \
+    "submit->collection-filters#submitted turbo:frame-load->collection-filters#setsLoaded turbo:frame-load@document->collection-filters#resultsLoaded"
 } do %>
   <%= hidden_field_tag :sort, sort, id: nil %>
   <div class="filters__search">
     <label class="visually-hidden" for="market-search"><%= t("markets.filters.search_label") %></label>
     <%= search_field_tag "q", filters.query, id: "market-search", class: "filters__search-field", autocomplete: "off",
-      maxlength: Game::Market::ListingFilters::MAX_QUERY, placeholder: t("markets.filters.search_placeholder") %>
+      maxlength: Game::Market::ListingFilters::MAX_QUERY, placeholder: t("markets.filters.search_placeholder"), data: { collection_filters_target: "search" } %>
   </div>
-  <% if current_player && wanted_count %>
-    <label class="filter-chip market-filters__wanted">
-      <%= check_box_tag "wanted", "1", filters.wanted_only?, id: nil, class: "filter-chip__box" %>
-      <span class="filter-chip__text">
-        <%= pixel_icon("eye", class: "market-filters__wanted-icon") %>
-        <span><%= t("markets.filters.wanted") %> <span class="market-filters__wanted-count"><%= number_with_delimiter(wanted_count) %></span></span>
-      </span>
-    </label>
-  <% end %>
-  <% if current_player %>
-    <label class="filter-chip market-filters__mine">
-      <%= check_box_tag "hide_mine", "1", filters.hides_mine?, id: nil, class: "filter-chip__box" %>
-      <span class="filter-chip__text"><%= t("markets.filters.hide_mine") %></span>
-    </label>
-  <% end %>
-  <%= render "markets/sorts", sort:, filters: %>
-  <details class="filters__zone" <%= "open" if filters.count.positive? %>>
-    <summary class="filters__summary">
-      <%= pixel_icon("arrow-small-right", class: "filters__chevron") %>
-      <span class="filters__title"><%= t("library.filters.title") %></span>
-      <span class="filters__count" <%= "hidden" if filters.count.zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <%= filters.count %></span>
-    </summary>
-    <div class="filters__groups">
-      <%= render "library/rarity_filter", chosen: filters.rarities %>
-      <% if @set_kinds.any? %>
-        <%= render "markets/set_filter", chosen: filters.sets.map(&:to_param), kinds: @set_kinds, kind: @set_kind, query: @set_query,
-          options: @set_options, found: @set_found %>
-      <% end %>
-      <% if options.genres.any? %>
-        <%= render "library/genre_filter", genres: options.genres, chosen: filters.genres %>
-      <% end %>
-      <% if options.seasons.any? %>
-        <fieldset class="filters__group" data-group="season">
-          <legend class="filters__legend"><%= t("markets.filters.groups.season") %></legend>
-          <% options.seasons.each do |number| %>
-            <label class="filter-chip">
-              <%= check_box_tag "season[]", number, filters.seasons.include?(number), id: nil, class: "filter-chip__box" %>
-              <span class="filter-chip__text"><%= t("markets.filters.season_chip", number:) %></span>
-            </label>
+  <ul class="filter-row" aria-label="<%= t("library.filters.title") %>">
+    <% pastilles.each do |pastille| %>
+      <% count = market_filter_row_count(counts, pastille) %>
+      <li>
+        <%= tag.a(**bottom_sheet_opener(filter_sheet_id(pastille)), class: "filter-chip filter-row__pastille") do %>
+          <span class="filter-chip__text">
+            <%= filter_row_label(pastille) %>
+            <span class="filter-row__count" data-collection-filters-target="pastilleCount" data-groups="<%= MarketHelper::FILTER_ROW.fetch(pastille).join(" ") %>" <%= "hidden" if count.zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <span data-pastille-number><%= count %></span></span>
+          </span>
+        <% end %>
+      </li>
+    <% end %>
+    <% if current_player && wanted_count %>
+      <li>
+        <label class="filter-chip market-filters__wanted">
+          <%= check_box_tag "wanted", "1", filters.wanted_only?, id: nil, class: "filter-chip__box" %>
+          <span class="filter-chip__text">
+            <%= pixel_icon("eye", class: "market-filters__wanted-icon") %>
+            <span><%= t("markets.filters.wanted") %> <span class="market-filters__wanted-count"><%= number_with_delimiter(wanted_count) %></span></span>
+          </span>
+        </label>
+      </li>
+    <% end %>
+    <% if current_player %>
+      <li>
+        <label class="filter-chip market-filters__mine">
+          <%= check_box_tag "hide_mine", "1", filters.hides_mine?, id: nil, class: "filter-chip__box" %>
+          <span class="filter-chip__text"><%= t("markets.filters.hide_mine") %></span>
+        </label>
+      </li>
+    <% end %>
+  </ul>
+  <% pastilles.each do |pastille| %>
+    <%= render BottomSheetComponent.new(id: filter_sheet_id(pastille), title: filter_sheet_title(pastille)) do %>
+      <div class="filter-sheet">
+        <% case pastille %>
+        <% when :rarity %>
+          <%= render "library/rarity_filter", chosen: filters.rarities, titled: true %>
+        <% when :price %>
+          <div data-collection-filters-target="group" data-group="price">
+            <%= render "filters/price", minimum: filters.min_price, maximum: filters.max_price %>
+          </div>
+        <% when :more %>
+          <% if @set_kinds.any? %>
+            <%= render "library/set_filter", chosen: filters.sets, kinds: @set_kinds, kind: @set_kind, query: @set_query, options: @set_options, found: @set_found %>
           <% end %>
-        </fieldset>
-      <% end %>
-      <%= render "filters/price", minimum: filters.min_price, maximum: filters.max_price %>
-    </div>
-  </details>
-  <div class="market-filters__actions">
-    <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) do %><%= t("library.filters.apply") %><% end %>
-    <%= link_to t("library.filters.clear"), market_path(sort:), class: "filters__clear", hidden: !filters.any? %>
-  </div>
+          <% if options.genres.any? %>
+            <%= render "library/genre_filter", genres: options.genres, chosen: filters.genres %>
+          <% end %>
+          <% if options.seasons.any? %>
+            <fieldset class="filters__group" data-collection-filters-target="group" data-group="season">
+              <legend class="filters__legend"><%= t("markets.filters.groups.season") %></legend>
+              <% options.seasons.each do |number| %>
+                <label class="filter-chip">
+                  <%= check_box_tag "season[]", number, filters.seasons.include?(number), id: nil, class: "filter-chip__box" %>
+                  <span class="filter-chip__text"><%= t("markets.filters.season_chip", number:) %></span>
+                </label>
+              <% end %>
+            </fieldset>
+          <% end %>
+        <% end %>
+        <p class="filter-sheet__status" role="status" data-collection-filters-target="sheetStatus"><%= results %></p>
+      </div>
+    <% end %>
+  <% end %>
+  <%= link_to t("library.filters.clear"), market_path(sort:), class: "filters__clear",
+        data: { turbo_frame: "_top", collection_filters_target: "clear" }, hidden: !filters.any? %>
+  <noscript><%= submit_tag t("library.filters.apply"), name: nil, class: "filters__apply" %></noscript>
 <% end %>
