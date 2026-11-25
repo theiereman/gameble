@@ -1,7 +1,7 @@
 name: Mobile release build
 
 # Builds the signed Android bundle and the signed iOS archive of a release, for the production server, then sends
-# them to the Google Play internal track and to TestFlight. The production deploy starts it once the release vX.Y.Z
+# them to Google Play, published in production, and to TestFlight. The production deploy starts it once the release vX.Y.Z
 # is published; release candidates never reach the apps. Run it by hand from a release tag to rebuild one.
 # Android secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD,
 # GOOGLE_PLAY_SERVICE_ACCOUNT_JSON. iOS secrets: APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID,
@@ -55,7 +55,7 @@ jobs:
           name: gameble-android-bundle
           path: mobile/android/app/build/outputs/bundle/release/*.aab
 
-      - name: Send the bundle to the Google Play internal track
+      - name: Publish the bundle on Google Play
         env:
           PLAY_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
         run: |
@@ -63,7 +63,7 @@ jobs:
           echo "$PLAY_JSON" > "$RUNNER_TEMP/play.json"
           sudo gem install fastlane --no-document
           fastlane supply --aab mobile/android/app/build/outputs/bundle/release/app-release.aab \
-            --json_key "$RUNNER_TEMP/play.json" --package_name net.gameble.app --track internal --release_status draft
+            --json_key "$RUNNER_TEMP/play.json" --package_name net.gameble.app --track production --release_status completed
 
   ios:
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v') && !contains(github.ref_name, '-')
