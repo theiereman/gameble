@@ -212,7 +212,6 @@ module Game
     LARGEST_CUSTOM_SET_SQL = "SELECT COALESCE(MAX(games), 0) FROM (#{CUSTOM_SET_SIZES}) AS custom_sets".freeze
     LARGEST_COMPLETED_CUSTOM_SET_SQL = "SELECT COALESCE(MAX(games), 0) FROM (#{CUSTOM_SET_SIZES}) AS custom_sets WHERE held = games".freeze
 
-    GOALS_COMPLETED_SQL = "SELECT COALESCE(SUM(goals_completed), 0) FROM game_player_states WHERE player_id = :player_id".freeze
     AVATAR_CHOICES_SQL = <<~SQL.squish.freeze
       SELECT COUNT(*) FROM event_store_events
        WHERE event_type = 'Game::AvatarChosen' AND (data ->> 'player_id')::bigint = :player_id
@@ -223,8 +222,6 @@ module Game
     PROFILES_VIEWED_SQL = "SELECT COUNT(*) FROM game_profile_visits WHERE viewer_id = :player_id".freeze
     PROFILE_VISITS_SQL = "SELECT COUNT(*) FROM game_profile_visits WHERE visited_id = :player_id".freeze
     CODE_CONTRIBUTIONS_SQL = "SELECT COUNT(code_contribution_at) FROM game_player_states WHERE player_id = :player_id".freeze
-
-    DISCORD_MEMBER_SQL = "SELECT COUNT(discord_member_at) FROM game_player_states WHERE player_id = :player_id".freeze
 
     METRIC_SQL = {
       packs_opened: PACKS_OPENED_SQL,
@@ -264,14 +261,12 @@ module Game
       unlucky_week_streak: week_run_sql("< 0"),
       largest_custom_set: LARGEST_CUSTOM_SET_SQL,
       largest_completed_custom_set: LARGEST_COMPLETED_CUSTOM_SET_SQL,
-      goals_completed: GOALS_COMPLETED_SQL,
       avatar_choices: AVATAR_CHOICES_SQL,
       source_code_opened: SOURCE_CODE_OPENED_SQL,
       support_opened: SUPPORT_OPENED_SQL,
       code_contributions: CODE_CONTRIBUTIONS_SQL,
       profiles_viewed: PROFILES_VIEWED_SQL,
-      profile_visits: PROFILE_VISITS_SQL,
-      discord_member: DISCORD_MEMBER_SQL
+      profile_visits: PROFILE_VISITS_SQL
     }.merge(DuelAchievementMetrics::SQL).freeze
 
     RUBY_METRICS = %i[most_games_of_a_studio last_places].freeze

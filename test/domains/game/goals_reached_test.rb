@@ -24,6 +24,8 @@ class Game::GoalsReachedTest < ActiveSupport::TestCase
 
   def add(player = @player, **aim) = Game::AddGoal.new.call(player:, **aim).value!
 
+  def goals_completed(player) = Game::PlayerState.find_by(player_id: player.id)&.goals_completed.to_i
+
   def goals(player = @player) = Game::Goal.where(player_id: player.id).order(:position).pluck(:position, :set_kind, :set_key, :custom_set_id)
 
   test "an opening that completes a goal's set takes the goal out, the other goals kept with their numbers" do
@@ -42,14 +44,14 @@ class Game::GoalsReachedTest < ActiveSupport::TestCase
     insert_set([ catalog_card_seasons(:common_card_one).id, *unheld_cards(2) ], { complete: 3 }, key: "roguelike", params: { "theme" => "roguelike" })
     add(kind: "theme", key: "roguelike")
     add(kind: "studio", key: "valve")
-    assert_equal 0, Game::AchievementProgress.call(@player, [ :goals_completed ]).fetch(:goals_completed)
+    assert_equal 0, goals_completed(@player)
 
     create_pack(@player, cards: Array.new(Game::Pack::SIZE, @portal))
     Game::OpenPack.new.call(player: @player).value!
     Game::RemoveGoal.new.call(player: @player, kind: "studio", key: "valve").value!
 
-    assert_equal 1, Game::AchievementProgress.call(@player, [ :goals_completed ]).fetch(:goals_completed)
-    assert_equal 0, Game::AchievementProgress.call(@friend, [ :goals_completed ]).fetch(:goals_completed)
+    assert_equal 1, goals_completed(@player)
+    assert_equal 0, goals_completed(@friend)
   end
 
   test "a custom set its owner edits down to games they all hold leaves the goals" do

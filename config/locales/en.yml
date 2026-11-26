@@ -184,9 +184,6 @@ en:
       turnaround_plan: End 3 weeks in a row with luck below zero on the Flukeometer
       statement_of_requirements: Create a custom set of 10 games or more
       delivered_on_schedule: Complete a custom set of 10 games or more
-      goals_10: Reach 10 goals
-      goals_25: Reach 25 goals
-      goals_50: Reach 50 goals
       avatar_changed: Choose an avatar
       avatar_rebrand: Choose an avatar 5 times
       source_audit: Open the game's source code on GitHub
@@ -198,7 +195,6 @@ en:
       profile_visits_10: Get 10 visits on your profile
       profile_visits_50: Get 50 visits on your profile
       profile_visits_100: Get 100 visits on your profile
-      discord_member: Link your Discord account in the settings and join the gameble Discord server
       valuation_error: Win a round with a Common card against a Legendary card
     names:
       abuse_of_dominant_position: Abuse of Dominant Position
@@ -272,9 +268,6 @@ en:
       turnaround_plan: Turnaround Plan
       statement_of_requirements: Statement of Requirements
       delivered_on_schedule: Delivered on Schedule
-      goals_10: Project Review
-      goals_25: Project Manager
-      goals_50: Programme Director
       avatar_changed: ID Photo
       avatar_rebrand: Corporate Rebrand
       source_audit: Compliance Audit
@@ -286,7 +279,6 @@ en:
       profile_visits_10: Public Reception
       profile_visits_50: Notable Footfall
       profile_visits_100: Place of Interest
-      discord_member: Team Meeting
       valuation_error: Valuation Error
     show:
       earned_label: Achievements earned
@@ -4827,10 +4819,6 @@ en:
             in the United States among other places. This transfer relies on the European
             Commission''s adequacy decision of 10 July 2023 (Data Privacy Framework),
             to which Cloudflare adheres;'
-          discord: 'Discord, Inc. is asked, once an hour and with the game''s bot, whether
-            the Discord account you linked is a member of the gameble server, until
-            it is; it receives that account''s identifier and answers yes or no. Gameble
-            keeps only the date of the answer and, for a member, that it is one;'
           host: The site runs on servers operated by %{name}, in %{address};
           images: card images load from Steam's content delivery network, which your
             browser contacts directly.

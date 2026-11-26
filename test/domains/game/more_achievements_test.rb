@@ -72,12 +72,11 @@ class Game::MoreAchievementsTest < ActiveSupport::TestCase
     ]
 
     assert_equal expected, Game::Achievements::CATALOGUE.drop(30).first(32).map { [ it.key, it.metric, it.threshold ] }
-    assert_equal [ [ :goals_10, :goals_completed, 10 ], [ :goals_25, :goals_completed, 25 ], [ :goals_50, :goals_completed, 50 ],
-      [ :avatar_changed, :avatar_choices, 1 ], [ :avatar_rebrand, :avatar_choices, 5 ], [ :source_audit, :source_code_opened, 1 ],
+    assert_equal [ [ :avatar_changed, :avatar_choices, 1 ], [ :avatar_rebrand, :avatar_choices, 5 ], [ :source_audit, :source_code_opened, 1 ],
       [ :funding_review, :support_opened, 1 ], [ :code_contribution, :code_contributions, 1 ],
       [ :profiles_viewed_1, :profiles_viewed, 1 ], [ :profiles_viewed_5, :profiles_viewed, 5 ], [ :profiles_viewed_20, :profiles_viewed, 20 ],
-      [ :profile_visits_10, :profile_visits, 10 ], [ :profile_visits_50, :profile_visits, 50 ], [ :profile_visits_100, :profile_visits, 100 ],
-      [ :discord_member, :discord_member, 1 ] ], Game::Achievements::CATALOGUE.drop(62).first(15).map { [ it.key, it.metric, it.threshold ] }
+      [ :profile_visits_10, :profile_visits, 10 ], [ :profile_visits_50, :profile_visits, 50 ], [ :profile_visits_100, :profile_visits, 100 ] ],
+      Game::Achievements::CATALOGUE.drop(62).first(11).map { [ it.key, it.metric, it.threshold ] }
   end
 
   test "PiCoins held add the coins committed to bids to the available ones" do
@@ -405,10 +404,9 @@ class Game::MoreAchievementsTest < ActiveSupport::TestCase
   end
 
   test "the new achievements are met at their thresholds" do
-    progress = { goals_completed: 25, avatar_choices: 5, source_code_opened: 1, support_opened: 0 }
-    met = %i[goals_10 goals_25 avatar_changed avatar_rebrand source_audit]
+    progress = { avatar_choices: 5, source_code_opened: 1, support_opened: 0 }
+    met = %i[avatar_changed avatar_rebrand source_audit]
     assert_equal met, met.select { Game::Achievements.find(it).met?(progress) }
-    assert_not Game::Achievements.find(:goals_50).met?(progress)
     assert_not Game::Achievements.find(:funding_review).met?(progress)
   end
 

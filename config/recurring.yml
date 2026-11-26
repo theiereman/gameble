@@ -110,12 +110,6 @@ refresh_alt_signals: &refresh_alt_signals
   queue: default
   schedule: every day at 12:40am
 
-# A linked Discord account that joined the server earns its achievement.
-check_discord_memberships: &check_discord_memberships
-  class: Game::CheckDiscordMembershipsJob
-  queue: default
-  schedule: every hour
-
 # Every card's duel profile is recomputed as the week starts.
 compute_duel_stats: &compute_duel_stats
   class: Game::ComputeDuelStatsJob
@@ -139,7 +133,6 @@ development:
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
-  check_discord_memberships: *check_discord_memberships
   compute_duel_stats: *compute_duel_stats
   sweep_duel_deadlines: *sweep_duel_deadlines
   sweep_duel_absence: *sweep_duel_absence
@@ -160,7 +153,6 @@ production:
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
-  check_discord_memberships: *check_discord_memberships
   compute_duel_stats: *compute_duel_stats
   sweep_duel_deadlines: *sweep_duel_deadlines
   sweep_duel_absence: *sweep_duel_absence
