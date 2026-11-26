@@ -112,12 +112,19 @@
 }
 
 [data-layout="phone"] .entrust-recap__stepper .stepper {
-  height: var(--space-touch-min);
+  height: 36px;
 }
 
 [data-layout="phone"] .entrust-recap__stepper .stepper__button {
+  position: relative;
   width: var(--space-touch-min);
-  height: var(--space-touch-min);
+  height: 36px;
+}
+
+[data-layout="phone"] .entrust-recap__stepper .stepper__button::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
 }
 
 [data-layout="phone"] .entrust-recap__submit {
