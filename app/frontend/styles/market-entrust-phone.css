@@ -65,12 +65,50 @@
 }
 
 [data-layout="phone"] .entrust-recap__line {
+  display: grid;
+  grid-template-areas:
+    "name amount"
+    "count count"
+    "stays stays";
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+[data-layout="phone"] .entrust-recap__name {
+  grid-area: name;
+  overflow-wrap: anywhere;
+}
+
+[data-layout="phone"] .entrust-recap__count {
+  grid-area: count;
+}
+
+[data-layout="phone"] .entrust-recap__amount {
+  grid-area: amount;
+  margin-left: 0;
+}
+
+[data-layout="phone"] .entrust-recap__stays {
+  grid-area: stays;
+}
+
+[data-layout="phone"] .entrust-recap__line:has(.entrust-recap__stepper) .entrust-recap__count {
+  display: none;
 }
 
 [data-layout="phone"] .entrust-recap__stepper {
   display: flex;
+  grid-area: count;
   align-items: center;
+}
+
+[data-layout="phone"] .entrust-recap__stepper .stepper__max {
+  display: inline;
+}
+
+[data-layout="phone"] .entrust-recap__stepper .stepper__max-phone {
+  display: none;
 }
 
 [data-layout="phone"] .entrust-recap__stepper .stepper {
