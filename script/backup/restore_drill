@@ -110,6 +110,7 @@ step "booting $image on the restored data"
 docker run --detach --name "$app" --network "$network" \
   --env RAILS_MASTER_KEY --env SECRET_KEY_BASE --env GAMEBLE_DATABASE_PASSWORD \
   --env DB_HOST="$db" --env PUBLIC_URL=http://localhost \
+  --env LEGAL_CONTACT_EMAIL=drill@example.test --env LEGAL_HOST_NAME=drill --env LEGAL_HOST_ADDRESS=drill \
   "$image" >/dev/null
 wait_for_app
 
