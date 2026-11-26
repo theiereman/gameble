@@ -37,7 +37,7 @@ class Market::BuyersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the tab lists every wanted copy, buy orders first and framed, each a link to sell that edition, and the link to the filtered sale" do
-    hold(@player, @rare.id)
+    hold(@player, @rare.id, 2)
     hold(@player, @common.id)
     place(accounts_players(:administrator), @rare, 100)
     want_by_goal(@rare, accounts_players(:moderator))
@@ -60,7 +60,9 @@ class Market::BuyersControllerTest < ActionDispatch::IntegrationTest
     assert_select tiles.first, ".wanted-panel__order .picoin-amount__figure", "100"
     assert_select tiles.last, ".wanted-panel__kind", "OBJECTIF"
     assert_select tiles.last, ".wanted-panel__order", false
-    assert_match(/, 2 joueurs la veulent, ordre d'achat 100 PiCoins\. Mettre en vente\z/, tiles.first["aria-label"])
+    assert_select tiles.first, ".listing-tile__mark--owned", "Possédée ×2"
+    assert_select tiles.last, ".listing-tile__mark--owned", "Possédée ×1"
+    assert_match(/, 2 joueurs la veulent, ordre d'achat 100 PiCoins, 2 exemplaires dans votre collection\. Mettre en vente\z/, tiles.first["aria-label"])
     assert_select ".wanted-panel__foot a.button--link[href=?][aria-label=?]", new_market_sale_path(locale: :fr, filter: { wanted: "1" }),
       "Tout voir, vos cartes voulues", text: "Tout voir"
     assert_no_match(/(?:data-[a-z-]+|id|name|value|href)="[^"]*\b#{@rare.id}\b/, response.body)

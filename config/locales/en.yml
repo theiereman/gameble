@@ -4178,8 +4178,8 @@ en:
         zero: "%{count} players want it"
         one: "%{count} player wants it"
         other: "%{count} players want it"
-      tile_label: "%{card}, %{rarity}, season %{season}, %{seekers}, buy order %{amount} PiCoins. Put up for sale"
-      tile_label_no_order: "%{card}, %{rarity}, season %{season}, %{seekers}, no buy order. Put up for sale"
+      tile_label: "%{card}, %{rarity}, season %{season}, %{seekers}, buy order %{amount} PiCoins, %{owned}. Put up for sale"
+      tile_label_no_order: "%{card}, %{rarity}, season %{season}, %{seekers}, no buy order, %{owned}. Put up for sale"
       see_all: See all
       see_all_label: See all, your wanted cards
     filters:

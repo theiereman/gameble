@@ -3297,8 +3297,8 @@ fr:
         zero: "%{count} joueur la veut"
         one: "%{count} joueur la veut"
         other: "%{count} joueurs la veulent"
-      tile_label: "%{card}, %{rarity}, saison %{season}, %{seekers}, ordre d'achat %{amount} PiCoins. Mettre en vente"
-      tile_label_no_order: "%{card}, %{rarity}, saison %{season}, %{seekers}, aucun ordre d'achat. Mettre en vente"
+      tile_label: "%{card}, %{rarity}, saison %{season}, %{seekers}, ordre d'achat %{amount} PiCoins, %{owned}. Mettre en vente"
+      tile_label_no_order: "%{card}, %{rarity}, saison %{season}, %{seekers}, aucun ordre d'achat, %{owned}. Mettre en vente"
       see_all: "Tout voir"
       see_all_label: "Tout voir, vos cartes voulues"
     filters:
