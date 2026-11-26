@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import type { CollectionView, DeckStrings } from "../lib/deck_editor"
 import { writeAttribute, writeChecked, writeFlag, writeHidden, writeText } from "../lib/dom_writes"
 import { columnsOf } from "../lib/grid_keys"
+import { serverTemplate } from "../lib/server_html"
 
 export type MoveIntent = { key: string; columns: number }
 
@@ -127,7 +128,7 @@ export default class DeckCollectionController extends Controller<HTMLElement> {
   }
 
   private placeFaces(html: string, asked: readonly string[]): void {
-    const faces = new DOMParser().parseFromString(html, "text/html").querySelectorAll("template")
+    const faces = serverTemplate(html).content.querySelectorAll("template")
     const byRef = new Map(Array.from(faces, (face) => [face.dataset.ref ?? "", face]))
     for (const entry of [...this.entryTargets, ...this.pickTargets]) {
       const face = byRef.get(entry.dataset.ref ?? "")
