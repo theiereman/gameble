@@ -22,6 +22,7 @@ const sortOf = (option: HTMLAnchorElement): string => new URL(option.href).searc
 
 export default class DeckCollectionController extends Controller<HTMLElement> {
   static targets = ["empty", "entry", "list", "more", "pick", "recommendations", "recommended", "sortOption", "trump"]
+  static values = { facesUrl: String }
 
   declare readonly entryTargets: HTMLElement[]
   declare readonly hasListTarget: boolean
@@ -37,6 +38,9 @@ export default class DeckCollectionController extends Controller<HTMLElement> {
   declare readonly recommendationsTarget: HTMLElement
   declare readonly hasMoreTarget: boolean
   declare readonly moreTarget: HTMLElement
+  declare readonly facesUrlValue: string
+
+  private readonly requestedFaces = new Set<string>()
 
   render({ sort, trump, remaining, matches, recommended, entries }: CollectionView, strings: DeckStrings): void {
     this.reorder([...entries.keys()])
@@ -60,6 +64,7 @@ export default class DeckCollectionController extends Controller<HTMLElement> {
     if (this.hasEmptyTarget) writeHidden(this.emptyTarget, matches > 0)
     if (this.hasMoreTarget) writeHidden(this.moreTarget, remaining === 0)
     for (const radio of this.trumpTargets) writeChecked(radio, radio.value === trump)
+    this.drawMissingFaces()
   }
 
   focusActive(): void {
@@ -100,6 +105,35 @@ export default class DeckCollectionController extends Controller<HTMLElement> {
     const detail: MoveIntent = { key: event.key, columns: columnsOf(this.firstRowTops()) }
     const sent = this.dispatch("move", { detail })
     if (sent.defaultPrevented) event.preventDefault()
+  }
+
+  // The server draws the first page of the collection; the cards shown later fetch their faces.
+  private drawMissingFaces(): void {
+    const missing = this.facelessShown().filter((ref) => !this.requestedFaces.has(ref))
+    if (missing.length === 0 || !this.facesUrlValue) return
+    for (const ref of missing) this.requestedFaces.add(ref)
+    const query = new URLSearchParams(missing.map((ref) => ["refs[]", ref]))
+    void fetch(`${this.facesUrlValue}?${query}`, { headers: { Accept: "text/html" } })
+      .then((response) => (response.ok ? response.text() : ""))
+      .catch(() => "")
+      .then((html) => this.placeFaces(html, missing))
+  }
+
+  private facelessShown(): string[] {
+    const refs = [...this.entryTargets, ...this.pickTargets]
+      .filter((entry) => !entry.closest("li")?.hidden && !entry.querySelector(".deck-card"))
+      .map((entry) => entry.dataset.ref ?? "")
+    return [...new Set(refs)].filter(Boolean)
+  }
+
+  private placeFaces(html: string, asked: readonly string[]): void {
+    const faces = new DOMParser().parseFromString(html, "text/html").querySelectorAll("template")
+    const byRef = new Map(Array.from(faces, (face) => [face.dataset.ref ?? "", face]))
+    for (const entry of [...this.entryTargets, ...this.pickTargets]) {
+      const face = byRef.get(entry.dataset.ref ?? "")
+      if (face && !entry.querySelector(".deck-card")) entry.prepend(face.content.cloneNode(true))
+    }
+    for (const ref of asked) if (!byRef.has(ref)) this.requestedFaces.delete(ref)
   }
 
   private showRecommended(refs: readonly string[]): void {

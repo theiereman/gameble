@@ -1,5 +1,6 @@
 class DeckPolicy < ApplicationPolicy
   def new? = player?
+  def card_faces? = player?
   def create? = player?
   def remove_card? = player?
 

@@ -178,6 +178,7 @@ class DeckEditorTest < ApplicationSystemTestCase
     assert_selector "[data-deck-collection-target='recommended'] .deck-entry", count: 12
     click_on "Show more cards"
     assert_selector "#{LIST} .deck-entry:not([hidden])", count: 28
+    assert_selector "#{LIST} .deck-entry:not([hidden]) .deck-card", count: 28
     assert_no_selector ".deck-collection__more:not([hidden])"
 
     fill_in "deck-search", with: "extra 01"

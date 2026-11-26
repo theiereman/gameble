@@ -110,6 +110,8 @@ Rails.application.routes.draw do
     resource :feedback, only: %i[new create]
     # Takes an edition out of every deck of the player, from the trade, sale and entrust screens.
     post "duels/decks/removals" => "deck_removals#create", as: :deck_removals
+    # The faces of collection cards the deck editor shows after its first page, by their refs.
+    get "duels/decks/cards" => "deck_cards#index", as: :deck_card_faces
     # A player's decks, by token: a new deck's editor writes nothing until its first change; each change saves at once.
     resources :decks, path: "duels/decks", only: %i[new create show update destroy], param: :token,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }

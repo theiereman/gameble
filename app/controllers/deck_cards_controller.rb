@@ -3,6 +3,13 @@ class DeckCardsController < ApplicationController
 
   limit_deck_changes only: %i[create destroy]
 
+  def index
+    authorize :deck, :card_faces?, policy_class: DeckPolicy
+    refs = params.permit(refs: []).fetch(:refs, []).first(DeckEditor::FIRST_PAGE * 2)
+    @entries = DeckEditor.new(current_player, deck: nil, locale: I18n.locale).entries_for(refs)
+    render layout: false
+  end
+
   def create
     change(Game::AddCardToDeck)
   end

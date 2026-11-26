@@ -58,6 +58,26 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/data-[a-z-]*id="\d+"/, response.body)
   end
 
+  test "the editor draws the faces of its first page alone; the others come by their refs, the player's own cards only" do
+    ranked_cards(@player, DeckEditor::FIRST_PAGE + 1)
+    _season, (stranger,) = published_cards(1)
+    get deck_card_faces_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
+    sign_in(@player)
+
+    get new_deck_path(locale: :en)
+    entries = css_select(".deck-entry__toggle")
+    faceless = entries.reject { it.at_css(".deck-card") }.map { it["data-ref"] }
+    assert_equal DeckEditor::FIRST_PAGE + 1, entries.size
+    assert_equal 1, faceless.size
+
+    get deck_card_faces_path(locale: :en), params: { refs: [ *faceless, ref_of(stranger) ] }
+    assert_response :success
+    assert_select "template[data-ref]", 1
+    assert_select "template[data-ref='#{faceless.sole}']"
+    assert_includes response.body, "card__title"
+  end
+
   test "an edition whose only copy another deck blocks can still be chosen" do
     card = ranked_cards(@player, 1).sole
     Game::AddCardToDeck.new.call(player: @player, token: create_deck.token, card_season_id: card).value!

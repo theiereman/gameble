@@ -5,7 +5,7 @@
         aria: { pressed: in_deck.to_s, disabled: (true unless entry.available?),
                 label: [ deck_entry_label(entry), (t("decks.editor.strings.in_deck_suffix") if in_deck) ].join },
         data: { deck_collection_target: "entry", deck_editor_target: "entry", action: "deck-collection#choose", **deck_entry_data(editor, entry) } do %>
-    <%= render "decks/card", entry: %>
+    <%= render("decks/card", entry:) if editor.drawn_at_first?(entry, entry_counter) %>
     <% if entry.availability == :reserved %>
       <span class="deck-entry__reserved"><%= t("trades.side.reserved", count: 1) %></span>
     <% elsif entry.available? %>

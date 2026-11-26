@@ -7,6 +7,8 @@ class DeckEditor
     def up? = to > from
   end
 
+  FIRST_PAGE = 24
+
   attr_reader :deck
 
   def initialize(player, deck:, locale:)
@@ -29,6 +31,13 @@ class DeckEditor
 
   def in_deck?(entry) = deck_refs.include?(entry.ref)
 
+  def drawn_at_first?(entry, position) = position < FIRST_PAGE || in_deck?(entry)
+
+  def entries_for(refs)
+    wanted = Game::Market::EntrustableCopies.resolve(refs).values & owned_card_seasons
+    entries_by_card_season(wanted).values
+  end
+
   private
     def held = @held ||= Game::HeldCopies.call(@player)
 
@@ -38,12 +47,14 @@ class DeckEditor
 
     def deck_refs = @deck_refs ||= slotted.values.filter_map { by_card_season[it]&.ref }.to_set
 
-    def by_card_season
-      @by_card_season ||= begin
-        views = Catalog::CardViews.call(held.keys | slotted.values, locale: @locale)
-        profiles = Game::DuelProfiles.call(views.keys).select { |_, profile| profile.ranked? }
-        views.to_h { |card_season_id, view| [ card_season_id, entry(card_season_id, view, profiles[card_season_id]) ] }
-      end
+    def owned_card_seasons = held.keys | slotted.values
+
+    def by_card_season = @by_card_season ||= entries_by_card_season(owned_card_seasons)
+
+    def entries_by_card_season(card_season_ids)
+      views = Catalog::CardViews.call(card_season_ids, locale: @locale)
+      profiles = Game::DuelProfiles.call(views.keys).select { |_, profile| profile.ranked? }
+      views.to_h { |card_season_id, view| [ card_season_id, entry(card_season_id, view, profiles[card_season_id]) ] }
     end
 
     def entry(card_season_id, view, profile)

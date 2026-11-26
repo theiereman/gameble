@@ -1,5 +1,5 @@
 <%# locals: (editor:) %>
-<section class="deck-collection" aria-labelledby="deck-collection-heading" data-controller="deck-collection">
+<section class="deck-collection" aria-labelledby="deck-collection-heading" data-controller="deck-collection" data-deck-collection-faces-url-value="<%= deck_card_faces_path %>">
   <div class="deck-recommendations" hidden data-deck-collection-target="recommendations">
     <h2 class="deck-collection__heading"><%= t("decks.editor.recommendations") %></h2>
     <ul class="deck-collection__list" data-deck-collection-target="recommended"></ul>
