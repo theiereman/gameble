@@ -35,7 +35,7 @@ module PacksHelper
               nextAvailableAt: scheduled.first, scheduledAt: scheduled, nextPackSize: sizes["standard"],
               nextSpecialSize: sizes["special"], nextSpecialKind: counts.next_special_kind },
       serverTime: opening_time(now),
-      tierCountsBefore: tier_counts_json(Game::TierCounts.before_opening(player, pack)),
+      tierCountsBefore: tier_counts_json(Game::HeldGames.by_rarity_before_opening(player, pack)),
       setTiers: pack_set_tiers(pack),
       goalsReached: goals_reached,
       next: held_pack_after_json(pack, player:, now:)

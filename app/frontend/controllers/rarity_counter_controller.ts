@@ -32,10 +32,11 @@ export default class extends Controller<HTMLElement> {
     this.stopListening = onGameble("gameble:tier-revealed", ({ tier, counts }) => {
       const count = counts?.[tier]
       if (typeof count !== "number") return
+      const text = formatNumber(count, this.delimiterValue)
       this.countTargets
-        .filter((target) => target.dataset.tier === tier)
+        .filter((target) => target.dataset.tier === tier && target.textContent !== text)
         .forEach((target) => {
-          target.textContent = formatNumber(count, this.delimiterValue)
+          target.textContent = text
           target.dataset.changed = ""
           const timer = window.setTimeout(() => {
             this.timers.delete(timer)

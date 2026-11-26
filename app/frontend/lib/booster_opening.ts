@@ -189,7 +189,7 @@ export function revealMarked(state: BoosterState, index: number, now: number): B
     ...state,
     revealed: state.revealed.map((shown, position) => shown || position === index),
     revealedAt: state.revealedAt.map((at, position) => (position === index ? now : at)),
-    counts: countsAfterReveal(state.counts ?? NO_COUNTS, card.tier),
+    counts: countsAfterReveal(state.counts ?? NO_COUNTS, card),
   }
 }
 

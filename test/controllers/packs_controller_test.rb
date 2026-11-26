@@ -360,7 +360,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "error" => { "code" => code, "message" => message } }, body)
   end
 
-  test "the counts before an opening keep every edition: copies of an earlier season count once a new one is published" do
+  test "the counts before an opening are the games held: an earlier season's game counts once a new one is published" do
     player = accounts_players(:player)
     Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 3)
     publish_sets_draft
@@ -372,7 +372,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     travel_to(now) { open_json }
 
     assert_response :ok
-    assert_equal({ "common" => 0, "uncommon" => 0, "rare" => 3, "epic" => 0, "legendary" => 0 }, body["tierCountsBefore"])
+    assert_equal({ "common" => 0, "uncommon" => 0, "rare" => 1, "epic" => 0, "legendary" => 0 }, body["tierCountsBefore"])
   end
 
   test "a JSON opening answers the pack, its cards with their faces, the bank, the server time and the counts before" do
@@ -380,7 +380,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     now = Time.utc(2026, 10, 6, 14, 22)
     travel_to(now) { Game::FillBank.new.call(player:).value! }
     oldest = Game::Pack.where(player_id: player.id).available(now).first
-    counts_before = Game::TierCounts.call(player)
+    counts_before = Game::HeldGames.by_rarity(player)
     sign_in(player)
 
     travel_to(now) { open_json }
@@ -717,7 +717,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal body["cards"].first.keys, held["cards"].first.keys
     assert_equal [ "portal" ] * 5, held["cards"].map { it["slug"] }
     assert_equal [ false ] * 5, held["cards"].map { it["firstCopy"] }
-    assert_equal Game::TierCounts.call(player).transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, held["tierCountsBefore"]
+    assert_equal Game::HeldGames.by_rarity(player).transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, held["tierCountsBefore"]
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
   end
 

@@ -463,8 +463,8 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "" ] * 5, cards.map { it["goals"] }
     assert_equal [ %w[s m xl] ] * 5, cards.map { it["faces"].keys }
     assert_equal 1, Nokogiri::HTML5.fragment(cards.first.dig("faces", "m")).css(".card.card--m.card--booster").size
-    counts = Game::TierCounts.call(@player).transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }
-    assert_equal 2, counts.values.sum
+    counts = Game::HeldGames.by_rarity(@player).transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }
+    assert_equal 1, counts.values.sum
     assert_equal [ counts ] * 2, held.values.map { it["tierCountsBefore"] }
     assert_empty json_keys(held).grep(/\Aid\z|Id\z/)
 

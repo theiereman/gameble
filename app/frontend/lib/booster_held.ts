@@ -95,10 +95,10 @@ function handConfirmed(state: BoosterState, answer: OpeningAnswer): BoosterState
   const redrawn =
     kept.includes(false) || answer.cards.some((card, index) => card.firstCopy !== shown.cards[index]?.firstCopy)
   const revealed = answer.cards.map((_, index) => kept[index] && (state.revealed[index] ?? false))
-  const counts = answer.cards.reduce(
-    (sum, card, index) => (revealed[index] ? countsAfterReveal(sum, card.tier) : sum),
-    { ...NO_COUNTS, ...answer.tierCountsBefore },
-  )
+  const counts = answer.cards.reduce((sum, card, index) => (revealed[index] ? countsAfterReveal(sum, card) : sum), {
+    ...NO_COUNTS,
+    ...answer.tierCountsBefore,
+  })
   const confirmed: BoosterState = {
     ...state,
     answer: redrawn ? answer : shown,

@@ -302,19 +302,20 @@ class BoosterTest < ApplicationSystemTestCase
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
     commons = Integer(rarity_count("common"))
     copies = legend_cell(1, ".rarity-legend__copies")
-    assert_selector copies, text: commons.to_s, exact_text: true, visible: :all
+    common_copies = Game::TierCounts.call(@player).fetch(1)
+    assert_selector copies, text: common_copies.to_s, exact_text: true, visible: :all
 
     open_canister
     assert_dealt(5)
-    assert_selector copies, text: commons.to_s, exact_text: true, visible: :all
+    assert_selector copies, text: common_copies.to_s, exact_text: true, visible: :all
 
     click_on "Reveal all"
     assert_selector ".booster-card[data-revealed]", count: 5, wait: 15
 
-    assert_selector copies, text: (commons + 2).to_s, exact_text: true, visible: :all, wait: 10
+    assert_selector copies, text: (common_copies + 2).to_s, exact_text: true, visible: :all, wait: 10
     owned = Game::RarityLegend.call(@player).rows.first.season.owned
     assert_selector legend_cell(1, ".rarity-legend__season .rarity-legend__owned"), text: owned.to_s, exact_text: true, visible: :all
-    assert_equal commons + 2, Integer(rarity_count("common"))
+    assert_equal commons + 1, Integer(rarity_count("common"))
   end
 
   test "the next booster: the cards sink, a canister docks and opens with a new key; at zero the button says the reserve is empty" do

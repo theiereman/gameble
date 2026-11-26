@@ -47,10 +47,21 @@ describe("planRevealAll", () => {
 })
 
 describe("countsAfterReveal", () => {
-  it("adds one copy to the tier, leaving the counts given as they were", () => {
+  it("adds a first copy to its tier, leaving the counts given as they were", () => {
     const counts = { common: 3, uncommon: 0, rare: 1, epic: 0, legendary: 0 }
-    expect(countsAfterReveal(counts, "rare")).toEqual({ common: 3, uncommon: 0, rare: 2, epic: 0, legendary: 0 })
+    expect(countsAfterReveal(counts, { tier: "rare", firstCopy: true })).toEqual({
+      common: 3,
+      uncommon: 0,
+      rare: 2,
+      epic: 0,
+      legendary: 0,
+    })
     expect(counts.rare).toBe(1)
+  })
+
+  it("leaves the counts alone for a duplicate", () => {
+    const counts = { common: 3, uncommon: 0, rare: 1, epic: 0, legendary: 0 }
+    expect(countsAfterReveal(counts, { tier: "rare", firstCopy: false })).toBe(counts)
   })
 })
 

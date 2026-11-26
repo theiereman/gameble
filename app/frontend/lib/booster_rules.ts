@@ -40,8 +40,9 @@ export function keyAfter(outcome: OpeningOutcome, key: string): string | null {
 
 export const NO_COUNTS: TierCounts = { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 }
 
-export function countsAfterReveal(counts: TierCounts, tier: Rarity): TierCounts {
-  return { ...counts, [tier]: counts[tier] + 1 }
+// shortcut: a first copy of a game already held in another season still adds one, until the next page load recounts.
+export function countsAfterReveal(counts: TierCounts, card: { tier: Rarity; firstCopy: boolean }): TierCounts {
+  return card.firstCopy ? { ...counts, [card.tier]: counts[card.tier] + 1 } : counts
 }
 
 export function topOfPile(revealed: readonly boolean[], stored: readonly boolean[]): number | null {

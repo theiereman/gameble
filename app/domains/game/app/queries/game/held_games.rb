@@ -48,15 +48,33 @@ module Game
     end
 
     def self.by_rarity(player)
+      tally_by_rarity(player, SQL, player_id: player&.id)
+    end
+
+    HELD_BEFORE_OPENING = <<~SQL.squish.freeze
+      SELECT catalog_card_seasons.card_id, MAX(catalog_card_seasons.rarity) AS rarity
+        FROM game_holdings
+        JOIN catalog_card_seasons ON catalog_card_seasons.id = game_holdings.card_season_id
+       WHERE game_holdings.player_id = :player_id AND game_holdings.quantity > 0
+         AND game_holdings.created_at <> :opened_at
+       GROUP BY catalog_card_seasons.card_id
+    SQL
+
+    def self.by_rarity_before_opening(player, pack)
+      tally_by_rarity(player, HELD_BEFORE_OPENING, player_id: player&.id, opened_at: pack.opened_at)
+    end
+
+    def self.tally_by_rarity(player, held, **binds)
       counts = Catalog::Rarity::TIERS.keys.index_with(0)
       return counts if player.nil?
 
       sql = Holding.sanitize_sql_array([
-        "SELECT held.rarity, COUNT(*) FROM (#{SQL}) AS held WHERE held.rarity IS NOT NULL GROUP BY held.rarity", { player_id: player.id }
+        "SELECT held.rarity, COUNT(*) FROM (#{held}) AS held WHERE held.rarity IS NOT NULL GROUP BY held.rarity", binds
       ])
       Holding.connection.select_rows(sql, "Game::HeldGames.by_rarity").each { |tier, games| counts[tier.to_i] = games.to_i }
       counts
     end
+    private_class_method :tally_by_rarity
 
     EDITIONS = <<~SQL.squish.freeze
       SELECT DISTINCT ON (catalog_card_seasons.card_id) catalog_card_seasons.card_id, game_holdings.card_season_id,

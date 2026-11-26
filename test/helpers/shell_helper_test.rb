@@ -160,14 +160,14 @@ class ShellHelperTest < ActionView::TestCase
     assert_nil count_badge(0, "", class: "exchanges-tabs__badge")
   end
 
-  test "a visitor has no bank and zero copies per tier, without a query" do
+  test "a visitor has no bank and zero games per tier, without a query" do
     assert_queries_count(0) do
       assert_nil shell_bank
-      assert_equal({ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 }, shell_tier_counts)
+      assert_equal({ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 }, shell_games_by_rarity)
     end
   end
 
-  test "a player's reserve and tier counts are read once per request, the reserve alone" do
+  test "a player's reserve and games per tier are read once per request, the reserve alone" do
     self.current_player = accounts_players(:player)
     create_pack(current_player)
     Game::Holding.create!(player_id: current_player.id, card_season_id: catalog_card_seasons(:legendary_card_one).id, quantity: 2)
@@ -175,10 +175,10 @@ class ShellHelperTest < ActionView::TestCase
     assert_queries_count(2) do
       assert_equal({ available: 1, special: 0, openable: 1, reserve_full: false, next_available_at: nil, next_special_kind: nil }, shell_bank)
     end
-    assert_equal 2, shell_tier_counts[5]
+    assert_equal 1, shell_games_by_rarity[5]
     assert_queries_count(0) do
       shell_bank
-      shell_tier_counts
+      shell_games_by_rarity
     end
   end
 

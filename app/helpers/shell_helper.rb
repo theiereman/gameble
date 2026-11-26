@@ -222,12 +222,12 @@ module ShellHelper
     turbo_stream_from(*PlayerStream.streamables(current_player), channel: PlayerStreamChannel)
   end
 
-  def shell_tier_counts
-    @shell_tier_counts ||= Game::TierCounts.call(current_player)
+  def shell_games_by_rarity
+    @shell_games_by_rarity ||= Game::HeldGames.by_rarity(current_player)
   end
 
   def shell_rarity_legend
-    @shell_rarity_legend ||= Game::RarityLegend.call(current_player, copies: shell_tier_counts)
+    @shell_rarity_legend ||= Game::RarityLegend.call(current_player)
   end
 
   def shell_next_pack_in(bank)

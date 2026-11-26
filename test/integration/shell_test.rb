@@ -143,7 +143,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".rarity-counter button.rarity-counter__button[type=button][popovertarget=rarity-legend]" do
       assert_select ".rarity-counter__item", 5
       assert_select ".rarity-counter__item svg.pixel-icon", 5
-      assert_equal %w[3 0 0 1 0], css_select(".rarity-counter__count").map { it.text.strip }
+      assert_equal %w[1 0 0 1 0], css_select(".rarity-counter__count").map { it.text.strip }
       assert_select ".visually-hidden", /Rarities/
     end
     assert_rarity_legend(names: [ "Common", "Uncommon", "Rare", "Epic", "Legendary", "Total" ], locale: :en)
@@ -228,7 +228,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".packs-chip [data-controller=countdown]", false
   end
 
-  test "a new season's publication leaves the rarity counter as it stood: every edition counts" do
+  test "a new season's publication leaves the rarity counter as it stood: it counts the games held, not the copies" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:common_card_one).id, 3)
     newer = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
@@ -237,7 +237,7 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     get me_path(locale: :en)
 
-    assert_equal %w[3 0 0 0 0], css_select(".rarity-counter__count").map { it.text.strip }
+    assert_equal %w[1 0 0 0 0], css_select(".rarity-counter__count").map { it.text.strip }
   end
 
   test "staff find the back-office in the player menu" do

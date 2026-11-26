@@ -5,7 +5,7 @@ module HeldPacksHelper
 
     views = Catalog::CardViews.call(packs.flat_map(&:card_season_ids).uniq, locale: I18n.locale)
     shared = { player:, goals:, card_back: card_back_json(*Game::CardBacks.active_with_season(player)),
-               tier_counts: tier_counts_json(Game::TierCounts.call(player)) }
+               tier_counts: tier_counts_json(Game::HeldGames.by_rarity(player)) }
     held.transform_values { |pack| pack && held_pack_json(pack, cards: pack.card_season_ids.map { views.fetch(it) }, **shared) }
   end
 

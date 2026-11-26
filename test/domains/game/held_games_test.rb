@@ -1,8 +1,10 @@
 require "test_helper"
+require_relative "../../support/game_packs"
 require_relative "../../support/holdings"
 
 class Game::HeldGamesTest < ActiveSupport::TestCase
   include Holdings
+  include GamePacks
   setup do
     @player = accounts_players(:player)
     @season_two = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
@@ -109,5 +111,24 @@ class Game::HeldGamesTest < ActiveSupport::TestCase
       assert_equal 0, Game::HeldGames.count(nil)
       assert_equal({ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 }, Game::HeldGames.by_rarity(nil))
     end
+  end
+
+  test "before an opening: the games held, less those the pack brought first" do
+    opened_at = 1.minute.ago.round
+    hold(@player, catalog_card_seasons(:common_card_one).id, 2)
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2, created_at: opened_at)
+    Game::Holding.create!(player_id: @player.id, card_season_id: edition(:common_card_one, rarity: "rare"), quantity: 1, created_at: opened_at)
+    pack = create_pack(@player, opened_at:)
+
+    assert_equal({ 1 => 0, 2 => 0, 3 => 1, 4 => 1, 5 => 0 }, Game::HeldGames.by_rarity(@player))
+    before = nil
+    assert_queries_count(1) { before = Game::HeldGames.by_rarity_before_opening(@player, pack) }
+    assert_equal({ 1 => 1, 2 => 0, 3 => 0, 4 => 0, 5 => 0 }, before)
+  end
+
+  test "before an opening, a visitor holds no game, without a query" do
+    pack = create_pack(@player, opened_at: 1.minute.ago)
+
+    assert_queries_count(0) { assert_equal({ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 }, Game::HeldGames.by_rarity_before_opening(nil, pack)) }
   end
 end

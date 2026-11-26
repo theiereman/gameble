@@ -68,7 +68,7 @@
     <div class="top-bar__end" <%= tag.attributes(data: native_top_bar_data) %>>
       <% if current_player %>
         <% unless back_office_page? %>
-          <%= render "shell/rarity_counter", counts: shell_tier_counts unless native_top_bar? %>
+          <%= render "shell/rarity_counter", counts: shell_games_by_rarity unless native_top_bar? %>
           <% if content_for?(:booster_top_bar) %>
             <%= render "shell/reserve_chip", bank: shell_bank %>
           <% else %>

@@ -284,9 +284,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     sign_in(accounts_players(:moderator))
-    # The same, the viewer's lookup, the top bar's four and the trades and
+    # The same, the viewer's lookup, the top bar's five and the trades and
     # invitations waiting.
-    assert_request_queries(21) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(22) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
   end
 
@@ -752,16 +752,16 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-achievements .achievement", 4
 
     sign_in(accounts_players(:moderator))
-    # The same, the viewer's lookup and the top bar's four (reserve count,
-    # next pack, copies per tier, rarity legend), the tab bar's trades and
+    # The same, the viewer's lookup and the top bar's five (reserve count,
+    # next pack, games per tier, rarity legend and its copies), the tab bar's trades and
     # invitations waiting, the viewer's friendship and invitations with the owner,
     # and the viewer's avatar beside the owner's.
-    assert_request_queries(36) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(37) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(35) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(36) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-stage .card", held.size
     assert_response :success
 
