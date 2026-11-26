@@ -82,6 +82,14 @@ abstract class GamebleActivity : HotwireActivity() {
         announceScreenShown()
     }
 
+    // A closing sheet, or pops and pushes run in one fragment transaction, restart no screen; the stack itself decides the left side.
+    override fun onNavigatorReady(navigator: Navigator) {
+        super.onNavigatorReady(navigator)
+        navigator.host.navController.addOnDestinationChangedListener { _, _, _ ->
+            window.decorView.post { if (navigator === delegate.currentNavigator) showLeftSide(navigator) }
+        }
+    }
+
     fun screenOnView(
         navigator: Navigator,
         dialogOpen: Boolean = (navigator.takeIf { it.isReady() }?.currentDestination as? GamebleWebFragment)?.dialogOpen == true
