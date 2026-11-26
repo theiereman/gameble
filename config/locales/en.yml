@@ -4257,11 +4257,7 @@ en:
       found_listings:
         one: "%{number} listing"
         other: "%{number} listings"
-      found_archives:
-        one: "%{number} Archive card"
-        other: "%{number} Archive cards"
       no_listing: No listing for %{card}.
-      no_player_listing: No player listing for %{card}.
       place_order: PLACE AN ORDER
       soon_note: within the hour
       sort_prefix: "Sort:"

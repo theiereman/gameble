@@ -20,9 +20,9 @@ class MarketsController < ApplicationController
     @filters = Game::Market::ListingFilters.from(params, genres: @options.genres, seasons: @options.seasons, viewer: current_player,
       wanted_card_ids: wanted_card_ids)
     load_set_choices
-    @listings = Game::Market::MarketGrid.call(settings: @settings, sort: @sort, page: @page, locale: I18n.locale, filters: @filters)
+    @listings = Game::Market::OpenListings.call(sort: @sort, page: @page, locale: I18n.locale, filters: @filters)
     @marks = ListingMarks.for(current_player, @listings.rows, goal_marks, wanted_card_ids)
-    @stands = Game::Market::BidStands.call(current_player, tokens: @listings.rows.grep(Game::Market::OpenListings::Row).map(&:token))
+    @stands = Game::Market::BidStands.call(current_player, tokens: @listings.rows.map(&:token))
     respond_to do |format|
       format.html do
         load_desk
@@ -39,7 +39,6 @@ class MarketsController < ApplicationController
       return unless @filters.any?
 
       @found = Game::Market::OpenListings.count(locale: I18n.locale, filters: @filters)
-      @found_offers = Game::Market::MarketGrid.offers_count(settings: @settings, locale: I18n.locale, filters: @filters)
       load_searched if @found.zero? && @filters.without_query.to_params.empty?
     end
 

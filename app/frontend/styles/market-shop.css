@@ -206,19 +206,6 @@
   margin: 0;
 }
 
-.market-searched {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3) var(--space-5);
-}
-
-.market-searched__line {
-  margin: 0;
-  color: var(--color-text);
-  font: var(--font-body);
-}
-
 .order-archive .order-listing__edition {
   display: flex;
   align-items: center;

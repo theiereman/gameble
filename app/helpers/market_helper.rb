@@ -82,10 +82,8 @@ module MarketHelper
 
   def market_filtered_path(filters, **extra) = market_path(**filters.to_params, **extra.compact)
 
-  def market_found_note(listings, archives)
-    parts = [ t("markets.screen.found_listings", count: listings, number: number_with_delimiter(listings)) ]
-    parts << t("markets.screen.found_archives", count: archives, number: number_with_delimiter(archives)) if archives.positive?
-    parts.join(" · ")
+  def market_found_note(listings)
+    t("markets.screen.found_listings", count: listings, number: number_with_delimiter(listings))
   end
 
   def clock_data(seconds)

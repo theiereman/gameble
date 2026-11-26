@@ -1,8 +1,4 @@
-<%# locals: (rows:, marks: ListingMarks::NONE, stands: {}, buyable: false, caps: {}) %>
+<%# locals: (rows:, marks: ListingMarks::NONE, stands: {}) %>
 <% rows.each do |row| %>
-  <% if row.is_a?(Game::Market::ArchiveOffers::Row) %>
-    <%= render "market/shops/offer", row:, marks:, buyable:, caps:, stock: false, tile_id: false %>
-  <% else %>
-    <%= render "markets/tile", row:, marks:, stand: stands[row.token] %>
-  <% end %>
+  <%= render "markets/tile", row:, marks:, stand: stands[row.token] %>
 <% end %>

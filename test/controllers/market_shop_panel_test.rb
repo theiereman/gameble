@@ -4,7 +4,7 @@ require_relative "../support/market_listings"
 require_relative "../support/steam_sign_in"
 require_relative "../support/archive_at_reference"
 
-# On ANNONCES, the Brotherhood's shop shows a few Archive offers above the listings, and the grid mixes every offer in.
+# On ANNONCES, the Brotherhood's shop shows a few Archive offers above the listings, and the grid holds the listings alone.
 class MarketShopPanelTest < ActionDispatch::IntegrationTest
   include ArchiveAtReference
   include MarketListings
@@ -86,25 +86,20 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
     assert_select "dialog#archive-purchase-dialog", 0
   end
 
-  test "the grid mixes the offers into the listings under the chosen sort, with no tile id the shop uses" do
+  test "the grid holds the listings alone, the offers staying in the panel" do
     cheap = listing!(seller: @seller, card_season: @common, starting_price: 80)
     dear = listing!(seller: @seller, card_season: @common, starting_price: 900)
     sign_in(@player)
 
     get market_path(locale: :fr, sort: "price_asc")
 
-    assert_equal [ new_market_archive_purchase_path(locale: :fr, slug: "tin-soldier", number: 1),
-      market_listing_path(locale: :fr, token: cheap.token),
-      new_market_archive_purchase_path(locale: :fr, slug: "blue-depths", number: 1),
-      market_listing_path(locale: :fr, token: dear.token) ], grid_tiles.map { css_select(it, "a").first["href"] }
-    assert_no_match(/prix du jour/, response.body)
-    assert_select "#market-tiles .archive-offer__stock", 0
-    assert_select "[id^='archive-offer-']", 0
-    assert_select "#market-tiles .archive-offer[data-archive-offer='blue-depths-1']"
-    [ @common, @rare ].each { |card| assert_no_match(/(?:data-[a-z-]+|id|name|value|href)="[^"]*\b#{card.id}\b/, response.body) }
+    assert_equal [ market_listing_path(locale: :fr, token: cheap.token), market_listing_path(locale: :fr, token: dear.token) ],
+      grid_tiles.map { css_select(it, "a").first["href"] }
+    assert_select "#market-tiles .archive-offer", 0
+    assert_select ".shop-panel__list .archive-offer", 2
   end
 
-  test "after a week's purchases the tiles carry the limit line in the panel and in the grid" do
+  test "after a week's purchases the panel's tiles carry the limit line" do
     5.times do
       Game::Market::ArchiveWithdrawal.create!(player_id: @player.id, card_season_id: @rare.id, purchase_token: SecureRandom.base58(24),
         price: 50, settings_id: Game::Market::CurrentSettings.call.id, created_at: Time.current)
@@ -115,36 +110,30 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
 
     assert_select ".shop-panel__list .archive-offer__cap", text: /\A5 achats aux Archives par semaine/
     assert_select ".archive-offer__buy", 0
-    assert_select "#market-tiles .archive-offer[data-archive-offer='tin-soldier-1'] .archive-offer__cap", 1
   end
 
-  test "a visitor reads no cap line on the panel nor the grid" do
+  test "a visitor reads no cap line on the panel" do
     get market_path(locale: :fr)
 
     assert_select ".archive-offer__cap", 0
   end
 
-  test "a search counts the listings and the Archive cards it finds" do
+  test "a search counts the listings it finds, not the Archive cards" do
     listing!(seller: @seller, card_season: @rare, starting_price: 80)
 
     get market_path(locale: :fr, q: "bleues")
 
-    assert_select ".market-screen__section-note", "1 annonce · 1 carte des Archives"
-
-    get market_path(locale: :fr, q: "bleues", max_price: "100")
-
     assert_select ".market-screen__section-note", "1 annonce"
   end
 
-  test "a search naming one game only the Archives hold shows its offers under the line to place an order" do
+  test "a search naming one game only the Archives hold offers to place an order, the order form listing the Archives" do
     sign_in(@player)
 
     get market_path(locale: :fr, q: "profondeurs bleues")
 
-    assert_select ".market-searched__line", "Aucune annonce de joueur pour Profondeurs bleues."
-    assert_select ".market-searched a.button--secondary[href=?]", new_market_card_order_path(locale: :fr, slug: "blue-depths"), text: "PASSER UN ORDRE"
-    assert_equal 1, grid_tiles.size
-    assert_select ".market-screen__section-note", "0 annonce · 1 carte des Archives"
+    assert_select ".market-empty .empty-state__line", "Aucune annonce pour Profondeurs bleues."
+    assert_select ".market-empty a.button--secondary[href=?]", new_market_card_order_path(locale: :fr, slug: "blue-depths"), text: "PASSER UN ORDRE"
+    assert_empty grid_tiles
   end
 
   test "a search naming one game nobody sells offers to place an order, disabled for a visitor" do
@@ -170,6 +159,6 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
     get market_path(locale: :fr, q: "nothing-matches")
 
     assert_select ".market-empty__title", /Personne ne vend/
-    assert_select ".market-searched", 0
+    assert_select ".market-empty .empty-state__line", 0
   end
 end

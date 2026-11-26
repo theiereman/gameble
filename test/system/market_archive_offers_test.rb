@@ -30,23 +30,24 @@ class MarketArchiveOffersSystemTest < ApplicationSystemTestCase
     visit market_path(locale: :fr, **params)
   end
 
-  test "the market shows the shop panel and mixes the Archive offer into the listings by price" do
+  test "the market shows the Archive offer in the shop panel only, the listings grid holding the listings alone" do
     sign_in_and_visit_market(sort: "price_asc")
 
     within ".shop-panel" do
       assert_selector ".shop-panel__list li", count: 1
       assert_link "Voir toute la boutique"
     end
+    assert_selector "#market-tiles > li", count: 2
     assert_selector "#market-tiles > li:nth-child(1) .listing-tile__price", text: "80"
-    assert_selector "#market-tiles > li:nth-child(2) .archive-offer__price", text: "500"
-    assert_selector "#market-tiles > li:nth-child(3) .listing-tile__price", text: "900"
+    assert_selector "#market-tiles > li:nth-child(2) .listing-tile__price", text: "900"
+    assert_no_selector "#market-tiles .archive-offer"
   end
 
   test "a search for a game only the Archives hold leads to the order form, whose Archives line opens the confirmation" do
     sign_in_and_visit_market(q: "Profondeurs bleues")
 
-    assert_selector ".market-searched__line", text: "Aucune annonce de joueur pour Profondeurs bleues."
-    assert_selector "#market-tiles .archive-offer", count: 1
+    assert_selector ".market-empty", text: "Aucune annonce pour Profondeurs bleues."
+    assert_no_selector "#market-tiles"
     click_on "PASSER UN ORDRE"
 
     assert_current_path new_market_card_order_path(locale: :fr, slug: "blue-depths")

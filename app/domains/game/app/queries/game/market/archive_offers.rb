@@ -129,7 +129,7 @@ module Game
         end
       end
 
-      private_class_method :listed_tiers, :columns, :build, :rarity_case
+      private_class_method :listed_tiers, :offers, :entrusted_day_sql, :columns, :price_sql, :build, :rarity_case
     end
   end
 end

@@ -3337,12 +3337,7 @@ fr:
         zero: "%{number} annonce"
         one: "%{number} annonce"
         other: "%{number} annonces"
-      found_archives:
-        zero: "%{number} carte des Archives"
-        one: "%{number} carte des Archives"
-        other: "%{number} cartes des Archives"
       no_listing: "Aucune annonce pour %{card}."
-      no_player_listing: "Aucune annonce de joueur pour %{card}."
       place_order: "PASSER UN ORDRE"
       desk:
         listings:
