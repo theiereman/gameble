@@ -101,6 +101,7 @@ a.market-screen__chip:hover {
 
 @media (max-width: 719px) {
   .market-screen__chips {
+    position: relative;
     overflow: auto hidden;
     scrollbar-width: none;
     margin-bottom: calc(-1 * var(--space-unit));

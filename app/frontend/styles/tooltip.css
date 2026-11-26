@@ -3,8 +3,10 @@
   position: relative;
 }
 
+/* Shown only on hover or focus: a bubble left in the layout widens the page when its host sits near the edge. */
 [data-tip]::after {
   content: attr(data-tip);
+  display: none;
   position: absolute;
   bottom: calc(100% + 8px);
   left: 50%;
@@ -22,27 +24,28 @@
   text-align: left;
   text-transform: none;
   white-space: normal;
-  opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, 4px);
+  transform: translate(-50%, 0);
   transition:
     opacity 120ms,
-    transform 120ms;
+    translate 120ms;
 }
 
 [data-tip]:is(:hover, :focus-visible)::after {
-  opacity: 1;
-  transform: translate(-50%, 0);
+  display: block;
+}
+
+@starting-style {
+  [data-tip]:is(:hover, :focus-visible)::after {
+    opacity: 0;
+    translate: 0 4px;
+  }
 }
 
 /* At the left edge of a layout, the bubble opens from the host's start instead of its centre. */
 [data-tip][data-tip-align="start"]::after {
   left: 0;
-  transform: translate(0, 4px);
-}
-
-[data-tip][data-tip-align="start"]:is(:hover, :focus-visible)::after {
-  transform: translate(0, 0);
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
