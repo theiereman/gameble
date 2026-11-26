@@ -69,5 +69,27 @@ module BackOffice
       get me_path(locale: :fr)
       assert_select ".profile-band__name-row h1#profile-heading + .supporter-badge[data-tip='#{I18n.t("public_profiles.supporter_tooltip", locale: :fr)}']", text: "VIP"
     end
+
+    test "an administrator revokes it and comes back to the list, which offers the grant again" do
+      Game::GrantSupporter.new.call(staff: @administrator, player: @player).value!
+      sign_in(@administrator)
+      get back_office_players_path(locale: :fr)
+      assert_select "#{row(@player)} form[action='/fr/back-office/supporters/#{@player.token}']"
+
+      delete back_office_supporter_path(locale: :fr, token: @player.token), params: { q: "gabe", page: "2" }
+
+      assert_redirected_to back_office_players_path(locale: :fr, q: "gabe", page: 2)
+      assert_not marked?
+    end
+
+    test "a moderator may not revoke it" do
+      Game::GrantSupporter.new.call(staff: @administrator, player: @player).value!
+      sign_in(@moderator)
+
+      delete back_office_supporter_path(locale: :fr, token: @player.token)
+
+      assert_response :forbidden
+      assert marked?
+    end
   end
 end

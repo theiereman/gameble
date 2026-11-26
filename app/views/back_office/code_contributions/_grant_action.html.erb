@@ -1,5 +1,8 @@
 <%# locals: (player:, name:, back: {}) %>
-<% unless Game::GrantCodeContribution.refusal(staff: current_player, player:) %>
+<% if !Game::GrantCodeContribution.refusal(staff: current_player, player:) %>
   <%= render ButtonComponent.new(variant: :secondary, size: :small, href: back_office_code_contributions_path, method: :post,
         params: back.except(:return_to).merge(token: player.token), confirm: t("back_office.code_contributions.actions.grant_confirm", name:)) do %><%= t("back_office.code_contributions.actions.grant") %><% end %>
+<% elsif !Game::RevokeCodeContribution.refusal(staff: current_player, player:) %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: back_office_code_contribution_path(token: player.token), method: :delete,
+        params: back.except(:return_to), confirm: t("back_office.code_contributions.actions.revoke_confirm", name:)) do %><%= t("back_office.code_contributions.actions.revoke") %><% end %>
 <% end %>

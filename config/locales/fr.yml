@@ -1266,9 +1266,13 @@ fr:
     code_contributions:
       actions:
         grant: "SALUER SA CONTRIBUTION"
-        grant_confirm: "Accorder à %{name} le succès de contribution au code ? Cela ne peut pas être annulé."
+        grant_confirm: "Accorder à %{name} le succès de contribution au code ?"
+        revoke: "RETIRER SA CONTRIBUTION"
+        revoke_confirm: "Retirer à %{name} le succès de contribution au code ?"
       create:
         granted: "%{name} a obtenu le succès de contribution au code."
+      destroy:
+        revoked: "%{name} n'a plus le succès de contribution au code."
     credit_donors:
       create:
         added: "Le donateur est sur la page des crédits."
@@ -1286,9 +1290,13 @@ fr:
     supporters:
       actions:
         grant: "MARQUER VIP"
-        grant_confirm: "Marquer %{name} comme VIP ? Le badge VIP s'affichera à côté de son pseudo et cela ne peut pas être annulé."
+        grant_confirm: "Marquer %{name} comme VIP ? Le badge VIP s'affichera à côté de son pseudo."
+        revoke: "RETIRER LE VIP"
+        revoke_confirm: "Retirer le badge VIP de %{name} ?"
       create:
         granted: "%{name} affiche maintenant le badge VIP."
+      destroy:
+        revoked: "%{name} n'affiche plus le badge VIP."
     players:
       actions:
         erase: "EFFACER"
@@ -5512,6 +5520,8 @@ fr:
       recently_visited: "Ce profil vient d'être visité."
       code_contribution_already_granted: "Ce joueur a déjà le succès de contribution au code."
       supporter_already_granted: "Ce joueur affiche déjà le badge VIP."
+      code_contribution_not_granted: "Ce joueur n'a pas le succès de contribution au code."
+      supporter_not_granted: "Ce joueur n'affiche pas le badge VIP."
       player_not_found: "Ce profil est introuvable."
       unknown_tab: "Cet onglet n'existe pas."
       unknown_back: "Ce dos de carte n'existe pas."

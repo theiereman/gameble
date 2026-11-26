@@ -8,8 +8,10 @@ scope "back-office", module: :back_office, as: :back_office do
     post :discard, on: :member
   end
 
-  resources :code_contributions, path: "code-contributions", only: :create
-  resources :supporters, only: :create
+  resources :code_contributions, path: "code-contributions", only: %i[create destroy], param: :token,
+    constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+  resources :supporters, only: %i[create destroy], param: :token,
+    constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
 
   # The donors the credits page thanks, administrators only: names typed in by hand.
   resources :credit_donors, path: "credit-donors", param: :token, only: %i[index create destroy],

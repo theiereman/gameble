@@ -59,5 +59,27 @@ module BackOffice
 
       assert_select "form[action='/fr/back-office/code-contributions']", false
     end
+
+    test "an administrator revokes it and comes back to the list, which offers the grant again" do
+      Game::GrantCodeContribution.new.call(staff: @administrator, player: @player).value!
+      sign_in(@administrator)
+      get back_office_players_path(locale: :fr)
+      assert_select "#{row(@player)} form[action='/fr/back-office/code-contributions/#{@player.token}']"
+
+      delete back_office_code_contribution_path(locale: :fr, token: @player.token), params: { q: "gabe", page: "2" }
+
+      assert_redirected_to back_office_players_path(locale: :fr, q: "gabe", page: 2)
+      assert_not marked?
+    end
+
+    test "a moderator may not revoke it" do
+      Game::GrantCodeContribution.new.call(staff: @administrator, player: @player).value!
+      sign_in(@moderator)
+
+      delete back_office_code_contribution_path(locale: :fr, token: @player.token)
+
+      assert_response :forbidden
+      assert marked?
+    end
   end
 end

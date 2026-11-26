@@ -9,11 +9,13 @@ module BackOffice
     [ :visitor, :player, :moderator ].each do |role|
       test "a #{role} may not grant the code contribution" do
         assert_not policy_for(role).create?
+        assert_not policy_for(role).destroy?
       end
     end
 
     test "an administrator grants the code contribution" do
       assert_predicate policy_for(:administrator), :create?
+      assert_predicate policy_for(:administrator), :destroy?
     end
   end
 end
