@@ -43,6 +43,21 @@ class MarketArchiveOffersSystemTest < ApplicationSystemTestCase
     assert_no_selector "#market-tiles .archive-offer"
   end
 
+  test "the shop panel folds to its title and stays folded on the next visit" do
+    sign_in_and_visit_market
+
+    find(".shop-panel .hub-fold").click
+
+    assert_selector ".shop-panel .hub-fold[aria-expanded=false]"
+    assert_no_selector ".shop-panel__list"
+    assert_selector ".shop-panel__heading", text: "BOUTIQUE DE LA CONFRÉRIE"
+
+    visit market_path(locale: :fr)
+
+    assert_selector ".shop-panel .hub-fold[aria-expanded=false]"
+    assert_no_selector ".shop-panel__list"
+  end
+
   test "a search for a game only the Archives hold leads to the order form, whose Archives line opens the confirmation" do
     sign_in_and_visit_market(q: "Profondeurs bleues")
 

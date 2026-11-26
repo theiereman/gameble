@@ -3,6 +3,10 @@
   <%= turbo_stream_from(*ArchiveStream.streamables) %>
   <%= turbo_frame_tag ArchiveStream::PANEL, target: "_top" do %>
   <%= render PanelComponent.new(tag: :section, class: "shop-panel__frame", aria: { labelledby: "shop-panel-heading" }) do %>
+    <button type="button" class="hub-fold" aria-expanded="true" data-controller="hub-fold" data-action="hub-fold#toggle"
+      data-hub-fold-remember-value="shop-panel-<%= Game::Market::ArchivePrices.week_start.to_date.iso8601 %>">
+      <span class="visually-hidden"><%= t("pages.home.fold", title: t("markets.shop_panel.heading")) %></span><%= pixel_icon("arrow-small-right", class: "hub-fold__chevron") %>
+    </button>
     <h2 id="shop-panel-heading" class="market-screen__section shop-panel__heading">
       <%= t("markets.shop_panel.heading") %> <span class="shop-panel__count"><%= t("markets.shop_panel.count", count:) %></span>
     </h2>

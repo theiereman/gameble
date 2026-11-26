@@ -46,6 +46,19 @@ class MarketShopPanelTest < ActionDispatch::IntegrationTest
     assert_select ".market-screen[data-controller~=purchase-dialog] dialog#archive-purchase-dialog"
   end
 
+  test "the panel folds, its fold remembered for the Archive week only" do
+    travel_to Time.utc(2026, 11, 29, 23, 0) do
+      get market_path(locale: :fr)
+
+      assert_select ".shop-panel__frame > button.hub-fold[aria-expanded=true][data-hub-fold-remember-value=?]", "shop-panel-2026-11-23"
+    end
+    travel_to Time.utc(2026, 11, 30, 0, 30) do
+      get market_path(locale: :fr)
+
+      assert_select ".shop-panel__frame > button.hub-fold[data-hub-fold-remember-value=?]", "shop-panel-2026-11-30"
+    end
+  end
+
   test "a wanted card comes first in the panel" do
     Game::Market::Wanted.create!(player_id: @player.id, card_id: @common.card_id, reason: "goal")
     sign_in(@player)
