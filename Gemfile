@@ -50,7 +50,7 @@ gem "packs-rails", "~> 0.1.1"
 gem "strong_migrations", "~> 2.8.0"
 
 # Write every state change as an operation returning Success or Failure (AD-3) [https://github.com/dry-rb/dry-operation]
-gem "dry-operation", "~> 1.1.0"
+gem "dry-operation", "~> 1.2.0"
 
 # Publish domain events inside the operation's transaction (AD-10) [https://railseventstore.org]
 gem "rails_event_store", "~> 3.2.0"
